@@ -1,0 +1,169 @@
+#!/bin/sh
+#
+# Copyright © 2018 Red Hat, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+
+source /etc/os-release
+
+toolbox_container="fedora-toolbox-$USER:$VERSION_ID"
+
+base_toolbox_image="fedora-toolbox:$VERSION_ID"
+toolbox_image="fedora-toolbox-$USER:$VERSION_ID"
+working_container_name="fedora-toolbox-$USER-working-container"
+
+
+create()
+{
+    if ! buildah images --noheading | grep --quiet $toolbox_image; then
+        if ! buildah from --name $working_container_name $base_toolbox_image >/dev/null 2>&1; then
+            echo "$0: failed to create working container"
+            exit 1
+        fi
+
+        if ! buildah containers --noheading | grep --quiet $working_container_name; then
+            echo "$0: failed to create working container"
+            exit 1
+        fi
+
+        if ! buildah run $working_container_name -- useradd \
+                     --no-create-home \
+                     --uid $UID \
+                     --groups wheel \
+                     $USER \
+                     >/dev/null 2>&1; then
+            buildah rmi $working_container_name >/dev/null 2>&1
+            echo "$0: failed to create user $USER with UID $UID"
+            exit 1
+        fi
+
+        if ! buildah run $working_container_name -- passwd -d $USER >/dev/null 2>&1; then
+            buildah rmi $working_container_name >/dev/null 2>&1
+            echo "$0: failed to remove password for user $USER"
+            exit 1
+        fi
+
+        if ! buildah config --volume $HOME $working_container_name >/dev/null 2>&1; then
+            buildah rmi $working_container_name >/dev/null 2>&1
+            echo "$0: failed to configure volume for $HOME"
+            exit 1
+        fi
+
+        if ! buildah config --volume /run/user/$UID $working_container_name >/dev/null 2>&1; then
+            buildah rmi $working_container_name >/dev/null 2>&1
+            echo "$0: failed to configure volume for /run/user/$UID"
+            exit 1
+        fi
+
+        if ! buildah config --user $USER $working_container_name >/dev/null 2>&1; then
+            buildah rmi $working_container_name >/dev/null 2>&1
+            echo "$0: failed to configure the default user as $USER"
+            exit 1
+        fi
+
+        if ! buildah config --workingdir $HOME $working_container_name >/dev/null 2>&1; then
+            buildah rmi $working_container_name >/dev/null 2>&1
+            echo "$0: failed to configure the initial working directory to $HOME"
+            exit 1
+        fi
+
+        if ! buildah commit --rm $working_container_name $toolbox_image >/dev/null 2>&1; then
+            buildah rmi $working_container_name >/dev/null 2>&1
+            echo "$0: failed to create image $toolbox_image"
+            exit 1
+        fi
+    fi
+
+    if ! podman create \
+                 --hostname toolbox \
+                 --interactive \
+                 --name $toolbox_container \
+                 --network host \
+                 --privileged \
+                 --security-opt label=disable \
+                 --tty \
+                 --volume $HOME:$HOME \
+                 --volume /run/user/$UID:/run/user/$UID \
+                 $toolbox_image >/dev/null 2>&1; then
+        echo "$0: failed to create container $toolbox_container"
+        exit 1
+    fi
+}
+
+
+enter()
+{
+    if ! podman start $toolbox_container >/dev/null 2>&1; then
+        echo "$0: failed to start container $toolbox_container"
+        exit 1
+    fi
+
+    podman exec \
+            --env COLORTERM=$COLORTERM \
+            --env DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS \
+            --env DESKTOP_SESSION=$DESKTOP_SESSION \
+            --env DISPLAY=$DISPLAY \
+            --env LANG=$LANG \
+            --env SHELL=$SHELL \
+            --env TERM=$TERM \
+            --env VTE_VERSION=$VTE_VERSION \
+            --env XDG_CURRENT_DESKTOP=$XDG_CURRENT_DESKTOP \
+            --env XDG_DATA_DIRS=$XDG_DATA_DIRS \
+            --env XDG_MENU_PREFIX=$XDG_MENU_PREFIX \
+            --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
+            --env XDG_SEAT=$XDG_SEAT \
+            --env XDG_SESSION_DESKTOP=$XDG_SESSION_DESKTOP \
+            --env XDG_SESSION_ID=$XDG_SESSION_ID \
+            --env XDG_SESSION_TYPE=$XDG_SESSION_TYPE \
+            --env XDG_VTNR=$XDG_VTNR \
+            --interactive \
+            --tty \
+            $toolbox_container \
+            $SHELL -l 2>/dev/null
+}
+
+
+usage()
+{
+    echo "Usage: $0 create"
+    echo "   or: $0 --help"
+}
+
+
+if [ "$#" -ne 1 ]; then
+    usage
+    exit 1
+fi
+
+op=$1
+case $op in
+    create )
+        create
+        exit
+        ;;
+    enter )
+        enter
+        exit
+        ;;
+    -h | --help )
+        usage
+        exit
+        ;;
+    * )
+        [ "$op" == -* ] && msg="unrecognized option" || msg="unrecognized command"
+        echo "$0: $msg '$1'"
+        echo "Try '$0 --help' for more information."
+        exit 1
+esac
