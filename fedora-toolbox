@@ -117,6 +117,7 @@ enter()
             --env DISPLAY=$DISPLAY \
             --env LANG=$LANG \
             --env SHELL=$SHELL \
+            --env SSH_AUTH_SOCK=$SSH_AUTH_SOCK \
             --env TERM=$TERM \
             --env VTE_VERSION=$VTE_VERSION \
             --env XDG_CURRENT_DESKTOP=$XDG_CURRENT_DESKTOP \
