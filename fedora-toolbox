@@ -61,7 +61,7 @@ create()
             exit 1
         fi
 
-        if ! buildah config --volume /run/user/$UID $working_container_name >/dev/null 2>&1; then
+        if ! buildah config --volume $XDG_RUNTIME_DIR $working_container_name >/dev/null 2>&1; then
             buildah rmi $working_container_name >/dev/null 2>&1
             echo "$0: failed to configure volume for /run/user/$UID"
             exit 1
@@ -95,7 +95,7 @@ create()
                  --security-opt label=disable \
                  --tty \
                  --volume $HOME:$HOME \
-                 --volume /run/user/$UID:/run/user/$UID \
+                 --volume $XDG_RUNTIME_DIR:$XDG_RUNTIME_DIR \
                  $toolbox_image >/dev/null 2>&1; then
         echo "$0: failed to create container $toolbox_container"
         exit 1
