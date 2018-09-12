@@ -146,8 +146,22 @@ usage()
 }
 
 
-if [ "$#" -ne 1 ]; then
-    echo "$0: wrong arguments"
+while [[ "$1" == -* ]]; do
+    case $1 in
+        -h | --help )
+            usage
+            exit
+            ;;
+        * )
+            echo "$0: unrecognized option '$1'"
+            echo "Try '$0 --help' for more information."
+            exit 1
+    esac
+    shift
+done
+
+if [ "$1" == "" ]; then
+    echo "$0: missing command"
     echo "Try '$0 --help' for more information."
     exit 1
 fi
@@ -162,13 +176,8 @@ case $op in
         enter
         exit
         ;;
-    -h | --help )
-        usage
-        exit
-        ;;
     * )
-        [ "$op" == -* ] && msg="unrecognized option" || msg="unrecognized command"
-        echo "$0: $msg '$1'"
+        echo "$0: unrecognized command '$1'"
         echo "Try '$0 --help' for more information."
         exit 1
 esac
