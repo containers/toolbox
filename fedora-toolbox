@@ -44,44 +44,44 @@ create()
                      --uid $UID \
                      --groups wheel \
                      $USER \
-                     >/dev/null 2>&1; then
-            buildah rmi $working_container_name >/dev/null 2>&1
+                     >/dev/null 2>&42; then
+            buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to create user $USER with UID $UID"
             exit 1
         fi
 
-        if ! buildah run $working_container_name -- passwd -d $USER >/dev/null 2>&1; then
-            buildah rmi $working_container_name >/dev/null 2>&1
+        if ! buildah run $working_container_name -- passwd -d $USER >/dev/null 2>&42; then
+            buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to remove password for user $USER"
             exit 1
         fi
 
-        if ! buildah config --volume $HOME $working_container_name >/dev/null 2>&1; then
-            buildah rmi $working_container_name >/dev/null 2>&1
+        if ! buildah config --volume $HOME $working_container_name >/dev/null 2>&42; then
+            buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure volume for $HOME"
             exit 1
         fi
 
-        if ! buildah config --volume $XDG_RUNTIME_DIR $working_container_name >/dev/null 2>&1; then
-            buildah rmi $working_container_name >/dev/null 2>&1
+        if ! buildah config --volume $XDG_RUNTIME_DIR $working_container_name >/dev/null 2>&42; then
+            buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure volume for /run/user/$UID"
             exit 1
         fi
 
-        if ! buildah config --user $USER $working_container_name >/dev/null 2>&1; then
-            buildah rmi $working_container_name >/dev/null 2>&1
+        if ! buildah config --user $USER $working_container_name >/dev/null 2>&42; then
+            buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure the default user as $USER"
             exit 1
         fi
 
-        if ! buildah config --workingdir $HOME $working_container_name >/dev/null 2>&1; then
-            buildah rmi $working_container_name >/dev/null 2>&1
+        if ! buildah config --workingdir $HOME $working_container_name >/dev/null 2>&42; then
+            buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure the initial working directory to $HOME"
             exit 1
         fi
 
-        if ! buildah commit --rm $working_container_name $toolbox_image >/dev/null 2>&1; then
-            buildah rmi $working_container_name >/dev/null 2>&1
+        if ! buildah commit --rm $working_container_name $toolbox_image >/dev/null 2>&42; then
+            buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to create image $toolbox_image"
             exit 1
         fi
@@ -97,7 +97,7 @@ create()
                  --tty \
                  --volume $HOME:$HOME \
                  --volume $XDG_RUNTIME_DIR:$XDG_RUNTIME_DIR \
-                 $toolbox_image >/dev/null 2>&1; then
+                 $toolbox_image >/dev/null 2>&42; then
         echo "$0: failed to create container $toolbox_container"
         exit 1
     fi
@@ -106,7 +106,7 @@ create()
 
 enter()
 {
-    if ! podman start $toolbox_container >/dev/null 2>&1; then
+    if ! podman start $toolbox_container >/dev/null 2>&42; then
         echo "$0: failed to start container $toolbox_container"
         exit 1
     fi
@@ -134,23 +134,28 @@ enter()
             --interactive \
             --tty \
             $toolbox_container \
-            $SHELL -l 2>/dev/null
+            $SHELL -l 2>&42
 }
 
 
 usage()
 {
-    echo "Usage: $0 create"
-    echo "   or: $0 enter"
+    echo "Usage: $0 [-v | --verbose ] create"
+    echo "   or: $0 [-v | --verbose ] enter"
     echo "   or: $0 --help"
 }
 
+
+exec 42>/dev/null
 
 while [[ "$1" == -* ]]; do
     case $1 in
         -h | --help )
             usage
             exit
+            ;;
+        -v | --verbose )
+            exec 42>&2
             ;;
         * )
             echo "$0: unrecognized option '$1'"
