@@ -147,7 +147,8 @@ usage()
 
 
 if [ "$#" -ne 1 ]; then
-    usage
+    echo "$0: wrong arguments"
+    echo "Try '$0 --help' for more information."
     exit 1
 fi
 
