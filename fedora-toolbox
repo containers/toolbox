@@ -141,6 +141,7 @@ enter()
 usage()
 {
     echo "Usage: $0 create"
+    echo "   or: $0 enter"
     echo "   or: $0 --help"
 }
 
