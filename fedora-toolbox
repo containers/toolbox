@@ -19,6 +19,7 @@
 source /etc/os-release
 
 toolbox_container="fedora-toolbox-$USER:$VERSION_ID"
+toolbox_prompt="🔹[\u@\h \W]\\$ "
 
 base_toolbox_image="fedora-toolbox:$VERSION_ID"
 toolbox_image="fedora-toolbox-$USER:$VERSION_ID"
@@ -116,6 +117,7 @@ enter()
             --env DESKTOP_SESSION=$DESKTOP_SESSION \
             --env DISPLAY=$DISPLAY \
             --env LANG=$LANG \
+            --env PS1="$toolbox_prompt" \
             --env SHELL=$SHELL \
             --env SSH_AUTH_SOCK=$SSH_AUTH_SOCK \
             --env TERM=$TERM \
