@@ -97,7 +97,8 @@ create()
                  --tty \
                  --volume $HOME:$HOME \
                  --volume $XDG_RUNTIME_DIR:$XDG_RUNTIME_DIR \
-                 $toolbox_image >/dev/null 2>&42; then
+                 $toolbox_image \
+                 /bin/sh >/dev/null 2>&42; then
         echo "$0: failed to create container $toolbox_container"
         exit 1
     fi
