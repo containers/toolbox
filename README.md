@@ -27,6 +27,6 @@ host user.
 ### Enter the Toolbox:
 ```
 [user@hostname fedora-toolbox]$ ./fedora-toolbox enter
-[user@toolbox ~]$
+🔹[user@toolbox ~]$
 ```
 
