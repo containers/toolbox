@@ -17,3 +17,5 @@ RUN packages=; while read -r package; do packages="$packages $package"; done \
         <extra-packages; \
     dnf -y install $packages
 RUN rm /extra-packages
+
+CMD /bin/sh
