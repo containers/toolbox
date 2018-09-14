@@ -29,7 +29,7 @@ working_container_name="fedora-toolbox-$USER-working-container"
 create()
 {
     if ! buildah images --noheading | grep --quiet $toolbox_image; then
-        if ! buildah from --name $working_container_name $base_toolbox_image >/dev/null 2>&1; then
+        if ! buildah from --name $working_container_name $base_toolbox_image >/dev/null 2>&42; then
             echo "$0: failed to create working container"
             exit 1
         fi
