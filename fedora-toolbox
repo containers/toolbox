@@ -142,8 +142,8 @@ enter()
 
 usage()
 {
-    echo "Usage: $0 [-v | --verbose ] create"
-    echo "   or: $0 [-v | --verbose ] enter"
+    echo "Usage: $0 [-v | --verbose] create"
+    echo "   or: $0 [-v | --verbose] enter"
     echo "   or: $0 --help"
 }
 
