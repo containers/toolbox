@@ -23,11 +23,12 @@ toolbox_prompt="🔹[\u@\h \W]\\$ "
 
 base_toolbox_image="fedora-toolbox:$VERSION_ID"
 toolbox_image="fedora-toolbox-$USER:$VERSION_ID"
-working_container_name="fedora-toolbox-$USER-working-container"
 
 
 create()
-{
+(
+    working_container_name="fedora-toolbox-working-container-$(uuidgen --time)"
+
     if ! buildah images --noheading | grep --quiet $toolbox_image; then
         if ! buildah from --name $working_container_name $base_toolbox_image >/dev/null 2>&42; then
             echo "$0: failed to create working container"
@@ -102,7 +103,7 @@ create()
         echo "$0: failed to create container $toolbox_container"
         exit 1
     fi
-}
+)
 
 
 enter()
