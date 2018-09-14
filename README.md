@@ -2,7 +2,7 @@
 
 [Fedora Toolbox](https://github.com/debarshiray/fedora-toolbox) is a tool that
 offers a familiar RPM based environment for developing and debugging software
-on locked down [OSTree](https://ostree.readthedocs.io/en/latest/)-based Fedora
+on locked down [OSTree](https://ostree.readthedocs.io/en/latest/) based Fedora
 systems like [Silverblue](https://silverblue.fedoraproject.org/). Such
 operating systems are shipped as *immutable* OSTree images, where it's
 difficult to setup a development environment with your favorite tools, editors
