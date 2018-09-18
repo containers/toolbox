@@ -4,7 +4,8 @@ ENV NAME=fedora-toolbox VERSION=28
 LABEL com.redhat.component="$NAME" \
       name="$FGC/$NAME" \
       version="$VERSION" \
-      summary="Base image for creating Fedora toolbox containers"
+      summary="Base image for creating Fedora toolbox containers" \
+      maintainer="Debarshi Ray <rishi@fedoraproject.org>"
 
 COPY README.md /
 
