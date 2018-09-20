@@ -18,6 +18,8 @@
 
 source /etc/os-release
 
+prefix_sudo=""
+
 toolbox_container="fedora-toolbox-$USER:$VERSION_ID"
 toolbox_prompt="🔹[\u@\h \W]\\$ "
 
@@ -29,60 +31,60 @@ create()
 (
     working_container_name="fedora-toolbox-working-container-$(uuidgen --time)"
 
-    if ! buildah images --noheading | grep --quiet $toolbox_image; then
-        if ! buildah from --name $working_container_name $base_toolbox_image >/dev/null 2>&42; then
+    if ! $prefix_sudo buildah images --noheading | grep --quiet $toolbox_image; then
+        if ! $prefix_sudo buildah from --name $working_container_name $base_toolbox_image >/dev/null 2>&42; then
             echo "$0: failed to create working container"
             exit 1
         fi
 
-        if ! buildah containers --noheading | grep --quiet $working_container_name; then
+        if ! $prefix_sudo buildah containers --noheading | grep --quiet $working_container_name; then
             echo "$0: failed to create working container"
             exit 1
         fi
 
-        if ! buildah run $working_container_name -- useradd \
+        if ! $prefix_sudo buildah run $working_container_name -- useradd \
                      --no-create-home \
                      --uid $UID \
                      --groups wheel \
                      $USER \
                      >/dev/null 2>&42; then
-            buildah rmi $working_container_name >/dev/null 2>&42
+            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to create user $USER with UID $UID"
             exit 1
         fi
 
-        if ! buildah run $working_container_name -- passwd -d $USER >/dev/null 2>&42; then
-            buildah rmi $working_container_name >/dev/null 2>&42
+        if ! $prefix_sudo buildah run $working_container_name -- passwd -d $USER >/dev/null 2>&42; then
+            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to remove password for user $USER"
             exit 1
         fi
 
-        if ! buildah config --volume $HOME $working_container_name >/dev/null 2>&42; then
-            buildah rmi $working_container_name >/dev/null 2>&42
+        if ! $prefix_sudo buildah config --volume $HOME $working_container_name >/dev/null 2>&42; then
+            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure volume for $HOME"
             exit 1
         fi
 
-        if ! buildah config --volume $XDG_RUNTIME_DIR $working_container_name >/dev/null 2>&42; then
-            buildah rmi $working_container_name >/dev/null 2>&42
+        if ! $prefix_sudo buildah config --volume $XDG_RUNTIME_DIR $working_container_name >/dev/null 2>&42; then
+            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure volume for /run/user/$UID"
             exit 1
         fi
 
-        if ! buildah config --user $USER $working_container_name >/dev/null 2>&42; then
-            buildah rmi $working_container_name >/dev/null 2>&42
+        if ! $prefix_sudo buildah config --user $USER $working_container_name >/dev/null 2>&42; then
+            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure the default user as $USER"
             exit 1
         fi
 
-        if ! buildah config --workingdir $HOME $working_container_name >/dev/null 2>&42; then
-            buildah rmi $working_container_name >/dev/null 2>&42
+        if ! $prefix_sudo buildah config --workingdir $HOME $working_container_name >/dev/null 2>&42; then
+            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure the initial working directory to $HOME"
             exit 1
         fi
 
-        if ! buildah commit --rm $working_container_name $toolbox_image >/dev/null 2>&42; then
-            buildah rmi $working_container_name >/dev/null 2>&42
+        if ! $prefix_sudo buildah commit --rm $working_container_name $toolbox_image >/dev/null 2>&42; then
+            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to create image $toolbox_image"
             exit 1
         fi
@@ -91,7 +93,7 @@ create()
     max_uid_count=65536
     max_minus_uid=$((max_uid_count-UID))
     uid_plus_one=$((UID+1))
-    if ! podman create \
+    if ! $prefix_sudo podman create \
                  --group-add wheel \
                  --hostname toolbox \
                  --interactive \
@@ -115,12 +117,12 @@ create()
 
 enter()
 {
-    if ! podman start $toolbox_container >/dev/null 2>&42; then
+    if ! $prefix_sudo podman start $toolbox_container >/dev/null 2>&42; then
         echo "$0: failed to start container $toolbox_container"
         exit 1
     fi
 
-    podman exec \
+    $prefix_sudo podman exec \
             --env COLORTERM=$COLORTERM \
             --env DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS \
             --env DESKTOP_SESSION=$DESKTOP_SESSION \
@@ -162,6 +164,9 @@ while [[ "$1" == -* ]]; do
         -h | --help )
             usage
             exit
+            ;;
+        --sudo )
+            prefix_sudo="sudo"
             ;;
         -v | --verbose )
             exec 42>&2

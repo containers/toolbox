@@ -1,0 +1,2 @@
+%wheel ALL=(root) NOPASSWD: /usr/bin/buildah
+%wheel ALL=(root) NOPASSWD: /usr/bin/podman
