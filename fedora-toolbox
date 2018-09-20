@@ -54,6 +54,12 @@ create()
             exit 1
         fi
 
+        if ! $prefix_sudo buildah run $working_container_name -- passwd -d root >/dev/null 2>&42; then
+            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
+            echo "$0: failed to remove password for user root"
+            exit 1
+        fi
+
         if ! $prefix_sudo buildah config --volume $HOME $working_container_name >/dev/null 2>&42; then
             $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure volume for $HOME"
