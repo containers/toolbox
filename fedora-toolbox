@@ -92,6 +92,7 @@ create()
     max_minus_uid=$((max_uid_count-UID))
     uid_plus_one=$((UID+1))
     if ! podman create \
+                 --group-add wheel \
                  --hostname toolbox \
                  --interactive \
                  --name $toolbox_container \
