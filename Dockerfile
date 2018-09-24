@@ -11,7 +11,6 @@ LABEL com.redhat.component="$NAME" \
 COPY README.md /
 
 RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf
-RUN dnf -y upgrade
 RUN dnf -y swap coreutils-single coreutils-full
 
 COPY extra-packages /
