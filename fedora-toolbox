@@ -37,11 +37,6 @@ create()
             exit 1
         fi
 
-        if ! $prefix_sudo buildah containers --noheading | grep --quiet $working_container_name; then
-            echo "$0: failed to create working container"
-            exit 1
-        fi
-
         if ! $prefix_sudo buildah run $working_container_name -- useradd \
                      --no-create-home \
                      --uid $UID \
