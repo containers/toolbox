@@ -14,9 +14,7 @@ RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf
 RUN dnf -y swap coreutils-single coreutils-full
 
 COPY extra-packages /
-RUN packages=; while read -r package; do packages="$packages $package"; done \
-        <extra-packages; \
-    dnf -y install $packages
+RUN dnf -y install $(<extra-packages)
 RUN rm /extra-packages
 
 CMD /bin/sh
