@@ -31,7 +31,7 @@ create()
 (
     working_container_name="fedora-toolbox-working-container-$(uuidgen --time)"
 
-    if ! $prefix_sudo buildah images --noheading | grep --quiet $toolbox_image; then
+    if ! $prefix_sudo buildah inspect --type image $toolbox_image >/dev/null 2>&42; then
         if ! $prefix_sudo buildah from --name $working_container_name $base_toolbox_image >/dev/null 2>&42; then
             echo "$0: failed to create working container"
             exit 1
