@@ -18,8 +18,12 @@ seamlessly integrates with the rest of the operating system.
 ## Usage
 
 ### Create the basic Fedora Toolbox image:
+Use one of the sub-directories under `images` to create a `fedora-toolbox`
+image for a Fedora version that matches your host. eg., let's say we have a
+Fedora 28 host.
 ```
-[user@hostname fedora-toolbox]$ buildah bud --tag fedora-toolbox:28 .
+[user@hostname fedora-toolbox]$ cd images/fedora/f28
+[user@hostname f28]$ buildah bud --tag fedora-toolbox:28 images/fedora/f28
 STEP 1: FROM docker://registry.fedoraproject.org/fedora:28
 Getting image source signatures
 …
@@ -27,9 +31,9 @@ Getting image source signatures
 …
 [user@hostname fedora-toolbox]$
 ```
-Modify the Dockerfile to match your taste and Fedora version. The image should
-be tagged as `fedora-toolbox` with a suffix matching the host Fedora version.
-eg., `fedora-toolbox:29`, etc..
+Note that the image should be tagged as `fedora-toolbox` with a suffix
+matching the host Fedora version. In this example, it should be
+`fedora-toolbox:28`.
 
 ### Create your Fedora Toolbox container:
 ```
