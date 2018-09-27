@@ -22,8 +22,7 @@ Use one of the sub-directories under `images` to create a `fedora-toolbox`
 image for a Fedora version that matches your host. eg., let's say we have a
 Fedora 28 host.
 ```
-[user@hostname fedora-toolbox]$ cd images/fedora/f28
-[user@hostname f28]$ buildah bud --tag fedora-toolbox:28 images/fedora/f28
+[user@hostname fedora-toolbox]$ buildah bud --tag fedora-toolbox:28 images/fedora/f28
 STEP 1: FROM docker://registry.fedoraproject.org/fedora:28
 Getting image source signatures
 …
