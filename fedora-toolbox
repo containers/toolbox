@@ -18,7 +18,10 @@
 
 source /etc/os-release
 
+fgc="f$VERSION_ID"
 prefix_sudo=""
+registry="registry.fedoraproject.org"
+registry_candidate="candidate-registry.fedoraproject.org"
 
 toolbox_container="fedora-toolbox-$USER:$VERSION_ID"
 toolbox_prompt="🔹[\u@\h \W]\\$ "
@@ -32,9 +35,15 @@ create()
     working_container_name="fedora-toolbox-working-container-$(uuidgen --time)"
 
     if ! $prefix_sudo buildah inspect --type image $toolbox_image >/dev/null 2>&42; then
-        if ! $prefix_sudo buildah from --name $working_container_name $base_toolbox_image >/dev/null 2>&42; then
-            echo "$0: failed to create working container"
-            exit 1
+        if ! $prefix_sudo buildah from \
+                     --name $working_container_name \
+                     localhost/$base_toolbox_image >/dev/null 2>&42; then
+            if ! $prefix_sudo buildah from \
+                         --name $working_container_name \
+                         $registry/$fgc/$base_toolbox_image >/dev/null 2>&42; then
+                echo "$0: failed to create working container"
+                exit 1
+            fi
         fi
 
         if ! $prefix_sudo buildah run $working_container_name -- useradd \
@@ -167,7 +176,7 @@ exit_if_extra_operand()
 
 usage()
 {
-    echo "Usage: $0 [-v | --verbose] create"
+    echo "Usage: $0 [-v | --verbose] create [--candidate-registry]"
     echo "   or: $0 [-v | --verbose] enter"
     echo "   or: $0 --help"
 }
@@ -208,6 +217,9 @@ case $op in
     create )
         while [[ "$1" == -* ]]; do
             case $1 in
+                --candidate-registry )
+                    registry=$registry_candidate
+                    ;;
                 * )
                     echo "$0: unrecognized option '$1'"
                     echo "Try '$0 --help' for more information."
