@@ -155,6 +155,16 @@ enter()
 }
 
 
+exit_if_extra_operand()
+{
+    if [ "$1" != "" ]; then
+        echo "$0: extra operand '$1'"
+        echo "Try '$0 --help' for more information."
+        exit 1
+    fi
+}
+
+
 usage()
 {
     echo "Usage: $0 [-v | --verbose] create"
@@ -192,12 +202,34 @@ if [ "$1" == "" ]; then
 fi
 
 op=$1
+shift
+
 case $op in
     create )
+        while [[ "$1" == -* ]]; do
+            case $1 in
+                * )
+                    echo "$0: unrecognized option '$1'"
+                    echo "Try '$0 --help' for more information."
+                    exit 1
+            esac
+            shift
+        done
+        exit_if_extra_operand $1
         create
         exit
         ;;
     enter )
+        while [[ "$1" == -* ]]; do
+            case $1 in
+                * )
+                    echo "$0: unrecognized option '$1'"
+                    echo "Try '$0 --help' for more information."
+                    exit 1
+            esac
+            shift
+        done
+        exit_if_extra_operand $1
         enter
         exit
         ;;
