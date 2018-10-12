@@ -202,7 +202,7 @@ case $op in
         exit
         ;;
     * )
-        echo "$0: unrecognized command '$1'"
+        echo "$0: unrecognized command '$op'"
         echo "Try '$0 --help' for more information."
         exit 1
 esac
