@@ -76,6 +76,12 @@ create()
             exit 1
         fi
 
+        if ! $prefix_sudo buildah config --volume /dev/dri $working_container_name >/dev/null 2>&42; then
+            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
+            echo "$0: failed to configure volume for /dev/dri"
+            exit 1
+        fi
+
         if ! $prefix_sudo buildah config --user $USER $working_container_name >/dev/null 2>&42; then
             $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure the default user as $USER"
@@ -117,6 +123,7 @@ create()
                  --uidmap $uid_plus_one:$uid_plus_one:$max_minus_uid \
                  --volume $HOME:$HOME \
                  --volume $XDG_RUNTIME_DIR:$XDG_RUNTIME_DIR \
+                 --volume /dev/dri:/dev/dri \
                  $toolbox_image \
                  /bin/sh >/dev/null 2>&42; then
         echo "$0: failed to create container $toolbox_container"
