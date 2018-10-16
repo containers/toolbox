@@ -183,6 +183,7 @@ usage()
     echo "                      [--release <release>]"
     echo "                      [-v | --verbose]"
     echo "                      create [--candidate-registry]"
+    echo "                             [--image <name>]"
     echo "   or: fedora-toolbox [--container <name>]"
     echo "                      [--release <release>]"
     echo "                      [-v | --verbose]"
@@ -259,6 +260,15 @@ case $op in
             case $1 in
                 --candidate-registry )
                     registry=$registry_candidate
+                    ;;
+                --image )
+                    shift
+                    if [ "$1" == "" ]; then
+                        echo "$0: missing argument for '--image'"
+                        echo "Try '$0 --help' for more information."
+                        exit 1
+                    fi
+                    toolbox_image=$1
                     ;;
                 * )
                     exit_if_unrecognized_option $1
