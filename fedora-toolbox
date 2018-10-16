@@ -179,9 +179,15 @@ exit_if_unrecognized_option()
 
 usage()
 {
-    echo "Usage: $0 [--container <name>] [--release <release>] [-v | --verbose] create [--candidate-registry]"
-    echo "   or: $0 [--container <name>] [--release <release>] [-v | --verbose] enter"
-    echo "   or: $0 --help"
+    echo "Usage: fedora-toolbox [--container <name>]"
+    echo "                      [--release <release>]"
+    echo "                      [-v | --verbose]"
+    echo "                      create [--candidate-registry]"
+    echo "   or: fedora-toolbox [--container <name>]"
+    echo "                      [--release <release>]"
+    echo "                      [-v | --verbose]"
+    echo "                      enter"
+    echo "   or: fedora-toolbox --help"
 }
 
 
