@@ -17,31 +17,14 @@ seamlessly integrates with the rest of the operating system.
 
 ## Usage
 
-### Create the basic Fedora Toolbox image:
-Use one of the sub-directories under `images` to create a `fedora-toolbox`
-image for a Fedora version that matches your host. eg., let's say we have a
-Fedora 28 host.
-```
-[user@hostname fedora-toolbox]$ buildah bud --tag fedora-toolbox:28 images/fedora/f28
-STEP 1: FROM docker://registry.fedoraproject.org/fedora:28
-Getting image source signatures
-…
-…
-…
-[user@hostname fedora-toolbox]$
-```
-Note that the image should be tagged as `fedora-toolbox` with a suffix
-matching the host Fedora version. In this example, it should be
-`fedora-toolbox:28`.
-
 ### Create your Fedora Toolbox container:
 ```
 [user@hostname fedora-toolbox]$ ./fedora-toolbox create
 [user@hostname fedora-toolbox]$
 ```
 This will create a container, and an image, called
-`fedora-toolbox-<your-username>:28` that's specifically customised for your
-host user.
+`fedora-toolbox-<your-username>:<version-id>` that's specifically customised
+for your host user.
 
 ### Enter the Toolbox:
 ```
