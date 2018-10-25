@@ -1,4 +1,4 @@
-# Fedora Toolbox — Hacking on your OSTree-based Fedora
+# Fedora Toolbox — Hacking on OSTree-based Fedoras
 
 [Fedora Toolbox](https://github.com/debarshiray/fedora-toolbox) is a tool that
 offers a familiar RPM based environment for developing and debugging software
