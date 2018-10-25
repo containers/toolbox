@@ -140,30 +140,58 @@ enter()
         exit 1
     fi
 
-    $prefix_sudo podman exec \
-            --env COLORTERM=$COLORTERM \
-            --env DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS \
-            --env DESKTOP_SESSION=$DESKTOP_SESSION \
-            --env DISPLAY=$DISPLAY \
-            --env LANG=$LANG \
-            --env PS1="$toolbox_prompt" \
-            --env SHELL=$SHELL \
-            --env SSH_AUTH_SOCK=$SSH_AUTH_SOCK \
-            --env TERM=$TERM \
-            --env VTE_VERSION=$VTE_VERSION \
-            --env XDG_CURRENT_DESKTOP=$XDG_CURRENT_DESKTOP \
-            --env XDG_DATA_DIRS=$XDG_DATA_DIRS \
-            --env XDG_MENU_PREFIX=$XDG_MENU_PREFIX \
-            --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
-            --env XDG_SEAT=$XDG_SEAT \
-            --env XDG_SESSION_DESKTOP=$XDG_SESSION_DESKTOP \
-            --env XDG_SESSION_ID=$XDG_SESSION_ID \
-            --env XDG_SESSION_TYPE=$XDG_SESSION_TYPE \
-            --env XDG_VTNR=$XDG_VTNR \
-            --interactive \
-            --tty \
-            $toolbox_container \
-            $SHELL -l 2>&42
+    if ! $prefix_sudo podman exec \
+                 --env COLORTERM=$COLORTERM \
+                 --env DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS \
+                 --env DESKTOP_SESSION=$DESKTOP_SESSION \
+                 --env DISPLAY=$DISPLAY \
+                 --env LANG=$LANG \
+                 --env PS1="$toolbox_prompt" \
+                 --env SHELL=$SHELL \
+                 --env SSH_AUTH_SOCK=$SSH_AUTH_SOCK \
+                 --env TERM=$TERM \
+                 --env VTE_VERSION=$VTE_VERSION \
+                 --env XDG_CURRENT_DESKTOP=$XDG_CURRENT_DESKTOP \
+                 --env XDG_DATA_DIRS=$XDG_DATA_DIRS \
+                 --env XDG_MENU_PREFIX=$XDG_MENU_PREFIX \
+                 --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
+                 --env XDG_SEAT=$XDG_SEAT \
+                 --env XDG_SESSION_DESKTOP=$XDG_SESSION_DESKTOP \
+                 --env XDG_SESSION_ID=$XDG_SESSION_ID \
+                 --env XDG_SESSION_TYPE=$XDG_SESSION_TYPE \
+                 --env XDG_VTNR=$XDG_VTNR \
+                 --interactive \
+                 --tty \
+                $toolbox_container \
+                $SHELL -l 2>&42; then
+        if ! $prefix_sudo podman exec \
+                     --env COLORTERM=$COLORTERM \
+                     --env DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS \
+                     --env DESKTOP_SESSION=$DESKTOP_SESSION \
+                     --env DISPLAY=$DISPLAY \
+                     --env LANG=$LANG \
+                     --env PS1="$toolbox_prompt" \
+                     --env SHELL=$SHELL \
+                     --env SSH_AUTH_SOCK=$SSH_AUTH_SOCK \
+                     --env TERM=$TERM \
+                     --env VTE_VERSION=$VTE_VERSION \
+                     --env XDG_CURRENT_DESKTOP=$XDG_CURRENT_DESKTOP \
+                     --env XDG_DATA_DIRS=$XDG_DATA_DIRS \
+                     --env XDG_MENU_PREFIX=$XDG_MENU_PREFIX \
+                     --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
+                     --env XDG_SEAT=$XDG_SEAT \
+                     --env XDG_SESSION_DESKTOP=$XDG_SESSION_DESKTOP \
+                     --env XDG_SESSION_ID=$XDG_SESSION_ID \
+                     --env XDG_SESSION_TYPE=$XDG_SESSION_TYPE \
+                     --env XDG_VTNR=$XDG_VTNR \
+                     --interactive \
+                     --tty \
+                     $toolbox_container \
+                     /bin/bash -l 2>&42; then
+            echo "$0: failed to exec $SHELL inside container $toolbox_container"
+            exit 1
+        fi
+    fi
 }
 
 
