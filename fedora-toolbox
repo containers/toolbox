@@ -43,6 +43,7 @@ create()
 
         if ! $prefix_sudo buildah run $working_container_name -- useradd \
                      --no-create-home \
+                     --shell $SHELL \
                      --uid $UID \
                      --groups wheel \
                      $USER \
