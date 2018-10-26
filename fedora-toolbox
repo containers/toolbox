@@ -230,11 +230,11 @@ usage()
 
 exec 42>/dev/null
 
-while [[ "$1" == -* ]]; do
+while [[ "$1" = -* ]]; do
     case $1 in
         --container )
             shift
-            if [ "$1" == "" ]; then
+            if [ "$1" = "" ]; then
                 echo "$0: missing argument for '--container'"
                 echo "Try '$0 --help' for more information."
                 exit 1
@@ -247,7 +247,7 @@ while [[ "$1" == -* ]]; do
             ;;
         --release )
             shift
-            if [ "$1" == "" ]; then
+            if [ "$1" = "" ]; then
                 echo "$0: missing argument for '--release'"
                 echo "Try '$0 --help' for more information."
                 exit 1
@@ -277,11 +277,11 @@ while [[ "$1" == -* ]]; do
 done
 
 fgc="f$release"
-[ "$toolbox_container" == "" ] && toolbox_container="fedora-toolbox-$USER:$release"
+[ "$toolbox_container" = "" ] && toolbox_container="fedora-toolbox-$USER:$release"
 base_toolbox_image="fedora-toolbox:$release"
 toolbox_image="fedora-toolbox-$USER:$release"
 
-if [ "$1" == "" ]; then
+if [ "$1" = "" ]; then
     echo "$0: missing command"
     echo "Try '$0 --help' for more information."
     exit 1
@@ -292,14 +292,14 @@ shift
 
 case $op in
     create )
-        while [[ "$1" == -* ]]; do
+        while [[ "$1" = -* ]]; do
             case $1 in
                 --candidate-registry )
                     registry=$registry_candidate
                     ;;
                 --image )
                     shift
-                    if [ "$1" == "" ]; then
+                    if [ "$1" = "" ]; then
                         echo "$0: missing argument for '--image'"
                         echo "Try '$0 --help' for more information."
                         exit 1
@@ -316,7 +316,7 @@ case $op in
         exit
         ;;
     enter )
-        while [[ "$1" == -* ]]; do
+        while [[ "$1" = -* ]]; do
             case $1 in
                 * )
                     exit_if_unrecognized_option $1
