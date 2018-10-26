@@ -252,17 +252,23 @@ while [[ "$1" = -* ]]; do
                 echo "Try '$0 --help' for more information."
                 exit 1
             fi
-            if ! [ $1 -eq $1 2>&42 ]; then
+            arg=$(echo $1 | sed 's/^F\|^f//')
+            if [ "$arg" = "" ]; then
                 echo "$0: invalid argument for '--release'"
                 echo "Try '$0 --help' for more information."
                 exit 1
             fi
-            if [ $1 -le 0 2>&42 ]; then
+            if ! [ $arg -eq $arg 2>&42 ]; then
                 echo "$0: invalid argument for '--release'"
                 echo "Try '$0 --help' for more information."
                 exit 1
             fi
-            release=$1
+            if [ $arg -le 0 2>&42 ]; then
+                echo "$0: invalid argument for '--release'"
+                echo "Try '$0 --help' for more information."
+                exit 1
+            fi
+            release=$arg
             ;;
         --sudo )
             prefix_sudo="sudo"
