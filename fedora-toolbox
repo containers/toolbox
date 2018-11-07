@@ -27,6 +27,7 @@ toolbox_prompt="🔹[\u@\h \W]\\$ "
 
 create()
 (
+    tmpfs_size=$((64 * 1024 * 1024)) # 64 MiB
     working_container_name="fedora-toolbox-working-container-$(uuidgen --time)"
 
     if ! $prefix_sudo buildah inspect --type image $toolbox_image >/dev/null 2>&42; then
@@ -107,9 +108,15 @@ create()
         exit 1
     fi
 
+    total_ram=$(awk '( $1 == "MemTotal:" ) { print $2 }' /proc/meminfo 2>&42) # kibibytes
+    if [ "$total_ram" != "" ] && [ $total_ram -eq $total_ram 2>&42 ]; then
+        tmpfs_size=$((total_ram*1024/2)) # bytes
+    fi
+
     max_uid_count=65536
     max_minus_uid=$((max_uid_count-UID))
     uid_plus_one=$((UID+1))
+
     if ! $prefix_sudo podman create \
                  --group-add wheel \
                  --hostname toolbox \
@@ -118,6 +125,7 @@ create()
                  --network host \
                  --privileged \
                  --security-opt label=disable \
+                 --tmpfs /dev/shm:size=$tmpfs_size \
                  --tty \
                  --uidmap $UID:0:1 \
                  --uidmap 0:1:$UID \
