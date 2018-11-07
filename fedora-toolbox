@@ -25,6 +25,13 @@ registry_candidate="candidate-registry.fedoraproject.org"
 toolbox_prompt="🔹[\u@\h \W]\\$ "
 
 
+is_integer()
+{
+    [ "$1" != "" ] && [ $1 -eq $1 2>&42 ]
+    return $?
+}
+
+
 create()
 (
     tmpfs_size=$((64 * 1024 * 1024)) # 64 MiB
@@ -109,7 +116,7 @@ create()
     fi
 
     total_ram=$(awk '( $1 == "MemTotal:" ) { print $2 }' /proc/meminfo 2>&42) # kibibytes
-    if [ "$total_ram" != "" ] && [ $total_ram -eq $total_ram 2>&42 ]; then
+    if is_integer $total_ram; then
         tmpfs_size=$((total_ram*1024/2)) # bytes
     fi
 
@@ -261,12 +268,7 @@ while [[ "$1" = -* ]]; do
                 exit 1
             fi
             arg=$(echo $1 | sed 's/^F\|^f//')
-            if [ "$arg" = "" ]; then
-                echo "$0: invalid argument for '--release'"
-                echo "Try '$0 --help' for more information."
-                exit 1
-            fi
-            if ! [ $arg -eq $arg 2>&42 ]; then
+            if ! is_integer $arg; then
                 echo "$0: invalid argument for '--release'"
                 echo "Try '$0 --help' for more information."
                 exit 1
