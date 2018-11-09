@@ -34,6 +34,7 @@ is_integer()
 
 create()
 (
+    dbus_system_bus_address="unix:path=/var/run/dbus/system_bus_socket"
     tmpfs_size=$((64 * 1024 * 1024)) # 64 MiB
     working_container_name="fedora-toolbox-working-container-$(uuidgen --time)"
 
@@ -82,6 +83,20 @@ create()
         if ! $prefix_sudo buildah config --volume $XDG_RUNTIME_DIR $working_container_name >/dev/null 2>&42; then
             $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure volume for $XDG_RUNTIME_DIR"
+            exit 1
+        fi
+
+        if [ "$DBUS_SYSTEM_BUS_ADDRESS" != "" ]; then
+            dbus_system_bus_address=$DBUS_SYSTEM_BUS_ADDRESS
+        fi
+        dbus_system_bus_path=$(echo $dbus_system_bus_address | cut --delimiter = --fields 2 2>&42)
+        dbus_system_bus_path=$(readlink --canonicalize $dbus_system_bus_path 2>&42)
+
+        if ! $prefix_sudo buildah config \
+                     --volume $dbus_system_bus_path \
+                     $working_container_name >/dev/null 2>&42; then
+            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
+            echo "$0: failed to configure volume for $dbus_system_bus_path"
             exit 1
         fi
 
@@ -139,6 +154,7 @@ create()
                  --uidmap $uid_plus_one:$uid_plus_one:$max_minus_uid \
                  --volume $HOME:$HOME \
                  --volume $XDG_RUNTIME_DIR:$XDG_RUNTIME_DIR \
+                 --volume $dbus_system_bus_path:$dbus_system_bus_path \
                  --volume /dev/dri:/dev/dri \
                  $toolbox_image \
                  /bin/sh >/dev/null 2>&42; then
@@ -155,9 +171,14 @@ enter()
         exit 1
     fi
 
+    if [ "$DBUS_SYSTEM_BUS_ADDRESS" != "" ]; then
+        set_dbus_system_bus_address="--env DBUS_SYSTEM_BUS_ADDRESS=$DBUS_SYSTEM_BUS_ADDRESS"
+    fi
+
     if ! $prefix_sudo podman exec \
                  --env COLORTERM=$COLORTERM \
                  --env DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS \
+                 $set_dbus_system_bus_address \
                  --env DESKTOP_SESSION=$DESKTOP_SESSION \
                  --env DISPLAY=$DISPLAY \
                  --env LANG=$LANG \
@@ -182,6 +203,7 @@ enter()
         if ! $prefix_sudo podman exec \
                      --env COLORTERM=$COLORTERM \
                      --env DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS \
+                     $set_dbus_system_bus_address \
                      --env DESKTOP_SESSION=$DESKTOP_SESSION \
                      --env DISPLAY=$DISPLAY \
                      --env LANG=$LANG \
