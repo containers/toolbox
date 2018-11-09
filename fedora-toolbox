@@ -81,7 +81,7 @@ create()
 
         if ! $prefix_sudo buildah config --volume $XDG_RUNTIME_DIR $working_container_name >/dev/null 2>&42; then
             $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
-            echo "$0: failed to configure volume for /run/user/$UID"
+            echo "$0: failed to configure volume for $XDG_RUNTIME_DIR"
             exit 1
         fi
 
