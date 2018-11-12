@@ -1,3 +1,13 @@
+Overview of changes in 0.0.2
+============================
+
+* Allow an 'F' or 'f' prefix when specifying the release
+* Avoid a Bash-ism (ie. ==) and stick to POSIX (ie. =)
+* Fallback to /bin/bash if $SHELL doesn't exist in the toolbox container
+* Give access to the system D-Bus instance
+* Make shm_open work
+
+
 Overview of changes in 0.0.1
 ============================
 
