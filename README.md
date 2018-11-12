@@ -19,7 +19,7 @@ seamlessly integrates with the rest of the operating system.
 
 ### Create your Fedora Toolbox container:
 ```
-[user@hostname fedora-toolbox]$ ./fedora-toolbox create
+[user@hostname fedora-toolbox]$ fedora-toolbox create
 [user@hostname fedora-toolbox]$
 ```
 This will create a container, and an image, called
@@ -28,7 +28,7 @@ for your host user.
 
 ### Enter the Toolbox:
 ```
-[user@hostname fedora-toolbox]$ ./fedora-toolbox enter
+[user@hostname fedora-toolbox]$ fedora-toolbox enter
 🔹[user@toolbox ~]$
 ```
 
