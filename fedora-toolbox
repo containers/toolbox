@@ -38,6 +38,12 @@ create()
     tmpfs_size=$((64 * 1024 * 1024)) # 64 MiB
     working_container_name="fedora-toolbox-working-container-$(uuidgen --time)"
 
+    if [ "$DBUS_SYSTEM_BUS_ADDRESS" != "" ]; then
+        dbus_system_bus_address=$DBUS_SYSTEM_BUS_ADDRESS
+    fi
+    dbus_system_bus_path=$(echo $dbus_system_bus_address | cut --delimiter = --fields 2 2>&42)
+    dbus_system_bus_path=$(readlink --canonicalize $dbus_system_bus_path 2>&42)
+
     if ! $prefix_sudo buildah inspect --type image $toolbox_image >/dev/null 2>&42; then
         if ! $prefix_sudo buildah from \
                      --name $working_container_name \
@@ -85,12 +91,6 @@ create()
             echo "$0: failed to configure volume for $XDG_RUNTIME_DIR"
             exit 1
         fi
-
-        if [ "$DBUS_SYSTEM_BUS_ADDRESS" != "" ]; then
-            dbus_system_bus_address=$DBUS_SYSTEM_BUS_ADDRESS
-        fi
-        dbus_system_bus_path=$(echo $dbus_system_bus_address | cut --delimiter = --fields 2 2>&42)
-        dbus_system_bus_path=$(readlink --canonicalize $dbus_system_bus_path 2>&42)
 
         if ! $prefix_sudo buildah config \
                      --volume $dbus_system_bus_path \
