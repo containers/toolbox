@@ -234,11 +234,13 @@ usage()
     echo "Usage: fedora-toolbox [--container <name>]"
     echo "                      [--release <release>]"
     echo "                      [-v | --verbose]"
+    echo "                      [-s | --sudo]"
     echo "                      create [--candidate-registry]"
     echo "                             [--image <name>]"
     echo "   or: fedora-toolbox [--container <name>]"
     echo "                      [--release <release>]"
     echo "                      [-v | --verbose]"
+    echo "                      [-s | --sudo]"
     echo "                      enter"
     echo "   or: fedora-toolbox --help"
 }
@@ -281,7 +283,7 @@ while [[ "$1" = -* ]]; do
             fi
             release=$arg
             ;;
-        --sudo )
+        -s | --sudo )
             prefix_sudo="sudo"
             ;;
         -v | --verbose )
