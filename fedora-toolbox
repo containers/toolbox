@@ -63,31 +63,31 @@ create()
                      --groups wheel \
                      $USER \
                      >/dev/null 2>&42; then
-            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
+            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
             echo "$0: failed to create user $USER with UID $UID"
             exit 1
         fi
 
         if ! $prefix_sudo buildah run $working_container_name -- passwd -d $USER >/dev/null 2>&42; then
-            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
+            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
             echo "$0: failed to remove password for user $USER"
             exit 1
         fi
 
         if ! $prefix_sudo buildah run $working_container_name -- passwd -d root >/dev/null 2>&42; then
-            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
+            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
             echo "$0: failed to remove password for user root"
             exit 1
         fi
 
         if ! $prefix_sudo buildah config --volume $HOME $working_container_name >/dev/null 2>&42; then
-            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
+            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure volume for $HOME"
             exit 1
         fi
 
         if ! $prefix_sudo buildah config --volume $XDG_RUNTIME_DIR $working_container_name >/dev/null 2>&42; then
-            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
+            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure volume for $XDG_RUNTIME_DIR"
             exit 1
         fi
@@ -95,31 +95,31 @@ create()
         if ! $prefix_sudo buildah config \
                      --volume $dbus_system_bus_path \
                      $working_container_name >/dev/null 2>&42; then
-            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
+            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure volume for $dbus_system_bus_path"
             exit 1
         fi
 
         if ! $prefix_sudo buildah config --volume /dev/dri $working_container_name >/dev/null 2>&42; then
-            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
+            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure volume for /dev/dri"
             exit 1
         fi
 
         if ! $prefix_sudo buildah config --user $USER $working_container_name >/dev/null 2>&42; then
-            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
+            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure the default user as $USER"
             exit 1
         fi
 
         if ! $prefix_sudo buildah config --workingdir $HOME $working_container_name >/dev/null 2>&42; then
-            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
+            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure the initial working directory to $HOME"
             exit 1
         fi
 
         if ! $prefix_sudo buildah commit --rm $working_container_name $toolbox_image >/dev/null 2>&42; then
-            $prefix_sudo buildah rmi $working_container_name >/dev/null 2>&42
+            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
             echo "$0: failed to create image $toolbox_image"
             exit 1
         fi
