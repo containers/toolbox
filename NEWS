@@ -1,3 +1,10 @@
+Overview of changes in 0.0.3
+============================
+
+* Clean up the Buildah working containers on error
+* Unbreak creating the toolbox if the toolbox image already exists
+
+
 Overview of changes in 0.0.2
 ============================
 
