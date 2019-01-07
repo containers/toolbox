@@ -178,10 +178,13 @@ enter()
         set_dbus_system_bus_address="--env DBUS_SYSTEM_BUS_ADDRESS=$DBUS_SYSTEM_BUS_ADDRESS"
     fi
 
-    if $prefix_sudo podman exec $toolbox_container test -f $SHELL 2>&42; then
-        shell_to_exec=$SHELL
+    if [ -n "$1" ]; then
+        shell_cmd=
+    elif $prefix_sudo podman exec $toolbox_container test -f $SHELL 2>&42; then
+        shell_cmd="$SHELL -l"
     else
-	echo "$SHELL not found in $toolbox_container; using $shell_to_exec instead" >&42
+        echo "$SHELL not found in $toolbox_container; using $shell_to_exec instead" >&42
+        shell_cmd="$shell_to_exec -l"
     fi
 
     $prefix_sudo podman exec \
@@ -210,7 +213,7 @@ enter()
             $user_flag \
             $toolbox_container \
             /bin/sh -c 'cd "$0"; exec "$@"' "$PWD" \
-            $shell_to_exec -l 2>&42
+            $shell_cmd "$@" 2>&42
 )
 
 
@@ -243,6 +246,7 @@ usage()
     echo "                      [--release <release>]"
     echo "                      [-v | --verbose]"
     echo "                      enter [-u | --user]"
+    echo "                            [COMMAND...]"
     echo "   or: fedora-toolbox --help"
 }
 
@@ -347,8 +351,7 @@ case $op in
             esac
             shift
         done
-        exit_if_extra_operand $1
-        enter
+        enter "$@"
         exit
         ;;
     * )
