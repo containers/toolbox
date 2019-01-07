@@ -23,6 +23,7 @@ prefix_sudo=""
 registry="registry.fedoraproject.org"
 registry_candidate="candidate-registry.fedoraproject.org"
 toolbox_prompt="🔹[\u@\h \W]\\$ "
+user_flag=""
 
 
 is_integer()
@@ -206,6 +207,7 @@ enter()
             --env XDG_VTNR=$XDG_VTNR \
             --interactive \
             --tty \
+            $user_flag \
             $toolbox_container \
             $shell_to_exec -l 2>&42
 )
@@ -239,7 +241,7 @@ usage()
     echo "   or: fedora-toolbox [--container <name>]"
     echo "                      [--release <release>]"
     echo "                      [-v | --verbose]"
-    echo "                      enter"
+    echo "                      enter [-u | --user]"
     echo "   or: fedora-toolbox --help"
 }
 
@@ -334,7 +336,11 @@ case $op in
         ;;
     enter )
         while [[ "$1" = -* ]]; do
-            case $1 in
+            case "$1" in
+                -u|--user )
+                    user_flag="--user $UID"
+                    shift
+                    ;;
                 * )
                     exit_if_unrecognized_option $1
             esac
