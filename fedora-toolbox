@@ -209,6 +209,7 @@ enter()
             --tty \
             $user_flag \
             $toolbox_container \
+            /bin/sh -c 'cd "$0"; exec "$@"' "$PWD" \
             $shell_to_exec -l 2>&42
 )
 
