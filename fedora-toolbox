@@ -38,6 +38,12 @@ create()
     tmpfs_size=$((64 * 1024 * 1024)) # 64 MiB
     working_container_name="fedora-toolbox-working-container-$(uuidgen --time)"
 
+    if [[ "$(readlink /home)" == var/home ]] ; then
+        need_home_link=true
+    else
+        need_home_link=false
+    fi
+
     if [ "$DBUS_SYSTEM_BUS_ADDRESS" != "" ]; then
         dbus_system_bus_address=$DBUS_SYSTEM_BUS_ADDRESS
     fi
@@ -65,7 +71,17 @@ create()
 
         echo "$0: trying to configure working container $working_container_name" >&42
 
+        if $need_home_link ; then
+            if ! $prefix_sudo buildah run $working_container_name -- \
+                    sh -c 'rmdir /home && mkdir -m 0755 -p /var/home && ln -s var/home /home' 2>&42; then
+                $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
+                echo "$0: failed to make /home a symlink"
+                exit 1
+            fi
+        fi
+
         if ! $prefix_sudo buildah run $working_container_name -- useradd \
+                     --home-dir $HOME \
                      --no-create-home \
                      --shell $SHELL \
                      --uid $UID \
