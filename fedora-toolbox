@@ -203,7 +203,7 @@ enter()
     if $prefix_sudo podman exec $toolbox_container test -f $SHELL 2>&42; then
         shell_to_exec=$SHELL
     else
-        echo "$SHELL not found in $toolbox_container; using $shell_to_exec instead" >&42
+        echo "$0: $SHELL not found in $toolbox_container; using $shell_to_exec instead" >&42
     fi
 
     echo "$0: trying to exec $shell_to_exec in container $toolbox_container" >&42
