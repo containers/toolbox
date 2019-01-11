@@ -115,6 +115,12 @@ create()
             exit 1
         fi
 
+        if ! $prefix_sudo buildah config --volume /dev/fuse $working_container_name >/dev/null 2>&42; then
+            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
+            echo "$0: failed to configure volume for /dev/fuse"
+            exit 1
+        fi
+
         if ! $prefix_sudo buildah config --user $USER $working_container_name >/dev/null 2>&42; then
             $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
             echo "$0: failed to configure the default user as $USER"
@@ -173,6 +179,7 @@ create()
                  --volume $XDG_RUNTIME_DIR:$XDG_RUNTIME_DIR \
                  --volume $dbus_system_bus_path:$dbus_system_bus_path \
                  --volume /dev/dri:/dev/dri \
+                 --volume /dev/fuse:/dev/fuse \
                  $toolbox_image \
                  /bin/sh >/dev/null 2>&42; then
         echo "$0: failed to create container $toolbox_container"
