@@ -44,10 +44,17 @@ create()
     dbus_system_bus_path=$(echo $dbus_system_bus_address | cut --delimiter = --fields 2 2>&42)
     dbus_system_bus_path=$(readlink --canonicalize $dbus_system_bus_path 2>&42)
 
+    echo "$0: checking if image $toolbox_image already exists" >&42
+
     if ! $prefix_sudo buildah inspect --type image $toolbox_image >/dev/null 2>&42; then
+        echo "$0: trying to create working container $working_container_name" >&42
+        echo "$0: looking for image localhost/$base_toolbox_image" >&42
+
         if ! $prefix_sudo buildah from \
                      --name $working_container_name \
                      localhost/$base_toolbox_image >/dev/null 2>&42; then
+            echo "$0: looking for image $registry/$fgc/$base_toolbox_image" >&42
+
             if ! $prefix_sudo buildah from \
                          --name $working_container_name \
                          $registry/$fgc/$base_toolbox_image >/dev/null 2>&42; then
@@ -55,6 +62,8 @@ create()
                 exit 1
             fi
         fi
+
+        echo "$0: trying to configure working container $working_container_name" >&42
 
         if ! $prefix_sudo buildah run $working_container_name -- useradd \
                      --no-create-home \
@@ -118,12 +127,18 @@ create()
             exit 1
         fi
 
+        echo "$0: trying to create image $toolbox_image" >&42
+
         if ! $prefix_sudo buildah commit --rm $working_container_name $toolbox_image >/dev/null 2>&42; then
             $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
             echo "$0: failed to create image $toolbox_image"
             exit 1
         fi
+
+        echo "$0: created image $toolbox_image" >&42
     fi
+
+    echo "$0: checking if container $toolbox_container already exists" >&42
 
     if $prefix_sudo podman inspect --type container $toolbox_container >/dev/null 2>&42; then
         echo "$0: container $toolbox_container already exists"
@@ -138,6 +153,8 @@ create()
     max_uid_count=65536
     max_minus_uid=$((max_uid_count-UID))
     uid_plus_one=$((UID+1))
+
+    echo "$0: trying to create container $toolbox_container" >&42
 
     if ! $prefix_sudo podman create \
                  --group-add wheel \
@@ -161,12 +178,16 @@ create()
         echo "$0: failed to create container $toolbox_container"
         exit 1
     fi
+
+    echo "$0: created container $toolbox_container" >&42
 )
 
 
 enter()
 (
     shell_to_exec=/bin/bash
+
+    echo "$0: trying to start container $toolbox_container" >&42
 
     if ! $prefix_sudo podman start $toolbox_container >/dev/null 2>&42; then
         echo "$0: failed to start container $toolbox_container"
@@ -177,11 +198,15 @@ enter()
         set_dbus_system_bus_address="--env DBUS_SYSTEM_BUS_ADDRESS=$DBUS_SYSTEM_BUS_ADDRESS"
     fi
 
+    echo "$0: looking for $SHELL in container $toolbox_container" >&42
+
     if $prefix_sudo podman exec $toolbox_container test -f $SHELL 2>&42; then
         shell_to_exec=$SHELL
     else
 	echo "$SHELL not found in $toolbox_container; using $shell_to_exec instead" >&42
     fi
+
+    echo "$0: trying to exec $shell_to_exec in container $toolbox_container" >&42
 
     $prefix_sudo podman exec \
             --env COLORTERM=$COLORTERM \
