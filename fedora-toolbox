@@ -27,6 +27,11 @@ toolbox_prompt="🔹[\u@\h \W]\\$ "
 verbose=false
 
 
+LGC='\033[1;32m' # Light Green Color
+LBC='\033[1;34m' # Light Blue Color
+NC='\033[0m' # No Color
+
+
 has_prefix()
 (
     str="$1"
@@ -418,6 +423,54 @@ enter()
 )
 
 
+list_images()
+(
+    output=$($prefix_sudo podman images \
+                     --filter "label=com.redhat.component=fedora-toolbox" \
+                     --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Created}}" 2>&42 \
+             | sed "s/ \{2,\}/\t/g" 2>&42 \
+             | column --separator $'\t' --table --table-columns "IMAGE ID,IMAGE NAME,CREATED")
+
+    if [ "$output" != "" ]; then
+        echo -e "${LBC}Images created by fedora-toolbox${NC}"
+        echo "$output"
+    fi
+)
+
+
+list_containers()
+(
+    output=$($prefix_sudo podman ps \
+                     --all \
+                     --filter "label=com.redhat.component=fedora-toolbox" \
+                     --format "{{.ID}}  {{.Names}}  {{.Created}}  {{.Status}}  {{.Image}}" 2>&42 \
+             | sed "s/ \{2,\}/\t/g" 2>&42 \
+             | column \
+                       --separator $'\t' \
+                       --table \
+                       --table-columns "CONTAINER ID,CONTAINER NAME,CREATED,STATUS,IMAGE NAME" 2>&42)
+
+    if [ "$output" != "" ]; then
+        echo -e "${LBC}Containers created by fedora-toolbox${NC}"
+        echo "$output" | head --lines 1 2>&42
+        (
+            echo "$output" | tail --lines +2 2>&42
+        ) | (
+            unset IFS
+            while read container; do
+                container_id=$(echo $container | cut --delimiter " " --fields 1 2>&42)
+                is_running=$($prefix_sudo podman inspect $container_id --format "{{.State.Running}}" 2>&42)
+                if $is_running; then
+                    echo -e "${LGC}$container${NC}"
+                else
+                    echo "$container"
+                fi
+            done
+        )
+    fi
+)
+
+
 exit_if_extra_operand()
 {
     if [ "$1" != "" ]; then
@@ -447,6 +500,8 @@ usage()
     echo "                      [--release <release>]"
     echo "                      [-v | --verbose]"
     echo "                      enter"
+    echo "   or: fedora-toolbox list [-c | --containers]"
+    echo "                           [-i | --images]"
     echo "   or: fedora-toolbox --help"
 }
 
@@ -550,6 +605,33 @@ case $op in
         done
         exit_if_extra_operand $1
         enter
+        exit
+        ;;
+    list )
+        ls_images=false
+        ls_containers=false
+        while has_prefix "$1" -; do
+            case $1 in
+                -c | --containers )
+                    ls_containers=true
+                    ;;
+                -i | --images )
+                    ls_images=true
+                    ;;
+                * )
+                    exit_if_unrecognized_option $1
+            esac
+            shift
+        done
+        exit_if_extra_operand $1
+
+        if ! $ls_containers && ! $ls_images; then
+            ls_containers=true
+            ls_images=true
+        fi
+
+        $ls_images && list_images
+        $ls_containers && list_containers
         exit
         ;;
     * )
