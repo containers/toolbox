@@ -38,7 +38,7 @@ create()
     tmpfs_size=$((64 * 1024 * 1024)) # 64 MiB
     working_container_name="fedora-toolbox-working-container-$(uuidgen --time)"
 
-    if [[ "$(readlink /home)" == var/home ]] ; then
+    if [[ "$(readlink /home)" = var/home ]] ; then
         need_home_link=true
     else
         need_home_link=false
