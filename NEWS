@@ -1,3 +1,13 @@
+Overview of changes in 0.0.4
+============================
+
+* Avoid spooky root-like behaviour for non-root interactive shells
+* Give access to the FUSE kernel module
+* Improve the readability of the debug output
+* Set up $HOME and /home to match the host
+* Try to enter the same directory inside the toolbox
+
+
 Overview of changes in 0.0.3
 ============================
 
