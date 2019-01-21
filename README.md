@@ -31,4 +31,3 @@ for your host user.
 [user@hostname ~]$ fedora-toolbox enter
 🔹[user@toolbox ~]$
 ```
-
