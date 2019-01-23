@@ -253,7 +253,24 @@ create()
 
         echo "$0: trying to create image $toolbox_image" >&42
 
-        if ! $prefix_sudo buildah commit --rm $working_container_name $toolbox_image >/dev/null 2>&42; then
+        if spinner_directory=$(mktemp --directory --tmpdir fedora-toolbox-spinner-XXXXXXXXXX 2>&42); then
+            spinner_message="$0: creating image $toolbox_image: "
+            if ! spinner_start "$spinner_directory" "$spinner_message"; then
+                spinner_directory=""
+            fi
+        else
+            echo "$0: unable to start spinner: spinner directory not created"
+            spinner_directory=""
+        fi
+
+        $prefix_sudo buildah commit --rm $working_container_name $toolbox_image >/dev/null 2>&42
+        ret_val=$?
+
+        if [ "$spinner_directory" != "" ]; then
+            spinner_stop "$spinner_directory"
+        fi
+
+        if [ $ret_val -ne 0 ]; then
             $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
             echo "$0: failed to create image $toolbox_image"
             exit 1
