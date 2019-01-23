@@ -22,7 +22,9 @@ release=$VERSION_ID
 prefix_sudo=""
 registry="registry.fedoraproject.org"
 registry_candidate="candidate-registry.fedoraproject.org"
+spinner_animation="[>----] [=>---] [==>--] [===>-] [====>] [----<] [---<=] [--<==] [-<===] [<====]"
 toolbox_prompt="🔹[\u@\h \W]\\$ "
+verbose=false
 
 
 is_integer()
@@ -30,6 +32,71 @@ is_integer()
     [ "$1" != "" ] && [ $1 -eq $1 2>&42 ]
     return $?
 }
+
+
+spinner_start()
+(
+    directory="$1"
+    message="$2"
+
+    if $verbose; then
+        rm --force --recursive "$directory" 2>&42
+        return 0
+    fi
+
+    if ! touch "$directory/spinner-start" 2>&42; then
+        echo "$0: unable to start spinner: spinner start file couldn't be created"
+        return 1
+    fi
+
+    echo -n "$message"
+    tput civis 2>&42
+
+    (
+        while [ -f "$directory/spinner-start" ]; do
+            echo "$spinner_animation" | tr " " "\n" 2>&42 | while read frame; do
+                echo -n "$frame"
+
+                frame_len=${#frame}
+                i=0
+                while [ $i -lt $frame_len ]; do
+                    printf "\b"
+                    i=$((i + 1))
+                done
+
+                sleep 1
+            done
+        done
+
+        printf "\033[2K" # delete entire line regardless of cursor position
+        printf "\r"
+        tput cnorm 2>&42
+
+        if ! touch "$directory/spinner-stop" 2>&42; then
+            echo "$0: unable to stop spinner: spinner stop file couldn't be created"
+        fi
+    ) &
+
+    return 0
+)
+
+
+spinner_stop()
+(
+    $verbose && return
+    directory="$1"
+
+    if ! rm "$directory/spinner-start" 2>&42; then
+        echo "$0: unable to stop spinner: spinner start file couldn't be removed"
+        return
+    fi
+
+    while ! [ -f "$directory/spinner-stop" ]; do
+        :
+    done
+
+    rm --force --recursive "$directory" 2>&42
+)
 
 
 create()
@@ -337,6 +404,7 @@ while [[ "$1" = -* ]]; do
             ;;
         -v | --verbose )
             exec 42>&2
+            verbose=true
             ;;
         * )
             exit_if_unrecognized_option $1
