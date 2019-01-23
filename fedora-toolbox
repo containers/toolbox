@@ -253,12 +253,12 @@ create()
 
     total_ram=$(awk '( $1 == "MemTotal:" ) { print $2 }' /proc/meminfo 2>&42) # kibibytes
     if is_integer $total_ram; then
-        tmpfs_size=$((total_ram*1024/2)) # bytes
+        tmpfs_size=$((total_ram * 1024 / 2)) # bytes
     fi
 
     max_uid_count=65536
-    max_minus_uid=$((max_uid_count-UID))
-    uid_plus_one=$((UID+1))
+    max_minus_uid=$((max_uid_count - UID))
+    uid_plus_one=$((UID + 1))
 
     echo "$0: trying to create container $toolbox_container" >&42
 
