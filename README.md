@@ -1,15 +1,22 @@
-# Fedora Toolbox — Hacking on OSTree-based Fedoras
+# Fedora Toolbox — Unprivileged development environment
 
 [Fedora Toolbox](https://github.com/debarshiray/fedora-toolbox) is a tool that
 offers a familiar RPM based environment for developing and debugging software
-on locked down [OSTree](https://ostree.readthedocs.io/en/latest/) based Fedora
-systems like [Silverblue](https://silverblue.fedoraproject.org/). Such
-operating systems are shipped as *immutable* OSTree images, where it's
-difficult to setup a development environment with your favorite tools, editors
-and SDKs. A toolbox container solves that problem by providing a RPM based
-*mutable* container. You can tweak it to your heart's content and use DNF to
-install your favorite packages, all without worrying about breaking your
-operating system.
+that runs fully unprivileged using [Podman](https://podman.io/).
+
+The toolbox container is a fully *mutable* container; when you see
+`yum install ansible` for example, that's something you can do inside your
+toolbox container, without affecting the base operating system.
+
+This is particularly useful on
+[OSTree](https://ostree.readthedocs.io/en/latest/) based Fedora systems like
+[Silverblue](https://silverblue.fedoraproject.org/).  The intention of these
+systems is to discourage installation of software on the host, and instead
+install software as (or in) containers.
+
+However this project doesn't *require* using an OSTree based system — it
+works equally well if you're running e.g. existing Fedora Workstation or
+Server, and that's a useful way to incrementally adopt containerization.
 
 The toolbox environment is based on the `fedora-toolbox` image. This image is
 then customized for the current user to create a toolbox container that
