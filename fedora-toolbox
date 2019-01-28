@@ -320,7 +320,7 @@ create()
             --uidmap $UID:0:1 \
             --uidmap 0:1:$UID \
             --uidmap $uid_plus_one:$uid_plus_one:$max_minus_uid \
-            --volume $HOME:$HOME \
+            --volume $HOME:$HOME:rslave \
             --volume $XDG_RUNTIME_DIR:$XDG_RUNTIME_DIR \
             --volume $dbus_system_bus_path:$dbus_system_bus_path \
             --volume /dev/dri:/dev/dri \
