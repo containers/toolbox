@@ -103,7 +103,7 @@ configure_working_container()
 (
     working_container_name="$1"
 
-    if [[ "$(readlink /home)" = var/home ]] ; then
+    if [ "$(readlink /home)" = var/home ] ; then
         need_home_link=true
     else
         need_home_link=false
