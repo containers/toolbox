@@ -27,6 +27,26 @@ toolbox_prompt="🔹[\u@\h \W]\\$ "
 verbose=false
 
 
+has_prefix()
+(
+    str="$1"
+    prefix="$2"
+
+    ret_val=1
+
+    case "$str" in
+        "$prefix"* )
+            ret_val=0
+            ;;
+        * )
+            ret_val=1
+            ;;
+    esac
+
+    return $ret_val
+)
+
+
 is_integer()
 {
     [ "$1" != "" ] && [ $1 -eq $1 2>&42 ]
@@ -433,7 +453,7 @@ usage()
 
 exec 42>/dev/null
 
-while [[ "$1" = -* ]]; do
+while has_prefix "$1" -; do
     case $1 in
         --container )
             shift
@@ -497,7 +517,7 @@ shift
 
 case $op in
     create )
-        while [[ "$1" = -* ]]; do
+        while has_prefix "$1" -; do
             case $1 in
                 --candidate-registry )
                     registry=$registry_candidate
@@ -521,7 +541,7 @@ case $op in
         exit
         ;;
     enter )
-        while [[ "$1" = -* ]]; do
+        while has_prefix "$1" -; do
             case $1 in
                 * )
                     exit_if_unrecognized_option $1
