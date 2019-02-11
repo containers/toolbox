@@ -1,3 +1,10 @@
+Overview of changes in 0.0.5
+============================
+
+* Give access to mounts under $HOME, and make autofs work
+* Show a spinner when creating the toolbox
+
+
 Overview of changes in 0.0.4
 ============================
 

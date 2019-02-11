@@ -1,6 +1,6 @@
 project(
   'fedora-toolbox',
-  version: '0.0.4',
+  version: '0.0.5',
   license: 'ASL 2.0',
   meson_version: '>= 0.40.0',
 )
