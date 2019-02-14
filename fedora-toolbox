@@ -16,6 +16,10 @@
 #
 
 
+exec 42>/dev/null
+
+base_toolbox_command=$(basename "$0" 2>&42)
+
 source /etc/os-release
 release=$VERSION_ID
 
@@ -70,7 +74,7 @@ spinner_start()
     fi
 
     if ! touch "$directory/spinner-start" 2>&42; then
-        echo "$0: unable to start spinner: spinner start file couldn't be created"
+        echo "$base_toolbox_command: unable to start spinner: spinner start file couldn't be created"
         return 1
     fi
 
@@ -98,7 +102,7 @@ spinner_start()
         tput cnorm 2>&42
 
         if ! touch "$directory/spinner-stop" 2>&42; then
-            echo "$0: unable to stop spinner: spinner stop file couldn't be created"
+            echo "$base_toolbox_command: unable to stop spinner: spinner stop file couldn't be created"
         fi
     ) &
 
@@ -112,7 +116,7 @@ spinner_stop()
     directory="$1"
 
     if ! rm "$directory/spinner-start" 2>&42; then
-        echo "$0: unable to stop spinner: spinner start file couldn't be removed"
+        echo "$base_toolbox_command: unable to stop spinner: spinner start file couldn't be removed"
         return
     fi
 
@@ -138,7 +142,7 @@ configure_working_container()
         if ! $prefix_sudo buildah run $working_container_name -- \
                      sh -c 'rmdir /home && mkdir -m 0755 -p /var/home && ln -s var/home /home' 2>&42; then
             $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
-            echo "$0: failed to make /home a symlink"
+            echo "$base_toolbox_command: failed to make /home a symlink"
             return 1
         fi
     fi
@@ -151,52 +155,52 @@ configure_working_container()
                  --groups wheel \
                  $USER \
                  >/dev/null 2>&42; then
-        echo "$0: failed to create user $USER with UID $UID"
+        echo "$base_toolbox_command: failed to create user $USER with UID $UID"
         return 1
     fi
 
     if ! $prefix_sudo buildah run $working_container_name -- passwd -d $USER >/dev/null 2>&42; then
-        echo "$0: failed to remove password for user $USER"
+        echo "$base_toolbox_command: failed to remove password for user $USER"
         return 1
     fi
 
     if ! $prefix_sudo buildah run $working_container_name -- passwd -d root >/dev/null 2>&42; then
-        echo "$0: failed to remove password for user root"
+        echo "$base_toolbox_command: failed to remove password for user root"
         return 1
     fi
 
     if ! $prefix_sudo buildah config --volume $HOME $working_container_name >/dev/null 2>&42; then
-        echo "$0: failed to configure volume for $HOME"
+        echo "$base_toolbox_command: failed to configure volume for $HOME"
         return 1
     fi
 
     if ! $prefix_sudo buildah config --volume $XDG_RUNTIME_DIR $working_container_name >/dev/null 2>&42; then
-        echo "$0: failed to configure volume for $XDG_RUNTIME_DIR"
+        echo "$base_toolbox_command: failed to configure volume for $XDG_RUNTIME_DIR"
         return 1
     fi
 
     if ! $prefix_sudo buildah config --volume $dbus_system_bus_path $working_container_name >/dev/null 2>&42; then
-        echo "$0: failed to configure volume for $dbus_system_bus_path"
+        echo "$base_toolbox_command: failed to configure volume for $dbus_system_bus_path"
         return 1
     fi
 
     if ! $prefix_sudo buildah config --volume /dev/dri $working_container_name >/dev/null 2>&42; then
-        echo "$0: failed to configure volume for /dev/dri"
+        echo "$base_toolbox_command: failed to configure volume for /dev/dri"
         return 1
     fi
 
     if ! $prefix_sudo buildah config --volume /dev/fuse $working_container_name >/dev/null 2>&42; then
-        echo "$0: failed to configure volume for /dev/fuse"
+        echo "$base_toolbox_command: failed to configure volume for /dev/fuse"
         return 1
     fi
 
     if ! $prefix_sudo buildah config --user $USER $working_container_name >/dev/null 2>&42; then
-        echo "$0: failed to configure the default user as $USER"
+        echo "$base_toolbox_command: failed to configure the default user as $USER"
         return 1
     fi
 
     if ! $prefix_sudo buildah config --workingdir $HOME $working_container_name >/dev/null 2>&42; then
-        echo "$0: failed to configure the initial working directory to $HOME"
+        echo "$base_toolbox_command: failed to configure the initial working directory to $HOME"
         return 1
     fi
 
@@ -216,24 +220,24 @@ create()
     dbus_system_bus_path=$(echo $dbus_system_bus_address | cut --delimiter = --fields 2 2>&42)
     dbus_system_bus_path=$(readlink --canonicalize $dbus_system_bus_path 2>&42)
 
-    echo "$0: checking if image $toolbox_image already exists" >&42
+    echo "$base_toolbox_command: checking if image $toolbox_image already exists" >&42
 
     if ! $prefix_sudo buildah inspect --type image $toolbox_image >/dev/null 2>&42; then
-        echo "$0: trying to create working container $working_container_name" >&42
-        echo "$0: looking for image localhost/$base_toolbox_image" >&42
+        echo "$base_toolbox_command: trying to create working container $working_container_name" >&42
+        echo "$base_toolbox_command: looking for image localhost/$base_toolbox_image" >&42
 
         if ! $prefix_sudo buildah from \
                      --name $working_container_name \
                      localhost/$base_toolbox_image >/dev/null 2>&42; then
-            echo "$0: looking for image $registry/$fgc/$base_toolbox_image" >&42
+            echo "$base_toolbox_command: looking for image $registry/$fgc/$base_toolbox_image" >&42
 
             if spinner_directory=$(mktemp --directory --tmpdir fedora-toolbox-spinner-XXXXXXXXXX 2>&42); then
-                spinner_message="$0: pulling from $registry: "
+                spinner_message="$base_toolbox_command: pulling from $registry: "
                 if ! spinner_start "$spinner_directory" "$spinner_message"; then
                     spinner_directory=""
                 fi
             else
-                echo "$0: unable to start spinner: spinner directory not created"
+                echo "$base_toolbox_command: unable to start spinner: spinner directory not created"
                 spinner_directory=""
             fi
 
@@ -247,20 +251,20 @@ create()
             fi
 
             if [ $ret_val -ne 0 ]; then
-                echo "$0: failed to create working container"
+                echo "$base_toolbox_command: failed to create working container"
                 exit 1
             fi
         fi
 
-        echo "$0: trying to configure working container $working_container_name" >&42
+        echo "$base_toolbox_command: trying to configure working container $working_container_name" >&42
 
         if spinner_directory=$(mktemp --directory --tmpdir fedora-toolbox-spinner-XXXXXXXXXX 2>&42); then
-            spinner_message="$0: configuring working container: "
+            spinner_message="$base_toolbox_command: configuring working container: "
             if ! spinner_start "$spinner_directory" "$spinner_message"; then
                 spinner_directory=""
             fi
         else
-            echo "$0: unable to start spinner: spinner directory not created"
+            echo "$base_toolbox_command: unable to start spinner: spinner directory not created"
             spinner_directory=""
         fi
 
@@ -276,15 +280,15 @@ create()
             exit 1
         fi
 
-        echo "$0: trying to create image $toolbox_image" >&42
+        echo "$base_toolbox_command: trying to create image $toolbox_image" >&42
 
         if spinner_directory=$(mktemp --directory --tmpdir fedora-toolbox-spinner-XXXXXXXXXX 2>&42); then
-            spinner_message="$0: creating image $toolbox_image: "
+            spinner_message="$base_toolbox_command: creating image $toolbox_image: "
             if ! spinner_start "$spinner_directory" "$spinner_message"; then
                 spinner_directory=""
             fi
         else
-            echo "$0: unable to start spinner: spinner directory not created"
+            echo "$base_toolbox_command: unable to start spinner: spinner directory not created"
             spinner_directory=""
         fi
 
@@ -297,17 +301,17 @@ create()
 
         if [ $ret_val -ne 0 ]; then
             $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
-            echo "$0: failed to create image $toolbox_image"
+            echo "$base_toolbox_command: failed to create image $toolbox_image"
             exit 1
         fi
 
-        echo "$0: created image $toolbox_image" >&42
+        echo "$base_toolbox_command: created image $toolbox_image" >&42
     fi
 
-    echo "$0: checking if container $toolbox_container already exists" >&42
+    echo "$base_toolbox_command: checking if container $toolbox_container already exists" >&42
 
     if $prefix_sudo podman inspect --type container $toolbox_container >/dev/null 2>&42; then
-        echo "$0: container $toolbox_container already exists"
+        echo "$base_toolbox_command: container $toolbox_container already exists"
         exit 1
     fi
 
@@ -320,15 +324,15 @@ create()
     max_minus_uid=$((max_uid_count - UID))
     uid_plus_one=$((UID + 1))
 
-    echo "$0: trying to create container $toolbox_container" >&42
+    echo "$base_toolbox_command: trying to create container $toolbox_container" >&42
 
     if spinner_directory=$(mktemp --directory --tmpdir fedora-toolbox-spinner-XXXXXXXXXX 2>&42); then
-        spinner_message="$0: creating container $toolbox_container: "
+        spinner_message="$base_toolbox_command: creating container $toolbox_container: "
         if ! spinner_start "$spinner_directory" "$spinner_message"; then
             spinner_directory=""
         fi
     else
-        echo "$0: unable to start spinner: spinner directory not created"
+        echo "$base_toolbox_command: unable to start spinner: spinner directory not created"
         spinner_directory=""
     fi
 
@@ -359,11 +363,11 @@ create()
     fi
 
     if [ $ret_val -ne 0 ]; then
-        echo "$0: failed to create container $toolbox_container"
+        echo "$base_toolbox_command: failed to create container $toolbox_container"
         exit 1
     fi
 
-    echo "$0: created container $toolbox_container" >&42
+    echo "$base_toolbox_command: created container $toolbox_container" >&42
 )
 
 
@@ -371,10 +375,10 @@ enter()
 (
     shell_to_exec=/bin/bash
 
-    echo "$0: trying to start container $toolbox_container" >&42
+    echo "$base_toolbox_command: trying to start container $toolbox_container" >&42
 
     if ! $prefix_sudo podman start $toolbox_container >/dev/null 2>&42; then
-        echo "$0: failed to start container $toolbox_container"
+        echo "$base_toolbox_command: failed to start container $toolbox_container"
         exit 1
     fi
 
@@ -382,15 +386,15 @@ enter()
         set_dbus_system_bus_address="--env DBUS_SYSTEM_BUS_ADDRESS=$DBUS_SYSTEM_BUS_ADDRESS"
     fi
 
-    echo "$0: looking for $SHELL in container $toolbox_container" >&42
+    echo "$base_toolbox_command: looking for $SHELL in container $toolbox_container" >&42
 
     if $prefix_sudo podman exec $toolbox_container test -f $SHELL 2>&42; then
         shell_to_exec=$SHELL
     else
-        echo "$0: $SHELL not found in $toolbox_container; using $shell_to_exec instead" >&42
+        echo "$base_toolbox_command: $SHELL not found in $toolbox_container; using $shell_to_exec instead" >&42
     fi
 
-    echo "$0: trying to exec $shell_to_exec in container $toolbox_container" >&42
+    echo "$base_toolbox_command: trying to exec $shell_to_exec in container $toolbox_container" >&42
 
     $prefix_sudo podman exec \
             --env COLORTERM=$COLORTERM \
@@ -474,8 +478,8 @@ list_containers()
 exit_if_extra_operand()
 {
     if [ "$1" != "" ]; then
-        echo "$0: extra operand '$1'"
-        echo "Try '$0 --help' for more information."
+        echo "$base_toolbox_command: extra operand '$1'"
+        echo "Try '$base_toolbox_command --help' for more information."
         exit 1
     fi
 }
@@ -483,8 +487,8 @@ exit_if_extra_operand()
 
 exit_if_unrecognized_option()
 {
-    echo "$0: unrecognized option '$1'"
-    echo "Try '$0 --help' for more information."
+    echo "$base_toolbox_command: unrecognized option '$1'"
+    echo "Try '$base_toolbox_command --help' for more information."
     exit 1
 }
 
@@ -506,15 +510,13 @@ usage()
 }
 
 
-exec 42>/dev/null
-
 while has_prefix "$1" -; do
     case $1 in
         --container )
             shift
             if [ "$1" = "" ]; then
-                echo "$0: missing argument for '--container'"
-                echo "Try '$0 --help' for more information."
+                echo "$base_toolbox_command: missing argument for '--container'"
+                echo "Try '$base_toolbox_command --help' for more information."
                 exit 1
             fi
             toolbox_container=$1
@@ -526,19 +528,19 @@ while has_prefix "$1" -; do
         --release )
             shift
             if [ "$1" = "" ]; then
-                echo "$0: missing argument for '--release'"
-                echo "Try '$0 --help' for more information."
+                echo "$base_toolbox_command: missing argument for '--release'"
+                echo "Try '$base_toolbox_command --help' for more information."
                 exit 1
             fi
             arg=$(echo $1 | sed 's/^F\|^f//' 2>&42)
             if ! is_integer $arg; then
-                echo "$0: invalid argument for '--release'"
-                echo "Try '$0 --help' for more information."
+                echo "$base_toolbox_command: invalid argument for '--release'"
+                echo "Try '$base_toolbox_command --help' for more information."
                 exit 1
             fi
             if [ $arg -le 0 2>&42 ]; then
-                echo "$0: invalid argument for '--release'"
-                echo "Try '$0 --help' for more information."
+                echo "$base_toolbox_command: invalid argument for '--release'"
+                echo "Try '$base_toolbox_command --help' for more information."
                 exit 1
             fi
             release=$arg
@@ -562,8 +564,8 @@ base_toolbox_image="fedora-toolbox:$release"
 toolbox_image="fedora-toolbox-$USER:$release"
 
 if [ "$1" = "" ]; then
-    echo "$0: missing command"
-    echo "Try '$0 --help' for more information."
+    echo "$base_toolbox_command: missing command"
+    echo "Try '$base_toolbox_command --help' for more information."
     exit 1
 fi
 
@@ -580,8 +582,8 @@ case $op in
                 --image )
                     shift
                     if [ "$1" = "" ]; then
-                        echo "$0: missing argument for '--image'"
-                        echo "Try '$0 --help' for more information."
+                        echo "$base_toolbox_command: missing argument for '--image'"
+                        echo "Try '$base_toolbox_command --help' for more information."
                         exit 1
                     fi
                     toolbox_image=$1
@@ -635,7 +637,7 @@ case $op in
         exit
         ;;
     * )
-        echo "$0: unrecognized command '$op'"
-        echo "Try '$0 --help' for more information."
+        echo "$base_toolbox_command: unrecognized command '$op'"
+        echo "Try '$base_toolbox_command --help' for more information."
         exit 1
 esac
