@@ -27,6 +27,7 @@ prefix_sudo=""
 registry="registry.fedoraproject.org"
 registry_candidate="candidate-registry.fedoraproject.org"
 spinner_animation="[>----] [=>---] [==>--] [===>-] [====>] [----<] [---<=] [--<==] [-<===] [<====]"
+spinner_template="toolbox-spinner-XXXXXXXXXX"
 toolbox_prompt="🔹[\u@\h \W]\\$ "
 verbose=false
 
@@ -231,7 +232,7 @@ create()
                      localhost/$base_toolbox_image >/dev/null 2>&42; then
             echo "$base_toolbox_command: looking for image $registry/$fgc/$base_toolbox_image" >&42
 
-            if spinner_directory=$(mktemp --directory --tmpdir toolbox-spinner-XXXXXXXXXX 2>&42); then
+            if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&42); then
                 spinner_message="$base_toolbox_command: pulling from $registry: "
                 if ! spinner_start "$spinner_directory" "$spinner_message"; then
                     spinner_directory=""
@@ -258,7 +259,7 @@ create()
 
         echo "$base_toolbox_command: trying to configure working container $working_container_name" >&42
 
-        if spinner_directory=$(mktemp --directory --tmpdir toolbox-spinner-XXXXXXXXXX 2>&42); then
+        if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&42); then
             spinner_message="$base_toolbox_command: configuring working container: "
             if ! spinner_start "$spinner_directory" "$spinner_message"; then
                 spinner_directory=""
@@ -282,7 +283,7 @@ create()
 
         echo "$base_toolbox_command: trying to create image $toolbox_image" >&42
 
-        if spinner_directory=$(mktemp --directory --tmpdir toolbox-spinner-XXXXXXXXXX 2>&42); then
+        if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&42); then
             spinner_message="$base_toolbox_command: creating image $toolbox_image: "
             if ! spinner_start "$spinner_directory" "$spinner_message"; then
                 spinner_directory=""
@@ -326,7 +327,7 @@ create()
 
     echo "$base_toolbox_command: trying to create container $toolbox_container" >&42
 
-    if spinner_directory=$(mktemp --directory --tmpdir toolbox-spinner-XXXXXXXXXX 2>&42); then
+    if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&42); then
         spinner_message="$base_toolbox_command: creating container $toolbox_container: "
         if ! spinner_start "$spinner_directory" "$spinner_message"; then
             spinner_directory=""
