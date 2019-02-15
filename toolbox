@@ -212,7 +212,7 @@ create()
 (
     dbus_system_bus_address="unix:path=/var/run/dbus/system_bus_socket"
     tmpfs_size=$((64 * 1024 * 1024)) # 64 MiB
-    working_container_name="fedora-toolbox-working-container-$(uuidgen --time)"
+    working_container_name="toolbox-working-container-$(uuidgen --time)"
 
     if [ "$DBUS_SYSTEM_BUS_ADDRESS" != "" ]; then
         dbus_system_bus_address=$DBUS_SYSTEM_BUS_ADDRESS
@@ -231,7 +231,7 @@ create()
                      localhost/$base_toolbox_image >/dev/null 2>&42; then
             echo "$base_toolbox_command: looking for image $registry/$fgc/$base_toolbox_image" >&42
 
-            if spinner_directory=$(mktemp --directory --tmpdir fedora-toolbox-spinner-XXXXXXXXXX 2>&42); then
+            if spinner_directory=$(mktemp --directory --tmpdir toolbox-spinner-XXXXXXXXXX 2>&42); then
                 spinner_message="$base_toolbox_command: pulling from $registry: "
                 if ! spinner_start "$spinner_directory" "$spinner_message"; then
                     spinner_directory=""
@@ -258,7 +258,7 @@ create()
 
         echo "$base_toolbox_command: trying to configure working container $working_container_name" >&42
 
-        if spinner_directory=$(mktemp --directory --tmpdir fedora-toolbox-spinner-XXXXXXXXXX 2>&42); then
+        if spinner_directory=$(mktemp --directory --tmpdir toolbox-spinner-XXXXXXXXXX 2>&42); then
             spinner_message="$base_toolbox_command: configuring working container: "
             if ! spinner_start "$spinner_directory" "$spinner_message"; then
                 spinner_directory=""
@@ -282,7 +282,7 @@ create()
 
         echo "$base_toolbox_command: trying to create image $toolbox_image" >&42
 
-        if spinner_directory=$(mktemp --directory --tmpdir fedora-toolbox-spinner-XXXXXXXXXX 2>&42); then
+        if spinner_directory=$(mktemp --directory --tmpdir toolbox-spinner-XXXXXXXXXX 2>&42); then
             spinner_message="$base_toolbox_command: creating image $toolbox_image: "
             if ! spinner_start "$spinner_directory" "$spinner_message"; then
                 spinner_directory=""
@@ -326,7 +326,7 @@ create()
 
     echo "$base_toolbox_command: trying to create container $toolbox_container" >&42
 
-    if spinner_directory=$(mktemp --directory --tmpdir fedora-toolbox-spinner-XXXXXXXXXX 2>&42); then
+    if spinner_directory=$(mktemp --directory --tmpdir toolbox-spinner-XXXXXXXXXX 2>&42); then
         spinner_message="$base_toolbox_command: creating container $toolbox_container: "
         if ! spinner_start "$spinner_directory" "$spinner_message"; then
             spinner_directory=""
@@ -436,7 +436,7 @@ list_images()
              | column --separator $'\t' --table --table-columns "IMAGE ID,IMAGE NAME,CREATED")
 
     if [ "$output" != "" ]; then
-        echo -e "${LBC}Images created by fedora-toolbox${NC}"
+        echo -e "${LBC}Images created by toolbox${NC}"
         echo "$output"
     fi
 )
@@ -455,7 +455,7 @@ list_containers()
                        --table-columns "CONTAINER ID,CONTAINER NAME,CREATED,STATUS,IMAGE NAME" 2>&42)
 
     if [ "$output" != "" ]; then
-        echo -e "${LBC}Containers created by fedora-toolbox${NC}"
+        echo -e "${LBC}Containers created by toolbox${NC}"
         echo "$output" | head --lines 1 2>&42
         (
             echo "$output" | tail --lines +2 2>&42
@@ -495,18 +495,18 @@ exit_if_unrecognized_option()
 
 usage()
 {
-    echo "Usage: fedora-toolbox [--container <name>]"
-    echo "                      [--release <release>]"
-    echo "                      [-v | --verbose]"
-    echo "                      create [--candidate-registry]"
-    echo "                             [--image <name>]"
-    echo "   or: fedora-toolbox [--container <name>]"
-    echo "                      [--release <release>]"
-    echo "                      [-v | --verbose]"
-    echo "                      enter"
-    echo "   or: fedora-toolbox list [-c | --containers]"
-    echo "                           [-i | --images]"
-    echo "   or: fedora-toolbox --help"
+    echo "Usage: toolbox [--container <name>]"
+    echo "               [--release <release>]"
+    echo "               [-v | --verbose]"
+    echo "               create [--candidate-registry]"
+    echo "                      [--image <name>]"
+    echo "   or: toolbox [--container <name>]"
+    echo "               [--release <release>]"
+    echo "               [-v | --verbose]"
+    echo "               enter"
+    echo "   or: toolbox list [-c | --containers]"
+    echo "                    [-i | --images]"
+    echo "   or: toolbox --help"
 }
 
 

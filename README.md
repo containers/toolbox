@@ -1,8 +1,8 @@
-# Fedora Toolbox — Unprivileged development environment
+# Toolbox — Unprivileged development environment
 
-[Fedora Toolbox](https://github.com/debarshiray/fedora-toolbox) is a tool that
-offers a familiar RPM based environment for developing and debugging software
-that runs fully unprivileged using [Podman](https://podman.io/).
+[Toolbox](https://github.com/debarshiray/toolbox) is a tool that offers a
+familiar RPM based environment for developing and debugging software that runs
+fully unprivileged using [Podman](https://podman.io/).
 
 The toolbox container is a fully *mutable* container; when you see
 `yum install ansible` for example, that's something you can do inside your
@@ -18,23 +18,24 @@ However this project doesn't *require* using an OSTree based system — it
 works equally well if you're running e.g. existing Fedora Workstation or
 Server, and that's a useful way to incrementally adopt containerization.
 
-The toolbox environment is based on the `fedora-toolbox` image. This image is
-then customized for the current user to create a toolbox container that
-seamlessly integrates with the rest of the operating system.
+The toolbox environment is based on an OCI image. On Fedora this is the
+`fedora-toolbox` image. This image is then customized for the current user to
+create a toolbox container thatseamlessly integrates with the rest of the
+operating system.
 
 ## Usage
 
-### Create your Fedora Toolbox container:
+### Create your toolbox container:
 ```
-[user@hostname ~]$ fedora-toolbox create
+[user@hostname ~]$ toolbox create
 [user@hostname ~]$
 ```
 This will create a container, and an image, called
 `fedora-toolbox-<your-username>:<version-id>` that's specifically customised
 for your host user.
 
-### Enter the Toolbox:
+### Enter the toolbox:
 ```
-[user@hostname ~]$ fedora-toolbox enter
+[user@hostname ~]$ toolbox enter
 🔹[user@toolbox ~]$
 ```
