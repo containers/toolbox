@@ -533,7 +533,7 @@ while has_prefix "$1" -; do
                 echo "Try '$base_toolbox_command --help' for more information."
                 exit 1
             fi
-            arg=$(echo $1 | sed 's/^F\|^f//' 2>&42)
+            arg=$(echo $1 | sed "s/^F\|^f//" 2>&42)
             if ! is_integer $arg; then
                 echo "$base_toolbox_command: invalid argument for '--release'"
                 echo "Try '$base_toolbox_command --help' for more information."
