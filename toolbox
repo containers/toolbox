@@ -343,6 +343,7 @@ create()
             --interactive \
             --name $toolbox_container \
             --network host \
+            --pid host \
             --privileged \
             --security-opt label=disable \
             --tmpfs /dev/shm:size=$tmpfs_size \
