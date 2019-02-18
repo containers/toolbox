@@ -18,6 +18,7 @@
 
 exec 42>/dev/null
 
+arguments="$@"
 base_toolbox_command=$(basename "$0" 2>&42)
 base_toolbox_image=""
 environment_variables="COLORTERM \
@@ -43,6 +44,7 @@ fgc=""
 source /etc/os-release
 release=$VERSION_ID
 
+podman_pid=""
 prefix_sudo=""
 registry="registry.fedoraproject.org"
 registry_candidate="candidate-registry.fedoraproject.org"
@@ -546,6 +548,19 @@ exit_if_unrecognized_option()
 }
 
 
+forward_to_host()
+(
+    if [ "$DBUS_SYSTEM_BUS_ADDRESS" != "" ]; then
+        set_dbus_system_bus_address="--env=DBUS_SYSTEM_BUS_ADDRESS=$DBUS_SYSTEM_BUS_ADDRESS"
+    fi
+
+    set_environment_variables=$(create_environment_variable_options)
+
+    echo "$base_toolbox_command: forwarding to host: $0 $arguments" >&42
+    flatpak-spawn $set_dbus_system_bus_address $set_environment_variables --host "$0" $arguments 2>&42
+)
+
+
 update_container_and_image_names()
 {
     base_toolbox_image="fedora-toolbox:$release"
@@ -590,6 +605,42 @@ while has_prefix "$1" -; do
     shift
 done
 
+if [ -f /run/.containerenv ] 2>&42; then
+    if ! which flatpak-spawn >/dev/null 2>&42; then
+        echo "$base_toolbox_command: flatpak-spawn not found"
+        exit 1
+    fi
+
+    echo "$base_toolbox_command: looking for podman PID" >&42
+
+    pid_i=$$
+    while [ "$pid_i" -gt 1 ] 2>&42; do
+        cmdline=$(cat /proc/$pid_i/cmdline 2>&42 | sed "s/\x0/ /g" 2>&42)
+        if has_prefix "$cmdline" "podman exec "; then
+            podman_pid=$pid_i
+            break
+        fi
+
+        pid_i=$(ps -p $pid_i -o ppid= 2>&42 | sed "s/ //" 2>&42)
+        if ! is_integer "$pid_i"; then
+            echo "$base_toolbox_command: invalid parent PID"
+            break
+        fi
+    done
+
+    if ! is_integer "$podman_pid"; then
+        echo "$base_toolbox_command: invalid podman PID"
+        podman_pid=""
+    fi
+
+    if [ "$podman_pid" = "" ]; then
+        echo "$base_toolbox_command: cannot be used outside podman exec"
+        exit 1
+    fi
+
+    echo "$base_toolbox_command: podman PID is $podman_pid" >&42
+fi
+
 if [ "$1" = "" ]; then
     echo "$base_toolbox_command: missing command"
     echo "Try '$base_toolbox_command --help' for more information."
@@ -601,88 +652,100 @@ shift
 
 case $op in
     create )
-        while has_prefix "$1" -; do
-            case $1 in
-                --candidate-registry )
-                    registry=$registry_candidate
-                    ;;
-                --container )
-                    shift
-                    exit_if_missing_argument --container "$1"
-                    toolbox_container=$1
-                    ;;
-                --image )
-                    shift
-                    exit_if_missing_argument --image "$1"
-                    toolbox_image=$1
-                    ;;
-                --release )
-                    shift
-                    exit_if_missing_argument --release "$1"
-                    arg=$(echo $1 | sed "s/^F\|^f//" 2>&42)
-                    exit_if_non_positive_argument --release "$arg"
-                    release=$arg
-                    ;;
-                * )
-                    exit_if_unrecognized_option $1
-            esac
-            shift
-        done
-        exit_if_extra_operand $1
-        update_container_and_image_names
-        create
+        if is_integer "$podman_pid"; then
+            forward_to_host
+        else
+            while has_prefix "$1" -; do
+                case $1 in
+                    --candidate-registry )
+                        registry=$registry_candidate
+                        ;;
+                    --container )
+                        shift
+                        exit_if_missing_argument --container "$1"
+                        toolbox_container=$1
+                        ;;
+                    --image )
+                        shift
+                        exit_if_missing_argument --image "$1"
+                        toolbox_image=$1
+                        ;;
+                    --release )
+                        shift
+                        exit_if_missing_argument --release "$1"
+                        arg=$(echo $1 | sed "s/^F\|^f//" 2>&42)
+                        exit_if_non_positive_argument --release "$arg"
+                        release=$arg
+                        ;;
+                    * )
+                        exit_if_unrecognized_option $1
+                esac
+                shift
+            done
+            exit_if_extra_operand $1
+            update_container_and_image_names
+            create
+        fi
         exit
         ;;
     enter )
-        while has_prefix "$1" -; do
-            case $1 in
-                --container )
-                    shift
-                    exit_if_missing_argument --container "$1"
-                    toolbox_container=$1
-                    ;;
-                --release )
-                    shift
-                    exit_if_missing_argument --release "$1"
-                    arg=$(echo $1 | sed "s/^F\|^f//" 2>&42)
-                    exit_if_non_positive_argument --release "$arg"
-                    release=$arg
-                    ;;
-                * )
-                    exit_if_unrecognized_option $1
-            esac
-            shift
-        done
-        exit_if_extra_operand $1
-        update_container_and_image_names
-        enter
+        if is_integer "$podman_pid"; then
+            forward_to_host
+        else
+            while has_prefix "$1" -; do
+                case $1 in
+                    --container )
+                        shift
+                        exit_if_missing_argument --container "$1"
+                        toolbox_container=$1
+                        ;;
+                    --release )
+                        shift
+                        exit_if_missing_argument --release "$1"
+                        arg=$(echo $1 | sed "s/^F\|^f//" 2>&42)
+                        exit_if_non_positive_argument --release "$arg"
+                        release=$arg
+                        ;;
+                    * )
+                        exit_if_unrecognized_option $1
+                esac
+                shift
+            done
+            exit_if_extra_operand $1
+            update_container_and_image_names
+            enter
+        fi
         exit
         ;;
     list )
-        ls_images=false
-        ls_containers=false
-        while has_prefix "$1" -; do
-            case $1 in
-                -c | --containers )
-                    ls_containers=true
-                    ;;
-                -i | --images )
-                    ls_images=true
-                    ;;
-                * )
-                    exit_if_unrecognized_option $1
-            esac
-            shift
-        done
-        exit_if_extra_operand $1
+        if is_integer "$podman_pid"; then
+            forward_to_host
+        else
+            ls_images=false
+            ls_containers=false
+            while has_prefix "$1" -; do
+                case $1 in
+                    -c | --containers )
+                        ls_containers=true
+                        ;;
+                    -i | --images )
+                        ls_images=true
+                        ;;
+                    * )
+                        exit_if_unrecognized_option $1
+                esac
+                shift
+            done
+            exit_if_extra_operand $1
 
-        if ! $ls_containers && ! $ls_images; then
-            ls_containers=true
-            ls_images=true
+            if ! $ls_containers && ! $ls_images; then
+                ls_containers=true
+                ls_images=true
+            fi
+
+            $ls_images && list_images
+            $ls_containers && list_containers
         fi
-
-        $ls_images && list_images
-        $ls_containers && list_containers
         exit
         ;;
     * )
