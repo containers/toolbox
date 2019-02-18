@@ -22,7 +22,7 @@ base_toolbox_command=$(basename "$0" 2>&42)
 base_toolbox_image=""
 fgc=""
 
-source /etc/os-release
+. /etc/os-release
 release=$VERSION_ID
 
 prefix_sudo=""
