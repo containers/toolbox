@@ -88,7 +88,7 @@ spinner_start()
 
     (
         while [ -f "$directory/spinner-start" ]; do
-            echo "$spinner_animation" | tr " " "\n" 2>&42 | while read frame; do
+            echo "$spinner_animation" | sed "s/ /\n/g" 2>&42 | while read frame; do
                 echo -n "$frame"
 
                 frame_len=${#frame}
