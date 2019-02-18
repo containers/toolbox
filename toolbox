@@ -19,6 +19,8 @@
 exec 42>/dev/null
 
 base_toolbox_command=$(basename "$0" 2>&42)
+base_toolbox_image=""
+fgc=""
 
 source /etc/os-release
 release=$VERSION_ID
@@ -28,6 +30,8 @@ registry="registry.fedoraproject.org"
 registry_candidate="candidate-registry.fedoraproject.org"
 spinner_animation="[>----] [=>---] [==>--] [===>-] [====>] [----<] [---<=] [--<==] [-<===] [<====]"
 spinner_template="toolbox-spinner-XXXXXXXXXX"
+toolbox_container=""
+toolbox_image=""
 toolbox_prompt="🔹[\u@\h \W]\\$ "
 verbose=false
 
@@ -520,16 +524,25 @@ exit_if_unrecognized_option()
 }
 
 
+update_container_and_image_names()
+{
+    base_toolbox_image="fedora-toolbox:$release"
+    fgc="f$release"
+    [ "$toolbox_container" = "" ] && toolbox_container="fedora-toolbox-$USER:$release"
+    [ "$toolbox_image" = "" ] && toolbox_image="fedora-toolbox-$USER:$release"
+}
+
+
 usage()
 {
-    echo "Usage: toolbox [--release <release>]"
-    echo "               [-v | --verbose]"
+    echo "Usage: toolbox [-v | --verbose]"
     echo "               create [--candidate-registry]"
     echo "                      [--container <name>]"
     echo "                      [--image <name>]"
-    echo "   or: toolbox [--release <release>]"
-    echo "               [-v | --verbose]"
+    echo "                      [--release <release>]"
+    echo "   or: toolbox [-v | --verbose]"
     echo "               enter [--container <name>]"
+    echo "                     [--release <release>]"
     echo "   or: toolbox list [-c | --containers]"
     echo "                    [-i | --images]"
     echo "   or: toolbox --help"
@@ -541,13 +554,6 @@ while has_prefix "$1" -; do
         -h | --help )
             usage
             exit
-            ;;
-        --release )
-            shift
-            exit_if_missing_argument --release "$1"
-            arg=$(echo $1 | sed "s/^F\|^f//" 2>&42)
-            exit_if_non_positive_argument --release "$arg"
-            release=$arg
             ;;
         --sudo )
             prefix_sudo="sudo"
@@ -561,11 +567,6 @@ while has_prefix "$1" -; do
     esac
     shift
 done
-
-fgc="f$release"
-toolbox_container="fedora-toolbox-$USER:$release"
-base_toolbox_image="fedora-toolbox:$release"
-toolbox_image="fedora-toolbox-$USER:$release"
 
 if [ "$1" = "" ]; then
     echo "$base_toolbox_command: missing command"
@@ -593,12 +594,20 @@ case $op in
                     exit_if_missing_argument --image "$1"
                     toolbox_image=$1
                     ;;
+                --release )
+                    shift
+                    exit_if_missing_argument --release "$1"
+                    arg=$(echo $1 | sed "s/^F\|^f//" 2>&42)
+                    exit_if_non_positive_argument --release "$arg"
+                    release=$arg
+                    ;;
                 * )
                     exit_if_unrecognized_option $1
             esac
             shift
         done
         exit_if_extra_operand $1
+        update_container_and_image_names
         create
         exit
         ;;
@@ -610,12 +619,20 @@ case $op in
                     exit_if_missing_argument --container "$1"
                     toolbox_container=$1
                     ;;
+                --release )
+                    shift
+                    exit_if_missing_argument --release "$1"
+                    arg=$(echo $1 | sed "s/^F\|^f//" 2>&42)
+                    exit_if_non_positive_argument --release "$arg"
+                    release=$arg
+                    ;;
                 * )
                     exit_if_unrecognized_option $1
             esac
             shift
         done
         exit_if_extra_operand $1
+        update_container_and_image_names
         enter
         exit
         ;;
