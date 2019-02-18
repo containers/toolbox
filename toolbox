@@ -497,6 +497,21 @@ exit_if_missing_argument()
 }
 
 
+exit_if_non_positive_argument()
+{
+    if ! is_integer "$2"; then
+        echo "$base_toolbox_command: invalid argument for '$1'"
+        echo "Try '$base_toolbox_command --help' for more information."
+        exit 1
+    fi
+    if [ "$2" -le 0 2>&42 ]; then
+        echo "$base_toolbox_command: invalid argument for '$1'"
+        echo "Try '$base_toolbox_command --help' for more information."
+        exit 1
+    fi
+}
+
+
 exit_if_unrecognized_option()
 {
     echo "$base_toolbox_command: unrecognized option '$1'"
@@ -531,16 +546,7 @@ while has_prefix "$1" -; do
             shift
             exit_if_missing_argument --release "$1"
             arg=$(echo $1 | sed "s/^F\|^f//" 2>&42)
-            if ! is_integer $arg; then
-                echo "$base_toolbox_command: invalid argument for '--release'"
-                echo "Try '$base_toolbox_command --help' for more information."
-                exit 1
-            fi
-            if [ $arg -le 0 2>&42 ]; then
-                echo "$base_toolbox_command: invalid argument for '--release'"
-                echo "Try '$base_toolbox_command --help' for more information."
-                exit 1
-            fi
+            exit_if_non_positive_argument --release "$arg"
             release=$arg
             ;;
         --sudo )
