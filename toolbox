@@ -20,6 +20,24 @@ exec 42>/dev/null
 
 base_toolbox_command=$(basename "$0" 2>&42)
 base_toolbox_image=""
+environment_variables="COLORTERM \
+        DBUS_SESSION_BUS_ADDRESS \
+        DESKTOP_SESSION \
+        DISPLAY \
+        LANG \
+        SHELL \
+        SSH_AUTH_SOCK \
+        TERM \
+        VTE_VERSION \
+        XDG_CURRENT_DESKTOP \
+        XDG_DATA_DIRS \
+        XDG_MENU_PREFIX \
+        XDG_RUNTIME_DIR \
+        XDG_SEAT \
+        XDG_SESSION_DESKTOP \
+        XDG_SESSION_ID \
+        XDG_SESSION_TYPE \
+        XDG_VTNR"
 fgc=""
 
 source /etc/os-release
@@ -213,6 +231,25 @@ configure_working_container()
 )
 
 
+create_environment_variable_options()
+{
+    echo "$environment_variables" \
+        | sed "s/ \+/\n/g" 2>&42 \
+        | {
+              environment_variable_options=""
+              echo "$base_toolbox_command: creating list of environment variables to forward" >&42
+              while read variable; do
+                  eval value="$"$variable
+                  echo "$base_toolbox_command: $variable=$value" >&42
+                  environment_variables_options="$environment_variables_options --env=$variable=$value"
+              done
+              echo "$base_toolbox_command: created options for environment variables to forward" >&42
+              echo $environment_variables_options >&42
+              echo $environment_variables_options
+          }
+}
+
+
 create()
 (
     dbus_system_bus_address="unix:path=/var/run/dbus/system_bus_socket"
@@ -392,6 +429,8 @@ enter()
         set_dbus_system_bus_address="--env DBUS_SYSTEM_BUS_ADDRESS=$DBUS_SYSTEM_BUS_ADDRESS"
     fi
 
+    set_environment_variables=$(create_environment_variable_options)
+
     echo "$base_toolbox_command: looking for $SHELL in container $toolbox_container" >&42
 
     if $prefix_sudo podman exec $toolbox_container test -f $SHELL 2>&42; then
@@ -403,25 +442,8 @@ enter()
     echo "$base_toolbox_command: trying to exec $shell_to_exec in container $toolbox_container" >&42
 
     $prefix_sudo podman exec \
-            --env COLORTERM=$COLORTERM \
-            --env DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS \
             $set_dbus_system_bus_address \
-            --env DESKTOP_SESSION=$DESKTOP_SESSION \
-            --env DISPLAY=$DISPLAY \
-            --env LANG=$LANG \
-            --env SHELL=$SHELL \
-            --env SSH_AUTH_SOCK=$SSH_AUTH_SOCK \
-            --env TERM=$TERM \
-            --env VTE_VERSION=$VTE_VERSION \
-            --env XDG_CURRENT_DESKTOP=$XDG_CURRENT_DESKTOP \
-            --env XDG_DATA_DIRS=$XDG_DATA_DIRS \
-            --env XDG_MENU_PREFIX=$XDG_MENU_PREFIX \
-            --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
-            --env XDG_SEAT=$XDG_SEAT \
-            --env XDG_SESSION_DESKTOP=$XDG_SESSION_DESKTOP \
-            --env XDG_SESSION_ID=$XDG_SESSION_ID \
-            --env XDG_SESSION_TYPE=$XDG_SESSION_TYPE \
-            --env XDG_VTNR=$XDG_VTNR \
+            $set_environment_variables \
             --interactive \
             --tty \
             $toolbox_container \
