@@ -487,6 +487,16 @@ exit_if_extra_operand()
 }
 
 
+exit_if_missing_argument()
+{
+    if [ "$2" = "" ]; then
+        echo "$base_toolbox_command: missing argument for '$1'"
+        echo "Try '$base_toolbox_command --help' for more information."
+        exit 1
+    fi
+}
+
+
 exit_if_unrecognized_option()
 {
     echo "$base_toolbox_command: unrecognized option '$1'"
@@ -516,11 +526,7 @@ while has_prefix "$1" -; do
     case $1 in
         --container )
             shift
-            if [ "$1" = "" ]; then
-                echo "$base_toolbox_command: missing argument for '--container'"
-                echo "Try '$base_toolbox_command --help' for more information."
-                exit 1
-            fi
+            exit_if_missing_argument --container "$1"
             toolbox_container=$1
             ;;
         -h | --help )
@@ -529,11 +535,7 @@ while has_prefix "$1" -; do
             ;;
         --release )
             shift
-            if [ "$1" = "" ]; then
-                echo "$base_toolbox_command: missing argument for '--release'"
-                echo "Try '$base_toolbox_command --help' for more information."
-                exit 1
-            fi
+            exit_if_missing_argument --release "$1"
             arg=$(echo $1 | sed "s/^F\|^f//" 2>&42)
             if ! is_integer $arg; then
                 echo "$base_toolbox_command: invalid argument for '--release'"
@@ -583,11 +585,7 @@ case $op in
                     ;;
                 --image )
                     shift
-                    if [ "$1" = "" ]; then
-                        echo "$base_toolbox_command: missing argument for '--image'"
-                        echo "Try '$base_toolbox_command --help' for more information."
-                        exit 1
-                    fi
+                    exit_if_missing_argument --image "$1"
                     toolbox_image=$1
                     ;;
                 * )
