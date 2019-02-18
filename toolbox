@@ -507,15 +507,14 @@ exit_if_unrecognized_option()
 
 usage()
 {
-    echo "Usage: toolbox [--container <name>]"
-    echo "               [--release <release>]"
+    echo "Usage: toolbox [--release <release>]"
     echo "               [-v | --verbose]"
     echo "               create [--candidate-registry]"
+    echo "                      [--container <name>]"
     echo "                      [--image <name>]"
-    echo "   or: toolbox [--container <name>]"
-    echo "               [--release <release>]"
+    echo "   or: toolbox [--release <release>]"
     echo "               [-v | --verbose]"
-    echo "               enter"
+    echo "               enter [--container <name>]"
     echo "   or: toolbox list [-c | --containers]"
     echo "                    [-i | --images]"
     echo "   or: toolbox --help"
@@ -524,11 +523,6 @@ usage()
 
 while has_prefix "$1" -; do
     case $1 in
-        --container )
-            shift
-            exit_if_missing_argument --container "$1"
-            toolbox_container=$1
-            ;;
         -h | --help )
             usage
             exit
@@ -563,7 +557,7 @@ while has_prefix "$1" -; do
 done
 
 fgc="f$release"
-[ "$toolbox_container" = "" ] && toolbox_container="fedora-toolbox-$USER:$release"
+toolbox_container="fedora-toolbox-$USER:$release"
 base_toolbox_image="fedora-toolbox:$release"
 toolbox_image="fedora-toolbox-$USER:$release"
 
@@ -583,6 +577,11 @@ case $op in
                 --candidate-registry )
                     registry=$registry_candidate
                     ;;
+                --container )
+                    shift
+                    exit_if_missing_argument --container "$1"
+                    toolbox_container=$1
+                    ;;
                 --image )
                     shift
                     exit_if_missing_argument --image "$1"
@@ -600,6 +599,11 @@ case $op in
     enter )
         while has_prefix "$1" -; do
             case $1 in
+                --container )
+                    shift
+                    exit_if_missing_argument --container "$1"
+                    toolbox_container=$1
+                    ;;
                 * )
                     exit_if_unrecognized_option $1
             esac
