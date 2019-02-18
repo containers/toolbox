@@ -463,20 +463,20 @@ list_containers()
     if [ "$output" != "" ]; then
         echo -e "${LBC}Containers created by toolbox${NC}"
         echo "$output" | head --lines 1 2>&42
-        (
-            echo "$output" | tail --lines +2 2>&42
-        ) | (
-            unset IFS
-            while read container; do
-                container_id=$(echo $container | cut --delimiter " " --fields 1 2>&42)
-                is_running=$($prefix_sudo podman inspect $container_id --format "{{.State.Running}}" 2>&42)
-                if $is_running; then
-                    echo -e "${LGC}$container${NC}"
-                else
-                    echo "$container"
-                fi
-            done
-        )
+
+        echo "$output" | tail --lines +2 2>&42 \
+            | (
+                  unset IFS
+                  while read container; do
+                      container_id=$(echo $container | cut --delimiter " " --fields 1 2>&42)
+                      is_running=$($prefix_sudo podman inspect $container_id --format "{{.State.Running}}" 2>&42)
+                      if $is_running; then
+                          echo -e "${LGC}$container${NC}"
+                      else
+                          echo "$container"
+                      fi
+                  done
+              )
     fi
 )
 
