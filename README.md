@@ -18,10 +18,10 @@ However this project doesn't *require* using an OSTree based system — it
 works equally well if you're running e.g. existing Fedora Workstation or
 Server, and that's a useful way to incrementally adopt containerization.
 
-The toolbox environment is based on an OCI image. On Fedora this is the
-`fedora-toolbox` image. This image is then customized for the current user to
-create a toolbox container that seamlessly integrates with the rest of the
-operating system.
+The toolbox environment is based on an [OCI](https://www.opencontainers.org/)
+image. On Fedora this is the `fedora-toolbox` image. This image is then
+customized for the current user to create a toolbox container that seamlessly
+integrates with the rest of the operating system.
 
 ## Usage
 
