@@ -57,6 +57,14 @@ Enter an existing toolbox container for interactive use.
 
 List existing toolbox containers and images.
 
+**toolbox-rm(1)**
+
+Remove one or more toolbox containers.
+
+**toolbox-rmi(1)**
+
+Remove one or more toolbox images.
+
 ## SEE ALSO
 
 `buildah(1)`, `podman(1)`
