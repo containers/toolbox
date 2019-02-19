@@ -41,6 +41,7 @@ environment_variables="COLORTERM \
         XDG_VTNR"
 fgc=""
 
+# shellcheck disable=SC1091
 . /etc/os-release
 release=$VERSION_ID
 
