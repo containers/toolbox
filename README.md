@@ -20,7 +20,7 @@ Server, and that's a useful way to incrementally adopt containerization.
 
 The toolbox environment is based on an OCI image. On Fedora this is the
 `fedora-toolbox` image. This image is then customized for the current user to
-create a toolbox container thatseamlessly integrates with the rest of the
+create a toolbox container that seamlessly integrates with the rest of the
 operating system.
 
 ## Usage
