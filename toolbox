@@ -16,10 +16,10 @@
 #
 
 
-exec 42>/dev/null
+exec 3>/dev/null
 
 arguments="$@"
-base_toolbox_command=$(basename "$0" 2>&42)
+base_toolbox_command=$(basename "$0" 2>&3)
 base_toolbox_image=""
 environment_variables="COLORTERM \
         DBUS_SESSION_BUS_ADDRESS \
@@ -83,7 +83,7 @@ has_prefix()
 
 is_integer()
 {
-    [ "$1" != "" ] && [ $1 -eq $1 ] 2>&42
+    [ "$1" != "" ] && [ $1 -eq $1 ] 2>&3
     return $?
 }
 
@@ -94,21 +94,21 @@ spinner_start()
     message="$2"
 
     if $verbose; then
-        rm --force --recursive "$directory" 2>&42
+        rm --force --recursive "$directory" 2>&3
         return 0
     fi
 
-    if ! touch "$directory/spinner-start" 2>&42; then
+    if ! touch "$directory/spinner-start" 2>&3; then
         echo "$base_toolbox_command: unable to start spinner: spinner start file couldn't be created"
         return 1
     fi
 
     echo -n "$message"
-    tput civis 2>&42
+    tput civis 2>&3
 
     (
         while [ -f "$directory/spinner-start" ]; do
-            echo "$spinner_animation" | sed "s/ /\n/g" 2>&42 | while read frame; do
+            echo "$spinner_animation" | sed "s/ /\n/g" 2>&3 | while read frame; do
                 echo -n "$frame"
 
                 frame_len=${#frame}
@@ -124,9 +124,9 @@ spinner_start()
 
         printf "\033[2K" # delete entire line regardless of cursor position
         printf "\r"
-        tput cnorm 2>&42
+        tput cnorm 2>&3
 
-        if ! touch "$directory/spinner-stop" 2>&42; then
+        if ! touch "$directory/spinner-stop" 2>&3; then
             echo "$base_toolbox_command: unable to stop spinner: spinner stop file couldn't be created"
         fi
     ) &
@@ -140,7 +140,7 @@ spinner_stop()
     $verbose && return
     directory="$1"
 
-    if ! rm "$directory/spinner-start" 2>&42; then
+    if ! rm "$directory/spinner-start" 2>&3; then
         echo "$base_toolbox_command: unable to stop spinner: spinner start file couldn't be removed"
         return
     fi
@@ -149,7 +149,7 @@ spinner_stop()
         :
     done
 
-    rm --force --recursive "$directory" 2>&42
+    rm --force --recursive "$directory" 2>&3
 )
 
 
@@ -165,8 +165,8 @@ configure_working_container()
 
     if $need_home_link ; then
         if ! $prefix_sudo buildah run $working_container_name -- \
-                     sh -c 'rmdir /home && mkdir -m 0755 -p /var/home && ln -s var/home /home' 2>&42; then
-            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
+                     sh -c 'rmdir /home && mkdir -m 0755 -p /var/home && ln -s var/home /home' 2>&3; then
+            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&3
             echo "$base_toolbox_command: failed to make /home a symlink"
             return 1
         fi
@@ -179,52 +179,52 @@ configure_working_container()
                  --uid $UID \
                  --groups wheel \
                  $USER \
-                 >/dev/null 2>&42; then
+                 >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to create user $USER with UID $UID"
         return 1
     fi
 
-    if ! $prefix_sudo buildah run $working_container_name -- passwd -d $USER >/dev/null 2>&42; then
+    if ! $prefix_sudo buildah run $working_container_name -- passwd -d $USER >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to remove password for user $USER"
         return 1
     fi
 
-    if ! $prefix_sudo buildah run $working_container_name -- passwd -d root >/dev/null 2>&42; then
+    if ! $prefix_sudo buildah run $working_container_name -- passwd -d root >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to remove password for user root"
         return 1
     fi
 
-    if ! $prefix_sudo buildah config --volume $HOME $working_container_name >/dev/null 2>&42; then
+    if ! $prefix_sudo buildah config --volume $HOME $working_container_name >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to configure volume for $HOME"
         return 1
     fi
 
-    if ! $prefix_sudo buildah config --volume $XDG_RUNTIME_DIR $working_container_name >/dev/null 2>&42; then
+    if ! $prefix_sudo buildah config --volume $XDG_RUNTIME_DIR $working_container_name >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to configure volume for $XDG_RUNTIME_DIR"
         return 1
     fi
 
-    if ! $prefix_sudo buildah config --volume $dbus_system_bus_path $working_container_name >/dev/null 2>&42; then
+    if ! $prefix_sudo buildah config --volume $dbus_system_bus_path $working_container_name >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to configure volume for $dbus_system_bus_path"
         return 1
     fi
 
-    if ! $prefix_sudo buildah config --volume /dev/dri $working_container_name >/dev/null 2>&42; then
+    if ! $prefix_sudo buildah config --volume /dev/dri $working_container_name >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to configure volume for /dev/dri"
         return 1
     fi
 
-    if ! $prefix_sudo buildah config --volume /dev/fuse $working_container_name >/dev/null 2>&42; then
+    if ! $prefix_sudo buildah config --volume /dev/fuse $working_container_name >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to configure volume for /dev/fuse"
         return 1
     fi
 
-    if ! $prefix_sudo buildah config --user $USER $working_container_name >/dev/null 2>&42; then
+    if ! $prefix_sudo buildah config --user $USER $working_container_name >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to configure the default user as $USER"
         return 1
     fi
 
-    if ! $prefix_sudo buildah config --workingdir $HOME $working_container_name >/dev/null 2>&42; then
+    if ! $prefix_sudo buildah config --workingdir $HOME $working_container_name >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to configure the initial working directory to $HOME"
         return 1
     fi
@@ -236,17 +236,17 @@ configure_working_container()
 create_environment_options()
 {
     echo "$environment_variables" \
-        | sed "s/ \+/\n/g" 2>&42 \
+        | sed "s/ \+/\n/g" 2>&3 \
         | {
               environment_options=""
-              echo "$base_toolbox_command: creating list of environment variables to forward" >&42
+              echo "$base_toolbox_command: creating list of environment variables to forward" >&3
               while read variable; do
                   eval value="$"$variable
-                  echo "$base_toolbox_command: $variable=$value" >&42
+                  echo "$base_toolbox_command: $variable=$value" >&3
                   environment_options="$environment_options --env=$variable=$value"
               done
-              echo "$base_toolbox_command: created options for environment variables to forward" >&42
-              echo $environment_options >&42
+              echo "$base_toolbox_command: created options for environment variables to forward" >&3
+              echo $environment_options >&3
               echo $environment_options
           }
 }
@@ -261,21 +261,21 @@ create()
     if [ "$DBUS_SYSTEM_BUS_ADDRESS" != "" ]; then
         dbus_system_bus_address=$DBUS_SYSTEM_BUS_ADDRESS
     fi
-    dbus_system_bus_path=$(echo $dbus_system_bus_address | cut --delimiter = --fields 2 2>&42)
-    dbus_system_bus_path=$(readlink --canonicalize $dbus_system_bus_path 2>&42)
+    dbus_system_bus_path=$(echo $dbus_system_bus_address | cut --delimiter = --fields 2 2>&3)
+    dbus_system_bus_path=$(readlink --canonicalize $dbus_system_bus_path 2>&3)
 
-    echo "$base_toolbox_command: checking if image $toolbox_image already exists" >&42
+    echo "$base_toolbox_command: checking if image $toolbox_image already exists" >&3
 
-    if ! $prefix_sudo buildah inspect --type image $toolbox_image >/dev/null 2>&42; then
-        echo "$base_toolbox_command: trying to create working container $working_container_name" >&42
-        echo "$base_toolbox_command: looking for image localhost/$base_toolbox_image" >&42
+    if ! $prefix_sudo buildah inspect --type image $toolbox_image >/dev/null 2>&3; then
+        echo "$base_toolbox_command: trying to create working container $working_container_name" >&3
+        echo "$base_toolbox_command: looking for image localhost/$base_toolbox_image" >&3
 
         if ! $prefix_sudo buildah from \
                      --name $working_container_name \
-                     localhost/$base_toolbox_image >/dev/null 2>&42; then
-            echo "$base_toolbox_command: looking for image $registry/$fgc/$base_toolbox_image" >&42
+                     localhost/$base_toolbox_image >/dev/null 2>&3; then
+            echo "$base_toolbox_command: looking for image $registry/$fgc/$base_toolbox_image" >&3
 
-            if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&42); then
+            if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
                 spinner_message="$base_toolbox_command: pulling from $registry: "
                 if ! spinner_start "$spinner_directory" "$spinner_message"; then
                     spinner_directory=""
@@ -287,7 +287,7 @@ create()
 
             $prefix_sudo buildah from \
                     --name $working_container_name \
-                    $registry/$fgc/$base_toolbox_image >/dev/null 2>&42
+                    $registry/$fgc/$base_toolbox_image >/dev/null 2>&3
             ret_val=$?
 
             if [ "$spinner_directory" != "" ]; then
@@ -300,9 +300,9 @@ create()
             fi
         fi
 
-        echo "$base_toolbox_command: trying to configure working container $working_container_name" >&42
+        echo "$base_toolbox_command: trying to configure working container $working_container_name" >&3
 
-        if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&42); then
+        if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
             spinner_message="$base_toolbox_command: configuring working container: "
             if ! spinner_start "$spinner_directory" "$spinner_message"; then
                 spinner_directory=""
@@ -320,13 +320,13 @@ create()
         fi
 
         if [ $ret_val -ne 0 ]; then
-            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
+            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&3
             exit 1
         fi
 
-        echo "$base_toolbox_command: trying to create image $toolbox_image" >&42
+        echo "$base_toolbox_command: trying to create image $toolbox_image" >&3
 
-        if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&42); then
+        if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
             spinner_message="$base_toolbox_command: creating image $toolbox_image: "
             if ! spinner_start "$spinner_directory" "$spinner_message"; then
                 spinner_directory=""
@@ -336,7 +336,7 @@ create()
             spinner_directory=""
         fi
 
-        $prefix_sudo buildah commit --rm $working_container_name $toolbox_image >/dev/null 2>&42
+        $prefix_sudo buildah commit --rm $working_container_name $toolbox_image >/dev/null 2>&3
         ret_val=$?
 
         if [ "$spinner_directory" != "" ]; then
@@ -344,22 +344,22 @@ create()
         fi
 
         if [ $ret_val -ne 0 ]; then
-            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&42
+            $prefix_sudo buildah rm $working_container_name >/dev/null 2>&3
             echo "$base_toolbox_command: failed to create image $toolbox_image"
             exit 1
         fi
 
-        echo "$base_toolbox_command: created image $toolbox_image" >&42
+        echo "$base_toolbox_command: created image $toolbox_image" >&3
     fi
 
-    echo "$base_toolbox_command: checking if container $toolbox_container already exists" >&42
+    echo "$base_toolbox_command: checking if container $toolbox_container already exists" >&3
 
-    if $prefix_sudo podman inspect --type container $toolbox_container >/dev/null 2>&42; then
+    if $prefix_sudo podman inspect --type container $toolbox_container >/dev/null 2>&3; then
         echo "$base_toolbox_command: container $toolbox_container already exists"
         exit 1
     fi
 
-    total_ram=$(awk '( $1 == "MemTotal:" ) { print $2 }' /proc/meminfo 2>&42) # kibibytes
+    total_ram=$(awk '( $1 == "MemTotal:" ) { print $2 }' /proc/meminfo 2>&3) # kibibytes
     if is_integer $total_ram; then
         tmpfs_size=$((total_ram * 1024 / 2)) # bytes
     fi
@@ -368,9 +368,9 @@ create()
     max_minus_uid=$((max_uid_count - UID))
     uid_plus_one=$((UID + 1))
 
-    echo "$base_toolbox_command: trying to create container $toolbox_container" >&42
+    echo "$base_toolbox_command: trying to create container $toolbox_container" >&3
 
-    if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&42); then
+    if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
         spinner_message="$base_toolbox_command: creating container $toolbox_container: "
         if ! spinner_start "$spinner_directory" "$spinner_message"; then
             spinner_directory=""
@@ -400,7 +400,7 @@ create()
             --volume /dev/dri:/dev/dri \
             --volume /dev/fuse:/dev/fuse \
             $toolbox_image \
-            /bin/sh >/dev/null 2>&42
+            /bin/sh >/dev/null 2>&3
     ret_val=$?
 
     if [ "$spinner_directory" != "" ]; then
@@ -412,7 +412,7 @@ create()
         exit 1
     fi
 
-    echo "$base_toolbox_command: created container $toolbox_container" >&42
+    echo "$base_toolbox_command: created container $toolbox_container" >&3
 )
 
 
@@ -420,9 +420,9 @@ enter()
 (
     shell_to_exec=/bin/bash
 
-    echo "$base_toolbox_command: trying to start container $toolbox_container" >&42
+    echo "$base_toolbox_command: trying to start container $toolbox_container" >&3
 
-    if ! $prefix_sudo podman start $toolbox_container >/dev/null 2>&42; then
+    if ! $prefix_sudo podman start $toolbox_container >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to start container $toolbox_container"
         exit 1
     fi
@@ -433,15 +433,15 @@ enter()
 
     set_environment=$(create_environment_options)
 
-    echo "$base_toolbox_command: looking for $SHELL in container $toolbox_container" >&42
+    echo "$base_toolbox_command: looking for $SHELL in container $toolbox_container" >&3
 
-    if $prefix_sudo podman exec $toolbox_container test -f $SHELL 2>&42; then
+    if $prefix_sudo podman exec $toolbox_container test -f $SHELL 2>&3; then
         shell_to_exec=$SHELL
     else
-        echo "$base_toolbox_command: $SHELL not found in $toolbox_container; using $shell_to_exec instead" >&42
+        echo "$base_toolbox_command: $SHELL not found in $toolbox_container; using $shell_to_exec instead" >&3
     fi
 
-    echo "$base_toolbox_command: trying to exec $shell_to_exec in container $toolbox_container" >&42
+    echo "$base_toolbox_command: trying to exec $shell_to_exec in container $toolbox_container" >&3
 
     $prefix_sudo podman exec \
             $set_dbus_system_bus_address \
@@ -453,7 +453,7 @@ enter()
                     /bin/sh \
                     "$PWD" \
                     "$toolbox_prompt" \
-                    $shell_to_exec -l 2>&42
+                    $shell_to_exec -l 2>&3
 )
 
 
@@ -461,9 +461,9 @@ list_images()
 (
     output=$($prefix_sudo podman images \
                      --filter "label=com.redhat.component=fedora-toolbox" \
-                     --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Created}}" 2>&42 \
-             | sed "s/ \{2,\}/\t/g" 2>&42 \
-             | column --separator $'\t' --table --table-columns "IMAGE ID,IMAGE NAME,CREATED" 2>&42)
+                     --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Created}}" 2>&3 \
+             | sed "s/ \{2,\}/\t/g" 2>&3 \
+             | column --separator $'\t' --table --table-columns "IMAGE ID,IMAGE NAME,CREATED" 2>&3)
 
     if [ "$output" != "" ]; then
         echo -e "${LBC}Images created by toolbox${NC}"
@@ -477,23 +477,23 @@ list_containers()
     output=$($prefix_sudo podman ps \
                      --all \
                      --filter "label=com.redhat.component=fedora-toolbox" \
-                     --format "{{.ID}}  {{.Names}}  {{.Created}}  {{.Status}}  {{.Image}}" 2>&42 \
-             | sed "s/ \{2,\}/\t/g" 2>&42 \
+                     --format "{{.ID}}  {{.Names}}  {{.Created}}  {{.Status}}  {{.Image}}" 2>&3 \
+             | sed "s/ \{2,\}/\t/g" 2>&3 \
              | column \
                        --separator $'\t' \
                        --table \
-                       --table-columns "CONTAINER ID,CONTAINER NAME,CREATED,STATUS,IMAGE NAME" 2>&42)
+                       --table-columns "CONTAINER ID,CONTAINER NAME,CREATED,STATUS,IMAGE NAME" 2>&3)
 
     if [ "$output" != "" ]; then
         echo -e "${LBC}Containers created by toolbox${NC}"
-        echo "$output" | head --lines 1 2>&42
+        echo "$output" | head --lines 1 2>&3
 
-        echo "$output" | tail --lines +2 2>&42 \
+        echo "$output" | tail --lines +2 2>&3 \
             | (
                   unset IFS
                   while read container; do
-                      container_id=$(echo $container | cut --delimiter " " --fields 1 2>&42)
-                      is_running=$($prefix_sudo podman inspect $container_id --format "{{.State.Running}}" 2>&42)
+                      container_id=$(echo $container | cut --delimiter " " --fields 1 2>&3)
+                      is_running=$($prefix_sudo podman inspect $container_id --format "{{.State.Running}}" 2>&3)
                       if $is_running; then
                           echo -e "${LGC}$container${NC}"
                       else
@@ -532,7 +532,7 @@ exit_if_non_positive_argument()
         echo "Try '$base_toolbox_command --help' for more information."
         exit 1
     fi
-    if [ "$2" -le 0 ] 2>&42; then
+    if [ "$2" -le 0 ] 2>&3; then
         echo "$base_toolbox_command: invalid argument for '$1'"
         echo "Try '$base_toolbox_command --help' for more information."
         exit 1
@@ -556,8 +556,8 @@ forward_to_host()
 
     set_environment=$(create_environment_options)
 
-    echo "$base_toolbox_command: forwarding to host: $0 $arguments" >&42
-    flatpak-spawn $set_dbus_system_bus_address $set_environment --host "$0" $arguments 2>&42
+    echo "$base_toolbox_command: forwarding to host: $0 $arguments" >&3
+    flatpak-spawn $set_dbus_system_bus_address $set_environment --host "$0" $arguments 2>&3
 )
 
 
@@ -596,7 +596,7 @@ while has_prefix "$1" -; do
             prefix_sudo="sudo"
             ;;
         -v | --verbose )
-            exec 42>&2
+            exec 3>&2
             verbose=true
             ;;
         * )
@@ -605,23 +605,23 @@ while has_prefix "$1" -; do
     shift
 done
 
-if [ -f /run/.containerenv ] 2>&42; then
-    if ! which flatpak-spawn >/dev/null 2>&42; then
+if [ -f /run/.containerenv ] 2>&3; then
+    if ! which flatpak-spawn >/dev/null 2>&3; then
         echo "$base_toolbox_command: flatpak-spawn not found"
         exit 1
     fi
 
-    echo "$base_toolbox_command: looking for podman PID" >&42
+    echo "$base_toolbox_command: looking for podman PID" >&3
 
     pid_i=$$
-    while [ "$pid_i" -gt 1 ] 2>&42; do
-        cmdline=$(cat /proc/$pid_i/cmdline 2>&42 | sed "s/\x0/ /g" 2>&42)
+    while [ "$pid_i" -gt 1 ] 2>&3; do
+        cmdline=$(cat /proc/$pid_i/cmdline 2>&3 | sed "s/\x0/ /g" 2>&3)
         if has_prefix "$cmdline" "podman exec "; then
             podman_pid=$pid_i
             break
         fi
 
-        pid_i=$(ps -p $pid_i -o ppid= 2>&42 | sed "s/ //" 2>&42)
+        pid_i=$(ps -p $pid_i -o ppid= 2>&3 | sed "s/ //" 2>&3)
         if ! is_integer "$pid_i"; then
             echo "$base_toolbox_command: invalid parent PID"
             break
@@ -638,7 +638,7 @@ if [ -f /run/.containerenv ] 2>&42; then
         exit 1
     fi
 
-    echo "$base_toolbox_command: podman PID is $podman_pid" >&42
+    echo "$base_toolbox_command: podman PID is $podman_pid" >&3
 fi
 
 if [ "$1" = "" ]; then
@@ -673,7 +673,7 @@ case $op in
                     --release )
                         shift
                         exit_if_missing_argument --release "$1"
-                        arg=$(echo $1 | sed "s/^F\|^f//" 2>&42)
+                        arg=$(echo $1 | sed "s/^F\|^f//" 2>&3)
                         exit_if_non_positive_argument --release "$arg"
                         release=$arg
                         ;;
@@ -702,7 +702,7 @@ case $op in
                     --release )
                         shift
                         exit_if_missing_argument --release "$1"
-                        arg=$(echo $1 | sed "s/^F\|^f//" 2>&42)
+                        arg=$(echo $1 | sed "s/^F\|^f//" 2>&3)
                         exit_if_non_positive_argument --release "$arg"
                         release=$arg
                         ;;
