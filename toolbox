@@ -83,7 +83,7 @@ has_prefix()
 
 is_integer()
 {
-    [ "$1" != "" ] && [ $1 -eq $1 2>&42 ]
+    [ "$1" != "" ] && [ $1 -eq $1 ] 2>&42
     return $?
 }
 
@@ -532,7 +532,7 @@ exit_if_non_positive_argument()
         echo "Try '$base_toolbox_command --help' for more information."
         exit 1
     fi
-    if [ "$2" -le 0 2>&42 ]; then
+    if [ "$2" -le 0 ] 2>&42; then
         echo "$base_toolbox_command: invalid argument for '$1'"
         echo "Try '$base_toolbox_command --help' for more information."
         exit 1
