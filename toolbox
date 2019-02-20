@@ -100,7 +100,7 @@ spinner_start()
     fi
 
     if ! touch "$directory/spinner-start" 2>&3; then
-        echo "$base_toolbox_command: unable to start spinner: spinner start file couldn't be created"
+        echo "$base_toolbox_command: unable to start spinner: spinner start file couldn't be created" >&2
         return 1
     fi
 
@@ -128,7 +128,7 @@ spinner_start()
         tput cnorm 2>&3
 
         if ! touch "$directory/spinner-stop" 2>&3; then
-            echo "$base_toolbox_command: unable to stop spinner: spinner stop file couldn't be created"
+            echo "$base_toolbox_command: unable to stop spinner: spinner stop file couldn't be created" >&2
         fi
     ) &
 
@@ -142,7 +142,7 @@ spinner_stop()
     directory="$1"
 
     if ! rm "$directory/spinner-start" 2>&3; then
-        echo "$base_toolbox_command: unable to stop spinner: spinner start file couldn't be removed"
+        echo "$base_toolbox_command: unable to stop spinner: spinner start file couldn't be removed" >&2
         return
     fi
 
@@ -168,7 +168,7 @@ configure_working_container()
         if ! $prefix_sudo buildah run $working_container_name -- \
                      sh -c 'rmdir /home && mkdir -m 0755 -p /var/home && ln -s var/home /home' 2>&3; then
             $prefix_sudo buildah rm $working_container_name >/dev/null 2>&3
-            echo "$base_toolbox_command: failed to make /home a symlink"
+            echo "$base_toolbox_command: failed to make /home a symlink" >&2
             return 1
         fi
     fi
@@ -181,52 +181,52 @@ configure_working_container()
                  --groups wheel \
                  $USER \
                  >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to create user $USER with UID $UID"
+        echo "$base_toolbox_command: failed to create user $USER with UID $UID" >&2
         return 1
     fi
 
     if ! $prefix_sudo buildah run $working_container_name -- passwd -d $USER >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to remove password for user $USER"
+        echo "$base_toolbox_command: failed to remove password for user $USER" >&2
         return 1
     fi
 
     if ! $prefix_sudo buildah run $working_container_name -- passwd -d root >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to remove password for user root"
+        echo "$base_toolbox_command: failed to remove password for user root" >&2
         return 1
     fi
 
     if ! $prefix_sudo buildah config --volume $HOME $working_container_name >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to configure volume for $HOME"
+        echo "$base_toolbox_command: failed to configure volume for $HOME" >&2
         return 1
     fi
 
     if ! $prefix_sudo buildah config --volume $XDG_RUNTIME_DIR $working_container_name >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to configure volume for $XDG_RUNTIME_DIR"
+        echo "$base_toolbox_command: failed to configure volume for $XDG_RUNTIME_DIR" >&2
         return 1
     fi
 
     if ! $prefix_sudo buildah config --volume $dbus_system_bus_path $working_container_name >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to configure volume for $dbus_system_bus_path"
+        echo "$base_toolbox_command: failed to configure volume for $dbus_system_bus_path" >&2
         return 1
     fi
 
     if ! $prefix_sudo buildah config --volume /dev/dri $working_container_name >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to configure volume for /dev/dri"
+        echo "$base_toolbox_command: failed to configure volume for /dev/dri" >&2
         return 1
     fi
 
     if ! $prefix_sudo buildah config --volume /dev/fuse $working_container_name >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to configure volume for /dev/fuse"
+        echo "$base_toolbox_command: failed to configure volume for /dev/fuse" >&2
         return 1
     fi
 
     if ! $prefix_sudo buildah config --user $USER $working_container_name >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to configure the default user as $USER"
+        echo "$base_toolbox_command: failed to configure the default user as $USER" >&2
         return 1
     fi
 
     if ! $prefix_sudo buildah config --workingdir $HOME $working_container_name >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to configure the initial working directory to $HOME"
+        echo "$base_toolbox_command: failed to configure the initial working directory to $HOME" >&2
         return 1
     fi
 
@@ -282,7 +282,7 @@ create()
                     spinner_directory=""
                 fi
             else
-                echo "$base_toolbox_command: unable to start spinner: spinner directory not created"
+                echo "$base_toolbox_command: unable to start spinner: spinner directory not created" >&2
                 spinner_directory=""
             fi
 
@@ -296,7 +296,7 @@ create()
             fi
 
             if [ $ret_val -ne 0 ]; then
-                echo "$base_toolbox_command: failed to create working container"
+                echo "$base_toolbox_command: failed to create working container" >&2
                 exit 1
             fi
         fi
@@ -309,7 +309,7 @@ create()
                 spinner_directory=""
             fi
         else
-            echo "$base_toolbox_command: unable to start spinner: spinner directory not created"
+            echo "$base_toolbox_command: unable to start spinner: spinner directory not created" >&2
             spinner_directory=""
         fi
 
@@ -333,7 +333,7 @@ create()
                 spinner_directory=""
             fi
         else
-            echo "$base_toolbox_command: unable to start spinner: spinner directory not created"
+            echo "$base_toolbox_command: unable to start spinner: spinner directory not created" >&2
             spinner_directory=""
         fi
 
@@ -346,7 +346,7 @@ create()
 
         if [ $ret_val -ne 0 ]; then
             $prefix_sudo buildah rm $working_container_name >/dev/null 2>&3
-            echo "$base_toolbox_command: failed to create image $toolbox_image"
+            echo "$base_toolbox_command: failed to create image $toolbox_image" >&2
             exit 1
         fi
 
@@ -356,7 +356,7 @@ create()
     echo "$base_toolbox_command: checking if container $toolbox_container already exists" >&3
 
     if $prefix_sudo podman inspect --type container $toolbox_container >/dev/null 2>&3; then
-        echo "$base_toolbox_command: container $toolbox_container already exists"
+        echo "$base_toolbox_command: container $toolbox_container already exists" >&2
         exit 1
     fi
 
@@ -377,7 +377,7 @@ create()
             spinner_directory=""
         fi
     else
-        echo "$base_toolbox_command: unable to start spinner: spinner directory not created"
+        echo "$base_toolbox_command: unable to start spinner: spinner directory not created" >&2
         spinner_directory=""
     fi
 
@@ -409,7 +409,7 @@ create()
     fi
 
     if [ $ret_val -ne 0 ]; then
-        echo "$base_toolbox_command: failed to create container $toolbox_container"
+        echo "$base_toolbox_command: failed to create container $toolbox_container" >&2
         exit 1
     fi
 
@@ -424,7 +424,7 @@ enter()
     echo "$base_toolbox_command: trying to start container $toolbox_container" >&3
 
     if ! $prefix_sudo podman start $toolbox_container >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to start container $toolbox_container"
+        echo "$base_toolbox_command: failed to start container $toolbox_container" >&2
         exit 1
     fi
 
@@ -463,14 +463,14 @@ list_images()
     if ! images=$($prefix_sudo podman images \
                           --filter "label=com.redhat.component=fedora-toolbox" \
                           --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Created}}" 2>&3); then
-        echo "$base_toolbox_command: failed to list images"
+        echo "$base_toolbox_command: failed to list images" >&2
         return 1
     fi
 
     if ! output=$(echo "$images" \
                   | sed "s/ \{2,\}/\t/g" 2>&3 \
                   | column --separator $'\t' --table --table-columns "IMAGE ID,IMAGE NAME,CREATED" 2>&3); then
-        echo "$base_toolbox_command: failed to parse list of images"
+        echo "$base_toolbox_command: failed to parse list of images" >&2
         return 1
     fi
 
@@ -489,7 +489,7 @@ list_containers()
                               --all \
                               --filter "label=com.redhat.component=fedora-toolbox" \
                               --format "{{.ID}}  {{.Names}}  {{.Created}}  {{.Status}}  {{.Image}}" 2>&3); then
-        echo "$base_toolbox_command: failed to list containers"
+        echo "$base_toolbox_command: failed to list containers" >&2
         return 1
     fi
 
@@ -499,7 +499,7 @@ list_containers()
                             --separator $'\t' \
                             --table \
                             --table-columns "CONTAINER ID,CONTAINER NAME,CREATED,STATUS,IMAGE NAME" 2>&3); then
-        echo "$base_toolbox_command: failed to parse list of containers"
+        echo "$base_toolbox_command: failed to parse list of containers" >&2
         return 1
     fi
 
@@ -528,8 +528,8 @@ list_containers()
 exit_if_extra_operand()
 {
     if [ "$1" != "" ]; then
-        echo "$base_toolbox_command: extra operand '$1'"
-        echo "Try '$base_toolbox_command --help' for more information."
+        echo "$base_toolbox_command: extra operand '$1'" >&2
+        echo "Try '$base_toolbox_command --help' for more information." >&2
         exit 1
     fi
 }
@@ -538,8 +538,8 @@ exit_if_extra_operand()
 exit_if_missing_argument()
 {
     if [ "$2" = "" ]; then
-        echo "$base_toolbox_command: missing argument for '$1'"
-        echo "Try '$base_toolbox_command --help' for more information."
+        echo "$base_toolbox_command: missing argument for '$1'" >&2
+        echo "Try '$base_toolbox_command --help' for more information." >&2
         exit 1
     fi
 }
@@ -548,13 +548,13 @@ exit_if_missing_argument()
 exit_if_non_positive_argument()
 {
     if ! is_integer "$2"; then
-        echo "$base_toolbox_command: invalid argument for '$1'"
-        echo "Try '$base_toolbox_command --help' for more information."
+        echo "$base_toolbox_command: invalid argument for '$1'" >&2
+        echo "Try '$base_toolbox_command --help' for more information." >&2
         exit 1
     fi
     if [ "$2" -le 0 ] 2>&3; then
-        echo "$base_toolbox_command: invalid argument for '$1'"
-        echo "Try '$base_toolbox_command --help' for more information."
+        echo "$base_toolbox_command: invalid argument for '$1'" >&2
+        echo "Try '$base_toolbox_command --help' for more information." >&2
         exit 1
     fi
 }
@@ -562,8 +562,8 @@ exit_if_non_positive_argument()
 
 exit_if_unrecognized_option()
 {
-    echo "$base_toolbox_command: unrecognized option '$1'"
-    echo "Try '$base_toolbox_command --help' for more information."
+    echo "$base_toolbox_command: unrecognized option '$1'" >&2
+    echo "Try '$base_toolbox_command --help' for more information." >&2
     exit 1
 }
 
@@ -628,7 +628,7 @@ done
 
 if [ -f /run/.containerenv ] 2>&3; then
     if ! which flatpak-spawn >/dev/null 2>&3; then
-        echo "$base_toolbox_command: flatpak-spawn not found"
+        echo "$base_toolbox_command: flatpak-spawn not found" >&2
         exit 1
     fi
 
@@ -644,18 +644,18 @@ if [ -f /run/.containerenv ] 2>&3; then
 
         pid_i=$(ps -p $pid_i -o ppid= 2>&3 | sed "s/ //" 2>&3)
         if ! is_integer "$pid_i"; then
-            echo "$base_toolbox_command: invalid parent PID"
+            echo "$base_toolbox_command: invalid parent PID" >&2
             break
         fi
     done
 
     if ! is_integer "$podman_pid"; then
-        echo "$base_toolbox_command: invalid podman PID"
+        echo "$base_toolbox_command: invalid podman PID" >&2
         podman_pid=""
     fi
 
     if [ "$podman_pid" = "" ]; then
-        echo "$base_toolbox_command: cannot be used outside podman exec"
+        echo "$base_toolbox_command: cannot be used outside podman exec" >&2
         exit 1
     fi
 
@@ -663,8 +663,8 @@ if [ -f /run/.containerenv ] 2>&3; then
 fi
 
 if [ "$1" = "" ]; then
-    echo "$base_toolbox_command: missing command"
-    echo "Try '$base_toolbox_command --help' for more information."
+    echo "$base_toolbox_command: missing command" >&2
+    echo "Try '$base_toolbox_command --help' for more information." >&2
     exit 1
 fi
 
@@ -770,7 +770,7 @@ case $op in
         exit
         ;;
     * )
-        echo "$base_toolbox_command: unrecognized command '$op'"
-        echo "Try '$base_toolbox_command --help' for more information."
+        echo "$base_toolbox_command: unrecognized command '$op'" >&2
+        echo "Try '$base_toolbox_command --help' for more information." >&2
         exit 1
 esac
