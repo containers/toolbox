@@ -485,15 +485,23 @@ list_images()
 
 list_containers()
 (
-    output=$($prefix_sudo podman ps \
-                     --all \
-                     --filter "label=com.redhat.component=fedora-toolbox" \
-                     --format "{{.ID}}  {{.Names}}  {{.Created}}  {{.Status}}  {{.Image}}" 2>&3 \
-             | sed "s/ \{2,\}/\t/g" 2>&3 \
-             | column \
-                       --separator $'\t' \
-                       --table \
-                       --table-columns "CONTAINER ID,CONTAINER NAME,CREATED,STATUS,IMAGE NAME" 2>&3)
+    if ! containers=$($prefix_sudo podman ps \
+                              --all \
+                              --filter "label=com.redhat.component=fedora-toolbox" \
+                              --format "{{.ID}}  {{.Names}}  {{.Created}}  {{.Status}}  {{.Image}}" 2>&3); then
+        echo "$base_toolbox_command: failed to list containers"
+        return 1
+    fi
+
+    if ! output=$(echo "$containers" \
+                  | sed "s/ \{2,\}/\t/g" 2>&3 \
+                  | column \
+                            --separator $'\t' \
+                            --table \
+                            --table-columns "CONTAINER ID,CONTAINER NAME,CREATED,STATUS,IMAGE NAME" 2>&3); then
+        echo "$base_toolbox_command: failed to parse list of containers"
+        return 1
+    fi
 
     if [ "$output" != "" ]; then
         echo -e "${LBC}Containers created by toolbox${NC}"
@@ -512,6 +520,8 @@ list_containers()
                   done
               )
     fi
+
+    return 0
 )
 
 
