@@ -460,16 +460,26 @@ enter()
 
 list_images()
 (
-    output=$($prefix_sudo podman images \
-                     --filter "label=com.redhat.component=fedora-toolbox" \
-                     --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Created}}" 2>&3 \
-             | sed "s/ \{2,\}/\t/g" 2>&3 \
-             | column --separator $'\t' --table --table-columns "IMAGE ID,IMAGE NAME,CREATED" 2>&3)
+    if ! images=$($prefix_sudo podman images \
+                          --filter "label=com.redhat.component=fedora-toolbox" \
+                          --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Created}}" 2>&3); then
+        echo "$base_toolbox_command: failed to list images"
+        return 1
+    fi
+
+    if ! output=$(echo "$images" \
+                  | sed "s/ \{2,\}/\t/g" 2>&3 \
+                  | column --separator $'\t' --table --table-columns "IMAGE ID,IMAGE NAME,CREATED" 2>&3); then
+        echo "$base_toolbox_command: failed to parse list of images"
+        return 1
+    fi
 
     if [ "$output" != "" ]; then
         echo -e "${LBC}Images created by toolbox${NC}"
         echo "$output"
     fi
+
+    return 0
 )
 
 
