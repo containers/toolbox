@@ -580,7 +580,8 @@ usage()
     echo "   or: toolbox [-v | --verbose]"
     echo "               enter [--container <name>]"
     echo "                     [--release <release>]"
-    echo "   or: toolbox list [-c | --containers]"
+    echo "   or: toolbox [-v | --verbose]"
+    echo "               list [-c | --containers]"
     echo "                    [-i | --images]"
     echo "   or: toolbox --help"
 }
