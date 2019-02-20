@@ -764,8 +764,20 @@ case $op in
                 ls_images=true
             fi
 
-            $ls_images && list_images
-            $ls_containers && list_containers
+            if $ls_images; then
+                if ! images=$(list_images); then
+                    exit 1
+                fi
+            fi
+
+            if $ls_containers; then
+                if ! containers=$(list_containers); then
+                    exit 1
+                fi
+            fi
+
+            $ls_images && [ "$images" != "" ] && echo "$images"
+            $ls_containers && [ "$containers" != "" ] && echo "$containers"
         fi
         exit
         ;;
