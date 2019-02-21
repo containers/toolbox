@@ -1,3 +1,17 @@
+Overview of changes in 0.0.6
+============================
+
+* Add a list command
+* Drop the "fedora" prefix and rename the project as just "toolbox"
+* Fix typos pointed out by https://www.shellcheck.net/
+* Lots of Bash-isms removed for POSIX correctness
+* Make --container and --image command-specific options
+* Make it work inside the toolbox container itself
+* Shorten the prefix for debug and error messages
+* Use the host's PID namespace for the toolbox container
+* Use the standard error output for error messages
+
+
 Overview of changes in 0.0.5
 ============================
 
