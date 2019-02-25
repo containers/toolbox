@@ -4,6 +4,7 @@ diffutils
 dnf-plugins-core
 fpaste
 findutils
+flatpak-xdg-utils
 git
 gnupg
 gnupg2-smime
