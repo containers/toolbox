@@ -2,9 +2,9 @@ bash-completion
 bzip2
 diffutils
 dnf-plugins-core
-fpaste
 findutils
 flatpak-xdg-utils
+fpaste
 git
 gnupg
 gnupg2-smime

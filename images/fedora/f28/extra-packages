@@ -2,8 +2,8 @@ bash-completion
 bzip2
 diffutils
 dnf-plugins-core
-fpaste
 findutils
+fpaste
 git
 gnupg
 gnupg2-smime
