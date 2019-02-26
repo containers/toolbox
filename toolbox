@@ -154,6 +154,25 @@ spinner_stop()
 )
 
 
+check_image_for_volumes()
+(
+    image="$1"
+
+    echo "$base_toolbox_command: checking if image $image has volumes for host bind mounts" >&3
+
+    if volumes=$($prefix_sudo podman inspect \
+                         --format "{{.Config.Volumes}}" \
+                         --type image \
+                         $image 2>&3); then
+        if echo "$volumes" | grep "/dev/dri\|/dev/fuse" >/dev/null 2>&3; then
+            echo "$base_toolbox_command: image $image has volumes for host bind mounts:" >&3
+            echo "$base_toolbox_command: $volumes" >&3
+            echo "$base_toolbox_command: consider re-creating image $image" >&3
+        fi
+    fi
+)
+
+
 configure_working_container()
 (
     working_container_name="$1"
@@ -192,31 +211,6 @@ configure_working_container()
 
     if ! $prefix_sudo buildah run $working_container_name -- passwd -d root >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to remove password for user root" >&2
-        return 1
-    fi
-
-    if ! $prefix_sudo buildah config --volume $HOME $working_container_name >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to configure volume for $HOME" >&2
-        return 1
-    fi
-
-    if ! $prefix_sudo buildah config --volume $XDG_RUNTIME_DIR $working_container_name >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to configure volume for $XDG_RUNTIME_DIR" >&2
-        return 1
-    fi
-
-    if ! $prefix_sudo buildah config --volume $dbus_system_bus_path $working_container_name >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to configure volume for $dbus_system_bus_path" >&2
-        return 1
-    fi
-
-    if ! $prefix_sudo buildah config --volume /dev/dri $working_container_name >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to configure volume for /dev/dri" >&2
-        return 1
-    fi
-
-    if ! $prefix_sudo buildah config --volume /dev/fuse $working_container_name >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to configure volume for /dev/fuse" >&2
         return 1
     fi
 
@@ -353,6 +347,8 @@ create()
         echo "$base_toolbox_command: created image $toolbox_image" >&3
     fi
 
+    check_image_for_volumes "$toolbox_image"
+
     echo "$base_toolbox_command: checking if container $toolbox_container already exists" >&3
 
     if $prefix_sudo podman inspect --type container $toolbox_container >/dev/null 2>&3; then
@@ -423,12 +419,19 @@ enter()
 
     echo "$base_toolbox_command: checking if container $toolbox_container exists" >&3
 
-    if ! $prefix_sudo podman inspect --type container $toolbox_container >/dev/null 2>&3; then
+    if ! toolbox_image=$($prefix_sudo podman inspect \
+                                 --format "{{.ImageName}}" \
+                                 --type container \
+                                 $toolbox_container 2>&3); then
         echo "$base_toolbox_command: container $toolbox_container not found" >&2
         echo "Use the 'create' command to create a toolbox." >&2
         echo "Try '$base_toolbox_command --help' for more information." >&2
         exit 1
     fi
+
+    echo "$base_toolbox_command: container $toolbox_container was created from image $toolbox_image" >&3
+
+    [ "$toolbox_image" != "" ] 2>&3 && check_image_for_volumes "$toolbox_image"
 
     echo "$base_toolbox_command: trying to start container $toolbox_container" >&3
 
