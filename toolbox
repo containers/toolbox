@@ -421,6 +421,15 @@ enter()
 (
     shell_to_exec=/bin/bash
 
+    echo "$base_toolbox_command: checking if container $toolbox_container exists" >&3
+
+    if ! $prefix_sudo podman inspect --type container $toolbox_container >/dev/null 2>&3; then
+        echo "$base_toolbox_command: container $toolbox_container not found" >&2
+        echo "Use the 'create' command to create a toolbox." >&2
+        echo "Try '$base_toolbox_command --help' for more information." >&2
+        exit 1
+    fi
+
     echo "$base_toolbox_command: trying to start container $toolbox_container" >&3
 
     if ! $prefix_sudo podman start $toolbox_container >/dev/null 2>&3; then
