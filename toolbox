@@ -396,6 +396,7 @@ create()
             --volume $dbus_system_bus_path:$dbus_system_bus_path \
             --volume /dev/dri:/dev/dri \
             --volume /dev/fuse:/dev/fuse \
+            --volume /dev/snd:/dev/snd \
             $toolbox_image \
             /bin/sh >/dev/null 2>&3
     ret_val=$?
