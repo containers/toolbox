@@ -14,7 +14,7 @@ This is particularly useful on
 systems is to discourage installation of software on the host, and instead
 install software as (or in) containers.
 
-However this tool doesn't *require* using an OSTree based system — it
+However, this tool doesn't *require* using an OSTree based system — it
 works equally well if you're running e.g. existing Fedora Workstation or
 Server, and that's a useful way to incrementally adopt containerization.
 
