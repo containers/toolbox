@@ -522,8 +522,8 @@ list_containers()
         echo "$output" | tail --lines +2 2>&3 \
             | (
                   while read container; do
-                      container_id=$(echo $container | cut --delimiter " " --fields 1 2>&3)
-                      is_running=$($prefix_sudo podman inspect $container_id --format "{{.State.Running}}" 2>&3)
+                      id=$(echo $container | cut --delimiter " " --fields 1 2>&3)
+                      is_running=$($prefix_sudo podman inspect $id --format "{{.State.Running}}" 2>&3)
                       if $is_running; then
                           echo -e "${LGC}$container${NC}"
                       else
