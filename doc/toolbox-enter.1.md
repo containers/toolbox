@@ -11,10 +11,12 @@ toolbox\-enter - Enter an existing toolbox container for interactive use
 Spawns an interactive shell inside an existing toolbox container. The
 container should have been created using the `toolbox create` command.
 
-A toolbox container is an OCI container. On Fedora the toolbox containers are
-tagged with the version of the OS that corresponds to the content inside them.
-Their names are prefixed with the name of the base image and suffixed with the
-current user name.
+A toolbox container is an OCI container. Therefore, `toolbox enter` is
+analogous to a `podman start` followed by a `podman exec`.
+
+On Fedora the toolbox containers are tagged with the version of the OS that
+corresponds to the content inside them. Their names are prefixed with the name
+of the base image and suffixed with the current user name.
 
 ## OPTIONS ##
 
@@ -53,4 +55,4 @@ $ toolbox enter --container foo
 
 ## SEE ALSO
 
-`buildah(1)`, `podman(1)`
+`buildah(1)`, `podman(1)`, `podman-exec(1)`, `podman-start(1)`
