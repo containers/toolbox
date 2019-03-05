@@ -11,7 +11,7 @@ toolbox\-enter - Enter an existing toolbox container for interactive use
 Spawns an interactive shell inside an existing toolbox container. The
 container should have been created using the `toolbox create` command.
 
-The toolbox container is an OCI container. On Fedora the toolbox containers are
+A toolbox container is an OCI container. On Fedora the toolbox containers are
 tagged with the version of the OS that corresponds to the content inside them.
 Their names are prefixed with the name of the base image and suffixed with the
 current user name.

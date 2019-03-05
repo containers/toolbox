@@ -14,7 +14,7 @@ toolbox\-create - Create a new toolbox container
 Creates a new toolbox container. You can then use the `toolbox enter` command
 to interact with the container at any point.
 
-The toolbox container is an OCI container created from an OCI image. On Fedora
+A toolbox container is an OCI container created from an OCI image. On Fedora
 the base image is known as `fedora-toolbox`. If the image is not present
 locally, then it is pulled from `registry.fedoraproject.org`. The base image is
 locally customized for the current user to create a second image, from which
