@@ -274,6 +274,7 @@ create()
     tmpfs_size=$((64 * 1024 * 1024)) # 64 MiB
     working_container_name="toolbox-working-container-$(uuidgen --time)"
 
+    # shellcheck disable=SC2153
     if [ "$DBUS_SYSTEM_BUS_ADDRESS" != "" ]; then
         dbus_system_bus_address=$DBUS_SYSTEM_BUS_ADDRESS
     fi
