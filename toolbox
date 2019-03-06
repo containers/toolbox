@@ -204,6 +204,7 @@ check_image_for_volumes()
 configure_working_container()
 (
     working_container_name="$1"
+    kcm_ccache_configuration="$2"
 
     if [ "$(readlink /home)" = var/home ] ; then
         need_home_link=true
@@ -216,6 +217,16 @@ configure_working_container()
                      sh -c 'rmdir /home && mkdir -m 0755 -p /var/home && ln -s var/home /home' 2>&3; then
             $prefix_sudo buildah rm "$working_container_name" >/dev/null 2>&3
             echo "$base_toolbox_command: failed to make /home a symlink" >&2
+            return 1
+        fi
+    fi
+
+    if [ "$kcm_ccache_configuration" != "" ] 2>&3; then
+        if ! $prefix_sudo buildah copy "$working_container_name" \
+                     "$kcm_ccache_configuration" \
+                     /etc/krb5.conf.d >/dev/null 2>&3; then
+            $prefix_sudo buildah rm "$working_container_name" >/dev/null 2>&3
+            echo "$base_toolbox_command: failed to set KCM as the default Kerberos credential cache" >&2
             return 1
         fi
     fi
@@ -438,6 +449,9 @@ pull_base_toolbox_image()
 create()
 (
     dbus_system_bus_address="unix:path=/var/run/dbus/system_bus_socket"
+    kcm_ccache_configuration=""
+    kcm_socket=""
+    kcm_socket_bind=""
     tmpfs_size=$((64 * 1024 * 1024)) # 64 MiB
     working_container_name="toolbox-working-container-$(uuidgen --time)"
 
@@ -447,6 +461,38 @@ create()
     fi
     dbus_system_bus_path=$(echo "$dbus_system_bus_address" | cut --delimiter = --fields 2 2>&3)
     dbus_system_bus_path=$(readlink --canonicalize "$dbus_system_bus_path" 2>&3)
+
+    # Note that 'systemctl show ...' doesn't terminate with a non-zero exit
+    # code when used with an unknown unit. eg.:
+    #   $ systemctl show --value --property Listen foo
+    #   $ echo $?
+    #   0
+    if ! kcm_socket_listen=$(systemctl show --value --property Listen sssd-kcm.socket 2>&3); then
+        echo "$base_toolbox_command: failed to use 'systemctl show'" >&3
+        kcm_socket_listen=""
+    elif [ "$kcm_socket_listen" = "" ] 2>&3; then
+        echo "$base_toolbox_command: failed to read property Listen from sssd-kcm.socket" >&3
+    else
+        echo "$base_toolbox_command: checking value $kcm_socket_listen of property Listen in sssd-kcm.socket" >&3
+
+        if ! (echo "$kcm_socket_listen" | grep " (Stream)$" >/dev/null 2>&3); then
+            echo "$base_toolbox_command: unknown socket in sssd-kcm.socket" >&2
+            echo "$base_toolbox_command: expected SOCK_STREAM" >&2
+            kcm_socket_listen=""
+        elif ! (echo "$kcm_socket_listen" | grep "^/" >/dev/null 2>&3); then
+            echo "$base_toolbox_command: unknown socket in sssd-kcm.socket" >&2
+            echo "$base_toolbox_command: expected file system socket in the AF_UNIX family" >&2
+            kcm_socket_listen=""
+        fi
+    fi
+
+    echo "$base_toolbox_command: parsing value $kcm_socket_listen of property Listen in sssd-kcm.socket" >&3
+
+    if [ "$kcm_socket_listen" != "" ] 2>&3; then
+        kcm_ccache_configuration="/etc/krb5.conf.d/kcm_default_ccache"
+        kcm_socket=${kcm_socket_listen%" (Stream)"}
+        kcm_socket_bind="--volume $kcm_socket:$kcm_socket"
+    fi
 
     echo "$base_toolbox_command: checking if image $toolbox_image already exists" >&3
 
@@ -506,7 +552,7 @@ create()
             spinner_directory=""
         fi
 
-        configure_working_container "$working_container_name"
+        configure_working_container "$working_container_name" "$kcm_ccache_configuration"
         ret_val=$?
 
         if [ "$spinner_directory" != "" ]; then
@@ -590,6 +636,7 @@ create()
             --uidmap "$user_id_real":0:1 \
             --uidmap 0:1:"$user_id_real" \
             --uidmap "$uid_plus_one":"$uid_plus_one":"$max_minus_uid" \
+            $kcm_socket_bind \
             --volume "$HOME":"$HOME":rslave \
             --volume "$XDG_RUNTIME_DIR":"$XDG_RUNTIME_DIR" \
             --volume "$dbus_system_bus_path":"$dbus_system_bus_path" \

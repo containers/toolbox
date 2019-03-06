@@ -11,6 +11,7 @@ hostname
 iputils
 jwhois
 keyutils
+krb5-libs
 less
 lsof
 man-db
