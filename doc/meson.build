@@ -22,7 +22,7 @@ foreach manual: manuals
     command: go_md2man_command,
     input: input,
     install: true,
-    install_dir: get_option('mandir'),
+    install_dir: join_paths(get_option('mandir'), 'man1'),
     output: output,
   )
 endforeach
