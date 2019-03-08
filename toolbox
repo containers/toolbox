@@ -282,18 +282,50 @@ get_host_version_id()
 )
 
 
-pull_base_toolbox_image()
+image_reference_has_domain()
 (
-    echo "$base_toolbox_command: looking for image localhost/$base_toolbox_image" >&3
+    # Based on the splitDockerDomain function implemented in:
+    # https://github.com/docker/distribution/blob/master/reference/normalize.go
 
-    if $prefix_sudo buildah pull localhost/$base_toolbox_image >/dev/null 2>&3; then
-        return 0
+    image="$1"
+
+    if ! (echo "$image" | grep "/" >/dev/null 2>&3); then
+        return 1
     fi
 
-    echo "$base_toolbox_command: looking for image $registry/$fgc/$base_toolbox_image" >&3
+    prefix=${image%%/*}
+    if ! (echo "$prefix" | grep "[.:]" >/dev/null 2>&3) && [ "$prefix" != "localhost" ] 2>&3; then
+       return 1
+    fi
+
+    return 0
+)
+
+
+pull_base_toolbox_image()
+(
+    has_domain=false
+
+    image_reference_has_domain "$base_toolbox_image" && has_domain=true
+
+    if ! $has_domain; then
+        echo "$base_toolbox_command: looking for image localhost/$base_toolbox_image" >&3
+
+        if $prefix_sudo buildah pull localhost/$base_toolbox_image >/dev/null 2>&3; then
+            return 0
+        fi
+    fi
+
+    if $has_domain; then
+        base_toolbox_image_full="$base_toolbox_image"
+    else
+        base_toolbox_image_full="$registry/$fgc/$base_toolbox_image"
+    fi
+
+    echo "$base_toolbox_command: looking for image $base_toolbox_image_full" >&3
 
     if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
-        spinner_message="$base_toolbox_command: pulling from $registry: "
+        spinner_message="$base_toolbox_command: pulling $base_toolbox_image_full: "
         if ! spinner_start "$spinner_directory" "$spinner_message"; then
             spinner_directory=""
         fi
@@ -302,7 +334,7 @@ pull_base_toolbox_image()
         spinner_directory=""
     fi
 
-    $prefix_sudo buildah pull $registry/$fgc/$base_toolbox_image >/dev/null 2>&3
+    $prefix_sudo buildah pull $base_toolbox_image_full >/dev/null 2>&3
     ret_val=$?
 
     if [ "$spinner_directory" != "" ]; then
@@ -334,15 +366,20 @@ create()
             exit 1
         fi
 
-        if ! base_toolbox_image_full=$($prefix_sudo podman inspect \
-                                               --format "{{index .RepoTags 0}}" \
-                                               --type image \
-                                               "$base_toolbox_image" 2>&3); then
-            echo "$base_toolbox_command: failed to get RepoTag for base image $base_toolbox_image" >&2
-            exit 1
+        if image_reference_has_domain "$base_toolbox_image"; then
+            base_toolbox_image_full="$base_toolbox_image"
+        else
+            if ! base_toolbox_image_full=$($prefix_sudo podman inspect \
+                                                   --format "{{index .RepoTags 0}}" \
+                                                   --type image \
+                                                   "$base_toolbox_image" 2>&3); then
+                echo "$base_toolbox_command: failed to get RepoTag for base image $base_toolbox_image" >&2
+                exit 1
+            fi
+
+            echo "$base_toolbox_command: base image $base_toolbox_image resolved to $base_toolbox_image_full" >&3
         fi
 
-        echo "$base_toolbox_command: base image $base_toolbox_image resolved to $base_toolbox_image_full" >&3
         echo "$base_toolbox_command: trying to create working container $working_container_name" >&3
 
         if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
