@@ -128,6 +128,12 @@ spinner_start()
     echo -n "$message"
     tput civis 2>&3
 
+    exec 4>"$directory/spinner-start"
+    if ! flock 4 2>&3; then
+        echo "$base_toolbox_command: unable to start spinner: spinner lock couldn't be acquired" >&2
+        return 1
+    fi
+
     (
         while [ -f "$directory/spinner-start" ]; do
             echo "$spinner_animation" | sed "s/ /\n/g" 2>&3 | while read frame; do
@@ -151,10 +157,6 @@ spinner_start()
         printf "\033[2K" # delete entire line regardless of cursor position
         printf "\r"
         tput cnorm 2>&3
-
-        if ! touch "$directory/spinner-stop" 2>&3; then
-            echo "$base_toolbox_command: unable to stop spinner: spinner stop file couldn't be created" >&2
-        fi
     ) &
 
     return 0
@@ -166,14 +168,17 @@ spinner_stop()
     $verbose && return
     directory="$1"
 
+    exec 4>"$directory/spinner-start"
+
     if ! rm "$directory/spinner-start" 2>&3; then
         echo "$base_toolbox_command: unable to stop spinner: spinner start file couldn't be removed" >&2
         return
     fi
 
-    while ! [ -f "$directory/spinner-stop" ]; do
-        :
-    done
+    if ! flock 4 2>&3; then
+        echo "$base_toolbox_command: unable to stop spinner: spinner lock couldn't be acquired" >&2
+        return
+    fi
 
     rm --force --recursive "$directory" 2>&3
 )
