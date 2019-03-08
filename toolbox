@@ -277,6 +277,37 @@ create_environment_options()
 }
 
 
+pull_base_toolbox_image()
+(
+    echo "$base_toolbox_command: looking for image localhost/$base_toolbox_image" >&3
+
+    if $prefix_sudo buildah pull localhost/$base_toolbox_image >/dev/null 2>&3; then
+        return 0
+    fi
+
+    echo "$base_toolbox_command: looking for image $registry/$fgc/$base_toolbox_image" >&3
+
+    if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
+        spinner_message="$base_toolbox_command: pulling from $registry: "
+        if ! spinner_start "$spinner_directory" "$spinner_message"; then
+            spinner_directory=""
+        fi
+    else
+        echo "$base_toolbox_command: unable to start spinner: spinner directory not created" >&2
+        spinner_directory=""
+    fi
+
+    $prefix_sudo buildah pull $registry/$fgc/$base_toolbox_image >/dev/null 2>&3
+    ret_val=$?
+
+    if [ "$spinner_directory" != "" ]; then
+        spinner_stop "$spinner_directory"
+    fi
+
+    return $ret_val
+)
+
+
 create()
 (
     dbus_system_bus_address="unix:path=/var/run/dbus/system_bus_socket"
@@ -293,37 +324,42 @@ create()
     echo "$base_toolbox_command: checking if image $toolbox_image already exists" >&3
 
     if ! $prefix_sudo buildah inspect --type image $toolbox_image >/dev/null 2>&3; then
+        if ! pull_base_toolbox_image; then
+            echo "$base_toolbox_command: failed to pull base image $base_toolbox_image" >&2
+            exit 1
+        fi
+
+        if ! base_toolbox_image_full=$($prefix_sudo podman inspect \
+                                               --format "{{index .RepoTags 0}}" \
+                                               --type image \
+                                               "$base_toolbox_image" 2>&3); then
+            echo "$base_toolbox_command: failed to get RepoTag for base image $base_toolbox_image" >&2
+            exit 1
+        fi
+
+        echo "$base_toolbox_command: base image $base_toolbox_image resolved to $base_toolbox_image_full" >&3
         echo "$base_toolbox_command: trying to create working container $working_container_name" >&3
-        echo "$base_toolbox_command: looking for image localhost/$base_toolbox_image" >&3
 
-        if ! $prefix_sudo buildah from \
-                     --name $working_container_name \
-                     localhost/$base_toolbox_image >/dev/null 2>&3; then
-            echo "$base_toolbox_command: looking for image $registry/$fgc/$base_toolbox_image" >&3
-
-            if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
-                spinner_message="$base_toolbox_command: pulling from $registry: "
-                if ! spinner_start "$spinner_directory" "$spinner_message"; then
-                    spinner_directory=""
-                fi
-            else
-                echo "$base_toolbox_command: unable to start spinner: spinner directory not created" >&2
+        if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
+            spinner_message="$base_toolbox_command: creating working container: "
+            if ! spinner_start "$spinner_directory" "$spinner_message"; then
                 spinner_directory=""
             fi
+        else
+            echo "$base_toolbox_command: unable to start spinner: spinner directory not created" >&2
+            spinner_directory=""
+        fi
 
-            $prefix_sudo buildah from \
-                    --name $working_container_name \
-                    $registry/$fgc/$base_toolbox_image >/dev/null 2>&3
-            ret_val=$?
+        $prefix_sudo buildah from --name $working_container_name $base_toolbox_image_full >/dev/null 2>&3
+        ret_val=$?
 
-            if [ "$spinner_directory" != "" ]; then
-                spinner_stop "$spinner_directory"
-            fi
+        if [ "$spinner_directory" != "" ]; then
+            spinner_stop "$spinner_directory"
+        fi
 
-            if [ $ret_val -ne 0 ]; then
-                echo "$base_toolbox_command: failed to create working container" >&2
-                exit 1
-            fi
+        if [ $ret_val -ne 0 ]; then
+            echo "$base_toolbox_command: failed to create working container" >&2
+            exit 1
         fi
 
         echo "$base_toolbox_command: trying to configure working container $working_container_name" >&3
