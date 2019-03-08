@@ -131,6 +131,10 @@ spinner_start()
     (
         while [ -f "$directory/spinner-start" ]; do
             echo "$spinner_animation" | sed "s/ /\n/g" 2>&3 | while read frame; do
+                if ! [ -f "$directory/spinner-start" ] 2>&3; then
+                   break
+                fi
+
                 echo -n "$frame"
 
                 frame_len=${#frame}
