@@ -1228,12 +1228,12 @@ usage()
 {
     echo "Usage: toolbox [-v | --verbose]"
     echo "               create [--candidate-registry]"
-    echo "                      [--container <name>]"
-    echo "                      [--image <name>]"
-    echo "                      [--release <release>]"
+    echo "                      [-c | --container <name>]"
+    echo "                      [-i | --image <name>]"
+    echo "                      [-r | --release <release>]"
     echo "   or: toolbox [-v | --verbose]"
-    echo "               enter [--container <name>]"
-    echo "                     [--release <release>]"
+    echo "               enter [-c | --container <name>]"
+    echo "                     [-r | --release <release>]"
     echo "   or: toolbox [-v | --verbose]"
     echo "               list [-c | --containers]"
     echo "                    [-i | --images]"
@@ -1332,7 +1332,7 @@ case $op in
                     --candidate-registry )
                         registry=$registry_candidate
                         ;;
-                    --container )
+                    -c | --container )
                         shift
                         exit_if_missing_argument --container "$1"
                         arg=$1
@@ -1344,12 +1344,12 @@ case $op in
                         fi
                         toolbox_container="$arg"
                         ;;
-                    --image )
+                    -i | --image )
                         shift
                         exit_if_missing_argument --image "$1"
                         base_toolbox_image=$1
                         ;;
-                    --release )
+                    -r | --release )
                         shift
                         exit_if_missing_argument --release "$1"
                         arg=$(echo "$1" | sed "s/^F\|^f//" 2>&3)
@@ -1374,12 +1374,12 @@ case $op in
         else
             while has_prefix "$1" -; do
                 case $1 in
-                    --container )
+                    -c | --container )
                         shift
                         exit_if_missing_argument --container "$1"
                         toolbox_container=$1
                         ;;
-                    --release )
+                    -r | --release )
                         shift
                         exit_if_missing_argument --release "$1"
                         arg=$(echo "$1" | sed "s/^F\|^f//" 2>&3)

@@ -5,9 +5,9 @@ toolbox\-create - Create a new toolbox container
 
 ## SYNOPSIS
 **toolbox create** [*--candidate-registry*]
-               [*--container NAME*]
-               [*--image NAME*]
-               [*--release RELEASE*]
+               [*--container NAME* | *-c NAME*]
+               [*--image NAME* | *-i NAME*]
+               [*--release RELEASE* | *-r RELEASE*]
 
 ## DESCRIPTION
 
@@ -35,18 +35,18 @@ Pull the base image from `candidate-registry.fedoraproject.org`. This is
 useful for testing newly built images before they have moved to the stable
 registry at `registry.fedoraproject.org`.
 
-**--container** NAME
+**--container** NAME, **-c** NAME
 
 Assign a different NAME to the toolbox container. This is useful for creating
 multiple toolbox containers from the same base image, or for entirely
 customized containers from custom-built base images.
 
-**--image** NAME
+**--image** NAME, **-i** NAME
 
 Change the NAME of the base image used to create the toolbox container. This
 is useful for creating containers from custom-built base images.
 
-**--release** RELEASE
+**--release** RELEASE, **-r** RELEASE
 
 Create a toolbox container for a different operating system RELEASE than the
 host.

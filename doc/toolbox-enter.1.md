@@ -4,7 +4,8 @@
 toolbox\-enter - Enter an existing toolbox container for interactive use
 
 ## SYNOPSIS
-**toolbox enter** [*--container NAME*] [*--release RELEASE*]
+**toolbox enter** [*--container NAME* | *-c NAME*]
+              [*--release RELEASE* | *-r RELEASE*]
 
 ## DESCRIPTION
 
@@ -22,13 +23,13 @@ of the base image and suffixed with the current user name.
 
 The following options are understood:
 
-**--container** NAME
+**--container** NAME, **-c** NAME
 
 Enter a toolbox container with the given NAME. This is useful when there are
 multiple toolbox containers created from the same base image, or entirely
 customized containers created from custom-built base images.
 
-**--release** RELEASE
+**--release** RELEASE, **-r** RELEASE
 
 Enter a toolbox container for a different operating system RELEASE than the
 host.
