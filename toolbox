@@ -988,10 +988,20 @@ create()
 
 
 enter()
+{
+    run true false "$SHELL" -l
+}
+
+
+run()
 (
+    fallback_to_bash="$1"
+    pedantic="$2"
+    program="$3"
+    shift 3
+
     create_toolbox_container=false
     prompt_for_create=true
-    shell_to_exec=/bin/bash
 
     echo "$base_toolbox_command: checking if container $toolbox_container exists" >&3
 
@@ -1008,6 +1018,11 @@ enter()
             # shellcheck disable=SC2030
             toolbox_container="$toolbox_container_old"
         else
+            if $pedantic; then
+                enter_print_container_not_found "$toolbox_container"
+                exit 1
+            fi
+
             if ! containers=$(list_container_names); then
                 enter_print_container_not_found "$toolbox_container"
                 exit 1
@@ -1088,25 +1103,34 @@ enter()
 
     set_environment=$(create_environment_options)
 
-    echo "$base_toolbox_command: looking for $SHELL in container $toolbox_container" >&3
+    echo "$base_toolbox_command: looking for $program in container $toolbox_container" >&3
 
-    if $prefix_sudo podman exec "$toolbox_container" test -f "$SHELL" 2>&3; then
-        shell_to_exec="$SHELL"
-    else
-        echo "$base_toolbox_command: $SHELL not found in $toolbox_container; using $shell_to_exec instead" >&3
+    # shellcheck disable=SC2016
+    if ! $prefix_sudo podman exec "$toolbox_container" sh -c 'command -v "$1"' sh "$program" >/dev/null 2>&3; then
+        if $fallback_to_bash; then
+            echo "$base_toolbox_command: $program not found in $toolbox_container; using /bin/bash instead" >&3
+            program=/bin/bash
+        else
+            echo "$base_toolbox_command: command '$program' not found in container $toolbox_container" >&2
+            exit 127
+        fi
     fi
 
-    echo "$base_toolbox_command: trying to exec $shell_to_exec in container $toolbox_container" >&3
+    echo "$base_toolbox_command: running in container $toolbox_container:" >&3
+    echo "$base_toolbox_command: $program" >&3
+    for i in "$@"; do
+        echo "$base_toolbox_command: $i" >&3
+    done
 
     # shellcheck disable=SC2016
     # for the command passed to capsh
     # shellcheck disable=SC2086
     $prefix_sudo podman exec \
-            $set_environment \
             --interactive \
             --tty \
+            $set_environment \
             "$toolbox_container" \
-            capsh --caps="" -- -c 'cd "$1"; shift; exec "$@"' /bin/sh "$PWD" "$shell_to_exec" -l 2>&3
+            capsh --caps="" -- -c 'cd "$1"; shift; exec "$@"' /bin/sh "$PWD" "$program" "$@" 2>&3
 )
 
 
@@ -1524,6 +1548,10 @@ usage()
     echo "   or: toolbox [-y | --assumeyes]"
     echo "               rmi [-a | --all]"
     echo "                   [-f | --force] [<image> ...]"
+    echo "   or: toolbox [-v | --verbose]"
+    echo "               [-y | --assumeyes]"
+    echo "               run [-c | --container <name>]"
+    echo "                   [-r | --release <release>] <command>"
     echo "   or: toolbox --help"
 }
 
@@ -1795,6 +1823,37 @@ case $op in
             else
                 remove_images "$rm_ids" "$rm_all" "$rm_force"
             fi
+        fi
+        exit
+        ;;
+    run )
+        if is_integer "$podman_pid"; then
+            # shellcheck disable=SC2119
+            forward_to_host
+        else
+            while has_prefix "$1" -; do
+                case $1 in
+                    -c | --container )
+                        shift
+                        exit_if_missing_argument --container "$1"
+                        toolbox_container=$1
+                        ;;
+                    -r | --release )
+                        shift
+                        exit_if_missing_argument --release "$1"
+                        arg=$(echo "$1" | sed "s/^F\|^f//" 2>&3)
+                        exit_if_non_positive_argument --release "$arg"
+                        release=$arg
+                        ;;
+                    * )
+                        exit_if_unrecognized_option "$1"
+                esac
+                shift
+            done
+            if ! update_container_and_image_names; then
+                exit 1
+            fi
+            run false true "$@"
         fi
         exit
         ;;

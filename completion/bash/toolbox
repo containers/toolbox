@@ -13,7 +13,7 @@ __toolbox() {
   local MIN_VERSION=29
   local RAWHIDE_VERSION=31
 
-  local verbose_commands="create enter list"
+  local verbose_commands="create enter list run"
   local commands="$verbose_commands rm rmi"
 
   declare -A options
@@ -21,7 +21,8 @@ __toolbox() {
                  [enter]="--container --release" \
 		 [list]="--containers --images" \
 		 [rm]="--all --force" \
-		 [rmi]="--all --force")
+		 [rmi]="--all --force" \
+		 [run]="--container --release")
 
   _init_completion -s || return
 

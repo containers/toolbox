@@ -11,6 +11,7 @@ manuals = [
   'toolbox-list.1',
   'toolbox-rm.1',
   'toolbox-rmi.1',
+  'toolbox-run.1',
 ]
 
 foreach manual: manuals
