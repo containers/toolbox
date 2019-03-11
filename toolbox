@@ -41,14 +41,11 @@ environment_variables="COLORTERM \
         XDG_VTNR"
 fgc=""
 
-# shellcheck disable=SC1091
-. /etc/os-release
-release=$VERSION_ID
-
 podman_pid=""
 prefix_sudo=""
 registry="registry.fedoraproject.org"
 registry_candidate="candidate-registry.fedoraproject.org"
+release=""
 spinner_animation="[>----] [=>---] [==>--] [===>-] [====>] [----<] [---<=] [--<==] [-<===] [<====]"
 spinner_template="toolbox-spinner-XXXXXXXXXX"
 toolbox_container=""
@@ -275,6 +272,14 @@ create_environment_options()
               echo $environment_options
           }
 }
+
+
+get_host_version_id()
+(
+    # shellcheck disable=SC1091
+    . /etc/os-release
+    echo "$VERSION_ID"
+)
 
 
 pull_base_toolbox_image()
@@ -793,6 +798,10 @@ forward_to_host()
 
 update_container_and_image_names()
 {
+    if [ "$release" = "" ] 2>&3; then
+        release=$(get_host_version_id)
+    fi
+
     base_toolbox_image="fedora-toolbox:$release"
     fgc="f$release"
     [ "$toolbox_container" = "" ] && toolbox_container="fedora-toolbox-$USER:$release"
