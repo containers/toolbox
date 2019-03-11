@@ -274,6 +274,39 @@ create_environment_options()
 }
 
 
+create_toolbox_image_name()
+(
+    # Based on the ResolveName function implemented in:
+    # https://github.com/containers/buildah/blob/master/util/util.go
+
+    if image_reference_can_be_id "$base_toolbox_image"; then
+        if base_toolbox_image_id=$($prefix_sudo podman inspect \
+                                           --format "{{.Id}}" \
+                                           --type image \
+                                           "$base_toolbox_image" 2>&3); then
+            if has_prefix "$base_toolbox_image_id" "$base_toolbox_image"; then
+                echo "$base_toolbox_image-$USER:latest"
+                return 0
+            fi
+        fi
+    fi
+
+    basename=$(image_reference_get_basename "$base_toolbox_image")
+    if [ "$basename" = "" ] 2>&3; then
+        return 100
+    fi
+
+    tag=$(image_reference_get_tag "$base_toolbox_image")
+    if [ "$tag" = "" ] 2>&3; then
+        echo "$basename-$USER"
+    else
+        echo "$basename-$USER:$tag"
+    fi
+
+    return 0
+)
+
+
 get_host_version_id()
 (
     # shellcheck disable=SC1091
@@ -288,6 +321,43 @@ image_reference_can_be_id()
 
     echo "$image" | grep "^[a-f0-9]\{6,64\}$" >/dev/null 2>&3
     return $?
+)
+
+
+image_reference_get_basename()
+(
+    image="$1"
+
+    domain=$(image_reference_get_domain "$image")
+    remainder=${image#$domain}
+    path=${remainder%:*}
+    basename=${path##*/}
+    echo "$basename"
+)
+
+
+image_reference_get_domain()
+(
+    image="$1"
+
+    image_reference_has_domain "$image" && domain=${image%%/*}
+    echo "$domain"
+)
+
+
+image_reference_get_tag()
+(
+    image="$1"
+
+    domain=$(image_reference_get_domain "$image")
+    remainder=${image#$domain}
+
+    tag=""
+    if (echo "$remainder" | grep ":" >/dev/null 2>&3); then
+       tag=${remainder#*:}
+    fi
+
+    echo "$tag"
 )
 
 
@@ -856,10 +926,40 @@ update_container_and_image_names()
         release=$(get_host_version_id)
     fi
 
-    base_toolbox_image="fedora-toolbox:$release"
+    if [ "$base_toolbox_image" = "" ] 2>&3; then
+        base_toolbox_image="fedora-toolbox:$release"
+    else
+        release=$(image_reference_get_tag "$base_toolbox_image")
+        [ "$release" = "" ] 2>&3 && release=$(get_host_version_id)
+    fi
+
     fgc="f$release"
-    [ "$toolbox_container" = "" ] && toolbox_container="fedora-toolbox-$USER:$release"
-    [ "$toolbox_image" = "" ] && toolbox_image="fedora-toolbox-$USER:$release"
+    echo "$base_toolbox_command: Fedora generational core is $fgc" >&3
+
+    echo "$base_toolbox_command: base image is $base_toolbox_image" >&3
+
+    toolbox_image=$(create_toolbox_image_name)
+    if ! (
+            ret_val=$?
+            if [ "$ret_val" -ne 0 ] 2>&3; then
+                if [ "$ret_val" -eq 100 ] 2>&3; then
+                    echo "$base_toolbox_command: failed to get the basename of base image $base_toolbox_image" >&2
+                else
+                    echo "$base_toolbox_command: failed to create an ID for the customized user-specific image" >&2
+                fi
+
+                exit 1
+            fi
+
+            exit 0
+         ); then
+        exit 1
+    fi
+
+    echo "$base_toolbox_command: customized user-specific image is $toolbox_image" >&3
+
+    [ "$toolbox_container" = "" ] && toolbox_container="$toolbox_image"
+    echo "$base_toolbox_command: container is $toolbox_container" >&3
 }
 
 
@@ -966,7 +1066,7 @@ case $op in
                     --image )
                         shift
                         exit_if_missing_argument --image "$1"
-                        toolbox_image=$1
+                        base_toolbox_image=$1
                         ;;
                     --release )
                         shift
