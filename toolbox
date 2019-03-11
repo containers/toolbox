@@ -267,6 +267,8 @@ create_environment_options()
                   echo "$base_toolbox_command: $variable=$value" >&3
                   environment_options="$environment_options --env=$variable=$value"
               done
+
+              environment_options=${environment_options#" "}
               echo "$base_toolbox_command: created options for environment variables to forward" >&3
               echo $environment_options >&3
               echo $environment_options
