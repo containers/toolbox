@@ -282,6 +282,15 @@ get_host_version_id()
 )
 
 
+image_reference_can_be_id()
+(
+    image="$1"
+
+    echo "$image" | grep "^[a-f0-9]\{6,64\}$" >/dev/null 2>&3
+    return $?
+)
+
+
 image_reference_has_domain()
 (
     # Based on the splitDockerDomain function implemented in:
@@ -305,6 +314,14 @@ image_reference_has_domain()
 pull_base_toolbox_image()
 (
     has_domain=false
+
+    if image_reference_can_be_id "$base_toolbox_image"; then
+        echo "$base_toolbox_command: looking for image $base_toolbox_image" >&3
+
+        if $prefix_sudo podman inspect --type image "$base_toolbox_image" >/dev/null 2>&3; then
+            return 0
+        fi
+    fi
 
     image_reference_has_domain "$base_toolbox_image" && has_domain=true
 
