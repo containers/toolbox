@@ -1006,7 +1006,7 @@ while has_prefix "$1" -; do
 done
 
 if [ -f /run/.containerenv ] 2>&3; then
-    if ! which flatpak-spawn >/dev/null 2>&3; then
+    if ! command -v flatpak-spawn >/dev/null 2>&3; then
         echo "$base_toolbox_command: flatpak-spawn not found" >&2
         exit 1
     fi
