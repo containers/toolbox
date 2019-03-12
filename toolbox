@@ -1015,7 +1015,7 @@ if [ -f /run/.containerenv ] 2>&3; then
 
     pid_i=$$
     while [ "$pid_i" -gt 1 ] 2>&3; do
-        cmdline=$(cat /proc/$pid_i/cmdline 2>&3 | sed "s/\x0/ /g" 2>&3)
+        cmdline=$(sed "s/\x0/ /g" /proc/$pid_i/cmdline 2>&3)
         if has_prefix "$cmdline" "podman exec "; then
             podman_pid=$pid_i
             break
