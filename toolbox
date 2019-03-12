@@ -48,6 +48,7 @@ registry_candidate="candidate-registry.fedoraproject.org"
 release=""
 spinner_animation="[>----] [=>---] [==>--] [===>-] [====>] [----<] [---<=] [--<==] [-<===] [<====]"
 spinner_template="toolbox-spinner-XXXXXXXXXX"
+tab="$(printf '\t')"
 toolbox_container=""
 toolbox_image=""
 toolbox_prompt="🔹[\u@\h \W]\\$ "
@@ -679,7 +680,7 @@ list_images()
 
     if ! output=$(echo "$images" \
                   | sed "s/ \{2,\}/\t/g" 2>&3 \
-                  | column --separator $'\t' --table --table-columns "IMAGE ID,IMAGE NAME,CREATED" 2>&3); then
+                  | column --separator "$tab" --table --table-columns "IMAGE ID,IMAGE NAME,CREATED" 2>&3); then
         echo "$base_toolbox_command: failed to parse list of images" >&2
         return 1
     fi
@@ -706,7 +707,7 @@ list_containers()
     if ! output=$(echo "$containers" \
                   | sed "s/ \{2,\}/\t/g" 2>&3 \
                   | column \
-                            --separator $'\t' \
+                            --separator "$tab" \
                             --table \
                             --table-columns "CONTAINER ID,CONTAINER NAME,CREATED,STATUS,IMAGE NAME" 2>&3); then
         echo "$base_toolbox_command: failed to parse list of containers" >&2
