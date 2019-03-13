@@ -593,6 +593,7 @@ create()
             --volume "$HOME":"$HOME":rslave \
             --volume "$XDG_RUNTIME_DIR":"$XDG_RUNTIME_DIR" \
             --volume "$dbus_system_bus_path":"$dbus_system_bus_path" \
+            --volume /dev/bus:/dev/bus \
             --volume /dev/dri:/dev/dri \
             --volume /dev/fuse:/dev/fuse \
             --volume /media:/media:rslave \
