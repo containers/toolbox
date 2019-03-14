@@ -1,3 +1,22 @@
+Overview of changes in 0.0.7
+============================
+
+* Add fedora-toolbox image definition for Fedora 31
+* Add flatpak-xdg-utils to Fedoras 29 and 30
+* Add manuals
+* Add rm and rmi commands
+* Be more informative when creating the working container
+* Clarify the error message if the toolbox container is not found
+* Don't create volumes in the image for bind mounts from the host
+* Fix miscellaneous issues pointed out by https://www.shellcheck.net/
+* Give access to /dev/bus for control transfers from USB devices
+* Give access to removable devices and other temporary mounts
+* Lots of Bash-isms removed for POSIX correctness
+* Make the --image flag override the base toolbox image, as documented
+* Make the spinner more efficient
+* Restore documentation removed from the base Fedora images
+
+
 Overview of changes in 0.0.6
 ============================
 
