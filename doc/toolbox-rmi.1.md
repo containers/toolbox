@@ -49,4 +49,4 @@ $ toolbox rmi --all --force
 
 ## SEE ALSO
 
-`buildah(1)`, `podman(1)`, `podman-rm(1)`
+`buildah(1)`, `podman(1)`, `podman-rmi(1)`
