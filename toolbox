@@ -698,11 +698,31 @@ enter()
 
     echo "$base_toolbox_command: looking for $SHELL in container $toolbox_container" >&3
 
-    if $prefix_sudo podman exec $toolbox_container test -f "$SHELL" 2>&3; then
-        shell_to_exec=$SHELL
-    else
-        echo "$base_toolbox_command: $SHELL not found in $toolbox_container; using $shell_to_exec instead" >&3
-    fi
+    $prefix_sudo podman exec $toolbox_container test -f "$SHELL" 2>&3
+    ret_val=$?
+
+    case "$ret_val" in
+        0 )
+            shell_to_exec=$SHELL
+            ;;
+        125 )
+            echo "$base_toolbox_command: failed to enter container $toolbox_container" >&2
+            if conmon_pid_file=$($prefix_sudo podman inspect \
+                                         --format "{{.ConmonPidFile}}" \
+                                         --type container \
+                                         "$toolbox_container" 2>&3); then
+                if has_prefix "$conmon_pid_file" "$XDG_RUNTIME_DIR/overlay-containers" \
+                   && ! [ -f "$conmon_pid_file" ] 2>&3; then
+                    echo "This might be https://github.com/containers/libpod/issues/2673." >&2
+                    echo "Try using 'rm' and 'create' to re-create the toolbox; or revert to podman-1.1.2." >&2
+                fi
+            fi
+            exit 125
+            ;;
+        * )
+            echo "$base_toolbox_command: $SHELL not found in $toolbox_container; using $shell_to_exec instead" >&3
+            ;;
+    esac
 
     echo "$base_toolbox_command: trying to exec $shell_to_exec in container $toolbox_container" >&3
 
