@@ -283,6 +283,7 @@ create_environment_options()
         | {
               environment_options=""
               echo "$base_toolbox_command: creating list of environment variables to forward" >&3
+              value=""
               while read -r variable; do
                   eval value="$""$variable"
                   echo "$base_toolbox_command: $variable=$value" >&3
