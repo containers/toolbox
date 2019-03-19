@@ -143,7 +143,7 @@ spinner_start()
 
     (
         while [ -f "$directory/spinner-start" ]; do
-            echo "$spinner_animation" | sed "s/ /\n/g" 2>&3 | while read frame; do
+            echo "$spinner_animation" | sed "s/ /\n/g" 2>&3 | while read -r frame; do
                 if ! [ -f "$directory/spinner-start" ] 2>&3; then
                    break
                 fi
@@ -283,7 +283,7 @@ create_environment_options()
         | {
               environment_options=""
               echo "$base_toolbox_command: creating list of environment variables to forward" >&3
-              while read variable; do
+              while read -r variable; do
                   eval value="$""$variable"
                   echo "$base_toolbox_command: $variable=$value" >&3
                   environment_options="$environment_options --env=$variable=$value"
@@ -782,7 +782,7 @@ list_containers()
 
         echo "$output" | tail --lines +2 2>&3 \
             | (
-                  while read container; do
+                  while read -r container; do
                       id=$(echo "$container" | cut --delimiter " " --fields 1 2>&3)
                       is_running=$($prefix_sudo podman inspect "$id" --format "{{.State.Running}}" 2>&3)
                       if $is_running; then
@@ -820,7 +820,7 @@ remove_containers()
         if [ "$ids" != "" ]; then
             ret_val=$(echo "$ids" \
                       | (
-                            while read id; do
+                            while read -r id; do
                                 if ! $prefix_sudo podman rm $force_option "$id" >/dev/null 2>&3; then
                                     echo "$base_toolbox_command: failed to remove container $id" >&2
                                     ret_val=1
@@ -885,7 +885,7 @@ remove_images()
         if [ "$ids" != "" ]; then
             ret_val=$(echo "$ids" \
                       | (
-                            while read id; do
+                            while read -r id; do
                                 if ! $prefix_sudo podman rmi $force_option "$id" >/dev/null 2>&3; then
                                     echo "$base_toolbox_command: failed to remove image $id" >&2
                                     ret_val=1
