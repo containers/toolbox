@@ -661,6 +661,7 @@ create()
         spinner_directory=""
     fi
 
+    # shellcheck disable=SC2086
     $prefix_sudo podman create \
             --group-add wheel \
             --hostname toolbox \
@@ -747,6 +748,7 @@ enter()
 
     # shellcheck disable=SC2016
     # for the command passed to capsh
+    # shellcheck disable=SC2086
     $prefix_sudo podman exec \
             $set_dbus_system_bus_address \
             $set_environment \
@@ -1034,6 +1036,7 @@ forward_to_host()
         echo "$base_toolbox_command: $i" >&3
     done
 
+    # shellcheck disable=SC2086
     flatpak-spawn $set_dbus_system_bus_address $set_environment --host "$0" "$@" 2>&3
 )
 
