@@ -18,7 +18,7 @@
 
 exec 3>/dev/null
 
-arguments="$@"
+arguments=""
 base_toolbox_command=$(basename "$0" 2>&3)
 base_toolbox_image=""
 environment_variables="COLORTERM \
@@ -105,6 +105,15 @@ is_integer()
 {
     [ "$1" != "" ] && [ "$1" -eq "$1" ] 2>&3
     return $?
+}
+
+
+save_positional_parameters()
+{
+    for i; do
+        printf "%s\\n" "$i" | sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/' \\\\/" 2>&3
+    done
+    echo " "
 }
 
 
@@ -964,16 +973,24 @@ exit_if_unrecognized_option()
 }
 
 
+# shellcheck disable=SC2120
 forward_to_host()
 (
+    eval "set -- $arguments"
+
     if [ "$DBUS_SYSTEM_BUS_ADDRESS" != "" ]; then
         set_dbus_system_bus_address="--env=DBUS_SYSTEM_BUS_ADDRESS=$DBUS_SYSTEM_BUS_ADDRESS"
     fi
 
     set_environment=$(create_environment_options)
 
-    echo "$base_toolbox_command: forwarding to host: $0 $arguments" >&3
-    flatpak-spawn $set_dbus_system_bus_address $set_environment --host "$0" $arguments 2>&3
+    echo "$base_toolbox_command: forwarding to host:" >&3
+    echo "$base_toolbox_command: $0" >&3
+    for i in "$@"; do
+        echo "$base_toolbox_command: $i" >&3
+    done
+
+    flatpak-spawn $set_dbus_system_bus_address $set_environment --host "$0" "$@" 2>&3
 )
 
 
@@ -1040,6 +1057,8 @@ usage()
     echo "   or: toolbox --help"
 }
 
+
+arguments=$(save_positional_parameters "$@")
 
 while has_prefix "$1" -; do
     case $1 in
@@ -1108,6 +1127,7 @@ shift
 case $op in
     create )
         if is_integer "$podman_pid"; then
+            # shellcheck disable=SC2119
             forward_to_host
         else
             while has_prefix "$1" -; do
@@ -1145,6 +1165,7 @@ case $op in
         ;;
     enter )
         if is_integer "$podman_pid"; then
+            # shellcheck disable=SC2119
             forward_to_host
         else
             while has_prefix "$1" -; do
@@ -1174,6 +1195,7 @@ case $op in
         ;;
     list )
         if is_integer "$podman_pid"; then
+            # shellcheck disable=SC2119
             forward_to_host
         else
             ls_images=false
@@ -1217,6 +1239,7 @@ case $op in
         ;;
     rm | rmi )
         if is_integer "$podman_pid"; then
+            # shellcheck disable=SC2119
             forward_to_host
         else
             rm_all=false
