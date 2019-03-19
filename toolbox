@@ -745,6 +745,8 @@ enter()
 
     echo "$base_toolbox_command: trying to exec $shell_to_exec in container $toolbox_container" >&3
 
+    # shellcheck disable=SC2016
+    # for the command passed to capsh
     $prefix_sudo podman exec \
             $set_dbus_system_bus_address \
             $set_environment \
