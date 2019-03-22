@@ -496,7 +496,7 @@ create()
 
     echo "$base_toolbox_command: checking if image $toolbox_image already exists" >&3
 
-    if ! $prefix_sudo buildah inspect --type image $toolbox_image >/dev/null 2>&3; then
+    if ! $prefix_sudo podman inspect --type image $toolbox_image >/dev/null 2>&3; then
         if ! pull_base_toolbox_image; then
             echo "$base_toolbox_command: failed to pull base image $base_toolbox_image" >&2
             exit 1
