@@ -1,7 +1,8 @@
 FROM registry.fedoraproject.org/fedora:28
 
 ENV NAME=fedora-toolbox VERSION=28
-LABEL com.redhat.component="$NAME" \
+LABEL com.github.debarshiray.toolbox="true" \
+      com.redhat.component="$NAME" \
       name="$FGC/$NAME" \
       version="$VERSION" \
       usage="This image is meant to be used with the toolbox command" \
