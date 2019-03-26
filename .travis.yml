@@ -1,0 +1,17 @@
+dist: xenial
+language: sh
+
+addons:
+  apt:
+    packages:
+    - go-md2man
+    - ninja-build
+    - python3-pip
+    - python3-setuptools
+    update: true
+
+install:
+  - sudo pip3 install meson
+
+script:
+  - meson builddir && ninja -C builddir test
