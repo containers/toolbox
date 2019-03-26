@@ -405,6 +405,26 @@ image_reference_has_domain()
 )
 
 
+images_get_details()
+(
+    images="$1"
+
+    if ! echo "$images" | while read -r image; do
+            if ! $prefix_sudo podman images \
+                         --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Created}}" \
+                         --noheading \
+                         "$image" 2>&3; then
+                echo "$base_toolbox_command: failed to get details for image $image" >&2
+                return 1
+            fi
+         done; then
+        return 1
+    fi
+
+    return 0
+)
+
+
 pull_base_toolbox_image()
 (
     has_domain=false
@@ -732,14 +752,26 @@ enter()
 
 list_images()
 (
-    if ! images=$($prefix_sudo podman images \
-                          --filter "label=com.redhat.component=fedora-toolbox" \
-                          --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Created}}" 2>&3); then
-        echo "$base_toolbox_command: failed to list images" >&2
+    if ! images_old=$($prefix_sudo podman images \
+                              --filter "label=com.redhat.component=fedora-toolbox" \
+                              --format "{{.Repository}}:{{.Tag}}" 2>&3); then
+        echo "$base_toolbox_command: failed to list images with com.redhat.component=fedora-toolbox" >&2
         return 1
     fi
 
-    if ! output=$(echo "$images" \
+    if ! images=$($prefix_sudo podman images \
+                          --filter "label=com.github.debarshiray.toolbox=true" \
+                          --format "{{.Repository}}:{{.Tag}}" 2>&3); then
+        echo "$base_toolbox_command: failed to list images with com.github.debarshiray.toolbox=true" >&2
+        return 1
+    fi
+
+    images=$(printf "%s\n%s\n" "$images_old" "$images" | sort 2>&3 | uniq 2>&3)
+    if ! details=$(images_get_details "$images"); then
+        return 1
+    fi
+
+    if ! output=$(echo "$details" \
                   | sed "s/ \{2,\}/\t/g" 2>&3 \
                   | column --separator "$tab" --table --table-columns "IMAGE ID,IMAGE NAME,CREATED" 2>&3); then
         echo "$base_toolbox_command: failed to parse list of images" >&2
