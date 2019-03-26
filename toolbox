@@ -262,6 +262,13 @@ configure_working_container()
         return 1
     fi
 
+    if ! $prefix_sudo buildah config \
+                 --label "com.github.debarshiray.toolbox=true" \
+                 "$working_container_name" >/dev/null 2>&3; then
+        echo "$base_toolbox_command: failed to add com.github.debarshiray.toolbox=true" >&2
+        return 1
+    fi
+
     if ! $prefix_sudo buildah config --user "$USER" "$working_container_name" >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to configure the default user as $USER" >&2
         return 1
