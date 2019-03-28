@@ -258,6 +258,16 @@ configure_working_container()
 (
     working_container_name="$1"
     kcm_ccache_configuration="$2"
+    podman_create_supports_dns_none_no_hosts="$3"
+
+    buildah_unshare_supports_sh_c=false
+
+    echo "$base_toolbox_command: checking if 'buildah unshare' supports sh -c" >&3
+
+    if $prefix_sudo buildah unshare sh -c 'echo "hello world"' >/dev/null 2>&3; then
+        echo "$base_toolbox_command: 'buildah unshare' supports sh -c" >&3
+        buildah_unshare_supports_sh_c=true
+    fi
 
     if [ "$(readlink /home)" = var/home ] ; then
         need_home_link=true
@@ -321,6 +331,34 @@ configure_working_container()
     if ! $prefix_sudo buildah config --workingdir "$HOME" "$working_container_name" >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to configure the initial working directory to $HOME" >&2
         return 1
+    fi
+
+    if $buildah_unshare_supports_sh_c && $podman_create_supports_dns_none_no_hosts; then
+        # shellcheck disable=SC2016
+        if ! $prefix_sudo buildah unshare \
+                     sh -c 'working_container_root=$(buildah mount "$1") '\
+'                                   && cd "$working_container_root/etc" '\
+'                                   && unlink hosts '\
+'                                   && ln --symbolic /run/host/etc/hosts hosts '\
+'                                   && buildah umount "$1"' \
+                           "/bin/sh" \
+                           "$working_container_name" >/dev/null 2>&3; then
+            echo "$base_toolbox_command: failed to redirect /etc/hosts to /run/host/etc/hosts" >&2
+            return 1
+        fi
+
+        # shellcheck disable=SC2016
+        if ! $prefix_sudo buildah unshare \
+                     sh -c 'working_container_root=$(buildah mount "$1") '\
+'                                   && cd "$working_container_root/etc" '\
+'                                   && unlink resolv.conf '\
+'                                   && ln --symbolic /run/host/etc/resolv.conf resolv.conf '\
+'                                   && buildah umount "$1"' \
+                           "/bin/sh" \
+                           "$working_container_name" >/dev/null 2>&3; then
+            echo "$base_toolbox_command: failed to redirect /etc/resolv.conf to /run/host/etc/resolv.conf" >&2
+            return 1
+        fi
     fi
 
     return 0
@@ -653,9 +691,12 @@ create()
     enter_command_skip="$1"
 
     dbus_system_bus_address="unix:path=/var/run/dbus/system_bus_socket"
+    dns_none=""
     kcm_ccache_configuration=""
     kcm_socket=""
     kcm_socket_bind=""
+    no_hosts=""
+    podman_create_supports_dns_none_no_hosts=false
     tmpfs_size=$((64 * 1024 * 1024)) # 64 MiB
     toolbox_profile_bind=""
     working_container_name="toolbox-working-container-$(uuidgen --time)"
@@ -697,6 +738,15 @@ create()
         kcm_ccache_configuration="/etc/krb5.conf.d/kcm_default_ccache"
         kcm_socket=${kcm_socket_listen%" (Stream)"}
         kcm_socket_bind="--volume $kcm_socket:$kcm_socket"
+    fi
+
+    echo "$base_toolbox_command: checking if 'podman create' supports --dns=none and --no-hosts" >&3
+
+    if $prefix_sudo podman create --help 2>&3 | grep "hosts" >/dev/null 2>&3; then
+        echo "$base_toolbox_command: 'podman create' supports --dns=none and --no-hosts" >&3
+        podman_create_supports_dns_none_no_hosts=true
+        dns_none="--dns none"
+        no_hosts="--no-hosts"
     fi
 
     echo "$base_toolbox_command: checking if image $toolbox_image already exists" >&3
@@ -756,7 +806,10 @@ create()
             spinner_directory=""
         fi
 
-        configure_working_container "$working_container_name" "$kcm_ccache_configuration"
+        configure_working_container \
+                "$working_container_name" \
+                "$kcm_ccache_configuration" \
+                "$podman_create_supports_dns_none_no_hosts"
         ret_val=$?
 
         if [ "$spinner_directory" != "" ]; then
@@ -838,12 +891,14 @@ create()
 
     # shellcheck disable=SC2086
     $prefix_sudo podman create \
+            $dns_none \
             $toolbox_path_set \
             --env TOOLBOX_CONTAINER="$toolbox_container" \
             --group-add wheel \
             --hostname toolbox \
             --name $toolbox_container \
             --network host \
+            $no_hosts \
             --pid host \
             --privileged \
             --security-opt label=disable \
@@ -857,6 +912,7 @@ create()
             --volume "$HOME":"$HOME":rslave \
             --volume "$XDG_RUNTIME_DIR":"$XDG_RUNTIME_DIR" \
             --volume "$dbus_system_bus_path":"$dbus_system_bus_path" \
+            --volume /etc:/run/host/etc \
             --volume /dev/bus:/dev/bus \
             --volume /dev/dri:/dev/dri \
             --volume /dev/fuse:/dev/fuse \
