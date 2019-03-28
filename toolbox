@@ -417,6 +417,8 @@ images_get_details()
     images="$1"
 
     if ! echo "$images" | while read -r image; do
+            [ "$image" = "" ] 2>&3 && continue
+
             if ! $prefix_sudo podman images \
                          --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Created}}" \
                          --noheading \
