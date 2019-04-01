@@ -661,6 +661,10 @@ create()
         spinner_directory=""
     fi
 
+    if [ -f ~/.config/toolbox ]; then
+        . ~/.config/toolbox
+    fi
+
     $prefix_sudo podman create \
             --group-add wheel \
             --hostname toolbox \
@@ -685,6 +689,7 @@ create()
             --volume /media:/media:rslave \
             --volume /mnt:/mnt:rslave \
             --volume /run/media:/run/media:rslave \
+            ${TOOLBOX_CREATE_ARGS:-} \
             $toolbox_image \
             /bin/sh >/dev/null 2>&3
     ret_val=$?
