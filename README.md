@@ -1,4 +1,4 @@
-# Toolbox — Unprivileged development environment
+<img src="data/logo/toolbox-logo-landscape.svg" alt="Toolbox logo landscape" width="800"/>
 
 [Toolbox](https://github.com/debarshiray/toolbox) is a tool that offers a
 familiar RPM based environment for developing and debugging software that runs
