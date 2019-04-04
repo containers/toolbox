@@ -799,17 +799,51 @@ list_images()
 )
 
 
-list_containers()
+containers_get_details()
 (
-    if ! containers=$($prefix_sudo podman ps \
-                              --all \
-                              --filter "label=com.redhat.component=fedora-toolbox" \
-                              --format "{{.ID}}  {{.Names}}  {{.Created}}  {{.Status}}  {{.Image}}" 2>&3); then
-        echo "$base_toolbox_command: failed to list containers" >&2
+    containers="$1"
+
+    if ! echo "$containers" | while read -r container; do
+            [ "$container" = "" ] 2>&3 && continue
+
+            if ! $prefix_sudo podman ps --all \
+                         --filter "name=$container" \
+                         --format "{{.ID}}  {{.Names}}  {{.Created}}  {{.Status}}  {{.Image}}" 2>&3; then
+                echo "$base_toolbox_command: failed to get details for container $container" >&2
+                return 1
+            fi
+         done; then
         return 1
     fi
 
-    if ! output=$(echo "$containers" \
+    return 0
+)
+
+
+list_containers()
+(
+    if ! containers_old=$($prefix_sudo podman ps \
+                                  --all \
+                                  --filter "label=com.redhat.component=fedora-toolbox" \
+                                  --format "{{.Names}}" 2>&3); then
+        echo "$base_toolbox_command: failed to list containers with com.redhat.component=fedora-toolbox" >&2
+        return 1
+    fi
+
+    if ! containers=$($prefix_sudo podman ps \
+                              --all \
+                              --filter "label=com.github.debarshiray.toolbox=true" \
+                              --format "{{.Names}}" 2>&3); then
+        echo "$base_toolbox_command: failed to list containers com.github.debarshiray.toolbox=true" >&2
+        return 1
+    fi
+
+    containers=$(printf "%s\n%s\n" "$containers_old" "$containers" | sort 2>&3 | uniq 2>&3)
+    if ! details=$(containers_get_details "$containers"); then
+        return 1
+    fi
+
+    if ! output=$(echo "$details" \
                   | sed "s/ \{2,\}/\t/g" 2>&3 \
                   | column \
                             --separator "$tab" \
