@@ -665,14 +665,12 @@ create()
     $prefix_sudo podman create \
             --group-add wheel \
             --hostname toolbox \
-            --interactive \
             --name $toolbox_container \
             --network host \
             --pid host \
             --privileged \
             --security-opt label=disable \
             --tmpfs /dev/shm:size=$tmpfs_size \
-            --tty \
             --uidmap "$user_id_real":0:1 \
             --uidmap 0:1:"$user_id_real" \
             --uidmap "$uid_plus_one":"$uid_plus_one":"$max_minus_uid" \
@@ -687,7 +685,7 @@ create()
             --volume /mnt:/mnt:rslave \
             --volume /run/media:/run/media:rslave \
             $toolbox_image \
-            /bin/sh >/dev/null 2>&3
+            sleep +Inf >/dev/null 2>&3
     ret_val=$?
 
     if [ "$spinner_directory" != "" ]; then
