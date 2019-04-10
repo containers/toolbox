@@ -6,12 +6,19 @@ project(
 )
 
 go_md2man = find_program('go-md2man')
+shellcheck = find_program('shellcheck', required: false)
 
 systemd_dep = dependency('systemd')
 tmpfilesdir = systemd_dep.get_pkgconfig_variable('tmpfilesdir')
 
+toolbox = files('toolbox')
+
+if shellcheck.found()
+  test('shellcheck', shellcheck, args: [toolbox])
+endif
+
 install_data(
-  'toolbox',
+  toolbox,
   install_dir: get_option('bindir'),
 )
 
