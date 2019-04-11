@@ -1099,9 +1099,7 @@ forward_to_host()
 
 update_container_and_image_names()
 {
-    if [ "$release" = "" ] 2>&3; then
-        release=$(get_host_version_id)
-    fi
+    [ "$release" = "" ] 2>&3 && release=$(get_host_version_id)
 
     if [ "$base_toolbox_image" = "" ] 2>&3; then
         base_toolbox_image="fedora-toolbox:$release"
