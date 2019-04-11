@@ -888,13 +888,23 @@ remove_containers()
     $force && force_option="--force"
 
     if $all; then
-        if ! ids=$($prefix_sudo podman ps \
-                           --all \
-                           --filter "label=com.redhat.component=fedora-toolbox" \
-                           --format "{{.ID}}" 2>&3); then
-            echo "$base_toolbox_command: failed to list containers" >&2
+        if ! ids_old=$($prefix_sudo podman ps \
+                               --all \
+                               --filter "label=com.redhat.component=fedora-toolbox" \
+                               --format "{{.ID}}" 2>&3); then
+            echo "$base_toolbox_command: failed to list containers with com.redhat.component=fedora-toolbox" >&2
             return 1
         fi
+
+        if ! ids=$($prefix_sudo podman ps \
+                           --all \
+                           --filter "label=com.github.debarshiray.toolbox=true" \
+                           --format "{{.ID}}" 2>&3); then
+            echo "$base_toolbox_command: failed to list containers with com.github.debarshiray.toolbox=true" >&2
+            return 1
+        fi
+
+        ids=$(printf "%s\n%s\n" "$ids_old" "$ids" | sort 2>&3 | uniq 2>&3)
         if [ "$ids" != "" ]; then
             ret_val=$(echo "$ids" \
                       | (
@@ -922,7 +932,9 @@ remove_containers()
                                 ret_val=1
                                 continue
                             fi
-                            if ! has_substring "$labels" "com.redhat.component:fedora-toolbox"; then
+
+                            if ! has_substring "$labels" "com.github.debarshiray.toolbox" \
+                               && ! has_substring "$labels" "com.redhat.component:fedora-toolbox"; then
                                 echo "$base_toolbox_command: $id is not a toolbox container" >&2
                                 ret_val=1
                                 continue
