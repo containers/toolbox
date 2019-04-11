@@ -46,10 +46,13 @@ prefix_sudo=""
 registry="registry.fedoraproject.org"
 registry_candidate="candidate-registry.fedoraproject.org"
 release=""
+release_default=""
 spinner_animation="[>----] [=>---] [==>--] [===>-] [====>] [----<] [---<=] [--<==] [-<===] [<====]"
 spinner_template="toolbox-spinner-XXXXXXXXXX"
 tab="$(printf '\t')"
 toolbox_container=""
+toolbox_container_default=""
+toolbox_container_prefix_default=""
 toolbox_image=""
 toolbox_prompt="🔹[\u@\h \W]\\$ "
 user_id_real=$(id -ru 2>&3)
@@ -697,7 +700,18 @@ create()
         exit 1
     fi
 
-    echo "$base_toolbox_command: created container $toolbox_container" >&3
+    echo "Created toolbox container: $toolbox_container"
+
+    enter_command=""
+    if [ "$toolbox_container" = "$toolbox_container_default" ] 2>&3; then
+        enter_command="$base_toolbox_command enter"
+    elif [ "$toolbox_container" = "$toolbox_container_prefix_default:$release" ] 2>&3; then
+        enter_command="$base_toolbox_command enter --release $release"
+    else
+        enter_command="$base_toolbox_command enter --container $toolbox_container"
+    fi
+
+    echo "Enter with: $enter_command"
 )
 
 
@@ -1099,13 +1113,13 @@ forward_to_host()
 
 update_container_and_image_names()
 {
-    [ "$release" = "" ] 2>&3 && release=$(get_host_version_id)
+    [ "$release" = "" ] 2>&3 && release="$release_default"
 
     if [ "$base_toolbox_image" = "" ] 2>&3; then
         base_toolbox_image="fedora-toolbox:$release"
     else
         release=$(image_reference_get_tag "$base_toolbox_image")
-        [ "$release" = "" ] 2>&3 && release=$(get_host_version_id)
+        [ "$release" = "" ] 2>&3 && release="$release_default"
     fi
 
     fgc="f$release"
@@ -1160,6 +1174,10 @@ usage()
 
 
 arguments=$(save_positional_parameters "$@")
+
+release_default=$(get_host_version_id)
+toolbox_container_prefix_default="fedora-toolbox-$USER"
+toolbox_container_default="$toolbox_container_prefix_default:$release_default"
 
 while has_prefix "$1" -; do
     case $1 in
