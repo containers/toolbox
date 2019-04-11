@@ -1236,6 +1236,12 @@ fi
 
 if [ "$1" = "" ]; then
     echo "$base_toolbox_command: missing command" >&2
+    echo >&2
+    echo "These are some common commands:" >&2
+    echo "create    Create a new toolbox container" >&2
+    echo "enter     Enter an existing toolbox container" >&2
+    echo "list      List all existing toolbox containers and images" >&2
+    echo >&2
     echo "Try '$base_toolbox_command --help' for more information." >&2
     exit 1
 fi
