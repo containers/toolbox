@@ -1156,7 +1156,7 @@ usage()
     echo "   or: toolbox rm [-a | --all]"
     echo "                  [-f | --force] [<container> ...]"
     echo "   or: toolbox rmi [-a | --all]"
-    echo "   or:             [-f | --force] [<image> ...]"
+    echo "                   [-f | --force] [<image> ...]"
     echo "   or: toolbox --help"
 }
 
