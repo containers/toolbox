@@ -834,7 +834,7 @@ list_containers()
                               --all \
                               --filter "label=com.github.debarshiray.toolbox=true" \
                               --format "{{.Names}}" 2>&3); then
-        echo "$base_toolbox_command: failed to list containers com.github.debarshiray.toolbox=true" >&2
+        echo "$base_toolbox_command: failed to list containers with com.github.debarshiray.toolbox=true" >&2
         return 1
     fi
 
