@@ -966,12 +966,22 @@ remove_images()
     $force && force_option="--force"
 
     if $all; then
-        if ! ids=$($prefix_sudo podman images \
-                           --filter "label=com.redhat.component=fedora-toolbox" \
-                           --format "{{.ID}}" 2>&3); then
-            echo "$0: failed to list images" >&2
+        if ! ids_old=$($prefix_sudo podman images \
+                               --filter "label=com.redhat.component=fedora-toolbox" \
+                               --format "{{.ID}}" 2>&3); then
+            echo "$0: failed to list images with com.redhat.component=fedora-toolbox" >&2
             return 1
         fi
+
+        if ! ids=$($prefix_sudo podman images \
+                           --all \
+                           --filter "label=com.github.debarshiray.toolbox=true" \
+                           --format "{{.ID}}" 2>&3); then
+            echo "$0: failed to list images with com.github.debarshiray.toolbox=true" >&2
+            return 1
+        fi
+
+        ids=$(printf "%s\n%s\n" "$ids_old" "$ids" | sort 2>&3 | uniq 2>&3)
         if [ "$ids" != "" ]; then
             ret_val=$(echo "$ids" \
                       | (
@@ -999,7 +1009,9 @@ remove_images()
                                 ret_val=1
                                 continue
                             fi
-                            if ! has_substring "$labels" "com.redhat.component:fedora-toolbox"; then
+
+                            if ! has_substring "$labels" "com.github.debarshiray.toolbox" \
+                               && ! has_substring "$labels" "com.redhat.component:fedora-toolbox"; then
                                 echo "$base_toolbox_command: $id is not a toolbox image" >&2
                                 ret_val=1
                                 continue
