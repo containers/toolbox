@@ -1,3 +1,17 @@
+Overview of changes in 0.0.8
+============================
+
+* Add label for tagging, not tied to the fedora-toolbox name
+* Add short variants for various options in 'create' and 'enter'
+* Ensure that names of toolbox containers don't have a colon
+* Enable Travis
+* Fix miscellaneous issues pointed out by https://www.shellcheck.net/
+* Give access to Kerberos if KCM credential caches are being used
+* Improve the onboarding experience
+* Reduce the sizes of the images by removing temporary files created by DNF
+* Use a lighter entry point than /bin/sh
+
+
 Overview of changes in 0.0.7
 ============================
 
