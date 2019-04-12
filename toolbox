@@ -332,7 +332,7 @@ create_toolbox_image_name()
 
     tag=$(image_reference_get_tag "$base_toolbox_image")
     if [ "$tag" = "" ] 2>&3; then
-        echo "$basename-$USER"
+        echo "$basename-$USER:latest"
     else
         echo "$basename-$USER:$tag"
     fi
