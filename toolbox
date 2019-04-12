@@ -21,6 +21,11 @@ exec 3>/dev/null
 arguments=""
 base_toolbox_command=$(basename "$0" 2>&3)
 base_toolbox_image=""
+
+# Based on the nameRegex value in:
+# https://github.com/containers/libpod/blob/master/libpod/options.go
+container_name_regexp="[a-zA-Z0-9][a-zA-Z0-9_.-]*"
+
 environment_variables="COLORTERM \
         DBUS_SESSION_BUS_ADDRESS \
         DESKTOP_SESSION \
@@ -52,6 +57,7 @@ spinner_template="toolbox-spinner-XXXXXXXXXX"
 tab="$(printf '\t')"
 toolbox_container=""
 toolbox_container_default=""
+toolbox_container_old=""
 toolbox_container_prefix_default=""
 toolbox_image=""
 toolbox_prompt="🔹[\u@\h \W]\\$ "
@@ -286,6 +292,15 @@ configure_working_container()
 )
 
 
+container_name_is_valid()
+(
+    name="$1"
+
+    echo "$name" | grep "^$container_name_regexp$" >/dev/null 2>&3
+    return $?
+)
+
+
 create_environment_options()
 {
     echo "$environment_variables" \
@@ -306,6 +321,22 @@ create_environment_options()
               echo "$environment_options"
           }
 }
+
+
+create_toolbox_container_name()
+(
+    basename=$(image_reference_get_basename "$toolbox_image")
+    if [ "$basename" = "" ] 2>&3; then
+        return 100
+    fi
+
+    tag=$(image_reference_get_tag "$toolbox_image")
+    if [ "$tag" = "" ] 2>&3; then
+        return 101
+    fi
+
+    echo "$basename-$tag"
+)
 
 
 create_toolbox_image_name()
@@ -705,7 +736,7 @@ create()
     enter_command=""
     if [ "$toolbox_container" = "$toolbox_container_default" ] 2>&3; then
         enter_command="$base_toolbox_command enter"
-    elif [ "$toolbox_container" = "$toolbox_container_prefix_default:$release" ] 2>&3; then
+    elif [ "$toolbox_container" = "$toolbox_container_prefix_default-$release" ] 2>&3; then
         enter_command="$base_toolbox_command enter --release $release"
     else
         enter_command="$base_toolbox_command enter --container $toolbox_container"
@@ -725,10 +756,20 @@ enter()
                                  --format "{{.ImageName}}" \
                                  --type container \
                                  $toolbox_container 2>&3); then
-        echo "$base_toolbox_command: container $toolbox_container not found" >&2
-        echo "Use the 'create' command to create a toolbox." >&2
-        echo "Try '$base_toolbox_command --help' for more information." >&2
-        exit 1
+        echo "$base_toolbox_command: checking if container $toolbox_container_old exists" >&3
+
+        if toolbox_image=$($prefix_sudo podman inspect \
+                                   --format "{{.ImageName}}" \
+                                   --type container \
+                                   "$toolbox_container_old" 2>&3); then
+            # shellcheck disable=SC2030
+            toolbox_container="$toolbox_container_old"
+        else
+            echo "$base_toolbox_command: container $toolbox_container not found" >&2
+            echo "Use the 'create' command to create a toolbox." >&2
+            echo "Try '$base_toolbox_command --help' for more information." >&2
+            exit 1
+        fi
     fi
 
     echo "$base_toolbox_command: container $toolbox_container was created from image $toolbox_image" >&3
@@ -1147,7 +1188,38 @@ update_container_and_image_names()
 
     echo "$base_toolbox_command: customized user-specific image is $toolbox_image" >&3
 
-    [ "$toolbox_container" = "" ] && toolbox_container="$toolbox_image"
+    # shellcheck disable=SC2031
+    if [ "$toolbox_container" = "" ]; then
+        toolbox_container=$(create_toolbox_container_name)
+        if ! (
+                 ret_val=$?
+                 if [ "$ret_val" -ne 0 ] 2>&3; then
+                     if [ "$ret_val" -eq 100 ] 2>&3; then
+                         echo "$base_toolbox_command: failed to get the basename of image $toolbox_image" >&2
+                     elif [ "$ret_val" -eq 101 ] 2>&3; then
+                         echo "$base_toolbox_command: failed to get the tag of image $toolbox_image" >&2
+                     else
+                         echo "$base_toolbox_command: failed to create a name for the toolbox container" >&2
+                     fi
+
+                     exit 1
+                 fi
+
+                 exit 0
+            ); then
+            exit 1
+        fi
+
+        if ! container_name_is_valid "$toolbox_container"; then
+            echo "$base_toolbox_command: generated container name $toolbox_container is invalid" >&2
+            echo "Container names must match '$container_name_regexp'." >&2
+            echo "Try '$base_toolbox_command --help' for more information." >&2
+            exit 1
+        fi
+
+        toolbox_container_old="$toolbox_image"
+    fi
+
     echo "$base_toolbox_command: container is $toolbox_container" >&3
 }
 
@@ -1177,7 +1249,7 @@ arguments=$(save_positional_parameters "$@")
 
 release_default=$(get_host_version_id)
 toolbox_container_prefix_default="fedora-toolbox-$USER"
-toolbox_container_default="$toolbox_container_prefix_default:$release_default"
+toolbox_container_default="$toolbox_container_prefix_default-$release_default"
 
 while has_prefix "$1" -; do
     case $1 in
@@ -1263,7 +1335,14 @@ case $op in
                     --container )
                         shift
                         exit_if_missing_argument --container "$1"
-                        toolbox_container=$1
+                        arg=$1
+                        if ! container_name_is_valid "$arg"; then
+                            echo "$base_toolbox_command: invalid argument for '--container'" >&2
+                            echo "Container names must match '$container_name_regexp'." >&2
+                            echo "Try '$base_toolbox_command --help' for more information." >&2
+                            exit 1
+                        fi
+                        toolbox_container="$arg"
                         ;;
                     --image )
                         shift
