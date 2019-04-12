@@ -700,7 +700,7 @@ create()
         exit 1
     fi
 
-    echo "Created toolbox container: $toolbox_container"
+    echo "Created container: $toolbox_container"
 
     enter_command=""
     if [ "$toolbox_container" = "$toolbox_container_default" ] 2>&3; then
