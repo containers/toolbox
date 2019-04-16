@@ -35,6 +35,7 @@ environment_variables="COLORTERM \
         SSH_AUTH_SOCK \
         TERM \
         VTE_VERSION \
+        WAYLAND_DISPLAY \
         XDG_CURRENT_DESKTOP \
         XDG_DATA_DIRS \
         XDG_MENU_PREFIX \
