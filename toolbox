@@ -811,7 +811,7 @@ enter()
             capsh --caps="" -- -c 'cd "$1"; export PS1="$2"; shift 2; exec "$@"' \
                     /bin/sh \
                     "$PWD" \
-                    "$toolbox_prompt" \
+                    "$toolbox_container$toolbox_prompt" \
                     "$shell_to_exec" -l 2>&3
 )
 
