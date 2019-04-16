@@ -777,9 +777,7 @@ create()
             --volume "$XDG_RUNTIME_DIR"/.flatpak-helper/monitor:/run/host/monitor \
             --volume "$dbus_system_bus_path":"$dbus_system_bus_path" \
             --volume /etc:/run/host/etc \
-            --volume /dev/bus:/dev/bus \
-            --volume /dev/dri:/dev/dri \
-            --volume /dev/fuse:/dev/fuse \
+            --volume /dev:/dev:rslave \
             --volume /media:/media:rslave \
             --volume /mnt:/mnt:rslave \
             --volume /run/media:/run/media:rslave \
