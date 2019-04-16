@@ -28,6 +28,7 @@ container_name_regexp="[a-zA-Z0-9][a-zA-Z0-9_.-]*"
 
 environment_variables="COLORTERM \
         DBUS_SESSION_BUS_ADDRESS \
+        DBUS_SYSTEM_BUS_ADDRESS \
         DESKTOP_SESSION \
         DISPLAY \
         LANG \
@@ -789,10 +790,6 @@ enter()
         exit 1
     fi
 
-    if [ "$DBUS_SYSTEM_BUS_ADDRESS" != "" ]; then
-        set_dbus_system_bus_address="--env DBUS_SYSTEM_BUS_ADDRESS=$DBUS_SYSTEM_BUS_ADDRESS"
-    fi
-
     set_environment=$(create_environment_options)
 
     echo "$base_toolbox_command: looking for $SHELL in container $toolbox_container" >&3
@@ -809,7 +806,6 @@ enter()
     # for the command passed to capsh
     # shellcheck disable=SC2086
     $prefix_sudo podman exec \
-            $set_dbus_system_bus_address \
             $set_environment \
             --interactive \
             --tty \
@@ -1141,10 +1137,6 @@ forward_to_host()
 (
     eval "set -- $arguments"
 
-    if [ "$DBUS_SYSTEM_BUS_ADDRESS" != "" ]; then
-        set_dbus_system_bus_address="--env=DBUS_SYSTEM_BUS_ADDRESS=$DBUS_SYSTEM_BUS_ADDRESS"
-    fi
-
     set_environment=$(create_environment_options)
 
     echo "$base_toolbox_command: forwarding to host:" >&3
@@ -1154,7 +1146,7 @@ forward_to_host()
     done
 
     # shellcheck disable=SC2086
-    flatpak-spawn $set_dbus_system_bus_address $set_environment --host "$0" "$@" 2>&3
+    flatpak-spawn $set_environment --host "$0" "$@" 2>&3
 )
 
 
