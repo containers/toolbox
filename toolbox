@@ -306,13 +306,18 @@ create_environment_options()
     echo "$environment_variables" \
         | sed "s/ \+/\n/g" 2>&3 \
         | {
+              environment=$(set)
               environment_options=""
               echo "$base_toolbox_command: creating list of environment variables to forward" >&3
               value=""
               while read -r variable; do
-                  eval value="$""$variable"
-                  echo "$base_toolbox_command: $variable=$value" >&3
-                  environment_options="$environment_options --env=$variable=$value"
+                  if echo "$environment" | grep "^$variable" >/dev/null 2>&3; then
+                      eval value="$""$variable"
+                      echo "$base_toolbox_command: $variable=$value" >&3
+                      environment_options="$environment_options --env=$variable=$value"
+                  else
+                      echo "$base_toolbox_command: $variable is unset" >&3
+                  fi
               done
 
               environment_options=${environment_options#" "}
