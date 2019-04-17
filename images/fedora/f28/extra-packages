@@ -24,6 +24,7 @@ passwd
 pigz
 procps-ng
 rsync
+shadow-utils
 sudo
 tcpdump
 time
