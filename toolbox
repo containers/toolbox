@@ -303,6 +303,20 @@ container_name_is_valid()
 )
 
 
+create_enter_command()
+(
+    container="$1"
+
+    if [ "$container" = "$toolbox_container_default" ] 2>&3; then
+        echo "$base_toolbox_command enter"
+    elif [ "$container" = "$toolbox_container_prefix_default-$release" ] 2>&3; then
+        echo "$base_toolbox_command enter --release $release"
+    else
+        echo "$base_toolbox_command enter --container $container"
+    fi
+)
+
+
 create_environment_options()
 {
     echo "$environment_variables" \
@@ -740,15 +754,7 @@ create()
 
     echo "Created container: $toolbox_container"
 
-    enter_command=""
-    if [ "$toolbox_container" = "$toolbox_container_default" ] 2>&3; then
-        enter_command="$base_toolbox_command enter"
-    elif [ "$toolbox_container" = "$toolbox_container_prefix_default-$release" ] 2>&3; then
-        enter_command="$base_toolbox_command enter --release $release"
-    else
-        enter_command="$base_toolbox_command enter --container $toolbox_container"
-    fi
-
+    enter_command=$(create_enter_command "$toolbox_container")
     echo "Enter with: $enter_command"
 )
 
