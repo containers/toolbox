@@ -1,0 +1,22 @@
+[package]
+name = "coretoolbox"
+version = "0.1.0"
+authors = ["Colin Walters <walters@verbum.org>"]
+edition = "2018"
+
+[dependencies]
+nix = "0.13"
+rand = "0.6.5"
+clap = "2.32.0"
+structopt = "0.2"
+directories = "1.0"
+failure = "0.1.1"
+lazy_static = "1.2.0"
+tempfile = "3.0.7"
+serde = { version = "1.0.78", features = ["derive"] }
+serde_derive = "1.0.78"
+serde_json = "1.0"
+
+[[bin]]
+name = "coretoolbox"
+path = "src/coretoolbox.rs"
