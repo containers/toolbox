@@ -17,6 +17,10 @@ lazy_static! {
 static CONTAINER_NAME: &str = "coreos-toolbox";
 static MAX_UID_COUNT: u32 = 65536;
 
+/// Set of statically known paths to files/directories
+/// that we redirect inside the container to /host.
+static STATIC_HOST_FORWARDS: &[&str] = &["/run/dbus", "/run/libvirt"];
+
 static PRESERVED_ENV: &[&str] = &[
     "COLORTERM",
     "DBUS_SESSION_BUS_ADDRESS",
@@ -73,7 +77,6 @@ struct Opt {
 #[derive(Debug, StructOpt)]
 #[structopt(rename_all = "kebab-case")]
 enum Cmd {
-    Entrypoint,
     Exec,
 }
 
@@ -181,10 +184,7 @@ fn create(opts: &Opt) -> Fallible<()> {
         "--privileged",
         "--security-opt=label=disable",
     ]);
-    podman.arg(format!(
-        "--volume={}:/usr/libexec/toolbox.entrypoint:rslave",
-        self_bin
-    ));
+    podman.arg(format!("--volume={}:/usr/bin/toolbox:ro", self_bin));
     let real_uid: u32 = nix::unistd::getuid().into();
     let uid_plus_one = real_uid + 1;
     let max_minus_uid = MAX_UID_COUNT - real_uid;
@@ -228,8 +228,8 @@ fn create(opts: &Opt) -> Fallible<()> {
         w.flush()?;
     }
 
-    podman.arg("--entrypoint=/usr/libexec/toolbox.entrypoint");
     podman.arg(&opts.image);
+    podman.args(&["sleep", "infinity"]);
     podman.stdout(Stdio::null());
     podman.run()?;
     Ok(())
@@ -300,6 +300,15 @@ mod entrypoint {
         Ok(())
     }
 
+    /// Symlink a path e.g. /run/dbus/system_bus_socket to the
+    /// /host equivalent, creating any necessary parent directories.
+    fn host_symlink<P: AsRef<Path> + std::fmt::Display>(p: P) -> Fallible<()> {
+        let path = p.as_ref();
+        std::fs::create_dir_all(path.parent().unwrap())?;
+        unix::fs::symlink(format!("/host{}", p), path)?;
+        Ok(())
+    }
+
     fn init_container() -> Fallible<()> {
         let initstamp = Path::new(CONTAINER_INITIALIZED_STAMP);
         if initstamp.exists() {
@@ -335,14 +344,11 @@ mod entrypoint {
             unix::fs::symlink(hostd, d)?;
         }
 
-        // Symlink ourself
-        remove_file_if_exists("/usr/bin/toolbox")?;
-        unix::fs::symlink("../libexec/toolbox.entrypoint", "/usr/bin/toolbox")?;
-
-        // Set up runtime dir for this user
-        let runtime_dir_path = std::path::Path::new(&runtime_dir);
-        std::fs::create_dir_all(runtime_dir_path.parent().unwrap())?;
-        unix::fs::symlink(format!("/host{}", &runtime_dir), runtime_dir_path)?;
+        // These symlinks into /host are our set of default forwarded APIs/state
+        // directories.
+        for d in super::STATIC_HOST_FORWARDS.iter() {
+            host_symlink(&d)?;
+        }
 
         // Allow sudo
         || -> Fallible<()> {
@@ -358,16 +364,6 @@ mod entrypoint {
         let _ = std::fs::File::create(&initstamp)?;
 
         Ok(())
-    }
-
-    /// Called to initialize the container
-    pub(crate) fn entrypoint() -> Fallible<()> {
-        if !Path::new("/run/.containerenv").exists() {
-            bail!("Not running in a container");
-        }
-
-        // And now we just wait for other processes to exec
-        Err(Command::new("sleep").arg("infinity").exec().into())
     }
 
     pub(crate) fn exec() -> Fallible<()> {
@@ -394,14 +390,9 @@ mod entrypoint {
 /// Primary entrypoint
 fn main() {
     || -> Fallible<()> {
-        let argv0 = std::env::args().next().expect("argv0");
-        if argv0.ends_with(".entrypoint") {
-            return entrypoint::entrypoint();
-        }
         let opts = Opt::from_args();
         if let Some(cmd) = opts.cmd.as_ref() {
             match cmd {
-                Cmd::Entrypoint => entrypoint::entrypoint(),
                 Cmd::Exec => entrypoint::exec(),
             }
         } else {
