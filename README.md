@@ -29,7 +29,18 @@ forces the image to be specific to one user or machine.
 What "ctb" does instead is inject dynamic state (username, `HOME` path)
 into the container at runtime.  This allows a lot more flexibility.
 
-Another obvious thing is that ctb is written in a real programming
-language; bash gets problematic once one goes beyond 10-20 lines
+Today "dtb" has a hardcoded list of bind mounts for e.g. `HOME`
+and the DBus system bus socket.
+I ran into a case where I wanted e.g. the system libvirt socket.
+
+In general, we aren't trying to confine `toolbox` - it's a privileged
+container.  So "ctb" takes the approach of mounting in most
+things from the host into the `/host` directory, and then uses
+symlinks into `/host`.  This again makes everything a lot more
+flexible as the set of things exposed can easily be changed
+while the container is running.
+
+Finally, ctb is written in a real programming language; bash
+gets problematic once one goes beyond 10-20 lines
 of code.
 
