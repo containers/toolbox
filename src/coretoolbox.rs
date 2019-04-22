@@ -253,6 +253,7 @@ mod entrypoint {
     use failure::{bail, Fallible, ResultExt};
     use fs2::FileExt;
     use std::io::prelude::*;
+    use rayon::prelude::*;
     use std::os::unix;
     use std::os::unix::process::CommandExt;
     use std::path::Path;
@@ -260,15 +261,6 @@ mod entrypoint {
 
     static CONTAINER_INITIALIZED_LOCK: &str = "/run/coreos-toolbox.lock";
     static CONTAINER_INITIALIZED_STAMP: &str = "/run/coreos-toolbox.initialized";
-
-    fn remove_file_if_exists<P: AsRef<std::path::Path>>(p: P) -> Fallible<()> {
-        let p = p.as_ref();
-        match std::fs::remove_file(p) {
-            Ok(_) => Ok(()),
-            Err(ref e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
-            Err(e) => Err(e.into()),
-        }
-    }
 
     /// Update /etc/passwd with the same user from the host,
     /// and bind mount the homedir.
@@ -338,17 +330,16 @@ mod entrypoint {
         }
 
         // Propagate "data" directories to the host
-        for d in &["/srv", "/media", "/mnt"] {
+        ["/srv", "/media", "/mnt"].par_iter().try_for_each(|d| -> Fallible<()> {
             std::fs::remove_dir(d)?;
             let hostd = format!("host{}", d);
             unix::fs::symlink(hostd, d)?;
-        }
+            Ok(())
+        })?;
 
         // These symlinks into /host are our set of default forwarded APIs/state
         // directories.
-        for d in super::STATIC_HOST_FORWARDS.iter() {
-            host_symlink(&d)?;
-        }
+        super::STATIC_HOST_FORWARDS.par_iter().try_for_each(host_symlink)?;
 
         // Allow sudo
         || -> Fallible<()> {
