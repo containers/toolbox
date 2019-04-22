@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 nix = "0.13"
+fs2 = "0.4.3"
 rand = "0.6.5"
 clap = "2.32.0"
 structopt = "0.2"

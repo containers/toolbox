@@ -20,6 +20,7 @@ static PRESERVED_ENV : &[&str] = &["COLORTERM",
         "DBUS_SESSION_BUS_ADDRESS",
         "DESKTOP_SESSION",
         "DISPLAY",
+        "USER",
         "LANG",
         "SHELL",
         "SSH_AUTH_SOCK",
@@ -127,6 +128,18 @@ struct EntrypointState {
     ostree_based_host: bool,
 }
 
+fn append_preserved_env(c: &mut Command) -> Fallible<()> {
+    for n in PRESERVED_ENV.iter() {
+        let v = match std::env::var_os(n) {
+            Some(v) => v,
+            None => continue, 
+        };
+        let v = v.to_str().ok_or_else(|| failure::format_err!("{} contains invalid UTF-8", n))?;
+        c.arg(format!("--env={}={}", n, v));
+    }
+    Ok(())    
+}
+
 fn create(opts: &Opt) -> Fallible<()> {
     ensure_image(&opts.image)?;
 
@@ -169,14 +182,7 @@ fn create(opts: &Opt) -> Fallible<()> {
             podman.arg(format!("--volume={}:/host{}:rslave", p, p));
         }           
     }
-    for n in PRESERVED_ENV.iter() {
-        let v = match std::env::var_os(n) {
-            Some(v) => v,
-            None => continue, 
-        };
-        let v = v.to_str().ok_or_else(|| failure::format_err!("{} contains invalid UTF-8", n))?;
-        podman.arg(format!("--env={}={}", n, v));
-    }
+    append_preserved_env(&mut podman)?;
     podman.arg(format!("--env=TOOLBOX_STATEFILE={}", statefile));
 
     {
@@ -205,7 +211,9 @@ fn run(opts: Opt) -> Fallible<()> {
     cmd_podman().args(&["start", CONTAINER_NAME]).run()?;
 
     let mut podman = cmd_podman();
-    podman.args(&["exec", "--interactive", "--tty", CONTAINER_NAME, "/usr/bin/toolbox", "exec"]);
+    podman.args(&["exec", "--interactive", "--tty"]);
+    append_preserved_env(&mut podman)?;    
+    podman.args(&[CONTAINER_NAME, "/usr/bin/toolbox", "exec"]);
     return Err(podman.exec().into());
 }
 
@@ -216,9 +224,11 @@ mod entrypoint {
     use std::path::Path;
     use std::os::unix::process::CommandExt;
     use std::os::unix;
+    use fs2::FileExt;
     use super::CommandRunExt;
     use super::EntrypointState;
 
+    static CONTAINER_INITIALIZED_LOCK : &str = "/run/coreos-toolbox.lock";
     static CONTAINER_INITIALIZED_STAMP : &str = "/run/coreos-toolbox.initialized";
 
     fn remove_file_if_exists<P: AsRef<std::path::Path>>(p: P) -> Fallible<()> {
@@ -259,6 +269,9 @@ mod entrypoint {
         if initstamp.exists() {
             return Ok(())
         }
+
+        let lockf = std::fs::OpenOptions::new().read(true).write(true).create(true).open(CONTAINER_INITIALIZED_LOCK)?;
+        lockf.lock_exclusive()?;
 
         let runtime_dir = super::getenv_required_utf8("XDG_RUNTIME_DIR")?;
         let state : EntrypointState = {
@@ -311,13 +324,13 @@ mod entrypoint {
             bail!("Not running in a container");
         }
 
-        init_container().with_context(|e| format!("Initializing container: {}", e))?;
         // And now we just wait for other processes to exec
         Err(Command::new("sleep").arg("infinity").exec().into())
     }
 
 
     pub(crate) fn exec() -> Fallible<()> {
+        init_container().with_context(|e| format!("Initializing container: {}", e))?;        
         let initstamp = Path::new(CONTAINER_INITIALIZED_STAMP);        
         if !initstamp.exists() {
             bail!("toolbox not initialized");
