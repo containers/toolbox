@@ -70,6 +70,10 @@ struct Opt {
     /// Use a versioned installer binary
     image: String,
 
+    #[structopt(short = "N", long = "nested")]
+    /// Allow running inside a container
+    nested: bool,
+
     #[structopt(subcommand)]
     cmd: Option<Cmd>,
 }
@@ -235,7 +239,14 @@ fn create(opts: &Opt) -> Fallible<()> {
     Ok(())
 }
 
+fn in_container() -> bool {
+    Path::new("/run/.containerenv").exists()
+}
+
 fn run(opts: Opt) -> Fallible<()> {
+    if in_container() && !opts.nested {
+        bail!("Already inside a container");
+    }
     create(&opts)?;
 
     cmd_podman().args(&["start", CONTAINER_NAME]).run()?;
@@ -252,8 +263,8 @@ mod entrypoint {
     use super::EntrypointState;
     use failure::{bail, Fallible, ResultExt};
     use fs2::FileExt;
-    use std::io::prelude::*;
     use rayon::prelude::*;
+    use std::io::prelude::*;
     use std::os::unix;
     use std::os::unix::process::CommandExt;
     use std::path::Path;
@@ -330,16 +341,20 @@ mod entrypoint {
         }
 
         // Propagate "data" directories to the host
-        ["/srv", "/media", "/mnt"].par_iter().try_for_each(|d| -> Fallible<()> {
-            std::fs::remove_dir(d)?;
-            let hostd = format!("host{}", d);
-            unix::fs::symlink(hostd, d)?;
-            Ok(())
-        })?;
+        ["/srv", "/media", "/mnt"]
+            .par_iter()
+            .try_for_each(|d| -> Fallible<()> {
+                std::fs::remove_dir(d)?;
+                let hostd = format!("host{}", d);
+                unix::fs::symlink(hostd, d)?;
+                Ok(())
+            })?;
 
         // These symlinks into /host are our set of default forwarded APIs/state
         // directories.
-        super::STATIC_HOST_FORWARDS.par_iter().try_for_each(host_symlink)?;
+        super::STATIC_HOST_FORWARDS
+            .par_iter()
+            .try_for_each(host_symlink)?;
 
         // Allow sudo
         || -> Fallible<()> {
@@ -358,6 +373,9 @@ mod entrypoint {
     }
 
     pub(crate) fn exec() -> Fallible<()> {
+        if !super::in_container() {
+            bail!("Not inside a container");
+        }
         init_container().with_context(|e| format!("Initializing container: {}", e))?;
         let initstamp = Path::new(CONTAINER_INITIALIZED_STAMP);
         if !initstamp.exists() {
@@ -391,7 +409,7 @@ fn main() {
         }
     }()
     .unwrap_or_else(|e| {
-        eprintln!("{}", e);
+        eprintln!("error: {}", e);
         std::process::exit(1)
     })
 }
