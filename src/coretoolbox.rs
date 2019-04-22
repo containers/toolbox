@@ -1,40 +1,42 @@
-use structopt::StructOpt;
+use directories;
+use failure::{bail, Fallible};
+use lazy_static::lazy_static;
+use serde::{Deserialize, Serialize};
+use serde_json;
+use std::io::prelude::*;
+use std::os::unix::process::CommandExt;
 use std::path::Path;
 use std::process::{Command, Stdio};
-use std::os::unix::process::CommandExt;
-use std::io::prelude::*;
-use directories;
-use failure::{Fallible, bail};
-use lazy_static::lazy_static;
-use serde_json;
-use serde::{Serialize, Deserialize};
+use structopt::StructOpt;
 
 lazy_static! {
-    static ref APPDIRS : directories::ProjectDirs = directories::ProjectDirs::from("com", "coreos", "toolbox").expect("creating appdirs");
+    static ref APPDIRS: directories::ProjectDirs =
+        directories::ProjectDirs::from("com", "coreos", "toolbox").expect("creating appdirs");
 }
 
-static CONTAINER_NAME : &str = "coreos-toolbox";
-static MAX_UID_COUNT : u32 = 65536;
+static CONTAINER_NAME: &str = "coreos-toolbox";
+static MAX_UID_COUNT: u32 = 65536;
 
-static PRESERVED_ENV : &[&str] = &["COLORTERM", 
-        "DBUS_SESSION_BUS_ADDRESS",
-        "DESKTOP_SESSION",
-        "DISPLAY",
-        "USER",
-        "LANG",
-        "SHELL",
-        "SSH_AUTH_SOCK",
-        "TERM",
-        "VTE_VERSION",
-        "XDG_CURRENT_DESKTOP",
-        "XDG_DATA_DIRS",
-        "XDG_MENU_PREFIX",
-        "XDG_RUNTIME_DIR",
-        "XDG_SEAT",
-        "XDG_SESSION_DESKTOP",
-        "XDG_SESSION_ID",
-        "XDG_SESSION_TYPE",
-        "XDG_VTNR",
+static PRESERVED_ENV: &[&str] = &[
+    "COLORTERM",
+    "DBUS_SESSION_BUS_ADDRESS",
+    "DESKTOP_SESSION",
+    "DISPLAY",
+    "USER",
+    "LANG",
+    "SHELL",
+    "SSH_AUTH_SOCK",
+    "TERM",
+    "VTE_VERSION",
+    "XDG_CURRENT_DESKTOP",
+    "XDG_DATA_DIRS",
+    "XDG_MENU_PREFIX",
+    "XDG_RUNTIME_DIR",
+    "XDG_SEAT",
+    "XDG_SESSION_DESKTOP",
+    "XDG_SESSION_ID",
+    "XDG_SESSION_TYPE",
+    "XDG_VTNR",
 ];
 
 trait CommandRunExt {
@@ -56,7 +58,11 @@ impl CommandRunExt for Command {
 #[structopt(rename_all = "kebab-case")]
 /// Main options struct
 struct Opt {
-    #[structopt(short = "I", long = "image", default_value = "registry.fedoraproject.org/f30/fedora-toolbox:30")]
+    #[structopt(
+        short = "I",
+        long = "image",
+        default_value = "registry.fedoraproject.org/f30/fedora-toolbox:30"
+    )]
     /// Use a versioned installer binary
     image: String,
 
@@ -97,10 +103,12 @@ fn podman_has(t: InspectType, name: &str) -> Fallible<bool> {
         InspectType::Container => "container",
         InspectType::Image => "image",
     };
-    Ok(cmd_podman().args(&["inspect", "--type", typearg, name])
+    Ok(cmd_podman()
+        .args(&["inspect", "--type", typearg, name])
         .stdout(Stdio::null())
         .stderr(Stdio::null())
-        .status()?.success())
+        .status()?
+        .success())
 }
 
 /// Pull a container image if not present
@@ -114,7 +122,9 @@ fn ensure_image(name: &str) -> Fallible<()> {
 /// Parse an extant environment variable as UTF-8
 fn getenv_required_utf8(n: &str) -> Fallible<String> {
     if let Some(v) = std::env::var_os(n) {
-        Ok(v.to_str().ok_or_else(|| failure::format_err!("{} is invalid UTF-8", n))?.to_string())
+        Ok(v.to_str()
+            .ok_or_else(|| failure::format_err!("{} is invalid UTF-8", n))?
+            .to_string())
     } else {
         bail!("{} is unset", n)
     }
@@ -132,40 +142,60 @@ fn append_preserved_env(c: &mut Command) -> Fallible<()> {
     for n in PRESERVED_ENV.iter() {
         let v = match std::env::var_os(n) {
             Some(v) => v,
-            None => continue, 
+            None => continue,
         };
-        let v = v.to_str().ok_or_else(|| failure::format_err!("{} contains invalid UTF-8", n))?;
+        let v = v
+            .to_str()
+            .ok_or_else(|| failure::format_err!("{} contains invalid UTF-8", n))?;
         c.arg(format!("--env={}={}", n, v));
     }
-    Ok(())    
+    Ok(())
 }
 
 fn create(opts: &Opt) -> Fallible<()> {
     ensure_image(&opts.image)?;
 
     if podman_has(InspectType::Container, CONTAINER_NAME)? {
-        return Ok(())
+        return Ok(());
     }
 
     // exec ourself as the entrypoint.  In the future this
     // would be better with podman fd passing.
     let self_bin = std::fs::read_link("/proc/self/exe")?;
-    let self_bin = self_bin.as_path().to_str().ok_or_else(|| failure::err_msg("non-UTF8 self"))?;
+    let self_bin = self_bin
+        .as_path()
+        .to_str()
+        .ok_or_else(|| failure::err_msg("non-UTF8 self"))?;
 
     let runtime_dir = getenv_required_utf8("XDG_RUNTIME_DIR")?;
     let statefile = "coreos-toolbox.initdata";
 
     let mut podman = cmd_podman();
-    podman.args(&["create", "--interactive", "--tty", "--hostname=toolbox",
-                  "--name=coreos-toolbox", "--network=host",
-                  "--privileged", "--security-opt=label=disable"]);
-    podman.arg(format!("--volume={}:/usr/libexec/toolbox.entrypoint:rslave", self_bin));
-    let real_uid : u32 = nix::unistd::getuid().into();
-    let uid_plus_one = real_uid + 1;             
-    let max_minus_uid = MAX_UID_COUNT - real_uid;     
-    podman.args(&[format!("--uidmap={}:0:1", real_uid),
-                  format!("--uidmap=0:1:{}", real_uid),
-                  format!("--uidmap={}:{}:{}", uid_plus_one, uid_plus_one, max_minus_uid)]);
+    podman.args(&[
+        "create",
+        "--interactive",
+        "--tty",
+        "--hostname=toolbox",
+        "--name=coreos-toolbox",
+        "--network=host",
+        "--privileged",
+        "--security-opt=label=disable",
+    ]);
+    podman.arg(format!(
+        "--volume={}:/usr/libexec/toolbox.entrypoint:rslave",
+        self_bin
+    ));
+    let real_uid: u32 = nix::unistd::getuid().into();
+    let uid_plus_one = real_uid + 1;
+    let max_minus_uid = MAX_UID_COUNT - real_uid;
+    podman.args(&[
+        format!("--uidmap={}:0:1", real_uid),
+        format!("--uidmap=0:1:{}", real_uid),
+        format!(
+            "--uidmap={}:{}:{}",
+            uid_plus_one, uid_plus_one, max_minus_uid
+        ),
+    ]);
     // TODO: Detect what devices are accessible
     for p in &["/dev/bus", "/dev/dri", "/dev/fuse"] {
         if Path::new(p).exists() {
@@ -174,13 +204,13 @@ fn create(opts: &Opt) -> Fallible<()> {
     }
     for p in &["/usr", "/var", "/etc", "/run"] {
         podman.arg(format!("--volume={}:/host{}:rslave", p, p));
-    }    
+    }
     if is_ostree_based_host() {
         podman.arg(format!("--volume=/sysroot:/host/sysroot:rslave"));
     } else {
         for p in &["/media", "/mnt", "/home", "/srv"] {
             podman.arg(format!("--volume={}:/host{}:rslave", p, p));
-        }           
+        }
     }
     append_preserved_env(&mut podman)?;
     podman.arg(format!("--env=TOOLBOX_STATEFILE={}", statefile));
@@ -212,24 +242,24 @@ fn run(opts: Opt) -> Fallible<()> {
 
     let mut podman = cmd_podman();
     podman.args(&["exec", "--interactive", "--tty"]);
-    append_preserved_env(&mut podman)?;    
+    append_preserved_env(&mut podman)?;
     podman.args(&[CONTAINER_NAME, "/usr/bin/toolbox", "exec"]);
     return Err(podman.exec().into());
 }
 
 mod entrypoint {
-    use failure::{Fallible, bail, ResultExt};
-    use std::process::Command;
-    use std::io::prelude::*;
-    use std::path::Path;
-    use std::os::unix::process::CommandExt;
-    use std::os::unix;
-    use fs2::FileExt;
     use super::CommandRunExt;
     use super::EntrypointState;
+    use failure::{bail, Fallible, ResultExt};
+    use fs2::FileExt;
+    use std::io::prelude::*;
+    use std::os::unix;
+    use std::os::unix::process::CommandExt;
+    use std::path::Path;
+    use std::process::Command;
 
-    static CONTAINER_INITIALIZED_LOCK : &str = "/run/coreos-toolbox.lock";
-    static CONTAINER_INITIALIZED_STAMP : &str = "/run/coreos-toolbox.initialized";
+    static CONTAINER_INITIALIZED_LOCK: &str = "/run/coreos-toolbox.lock";
+    static CONTAINER_INITIALIZED_STAMP: &str = "/run/coreos-toolbox.initialized";
 
     fn remove_file_if_exists<P: AsRef<std::path::Path>>(p: P) -> Fallible<()> {
         let p = p.as_ref();
@@ -245,10 +275,16 @@ mod entrypoint {
     fn adduser(state: &EntrypointState) -> Fallible<()> {
         let uidstr = format!("{}", state.uid);
         Command::new("useradd")
-            .args(&["--no-create-home", "--home-dir", &state.home,
-                    "--uid", &uidstr,
-                    "--groups", "wheel",
-                    state.username.as_str()])
+            .args(&[
+                "--no-create-home",
+                "--home-dir",
+                &state.home,
+                "--uid",
+                &uidstr,
+                "--groups",
+                "wheel",
+                state.username.as_str(),
+            ])
             .run()?;
 
         // Bind mount the homedir rather than use symlinks
@@ -267,16 +303,21 @@ mod entrypoint {
     fn init_container() -> Fallible<()> {
         let initstamp = Path::new(CONTAINER_INITIALIZED_STAMP);
         if initstamp.exists() {
-            return Ok(())
+            return Ok(());
         }
 
-        let lockf = std::fs::OpenOptions::new().read(true).write(true).create(true).open(CONTAINER_INITIALIZED_LOCK)?;
+        let lockf = std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open(CONTAINER_INITIALIZED_LOCK)?;
         lockf.lock_exclusive()?;
 
         let runtime_dir = super::getenv_required_utf8("XDG_RUNTIME_DIR")?;
-        let state : EntrypointState = {
+        let state: EntrypointState = {
             let p = format!("/host/{}/{}", runtime_dir, "coreos-toolbox.initdata");
-            let f = std::fs::File::open(&p).with_context(|e| format!("Opening statefile: {}", e))?;
+            let f =
+                std::fs::File::open(&p).with_context(|e| format!("Opening statefile: {}", e))?;
             std::fs::remove_file(p)?;
             serde_json::from_reader(std::io::BufReader::new(f))?
         };
@@ -310,7 +351,8 @@ mod entrypoint {
             writeln!(&mut f, "{} ALL=(ALL) NOPASSWD: ALL", state.username)?;
             f.flush()?;
             Ok(())
-        }().with_context(|e| format!("Enabling sudo: {}", e))?;
+        }()
+        .with_context(|e| format!("Enabling sudo: {}", e))?;
 
         adduser(&state)?;
         let _ = std::fs::File::create(&initstamp)?;
@@ -328,18 +370,24 @@ mod entrypoint {
         Err(Command::new("sleep").arg("infinity").exec().into())
     }
 
-
     pub(crate) fn exec() -> Fallible<()> {
-        init_container().with_context(|e| format!("Initializing container: {}", e))?;        
-        let initstamp = Path::new(CONTAINER_INITIALIZED_STAMP);        
+        init_container().with_context(|e| format!("Initializing container: {}", e))?;
+        let initstamp = Path::new(CONTAINER_INITIALIZED_STAMP);
         if !initstamp.exists() {
             bail!("toolbox not initialized");
         }
-        let username = super::getenv_required_utf8("USER")?;        
+        let username = super::getenv_required_utf8("USER")?;
         Err(Command::new("setpriv")
-            .args(&["--ruid", &username, "--init-groups", "--inh-caps=-all", "/bin/bash"])
+            .args(&[
+                "--ruid",
+                &username,
+                "--init-groups",
+                "--inh-caps=-all",
+                "/bin/bash",
+            ])
             .env_remove("TOOLBOX_STATEFILE")
-            .exec().into())
+            .exec()
+            .into())
     }
 }
 
@@ -359,7 +407,8 @@ fn main() {
         } else {
             run(opts)
         }
-    }().unwrap_or_else(|e| {
+    }()
+    .unwrap_or_else(|e| {
         eprintln!("{}", e);
         std::process::exit(1)
     })
