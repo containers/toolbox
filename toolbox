@@ -998,7 +998,7 @@ remove_containers()
                   | sed "s/ \+/\n/g" 2>&3 \
                   | (
                         while read -r id; do
-                            $prefix_sudo podman container exists $id #2>&3
+                            $prefix_sudo podman container exists $id 2>&3
                             ret_code=$?
                             if [ $ret_code = 1 ]; then
                                 echo "$base_toolbox_command: unable to find container $id" >&2
@@ -1105,7 +1105,7 @@ remove_images()
                   | sed "s/ \+/\n/g" 2>&3 \
                   | (
                         while read -r id; do
-                            $prefix_sudo podman image exists $id #2>&3
+                            $prefix_sudo podman image exists $id 2>&3
                             ret_code=$?
                             if [ $ret_code = 1 ]; then
                                 echo "$base_toolbox_command: unable to find container $id" >&2
