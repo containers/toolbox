@@ -26,6 +26,7 @@ base_toolbox_image=""
 # https://github.com/containers/libpod/blob/master/libpod/options.go
 container_name_regexp="[a-zA-Z0-9][a-zA-Z0-9_.-]*"
 
+environment=$(set)
 environment_variables="COLORTERM \
         DBUS_SESSION_BUS_ADDRESS \
         DBUS_SYSTEM_BUS_ADDRESS \
@@ -35,6 +36,7 @@ environment_variables="COLORTERM \
         SHELL \
         SSH_AUTH_SOCK \
         TERM \
+        TOOLBOX_PATH \
         VTE_VERSION \
         WAYLAND_DISPLAY \
         XDG_CURRENT_DESKTOP \
@@ -57,6 +59,7 @@ release_default=""
 spinner_animation="[>----] [=>---] [==>--] [===>-] [====>] [----<] [---<=] [--<==] [-<===] [<====]"
 spinner_template="toolbox-spinner-XXXXXXXXXX"
 tab="$(printf '\t')"
+toolbox_command_path=""
 toolbox_container=""
 toolbox_container_default=""
 toolbox_container_old=""
@@ -322,7 +325,6 @@ create_environment_options()
     echo "$environment_variables" \
         | sed "s/ \+/\n/g" 2>&3 \
         | {
-              environment=$(set)
               environment_options=""
               echo "$base_toolbox_command: creating list of environment variables to forward" >&3
               value=""
@@ -703,6 +705,9 @@ create()
         tmpfs_size=$((total_ram * 1024 / 2)) # bytes
     fi
 
+    toolbox_path_bind="--volume $TOOLBOX_PATH:/usr/bin/toolbox:ro"
+    toolbox_path_set="--env TOOLBOX_PATH=$TOOLBOX_PATH"
+
     max_uid_count=65536
     max_minus_uid=$((max_uid_count - user_id_real))
     uid_plus_one=$((user_id_real + 1))
@@ -721,6 +726,7 @@ create()
 
     # shellcheck disable=SC2086
     $prefix_sudo podman create \
+            $toolbox_path_set \
             --group-add wheel \
             --hostname toolbox \
             --name $toolbox_container \
@@ -733,6 +739,7 @@ create()
             --uidmap 0:1:"$user_id_real" \
             --uidmap "$uid_plus_one":"$uid_plus_one":"$max_minus_uid" \
             $kcm_socket_bind \
+            $toolbox_path_bind \
             --volume "$HOME":"$HOME":rslave \
             --volume "$XDG_RUNTIME_DIR":"$XDG_RUNTIME_DIR" \
             --volume "$dbus_system_bus_path":"$dbus_system_bus_path" \
@@ -1147,13 +1154,13 @@ forward_to_host()
     set_environment=$(create_environment_options)
 
     echo "$base_toolbox_command: forwarding to host:" >&3
-    echo "$base_toolbox_command: $0" >&3
+    echo "$base_toolbox_command: $TOOLBOX_PATH" >&3
     for i in "$@"; do
         echo "$base_toolbox_command: $i" >&3
     done
 
     # shellcheck disable=SC2086
-    flatpak-spawn $set_environment --host "$0" "$@" 2>&3
+    flatpak-spawn $set_environment --host "$TOOLBOX_PATH" "$@" 2>&3
 )
 
 
@@ -1275,6 +1282,13 @@ while has_prefix "$1" -; do
     shift
 done
 
+if ! toolbox_command_path=$(realpath "$0" 2>&3); then
+    echo "$base_toolbox_command: failed to resolve absolute path to $0" >&2
+    exit 1
+fi
+
+echo "$base_toolbox_command: resolved absolute path for $0 to $toolbox_command_path" >&3
+
 if [ -f /run/.containerenv ] 2>&3; then
     if ! command -v flatpak-spawn >/dev/null 2>&3; then
         echo "$base_toolbox_command: flatpak-spawn not found" >&2
@@ -1309,7 +1323,18 @@ if [ -f /run/.containerenv ] 2>&3; then
     fi
 
     echo "$base_toolbox_command: podman PID is $podman_pid" >&3
+
+    if [ "$TOOLBOX_PATH" = "" ] 2>&3; then
+        echo "$base_toolbox_command: TOOLBOX_PATH not set" >&2
+        exit 1
+    fi
+else
+    if [ "$TOOLBOX_PATH" = "" ] 2>&3; then
+        TOOLBOX_PATH="$toolbox_command_path"
+    fi
 fi
+
+echo "$base_toolbox_command: TOOLBOX_PATH is $TOOLBOX_PATH" >&3
 
 if [ "$1" = "" ]; then
     echo "$base_toolbox_command: missing command" >&2
