@@ -977,11 +977,11 @@ remove_containers()
                                 ret_code=$?
                                 if [ $ret_code = 1 ]; then
                                     echo "$base_toolbox_command: unable to find container $id" >&2
-                                    echo "Try '$base_toolbox_command list -c' to list existing containers"
+                                    echo "Try '$base_toolbox_command list -c' to list existing containers" >&2
                                     ret_val=1
                                 elif [ $ret_code = 2 ]; then
                                     echo "$base_toolbox_command: cannot remove running or paused container $id" >&2
-                                    echo "Try 'podman stop $id' to stop the container or '$base_toolbox_command rm -f $id' for force removal"
+                                    echo "Try 'podman stop $id' to stop the container or '$base_toolbox_command rm -f $id' for force removal" >&2
                                     ret_val=1
                                 elif [ $ret_code != 0 ]; then
                                     echo "$base_toolbox_command: failed to remove container $id" >&2
@@ -998,18 +998,20 @@ remove_containers()
                   | sed "s/ \+/\n/g" 2>&3 \
                   | (
                         while read -r id; do
+                            $prefix_sudo podman container exists $id #2>&3
+                            ret_code=$?
+                            if [ $ret_code = 1 ]; then
+                                echo "$base_toolbox_command: unable to find container $id" >&2
+                                echo "Try '$base_toolbox_command list -c' to list existing containers" >&2
+                                ret_val=1
+                                continue
+                            fi
                             labels=$($prefix_sudo podman inspect \
                                                   --format "{{.Config.Labels}}" \
                                                   --type container \
                                                   "$id" 2>&3)
-
                             ret_code=$?
-                            if [ $ret_code = 1 ]; then
-                                echo "$base_toolbox_command: unable to find container $id" >&2
-                                echo "Try '$base_toolbox_command list -c' to list existing containers"
-                                ret_val=1
-                                continue
-                            elif [ $ret_code != 0 ]; then
+                            if [ $ret_code != 0 ]; then
                                 echo "$base_toolbox_command: failed to inspect $id" >&2
                                 ret_val=1
                                 continue
@@ -1026,11 +1028,11 @@ remove_containers()
                             ret_code=$?
                             if [ $ret_code = 1 ]; then
                                 echo "$base_toolbox_command: unable to find container $id" >&2
-                                echo "Try '$base_toolbox_command list -c' to list existing containers"
+                                echo "Try '$base_toolbox_command list -c' to list existing containers" >&2
                                 ret_val=1
                             elif [ $ret_code = 2 ]; then
                                 echo "$base_toolbox_command: cannot remove running or paused container $id" >&2
-                                echo "Try 'podman stop $id' to stop the container or '$base_toolbox_command rm -f $id' for force removal"
+                                echo "Try 'podman stop $id' to stop the container or '$base_toolbox_command rm -f $id' for force removal" >&2
                                 ret_val=1
                             elif [ $ret_code != 0 ]; then
                                 echo "$base_toolbox_command: failed to remove container $id" >&2
@@ -1082,11 +1084,11 @@ remove_images()
                                 ret_code=$?
                                 if [ $ret_code = 1 ]; then
                                     echo "$base_toolbox_command: unable to find image $id" >&2
-                                    echo "Try '$base_toolbox_command list -i' to list existing images"
+                                    echo "Try '$base_toolbox_command list -i' to list existing images" >&2
                                     ret_val=1
                                 elif [ $ret_code = 2 ]; then
                                     echo "$base_toolbox_command: image $id has dependent child images or is being used by a container" >&2
-                                    echo "Try '$base_toolbox_command rmi -f $id' for force removal of the image"
+                                    echo "Try '$base_toolbox_command rmi -f $id' for force removal of the image" >&2
                                     ret_val=1
                                 elif [ $ret_code != 0 ]; then
                                     echo "$base_toolbox_command: failed to remove image $id" >&2
@@ -1103,17 +1105,20 @@ remove_images()
                   | sed "s/ \+/\n/g" 2>&3 \
                   | (
                         while read -r id; do
+                            $prefix_sudo podman image exists $id #2>&3
+                            ret_code=$?
+                            if [ $ret_code = 1 ]; then
+                                echo "$base_toolbox_command: unable to find container $id" >&2
+                                echo "Try '$base_toolbox_command list -c' to list existing containers" >&2
+                                ret_val=1
+                                continue
+                            fi
                             labels=$($prefix_sudo podman inspect \
                                                   --format "{{.Labels}}" \
                                                   --type image \
                                                   "$id" 2>&3)
                             ret_code=$?
-                            if [ $ret_code = 1 ]; then
-                                echo "$base_toolbox_command: unable to find image $id" >&2
-                                echo "Try '$base_toolbox_command list -i' to list existing images"
-                                ret_val=1
-                                continue
-                            elif [ $ret_code != 0 ]; then
+                            if [ $ret_code != 0 ]; then
                                 echo "$base_toolbox_command: failed to inspect $id" >&2
                                 ret_val=1
                                 continue
@@ -1130,11 +1135,11 @@ remove_images()
                             ret_code=$?
                             if [ $ret_code = 1 ]; then
                                 echo "$base_toolbox_command: unable to find image $id" >&2
-                                echo "Try '$base_toolbox_command list -i' to list existing images"
+                                echo "Try '$base_toolbox_command list -i' to list existing images" >&2
                                 ret_val=1
                             elif [ $ret_code = 2 ]; then
                                 echo "$base_toolbox_command: image $id has dependent child images or is being used by a container" >&2
-                                echo "Try '$base_toolbox_command rmi -f $id' for force removal of the image"
+                                echo "Try '$base_toolbox_command rmi -f $id' for force removal of the image" >&2
                                 ret_val=1
                             elif [ $ret_code != 0 ]; then
                                 echo "$base_toolbox_command: failed to remove image $id" >&2
