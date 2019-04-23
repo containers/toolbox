@@ -312,6 +312,20 @@ mod entrypoint {
         Ok(())
     }
 
+    /// Podman unprivileged mode has a bug where it exposes the host
+    /// selinuxfs which is bad because it can make e.g. librpm
+    /// think it can do domain transitions to rpm_exec_t, which
+    /// isn't actually permitted.
+    fn workaround_podman_selinux() -> Fallible<()> {
+        let sysfs_selinux = "/sys/fs/selinux";
+        if Path::new(sysfs_selinux).join("status").exists() {
+            Command::new("mount")
+                .args(&["--bind", "/usr/share/empty", sysfs_selinux])
+                .run()?;
+        }
+        Ok(())
+    }
+
     fn init_container() -> Fallible<()> {
         let initstamp = Path::new(CONTAINER_INITIALIZED_STAMP);
         if initstamp.exists() {
@@ -324,6 +338,8 @@ mod entrypoint {
             .create(true)
             .open(CONTAINER_INITIALIZED_LOCK)?;
         lockf.lock_exclusive()?;
+
+        workaround_podman_selinux()?;
 
         let runtime_dir = super::getenv_required_utf8("XDG_RUNTIME_DIR")?;
         let state: EntrypointState = {
