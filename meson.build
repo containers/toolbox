@@ -8,6 +8,8 @@ project(
 go_md2man = find_program('go-md2man')
 shellcheck = find_program('shellcheck', required: false)
 
+profiledir = get_option('profile_dir')
+
 systemd_dep = dependency('systemd')
 tmpfilesdir = systemd_dep.get_pkgconfig_variable('tmpfilesdir')
 
@@ -24,3 +26,4 @@ install_data(
 
 subdir('data')
 subdir('doc')
+subdir('profile.d')

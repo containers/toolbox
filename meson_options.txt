@@ -1,0 +1,6 @@
+option(
+  'profile_dir',
+  description: 'Directory for profile.d files to be read by the shell on start-up',
+  type: 'string',
+  value: '/usr/share/profile.d'
+)
