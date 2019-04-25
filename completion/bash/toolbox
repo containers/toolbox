@@ -1,0 +1,74 @@
+# Check for bash
+[ -z "$BASH_VERSION" ] && return
+
+__toolbox_containers() {
+  podman ps --all --format '{{.Names}}'
+}
+
+__toolbox_images() {
+  podman images --format '{{.Repository}}:{{.Tag}}'
+}
+
+__toolbox() {
+  local MIN_VERSION=29
+  local RAWHIDE_VERSION=31
+
+  local verbose_commands="create enter list"
+  local commands="$verbose_commands rm rmi"
+
+  declare -A options
+  local options=([create]="--candidate-registry --container --image --release" \
+                 [enter]="--container --release" \
+		 [list]="--containers --images" \
+		 [rm]="--all --force" \
+		 [rmi]="--all --force")
+
+  _init_completion -s || return
+
+  if [ ${COMP_CWORD} -eq 1 ]; then
+    COMPREPLY=($(compgen -W "--help --verbose $commands" -- "$2"))
+    return 0
+  fi
+
+  case "$prev" in
+    --verbose)
+      COMPREPLY=($(compgen -W "$verbose_commands" -- "$2"))
+      return 0
+      ;;
+    --container)
+      COMPREPLY=($(compgen -W "$(__toolbox_containers)" -- "$2"))
+      return 0
+      ;;
+    --image)
+      COMPREPLY=($(compgen -W "$(__toolbox_images)" -- "$2"))
+      return 0
+      ;;
+    --release)
+      COMPREPLY=($(compgen -W "$(seq $MIN_VERSION $RAWHIDE_VERSION)" -- "$2"))
+      return 0
+      ;;
+  esac
+
+  local command
+  if [ "${COMP_WORDS[1]}" = --verbose ]; then
+    command=${COMP_WORDS[2]}
+  else
+    command=${COMP_WORDS[1]}
+  fi
+
+  local extra_comps
+  case "$command" in
+    rm)
+      extra_comps="$(__toolbox_containers)"
+      ;;&
+    rmi)
+      extra_comps="$(__toolbox_images)"
+      ;;&
+    *)
+      COMPREPLY=($(compgen -W "${options[$command]} $extra_comps" -- "$2"))
+      return 0;
+      ;;
+  esac
+}
+
+complete -F __toolbox toolbox

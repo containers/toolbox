@@ -24,6 +24,14 @@ install_data(
   install_dir: get_option('bindir'),
 )
 
+bash_completion = dependency('bash-completion', required: false)
+if bash_completion.found()
+  install_data(
+    'completion/bash/toolbox',
+    install_dir: bash_completion.get_pkgconfig_variable('completionsdir')
+  )
+endif
+
 subdir('data')
 subdir('doc')
 subdir('profile.d')
