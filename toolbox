@@ -395,6 +395,14 @@ create_toolbox_image_name()
 )
 
 
+get_host_id()
+(
+    # shellcheck disable=SC1091
+    . /etc/os-release
+    echo "$ID"
+)
+
+
 get_host_version_id()
 (
     # shellcheck disable=SC1091
@@ -1259,7 +1267,12 @@ usage()
 
 arguments=$(save_positional_parameters "$@")
 
-release_default=$(get_host_version_id)
+host_id=$(get_host_id)
+if [ "$host_id" = "fedora" ] 2>&3; then
+    release_default=$(get_host_version_id)
+else
+    release_default="29"
+fi
 toolbox_container_prefix_default="fedora-toolbox-$USER"
 toolbox_container_default="$toolbox_container_prefix_default-$release_default"
 
