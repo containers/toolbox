@@ -506,6 +506,7 @@ images_get_details()
                 echo "$base_toolbox_command: failed to get details for image $image" >&2
                 return 1
             fi
+            echo
          done; then
         return 1
     fi
@@ -1047,6 +1048,8 @@ run()
 
 list_images()
 (
+    output=""
+
     if ! images_old=$($prefix_sudo podman images \
                               --filter "label=com.redhat.component=fedora-toolbox" \
                               --format "{{.Repository}}:{{.Tag}}" 2>&3); then
@@ -1066,11 +1069,12 @@ list_images()
         return 1
     fi
 
-    if ! output=$(echo "$details" \
-                  | sed "s/ \{2,\}/\t/g" 2>&3 \
-                  | column --separator "$tab" --table --table-columns "IMAGE ID,IMAGE NAME,CREATED" 2>&3); then
-        echo "$base_toolbox_command: failed to parse list of images" >&2
-        return 1
+    if [ "$details" != "" ] 2>&3; then
+        table_data=$(printf "%s\t%s\t%s\n" "IMAGE ID" "IMAGE NAME" "CREATED"; echo "$details")
+        if ! output=$(echo "$table_data" | sed "s/ \{2,\}/\t/g" 2>&3 | column -s "$tab" -t 2>&3); then
+            echo "$base_toolbox_command: failed to parse list of images" >&2
+            return 1
+        fi
     fi
 
     if [ "$output" != "" ]; then
@@ -1106,6 +1110,8 @@ containers_get_details()
 
 list_containers()
 (
+    output=""
+
     if ! containers=$(list_container_names); then
         return 1
     fi
@@ -1114,14 +1120,13 @@ list_containers()
         return 1
     fi
 
-    if ! output=$(echo "$details" \
-                  | sed "s/ \{2,\}/\t/g" 2>&3 \
-                  | column \
-                            --separator "$tab" \
-                            --table \
-                            --table-columns "CONTAINER ID,CONTAINER NAME,CREATED,STATUS,IMAGE NAME" 2>&3); then
-        echo "$base_toolbox_command: failed to parse list of containers" >&2
-        return 1
+    if [ "$details" != "" ] 2>&3; then
+        table_data=$(printf "%s\t%s\t%s\t%s\t%s\n" "CONTAINER ID" "CONTAINER NAME" "CREATED" "STATUS" "IMAGE NAME"
+                     echo "$details")
+        if ! output=$(echo "$table_data" | sed "s/ \{2,\}/\t/g" 2>&3 | column -s "$tab" -t 2>&3); then
+            echo "$base_toolbox_command: failed to parse list of containers" >&2
+            return 1
+        fi
     fi
 
     if [ "$output" != "" ]; then
