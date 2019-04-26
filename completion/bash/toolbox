@@ -26,25 +26,25 @@ __toolbox() {
   _init_completion -s || return
 
   if [ "${COMP_CWORD}" -eq 1 ]; then
-    COMPREPLY=($(compgen -W "--assumeyes --help --verbose $commands" -- "$2"))
+    mapfile -t COMPREPLY < <(compgen -W "--assumeyes --help --verbose $commands" -- "$2")
     return 0
   fi
 
   case "$prev" in
     --verbose)
-      COMPREPLY=($(compgen -W "$verbose_commands" -- "$2"))
+      mapfile -t COMPREPLY < <(compgen -W "$verbose_commands" -- "$2")
       return 0
       ;;
     --container)
-      COMPREPLY=($(compgen -W "$(__toolbox_containers)" -- "$2"))
+      mapfile -t COMPREPLY < <(compgen -W "$(__toolbox_containers)" -- "$2")
       return 0
       ;;
     --image)
-      COMPREPLY=($(compgen -W "$(__toolbox_images)" -- "$2"))
+      mapfile -t COMPREPLY < <(compgen -W "$(__toolbox_images)" -- "$2")
       return 0
       ;;
     --release)
-      COMPREPLY=($(compgen -W "$(seq $MIN_VERSION $RAWHIDE_VERSION)" -- "$2"))
+      mapfile -t COMPREPLY < <(compgen -W "$(seq $MIN_VERSION $RAWHIDE_VERSION)" -- "$2")
       return 0
       ;;
   esac
@@ -65,7 +65,7 @@ __toolbox() {
       extra_comps="$(__toolbox_images)"
       ;;&
     *)
-      COMPREPLY=($(compgen -W "${options[$command]} $extra_comps" -- "$2"))
+      mapfile -t COMPREPLY < <(compgen -W "${options[$command]} $extra_comps" -- "$2")
       return 0;
       ;;
   esac
