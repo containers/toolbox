@@ -25,7 +25,7 @@ __toolbox() {
 
   _init_completion -s || return
 
-  if [ ${COMP_CWORD} -eq 1 ]; then
+  if [ "${COMP_CWORD}" -eq 1 ]; then
     COMPREPLY=($(compgen -W "--assumeyes --help --verbose $commands" -- "$2"))
     return 0
   fi
