@@ -32,6 +32,10 @@ operating system.
 
 The following options are understood:
 
+**--assumeyes, -y**
+
+Automatically answer yes for all questions.
+
 **--help, -h**
 
 Print a synopsis of this manual and exit.

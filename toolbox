@@ -19,6 +19,7 @@
 exec 3>/dev/null
 
 arguments=""
+assume_yes=false
 base_toolbox_command=$(basename "$0" 2>&3)
 base_toolbox_image=""
 
@@ -501,6 +502,7 @@ images_get_details()
 
 pull_base_toolbox_image()
 (
+    download="$assume_yes"
     has_domain=false
 
     if image_reference_can_be_id "$base_toolbox_image"; then
@@ -527,6 +529,33 @@ pull_base_toolbox_image()
         base_toolbox_image_full="$registry/$fgc/$base_toolbox_image"
     fi
 
+    if ! $download; then
+        echo "Image required to create toolbox container."
+
+        while :; do
+            printf "Download %s (500MB)? [y/N]: " "$base_toolbox_image_full"
+            read -r user_response
+
+            if [ "$user_response" = "" ] 2>&3; then
+                user_response="n"
+            else
+                user_response=$(echo "$user_response" | tr "[:upper:]" "[:lower:]" 2>&3)
+            fi
+
+            if [ "$user_response" = "no" ] 2>&3 || [ "$user_response" = "n" ] 2>&3; then
+                download=false
+                break
+            elif [ "$user_response" = "yes" ] 2>&3 || [ "$user_response" = "y" ] 2>&3; then
+                download=true
+                break
+            fi
+        done
+    fi
+
+    if ! $download; then
+        return 1
+    fi
+
     echo "$base_toolbox_command: looking for image $base_toolbox_image_full" >&3
 
     if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
@@ -544,6 +573,10 @@ pull_base_toolbox_image()
 
     if [ "$spinner_directory" != "" ]; then
         spinner_stop "$spinner_directory"
+    fi
+
+    if [ "$ret_val" -ne 0 ] 2>&3; then
+        echo "$base_toolbox_command: failed to pull base image $base_toolbox_image" >&2
     fi
 
     return $ret_val
@@ -602,7 +635,6 @@ create()
 
     if ! $prefix_sudo podman image exists $toolbox_image >/dev/null 2>&3; then
         if ! pull_base_toolbox_image; then
-            echo "$base_toolbox_command: failed to pull base image $base_toolbox_image" >&2
             exit 1
         fi
 
@@ -1247,19 +1279,24 @@ update_container_and_image_names()
 usage()
 {
     echo "Usage: toolbox [-v | --verbose]"
+    echo "               [-y | --assumeyes]"
     echo "               create [--candidate-registry]"
     echo "                      [-c | --container <name>]"
     echo "                      [-i | --image <name>]"
     echo "                      [-r | --release <release>]"
     echo "   or: toolbox [-v | --verbose]"
+    echo "               [-y | --assumeyes]"
     echo "               enter [-c | --container <name>]"
     echo "                     [-r | --release <release>]"
     echo "   or: toolbox [-v | --verbose]"
+    echo "               [-y | --assumeyes]"
     echo "               list [-c | --containers]"
     echo "                    [-i | --images]"
-    echo "   or: toolbox rm [-a | --all]"
+    echo "   or: toolbox [-y | --assumeyes]"
+    echo "               rm [-a | --all]"
     echo "                  [-f | --force] [<container> ...]"
-    echo "   or: toolbox rmi [-a | --all]"
+    echo "   or: toolbox [-y | --assumeyes]"
+    echo "               rmi [-a | --all]"
     echo "                   [-f | --force] [<image> ...]"
     echo "   or: toolbox --help"
 }
@@ -1278,6 +1315,9 @@ toolbox_container_default="$toolbox_container_prefix_default-$release_default"
 
 while has_prefix "$1" -; do
     case $1 in
+        --assumeyes | -y )
+            assume_yes=true
+            ;;
         -h | --help )
             usage
             exit
