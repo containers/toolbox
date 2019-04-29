@@ -502,8 +502,10 @@ images_get_details()
 
 pull_base_toolbox_image()
 (
-    download="$assume_yes"
+    domain=""
     has_domain=false
+    prompt_for_download=true
+    pull_image=false
 
     if image_reference_can_be_id "$base_toolbox_image"; then
         echo "$base_toolbox_command: looking for image $base_toolbox_image" >&3
@@ -529,7 +531,19 @@ pull_base_toolbox_image()
         base_toolbox_image_full="$registry/$fgc/$base_toolbox_image"
     fi
 
-    if ! $download; then
+    echo "$base_toolbox_command: looking for image $base_toolbox_image_full" >&3
+
+    if $prefix_sudo podman image exists "$base_toolbox_image_full" >/dev/null 2>&3; then
+        return 0
+    fi
+
+    domain=$(image_reference_get_domain "$base_toolbox_image_full")
+    if $assume_yes || [ "$domain" = "localhost" ] 2>&3; then
+        prompt_for_download=false
+        pull_image=true
+    fi
+
+    if $prompt_for_download; then
         echo "Image required to create toolbox container."
 
         while :; do
@@ -543,20 +557,20 @@ pull_base_toolbox_image()
             fi
 
             if [ "$user_response" = "no" ] 2>&3 || [ "$user_response" = "n" ] 2>&3; then
-                download=false
+                pull_image=false
                 break
             elif [ "$user_response" = "yes" ] 2>&3 || [ "$user_response" = "y" ] 2>&3; then
-                download=true
+                pull_image=true
                 break
             fi
         done
     fi
 
-    if ! $download; then
+    if ! $pull_image; then
         return 1
     fi
 
-    echo "$base_toolbox_command: looking for image $base_toolbox_image_full" >&3
+    echo "$base_toolbox_command: pulling image $base_toolbox_image_full" >&3
 
     if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
         spinner_message="$base_toolbox_command: pulling $base_toolbox_image_full: "
