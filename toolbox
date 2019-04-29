@@ -360,6 +360,7 @@ create_toolbox_container_name()
     fi
 
     echo "$basename-$tag"
+    return 0
 )
 
 
