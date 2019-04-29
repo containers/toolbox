@@ -426,6 +426,16 @@ create_toolbox_image_name()
 )
 
 
+enter_print_container_not_found()
+(
+    container="$1"
+
+    echo "$base_toolbox_command: container $container not found" >&2
+    echo "Use the 'create' command to create a toolbox." >&2
+    echo "Try '$base_toolbox_command --help' for more information." >&2
+)
+
+
 get_host_id()
 (
     # shellcheck disable=SC1091
@@ -870,6 +880,8 @@ create()
 
 enter()
 (
+    create_toolbox_container=false
+    prompt_for_create=true
     shell_to_exec=/bin/bash
 
     echo "$base_toolbox_command: checking if container $toolbox_container exists" >&3
@@ -887,10 +899,61 @@ enter()
             # shellcheck disable=SC2030
             toolbox_container="$toolbox_container_old"
         else
-            echo "$base_toolbox_command: container $toolbox_container not found" >&2
-            echo "Use the 'create' command to create a toolbox." >&2
-            echo "Try '$base_toolbox_command --help' for more information." >&2
-            exit 1
+            if ! containers=$(list_container_names); then
+                enter_print_container_not_found "$toolbox_container"
+                exit 1
+            fi
+
+            containers_count=$(echo "$containers" | grep --count . 2>&3)
+            if ! is_integer "$containers_count"; then
+                enter_print_container_not_found "$toolbox_container"
+                exit 1
+            fi
+
+            echo "$base_toolbox_command: found $containers_count containers" >&3
+
+            if [ "$containers_count" -eq 0 ] 2>&3; then
+                if $assume_yes; then
+                    create_toolbox_container=true
+                    prompt_for_create=false
+                fi
+
+                if $prompt_for_create; then
+                    prompt="No toolbox containers found. Create now? [y/N]"
+                    if ask_for_confirmation "n" "$prompt"; then
+                        create_toolbox_container=true
+                    else
+                        create_toolbox_container=false
+                    fi
+                fi
+
+                if ! $create_toolbox_container; then
+                    echo "A container can be created later with the 'create' command." >&2
+                    echo "Try '$base_toolbox_command --help' for more information." >&2
+                    exit 1
+                fi
+
+                if ! update_container_and_image_names; then
+                    exit 1
+                fi
+
+                if ! create true; then
+                    exit 1
+                fi
+            elif [ "$containers_count" -eq 1 ] 2>&3 \
+                 && [ "$toolbox_container" = "$toolbox_container_default" ] 2>&3; then
+                echo "$base_toolbox_command: container $toolbox_container not found" >&2
+
+                toolbox_container=$(echo "$containers" | grep . 2>&3 | head --lines 1 2>&3)
+                echo "Entering container $toolbox_container instead." >&2
+                echo "Use the 'create' command to create a different toolbox." >&2
+                echo "Try '$base_toolbox_command --help' for more information." >&2
+            else
+                echo "$base_toolbox_command: container $toolbox_container not found" >&2
+                echo "Use the '--container' option to select a toolbox." >&2
+                echo "Try '$base_toolbox_command --help' for more information." >&2
+                exit 1
+            fi
         fi
     fi
 
