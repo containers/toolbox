@@ -834,6 +834,7 @@ create()
     # shellcheck disable=SC2086
     $prefix_sudo podman create \
             $toolbox_path_set \
+            --env TOOLBOX_CONTAINER="$toolbox_container" \
             --group-add wheel \
             --hostname toolbox \
             --name $toolbox_container \

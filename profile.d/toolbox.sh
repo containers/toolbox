@@ -25,7 +25,7 @@ fi
 
 if [ -f /run/.containerenv ] \
    && ! [ -f "$toolbox_welcome_stub" ] \
-   && [ "$TOOLBOX_PATH" != "" ]; then
+   && [ "$TOOLBOX_CONTAINER" != "" ]; then
     echo ""
     echo "Welcome to the Toolbox; a container where you can install and run"
     echo "all your tools."
