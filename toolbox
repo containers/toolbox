@@ -640,6 +640,8 @@ pull_base_toolbox_image()
 
 create()
 (
+    enter_command_skip="$1"
+
     dbus_system_bus_address="unix:path=/var/run/dbus/system_bus_socket"
     kcm_ccache_configuration=""
     kcm_socket=""
@@ -857,8 +859,11 @@ create()
         return 1
     fi
 
-    echo "Created container: $toolbox_container"
-    echo "Enter with: $enter_command"
+    if ! $enter_command_skip; then
+        echo "Created container: $toolbox_container"
+        echo "Enter with: $enter_command"
+    fi
+
     return 0
 )
 
@@ -1492,7 +1497,7 @@ case $op in
             if ! update_container_and_image_names; then
                 exit 1
             fi
-            if ! create; then
+            if ! create false; then
                 exit 1
             fi
         fi
