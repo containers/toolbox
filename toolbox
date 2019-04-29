@@ -501,6 +501,29 @@ images_get_details()
 )
 
 
+list_container_names()
+(
+    if ! containers_old=$($prefix_sudo podman ps \
+                                  --all \
+                                  --filter "label=com.redhat.component=fedora-toolbox" \
+                                  --format "{{.Names}}" 2>&3); then
+        echo "$base_toolbox_command: failed to list containers with com.redhat.component=fedora-toolbox" >&2
+        return 1
+    fi
+
+    if ! containers=$($prefix_sudo podman ps \
+                              --all \
+                              --filter "label=com.github.debarshiray.toolbox=true" \
+                              --format "{{.Names}}" 2>&3); then
+        echo "$base_toolbox_command: failed to list containers with com.github.debarshiray.toolbox=true" >&2
+        return 1
+    fi
+
+    printf "%s\n%s\n" "$containers_old" "$containers" | sort 2>&3 | uniq 2>&3
+    return 0
+)
+
+
 pull_base_toolbox_image()
 (
     domain=""
@@ -949,23 +972,10 @@ containers_get_details()
 
 list_containers()
 (
-    if ! containers_old=$($prefix_sudo podman ps \
-                                  --all \
-                                  --filter "label=com.redhat.component=fedora-toolbox" \
-                                  --format "{{.Names}}" 2>&3); then
-        echo "$base_toolbox_command: failed to list containers with com.redhat.component=fedora-toolbox" >&2
+    if ! containers=$(list_container_names); then
         return 1
     fi
 
-    if ! containers=$($prefix_sudo podman ps \
-                              --all \
-                              --filter "label=com.github.debarshiray.toolbox=true" \
-                              --format "{{.Names}}" 2>&3); then
-        echo "$base_toolbox_command: failed to list containers with com.github.debarshiray.toolbox=true" >&2
-        return 1
-    fi
-
-    containers=$(printf "%s\n%s\n" "$containers_old" "$containers" | sort 2>&3 | uniq 2>&3)
     if ! details=$(containers_get_details "$containers"); then
         return 1
     fi
