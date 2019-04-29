@@ -1250,7 +1250,7 @@ update_container_and_image_names()
 
             exit 0
          ); then
-        exit 1
+        return 1
     fi
 
     echo "$base_toolbox_command: customized user-specific image is $toolbox_image" >&3
@@ -1274,20 +1274,21 @@ update_container_and_image_names()
 
                  exit 0
             ); then
-            exit 1
+            return 1
         fi
 
         if ! container_name_is_valid "$toolbox_container"; then
             echo "$base_toolbox_command: generated container name $toolbox_container is invalid" >&2
             echo "Container names must match '$container_name_regexp'." >&2
             echo "Try '$base_toolbox_command --help' for more information." >&2
-            exit 1
+            return 1
         fi
 
         toolbox_container_old="$toolbox_image"
     fi
 
     echo "$base_toolbox_command: container is $toolbox_container" >&3
+    return 0
 }
 
 
@@ -1460,7 +1461,9 @@ case $op in
                 shift
             done
             exit_if_extra_operand "$1"
-            update_container_and_image_names
+            if ! update_container_and_image_names; then
+                exit 1
+            fi
             create
         fi
         exit
@@ -1490,7 +1493,9 @@ case $op in
                 shift
             done
             exit_if_extra_operand "$1"
-            update_container_and_image_names
+            if ! update_container_and_image_names; then
+                exit 1
+            fi
             enter
         fi
         exit
