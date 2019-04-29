@@ -854,7 +854,7 @@ enter()
 
     echo "$base_toolbox_command: trying to start container $toolbox_container" >&3
 
-    if ! $prefix_sudo podman start $toolbox_container >/dev/null 2>&3; then
+    if ! $prefix_sudo podman start "$toolbox_container" >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to start container $toolbox_container" >&2
         exit 1
     fi
@@ -863,8 +863,8 @@ enter()
 
     echo "$base_toolbox_command: looking for $SHELL in container $toolbox_container" >&3
 
-    if $prefix_sudo podman exec $toolbox_container test -f "$SHELL" 2>&3; then
-        shell_to_exec=$SHELL
+    if $prefix_sudo podman exec "$toolbox_container" test -f "$SHELL" 2>&3; then
+        shell_to_exec="$SHELL"
     else
         echo "$base_toolbox_command: $SHELL not found in $toolbox_container; using $shell_to_exec instead" >&3
     fi
