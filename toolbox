@@ -650,7 +650,7 @@ create()
 
     if ! $prefix_sudo podman image exists $toolbox_image >/dev/null 2>&3; then
         if ! pull_base_toolbox_image; then
-            exit 1
+            return 1
         fi
 
         if image_reference_has_domain "$base_toolbox_image"; then
@@ -661,7 +661,7 @@ create()
                                                    --type image \
                                                    "$base_toolbox_image" 2>&3); then
                 echo "$base_toolbox_command: failed to get RepoTag for base image $base_toolbox_image" >&2
-                exit 1
+                return 1
             fi
 
             echo "$base_toolbox_command: base image $base_toolbox_image resolved to $base_toolbox_image_full" >&3
@@ -688,7 +688,7 @@ create()
 
         if [ $ret_val -ne 0 ]; then
             echo "$base_toolbox_command: failed to create working container" >&2
-            exit 1
+            return 1
         fi
 
         echo "$base_toolbox_command: trying to configure working container $working_container_name" >&3
@@ -712,7 +712,7 @@ create()
 
         if [ $ret_val -ne 0 ]; then
             $prefix_sudo buildah rm "$working_container_name" >/dev/null 2>&3
-            exit 1
+            return 1
         fi
 
         echo "$base_toolbox_command: trying to create image $toolbox_image" >&3
@@ -737,7 +737,7 @@ create()
         if [ $ret_val -ne 0 ]; then
             $prefix_sudo buildah rm "$working_container_name" >/dev/null 2>&3
             echo "$base_toolbox_command: failed to create image $toolbox_image" >&2
-            exit 1
+            return 1
         fi
 
         echo "$base_toolbox_command: created image $toolbox_image" >&3
@@ -752,7 +752,7 @@ create()
         echo "$base_toolbox_command: container $toolbox_container already exists" >&2
         echo "Enter with: $enter_command" >&2
         echo "Try '$base_toolbox_command --help' for more information." >&2
-        exit 1
+        return 1
     fi
 
     total_ram=$(awk '( $1 == "MemTotal:" ) { print $2 }' /proc/meminfo 2>&3) # kibibytes
@@ -814,11 +814,12 @@ create()
 
     if [ $ret_val -ne 0 ]; then
         echo "$base_toolbox_command: failed to create container $toolbox_container" >&2
-        exit 1
+        return 1
     fi
 
     echo "Created container: $toolbox_container"
     echo "Enter with: $enter_command"
+    return 0
 )
 
 
@@ -1464,7 +1465,9 @@ case $op in
             if ! update_container_and_image_names; then
                 exit 1
             fi
-            create
+            if ! create; then
+                exit 1
+            fi
         fi
         exit
         ;;
