@@ -206,6 +206,35 @@ spinner_stop()
 )
 
 
+ask_for_confirmation()
+(
+    default_response="$1"
+    prompt="$2"
+    ret_val=0
+
+    while :; do
+        printf "%s " "$prompt"
+        read -r user_response
+
+        if [ "$user_response" = "" ] 2>&3; then
+            user_response="$default_response"
+        else
+            user_response=$(echo "$user_response" | tr "[:upper:]" "[:lower:]" 2>&3)
+        fi
+
+        if [ "$user_response" = "no" ] 2>&3 || [ "$user_response" = "n" ] 2>&3; then
+            ret_val=1
+            break
+        elif [ "$user_response" = "yes" ] 2>&3 || [ "$user_response" = "y" ] 2>&3; then
+            ret_val=0
+            break
+        fi
+    done
+
+    return "$ret_val"
+)
+
+
 check_image_for_volumes()
 (
     image="$1"
@@ -570,24 +599,12 @@ pull_base_toolbox_image()
     if $prompt_for_download; then
         echo "Image required to create toolbox container."
 
-        while :; do
-            printf "Download %s (500MB)? [y/N]: " "$base_toolbox_image_full"
-            read -r user_response
-
-            if [ "$user_response" = "" ] 2>&3; then
-                user_response="n"
-            else
-                user_response=$(echo "$user_response" | tr "[:upper:]" "[:lower:]" 2>&3)
-            fi
-
-            if [ "$user_response" = "no" ] 2>&3 || [ "$user_response" = "n" ] 2>&3; then
-                pull_image=false
-                break
-            elif [ "$user_response" = "yes" ] 2>&3 || [ "$user_response" = "y" ] 2>&3; then
-                pull_image=true
-                break
-            fi
-        done
+        prompt=$(printf "Download %s (500MB)? [y/N]:" "$base_toolbox_image_full")
+        if ask_for_confirmation "n" "$prompt"; then
+            pull_image=true
+        else
+            pull_image=false
+        fi
     fi
 
     if ! $pull_image; then
