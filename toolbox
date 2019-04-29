@@ -657,6 +657,7 @@ create()
     kcm_socket=""
     kcm_socket_bind=""
     tmpfs_size=$((64 * 1024 * 1024)) # 64 MiB
+    toolbox_profile_bind=""
     working_container_name="toolbox-working-container-$(uuidgen --time)"
 
     # shellcheck disable=SC2153
@@ -815,6 +816,10 @@ create()
     toolbox_path_bind="--volume $TOOLBOX_PATH:/usr/bin/toolbox:ro"
     toolbox_path_set="--env TOOLBOX_PATH=$TOOLBOX_PATH"
 
+    if [ -f /etc/profile.d/toolbox.sh ] 2>&3; then
+        toolbox_profile_bind="--volume /etc/profile.d/toolbox.sh:/etc/profile.d/toolbox.sh:ro"
+    fi
+
     max_uid_count=65536
     max_minus_uid=$((max_uid_count - user_id_real))
     uid_plus_one=$((user_id_real + 1))
@@ -848,6 +853,7 @@ create()
             --uidmap "$uid_plus_one":"$uid_plus_one":"$max_minus_uid" \
             $kcm_socket_bind \
             $toolbox_path_bind \
+            $toolbox_profile_bind \
             --volume "$HOME":"$HOME":rslave \
             --volume "$XDG_RUNTIME_DIR":"$XDG_RUNTIME_DIR" \
             --volume "$dbus_system_bus_path":"$dbus_system_bus_path" \
