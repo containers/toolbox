@@ -1,7 +1,7 @@
 % toolbox-enter(1)
 
 ## NAME
-toolbox\-enter - Enter an existing toolbox container for interactive use
+toolbox\-enter - Enter a toolbox container for interactive use
 
 ## SYNOPSIS
 **toolbox enter** [*--container NAME* | *-c NAME*]
@@ -9,8 +9,11 @@ toolbox\-enter - Enter an existing toolbox container for interactive use
 
 ## DESCRIPTION
 
-Spawns an interactive shell inside an existing toolbox container. The
-container should have been created using the `toolbox create` command.
+Spawns an interactive shell inside a toolbox container. The container should
+have been created using the `toolbox create` command. If there aren't any
+containers, `toolbox enter` will offer to create one for you. When invoked with
+the default parameters, and if there's only one container available, it will
+fall back to it, even if it doesn't match the default name.
 
 A toolbox container is an OCI container. Therefore, `toolbox enter` is
 analogous to a `podman start` followed by a `podman exec`.
