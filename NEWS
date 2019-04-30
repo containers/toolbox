@@ -1,3 +1,17 @@
+Overview of changes in 0.0.9
+============================
+
+* Add Bash completion
+* Allow connecting to Wayland displays other than "wayland-0"
+* Ask for confirmation before downloading the base image
+* Improve the onboarding experience
+* Make it available inside the toolbox container
+* Make 'toolbox enter' create or fall back to a container when possible
+* Set TOOLBOX_CONTAINER in the environment to identify as a toolbox
+* Set default release to 29 when running on non-fedora hosts
+* Show welcome texts on interactive shells
+
+
 Overview of changes in 0.0.8
 ============================
 
