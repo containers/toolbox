@@ -51,7 +51,7 @@ impl CommandRunExt for Command {
     fn run(&mut self) -> Fallible<()> {
         let r = self.status()?;
         if !r.success() {
-            bail!("Child exited: {}", r);
+            bail!("Child [{:?}] exited: {}", self, r);
         }
         Ok(())
     }
@@ -190,16 +190,19 @@ fn create(opts: &Opt) -> Fallible<()> {
     ]);
     podman.arg(format!("--volume={}:/usr/bin/toolbox:ro", self_bin));
     let real_uid: u32 = nix::unistd::getuid().into();
-    let uid_plus_one = real_uid + 1;
-    let max_minus_uid = MAX_UID_COUNT - real_uid;
-    podman.args(&[
-        format!("--uidmap={}:0:1", real_uid),
-        format!("--uidmap=0:1:{}", real_uid),
-        format!(
-            "--uidmap={}:{}:{}",
-            uid_plus_one, uid_plus_one, max_minus_uid
-        ),
-    ]);
+    // In true privileged mode we don't use userns
+    if real_uid != 0 {
+        let uid_plus_one = real_uid + 1;
+        let max_minus_uid = MAX_UID_COUNT - real_uid;
+        podman.args(&[
+            format!("--uidmap={}:0:1", real_uid),
+            format!("--uidmap=0:1:{}", real_uid),
+            format!(
+                "--uidmap={}:{}:{}",
+                uid_plus_one, uid_plus_one, max_minus_uid
+            ),
+        ]);
+    }
     // TODO: Detect what devices are accessible
     for p in &["/dev/bus", "/dev/dri", "/dev/fuse"] {
         if Path::new(p).exists() {
@@ -276,6 +279,9 @@ mod entrypoint {
     /// Update /etc/passwd with the same user from the host,
     /// and bind mount the homedir.
     fn adduser(state: &EntrypointState) -> Fallible<()> {
+        if state.uid == 0 {
+            return Ok(())
+        }
         let uidstr = format!("{}", state.uid);
         Command::new("useradd")
             .args(&[
