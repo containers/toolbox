@@ -671,7 +671,7 @@ pull_base_toolbox_image()
         spinner_directory=""
     fi
 
-    $prefix_sudo buildah pull $base_toolbox_image_full >/dev/null 2>&3
+    $prefix_sudo podman pull $base_toolbox_image_full >/dev/null 2>&3
     ret_val=$?
 
     if [ "$spinner_directory" != "" ]; then
