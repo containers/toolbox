@@ -621,7 +621,7 @@ pull_base_toolbox_image()
     if ! $has_domain; then
         echo "$base_toolbox_command: looking for image localhost/$base_toolbox_image" >&3
 
-        if $prefix_sudo buildah pull localhost/$base_toolbox_image >/dev/null 2>&3; then
+        if $prefix_sudo podman image exists localhost/$base_toolbox_image >/dev/null 2>&3; then
             return 0
         fi
     fi
