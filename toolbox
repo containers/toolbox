@@ -941,7 +941,6 @@ create()
     $prefix_sudo podman create \
             $dns_none \
             $toolbox_path_set \
-            --env TOOLBOX_CONTAINER="$toolbox_container" \
             --group-add wheel \
             --hostname toolbox \
             --name $toolbox_container \
@@ -1080,6 +1079,11 @@ enter()
     fi
 
     if ! copy_etc_profile_d_toolbox_to_container "$toolbox_container"; then
+        exit 1
+    fi
+
+    if ! $prefix_sudo podman exec --user root:root "$toolbox_container" touch /run/.toolboxenv 2>&3; then
+        echo "$base_toolbox_command: failed to create /run/.toolboxenv in container $toolbox_container" >&2
         exit 1
     fi
 
