@@ -374,6 +374,54 @@ container_name_is_valid()
 )
 
 
+copy_etc_profile_d_toolbox_to_container()
+(
+    container="$1"
+
+    if ! [ -f /etc/profile.d/toolbox.sh ] 2>&3; then
+        return 0
+    fi
+
+    # shellcheck disable=SC2174
+    if ! mkdir --mode 700 --parents "$XDG_RUNTIME_DIR"/toolbox 2>&3; then
+        echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh: runtime directory not created" >&2
+        return 1
+    fi
+
+    exec 5>"$XDG_RUNTIME_DIR"/toolbox/profile.d-toolbox.lock
+    if ! flock 5 2>&3; then
+        echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh: copy lock not acquired" >&2
+        return 1
+    fi
+
+    echo "$base_toolbox_command: looking for /etc/profile.d/toolbox.sh in container $toolbox_container" >&3
+
+    if $prefix_sudo podman exec \
+               "$container" \
+               sh -c 'mount | grep /etc/profile.d/toolbox.sh >/dev/null 2>/dev/null' 2>&3; then
+        echo "$base_toolbox_command: /etc/profile.d/toolbox.sh already mounted in container $toolbox_container" >&3
+        return 0
+    fi
+
+    echo "$base_toolbox_command: copying /etc/profile.d/toolbox.sh to container $toolbox_container" >&3
+
+    if ! $prefix_sudo podman cp /etc/profile.d/toolbox.sh "$toolbox_container":/etc/profile.d 2>&3; then
+        echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh to container $toolbox_container" >&2
+        return 1
+    fi
+
+    if ! $prefix_sudo podman exec \
+                 --user root:root \
+                 "$toolbox_container" \
+                 chown root:root /etc/profile.d/toolbox.sh 2>&3; then
+        echo "$base_toolbox_command: unable to chown /etc/profile.d/toolbox.sh to container $toolbox_container" >&2
+        return 1
+    fi
+
+    return 0
+)
+
+
 create_enter_command()
 (
     container="$1"
@@ -1028,6 +1076,10 @@ enter()
 
     if ! $prefix_sudo podman start "$toolbox_container" >/dev/null 2>&3; then
         echo "$base_toolbox_command: failed to start container $toolbox_container" >&2
+        exit 1
+    fi
+
+    if ! copy_etc_profile_d_toolbox_to_container "$toolbox_container"; then
         exit 1
     fi
 
