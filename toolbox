@@ -1431,6 +1431,11 @@ exit_if_unrecognized_option()
 # shellcheck disable=SC2120
 forward_to_host()
 (
+    if ! command -v flatpak-spawn >/dev/null 2>&3; then
+        echo "$base_toolbox_command: flatpak-spawn not found" >&2
+        return 1
+    fi
+
     eval "set -- $arguments"
 
     set_environment=$(create_environment_options)
@@ -1443,6 +1448,9 @@ forward_to_host()
 
     # shellcheck disable=SC2086
     flatpak-spawn $set_environment --host "$TOOLBOX_PATH" "$@" 2>&3
+    ret_val="$?"
+
+    return "$ret_val"
 )
 
 
@@ -1592,11 +1600,6 @@ echo "$base_toolbox_command: resolved absolute path for $0 to $toolbox_command_p
 if [ -f /run/.containerenv ] 2>&3; then
     if ! [ -f /run/.toolboxenv ] 2>&3; then
         echo "$base_toolbox_command: this is not a toolbox container" >&2
-        exit 1
-    fi
-
-    if ! command -v flatpak-spawn >/dev/null 2>&3; then
-        echo "$base_toolbox_command: flatpak-spawn not found" >&2
         exit 1
     fi
 
