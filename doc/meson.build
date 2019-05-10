@@ -8,6 +8,7 @@ manuals = [
   'toolbox.1',
   'toolbox-create.1',
   'toolbox-enter.1',
+  'toolbox-init-container.1',
   'toolbox-list.1',
   'toolbox-rm.1',
   'toolbox-rmi.1',

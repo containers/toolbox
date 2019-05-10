@@ -57,6 +57,10 @@ Create a new toolbox container.
 
 Enter a toolbox container for interactive use.
 
+**toolbox-init-container(1)**
+
+Initialize a running container.
+
 **toolbox-list(1)**
 
 List existing toolbox containers and images.

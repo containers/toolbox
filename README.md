@@ -19,20 +19,20 @@ works equally well if you're running e.g. existing Fedora Workstation or
 Server, and that's a useful way to incrementally adopt containerization.
 
 The toolbox environment is based on an [OCI](https://www.opencontainers.org/)
-image. On Fedora this is the `fedora-toolbox` image. This image is then
-customized for the current user to create a toolbox container that seamlessly
-integrates with the rest of the operating system.
+image. On Fedora this is the `fedora-toolbox` image. This image is used to
+create a toolbox container that seamlessly integrates with the rest of the
+operating system.
 
 ## Usage
 
 ### Create your toolbox container:
 ```
 [user@hostname ~]$ toolbox create
+Created container: fedora-toolbox-30
+Enter with: toolbox enter
 [user@hostname ~]$
 ```
-This will create a container, and an image, called
-`fedora-toolbox-<your-username>:<version-id>` that's specifically customised
-for your host user.
+This will create a container called `fedora-toolbox-<version-id>`.
 
 ### Enter the toolbox:
 ```

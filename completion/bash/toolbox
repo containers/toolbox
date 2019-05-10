@@ -13,12 +13,13 @@ __toolbox() {
   local MIN_VERSION=29
   local RAWHIDE_VERSION=31
 
-  local verbose_commands="create enter list run"
+  local verbose_commands="create enter init-container list run"
   local commands="$verbose_commands rm rmi"
 
   declare -A options
   local options=([create]="--candidate-registry --container --image --release" \
                  [enter]="--container --release" \
+                 [init-container]="--home --monitor-host --shell --uid --user" \
 		 [list]="--containers --images" \
 		 [rm]="--all --force" \
 		 [rmi]="--all --force" \
