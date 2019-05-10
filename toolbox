@@ -1598,11 +1598,6 @@ fi
 echo "$base_toolbox_command: resolved absolute path for $0 to $toolbox_command_path" >&3
 
 if [ -f /run/.containerenv ] 2>&3; then
-    if ! [ -f /run/.toolboxenv ] 2>&3; then
-        echo "$base_toolbox_command: this is not a toolbox container" >&2
-        exit 1
-    fi
-
     if [ "$TOOLBOX_PATH" = "" ] 2>&3; then
         echo "$base_toolbox_command: TOOLBOX_PATH not set" >&2
         exit 1
@@ -1633,6 +1628,11 @@ shift
 if [ -f /run/.containerenv ] 2>&3; then
     case $op in
         create | enter | list | rm | rmi | run )
+            if ! [ -f /run/.toolboxenv ] 2>&3; then
+                echo "$base_toolbox_command: this is not a toolbox container" >&2
+                exit 1
+            fi
+
             # shellcheck disable=SC2119
             forward_to_host
             exit "$?"
