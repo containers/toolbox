@@ -1627,203 +1627,193 @@ fi
 op=$1
 shift
 
-case $op in
-    create )
-        if [ -f /run/.containerenv ] 2>&3; then
+if [ -f /run/.containerenv ] 2>&3; then
+    case $op in
+        create | enter | list | rm | rmi | run )
             # shellcheck disable=SC2119
             forward_to_host
-        else
-            while has_prefix "$1" -; do
-                case $1 in
-                    --candidate-registry )
-                        registry=$registry_candidate
-                        ;;
-                    -c | --container )
-                        shift
-                        exit_if_missing_argument --container "$1"
-                        arg=$1
-                        if ! container_name_is_valid "$arg"; then
-                            echo "$base_toolbox_command: invalid argument for '--container'" >&2
-                            echo "Container names must match '$container_name_regexp'." >&2
-                            echo "Try '$base_toolbox_command --help' for more information." >&2
-                            exit 1
-                        fi
-                        toolbox_container="$arg"
-                        ;;
-                    -i | --image )
-                        shift
-                        exit_if_missing_argument --image "$1"
-                        base_toolbox_image=$1
-                        ;;
-                    -r | --release )
-                        shift
-                        exit_if_missing_argument --release "$1"
-                        arg=$(echo "$1" | sed "s/^F\|^f//" 2>&3)
-                        exit_if_non_positive_argument --release "$arg"
-                        release=$arg
-                        ;;
-                    * )
-                        exit_if_unrecognized_option "$1"
-                esac
-                shift
-            done
-            exit_if_extra_operand "$1"
-            if ! update_container_and_image_names; then
-                exit 1
-            fi
-            if ! create false; then
-                exit 1
-            fi
+            exit "$?"
+            ;;
+        * )
+           echo "$base_toolbox_command: unrecognized command '$op'" >&2
+           echo "Try '$base_toolbox_command --help' for more information." >&2
+           exit 1
+           ;;
+    esac
+fi
+
+case $op in
+    create )
+        while has_prefix "$1" -; do
+            case $1 in
+                --candidate-registry )
+                    registry=$registry_candidate
+                    ;;
+                -c | --container )
+                    shift
+                    exit_if_missing_argument --container "$1"
+                    arg=$1
+                    if ! container_name_is_valid "$arg"; then
+                        echo "$base_toolbox_command: invalid argument for '--container'" >&2
+                        echo "Container names must match '$container_name_regexp'." >&2
+                        echo "Try '$base_toolbox_command --help' for more information." >&2
+                        exit 1
+                    fi
+                    toolbox_container="$arg"
+                    ;;
+                -i | --image )
+                    shift
+                    exit_if_missing_argument --image "$1"
+                    base_toolbox_image=$1
+                    ;;
+                -r | --release )
+                    shift
+                    exit_if_missing_argument --release "$1"
+                    arg=$(echo "$1" | sed "s/^F\|^f//" 2>&3)
+                    exit_if_non_positive_argument --release "$arg"
+                    release=$arg
+                    ;;
+                * )
+                    exit_if_unrecognized_option "$1"
+            esac
+            shift
+        done
+        exit_if_extra_operand "$1"
+        if ! update_container_and_image_names; then
+            exit 1
+        fi
+        if ! create false; then
+            exit 1
         fi
         exit
         ;;
     enter )
-        if [ -f /run/.containerenv ] 2>&3; then
-            # shellcheck disable=SC2119
-            forward_to_host
-        else
-            while has_prefix "$1" -; do
-                case $1 in
-                    -c | --container )
-                        shift
-                        exit_if_missing_argument --container "$1"
-                        toolbox_container=$1
-                        ;;
-                    -r | --release )
-                        shift
-                        exit_if_missing_argument --release "$1"
-                        arg=$(echo "$1" | sed "s/^F\|^f//" 2>&3)
-                        exit_if_non_positive_argument --release "$arg"
-                        release=$arg
-                        ;;
-                    * )
-                        exit_if_unrecognized_option "$1"
-                esac
-                shift
-            done
-            exit_if_extra_operand "$1"
-            if ! update_container_and_image_names; then
-                exit 1
-            fi
-            enter
+        while has_prefix "$1" -; do
+            case $1 in
+                -c | --container )
+                    shift
+                    exit_if_missing_argument --container "$1"
+                    toolbox_container=$1
+                    ;;
+                -r | --release )
+                    shift
+                    exit_if_missing_argument --release "$1"
+                    arg=$(echo "$1" | sed "s/^F\|^f//" 2>&3)
+                    exit_if_non_positive_argument --release "$arg"
+                    release=$arg
+                    ;;
+                * )
+                    exit_if_unrecognized_option "$1"
+            esac
+            shift
+        done
+        exit_if_extra_operand "$1"
+        if ! update_container_and_image_names; then
+            exit 1
         fi
+        enter
         exit
         ;;
     list )
-        if [ -f /run/.containerenv ] 2>&3; then
-            # shellcheck disable=SC2119
-            forward_to_host
-        else
-            ls_images=false
-            ls_containers=false
-            while has_prefix "$1" -; do
-                case $1 in
-                    -c | --containers )
-                        ls_containers=true
-                        ;;
-                    -i | --images )
-                        ls_images=true
-                        ;;
-                    * )
-                        exit_if_unrecognized_option "$1"
-                esac
-                shift
-            done
-            exit_if_extra_operand "$1"
+        ls_images=false
+        ls_containers=false
+        while has_prefix "$1" -; do
+            case $1 in
+                -c | --containers )
+                    ls_containers=true
+                    ;;
+                -i | --images )
+                    ls_images=true
+                    ;;
+                * )
+                    exit_if_unrecognized_option "$1"
+            esac
+            shift
+        done
+        exit_if_extra_operand "$1"
 
-            if ! $ls_containers && ! $ls_images; then
-                ls_containers=true
-                ls_images=true
-            fi
-
-            if $ls_images; then
-                if ! images=$(list_images); then
-                    exit 1
-                fi
-            fi
-
-            if $ls_containers; then
-                if ! containers=$(list_containers); then
-                    exit 1
-                fi
-            fi
-
-            $ls_images && [ "$images" != "" ] && echo "$images"
-            $ls_containers && [ "$containers" != "" ] && echo "$containers"
+        if ! $ls_containers && ! $ls_images; then
+            ls_containers=true
+            ls_images=true
         fi
+
+        if $ls_images; then
+            if ! images=$(list_images); then
+                exit 1
+            fi
+        fi
+
+        if $ls_containers; then
+            if ! containers=$(list_containers); then
+                exit 1
+            fi
+        fi
+
+        $ls_images && [ "$images" != "" ] && echo "$images"
+        $ls_containers && [ "$containers" != "" ] && echo "$containers"
         exit
         ;;
     rm | rmi )
-        if [ -f /run/.containerenv ] 2>&3; then
-            # shellcheck disable=SC2119
-            forward_to_host
+        rm_all=false
+        rm_force=false
+        while has_prefix "$1" -; do
+            case $1 in
+                -a | --all )
+                    rm_all=true
+                    ;;
+                -f | --force )
+                    rm_force=true
+                    ;;
+                * )
+                    exit_if_unrecognized_option "$1"
+            esac
+            shift
+        done
+
+        rm_ids=""
+        if $rm_all; then
+            exit_if_extra_operand "$1"
         else
-            rm_all=false
-            rm_force=false
-            while has_prefix "$1" -; do
-                case $1 in
-                    -a | --all )
-                        rm_all=true
-                        ;;
-                    -f | --force )
-                        rm_force=true
-                        ;;
-                    * )
-                        exit_if_unrecognized_option "$1"
-                esac
+            exit_if_missing_argument "$op" "$1"
+            while [ "$1" != "" ]; do
+                rm_ids="$rm_ids $1"
                 shift
             done
+        fi
 
-            rm_ids=""
-            if $rm_all; then
-                exit_if_extra_operand "$1"
-            else
-                exit_if_missing_argument "$op" "$1"
-                while [ "$1" != "" ]; do
-                    rm_ids="$rm_ids $1"
-                    shift
-                done
-            fi
+        rm_ids=$(echo "$rm_ids" | sed "s/^ \+//" 2>&3)
 
-            rm_ids=$(echo "$rm_ids" | sed "s/^ \+//" 2>&3)
-
-            if [ "$op" = "rm" ]; then
-                remove_containers "$rm_ids" "$rm_all" "$rm_force"
-            else
-                remove_images "$rm_ids" "$rm_all" "$rm_force"
-            fi
+        if [ "$op" = "rm" ]; then
+            remove_containers "$rm_ids" "$rm_all" "$rm_force"
+        else
+            remove_images "$rm_ids" "$rm_all" "$rm_force"
         fi
         exit
         ;;
     run )
-        if [ -f /run/.containerenv ] 2>&3; then
-            # shellcheck disable=SC2119
-            forward_to_host
-        else
-            while has_prefix "$1" -; do
-                case $1 in
-                    -c | --container )
-                        shift
-                        exit_if_missing_argument --container "$1"
-                        toolbox_container=$1
-                        ;;
-                    -r | --release )
-                        shift
-                        exit_if_missing_argument --release "$1"
-                        arg=$(echo "$1" | sed "s/^F\|^f//" 2>&3)
-                        exit_if_non_positive_argument --release "$arg"
-                        release=$arg
-                        ;;
-                    * )
-                        exit_if_unrecognized_option "$1"
-                esac
-                shift
-            done
-            if ! update_container_and_image_names; then
-                exit 1
-            fi
-            run false true "$@"
+        while has_prefix "$1" -; do
+            case $1 in
+                -c | --container )
+                    shift
+                    exit_if_missing_argument --container "$1"
+                    toolbox_container=$1
+                    ;;
+                -r | --release )
+                    shift
+                    exit_if_missing_argument --release "$1"
+                    arg=$(echo "$1" | sed "s/^F\|^f//" 2>&3)
+                    exit_if_non_positive_argument --release "$arg"
+                    release=$arg
+                    ;;
+                * )
+                    exit_if_unrecognized_option "$1"
+            esac
+            shift
+        done
+        if ! update_container_and_image_names; then
+            exit 1
         fi
+        run false true "$@"
         exit
         ;;
     * )
