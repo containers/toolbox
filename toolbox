@@ -412,7 +412,7 @@ copy_etc_profile_d_toolbox_to_container()
                  --user root:root \
                  "$toolbox_container" \
                  chown root:root /etc/profile.d/toolbox.sh 2>&3; then
-        echo "$base_toolbox_command: unable to chown /etc/profile.d/toolbox.sh to container $toolbox_container" >&2
+        echo "$base_toolbox_command: unable to chown /etc/profile.d/toolbox.sh in container $toolbox_container" >&2
         return 1
     fi
 
