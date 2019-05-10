@@ -51,7 +51,6 @@ environment_variables="COLORTERM \
         XDG_VTNR"
 fgc=""
 
-podman_pid=""
 prefix_sudo=""
 registry="registry.fedoraproject.org"
 registry_candidate="candidate-registry.fedoraproject.org"
@@ -1607,35 +1606,6 @@ if [ -f /run/.containerenv ] 2>&3; then
         exit 1
     fi
 
-    echo "$base_toolbox_command: looking for podman PID" >&3
-
-    pid_i=$$
-    while [ "$pid_i" -gt 1 ] 2>&3; do
-        cmdline=$(sed "s/\x0/ /g" /proc/$pid_i/cmdline 2>&3)
-        if has_prefix "$cmdline" "podman exec "; then
-            podman_pid=$pid_i
-            break
-        fi
-
-        pid_i=$(ps -p $pid_i -o ppid= 2>&3 | sed "s/ //" 2>&3)
-        if ! is_integer "$pid_i"; then
-            echo "$base_toolbox_command: invalid parent PID" >&2
-            break
-        fi
-    done
-
-    if ! is_integer "$podman_pid"; then
-        echo "$base_toolbox_command: invalid podman PID" >&2
-        podman_pid=""
-    fi
-
-    if [ "$podman_pid" = "" ]; then
-        echo "$base_toolbox_command: cannot be used outside podman exec" >&2
-        exit 1
-    fi
-
-    echo "$base_toolbox_command: podman PID is $podman_pid" >&3
-
     if [ "$TOOLBOX_PATH" = "" ] 2>&3; then
         echo "$base_toolbox_command: TOOLBOX_PATH not set" >&2
         exit 1
@@ -1665,7 +1635,7 @@ shift
 
 case $op in
     create )
-        if is_integer "$podman_pid"; then
+        if [ -f /run/.containerenv ] 2>&3; then
             # shellcheck disable=SC2119
             forward_to_host
         else
@@ -1714,7 +1684,7 @@ case $op in
         exit
         ;;
     enter )
-        if is_integer "$podman_pid"; then
+        if [ -f /run/.containerenv ] 2>&3; then
             # shellcheck disable=SC2119
             forward_to_host
         else
@@ -1746,7 +1716,7 @@ case $op in
         exit
         ;;
     list )
-        if is_integer "$podman_pid"; then
+        if [ -f /run/.containerenv ] 2>&3; then
             # shellcheck disable=SC2119
             forward_to_host
         else
@@ -1790,7 +1760,7 @@ case $op in
         exit
         ;;
     rm | rmi )
-        if is_integer "$podman_pid"; then
+        if [ -f /run/.containerenv ] 2>&3; then
             # shellcheck disable=SC2119
             forward_to_host
         else
@@ -1832,7 +1802,7 @@ case $op in
         exit
         ;;
     run )
-        if is_integer "$podman_pid"; then
+        if [ -f /run/.containerenv ] 2>&3; then
             # shellcheck disable=SC2119
             forward_to_host
         else
