@@ -1597,6 +1597,11 @@ fi
 echo "$base_toolbox_command: resolved absolute path for $0 to $toolbox_command_path" >&3
 
 if [ -f /run/.containerenv ] 2>&3; then
+    if ! [ -f /run/.toolboxenv ] 2>&3; then
+        echo "$base_toolbox_command: this is not a toolbox container" >&2
+        exit 1
+    fi
+
     if ! command -v flatpak-spawn >/dev/null 2>&3; then
         echo "$base_toolbox_command: flatpak-spawn not found" >&2
         exit 1
