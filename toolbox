@@ -261,7 +261,7 @@ configure_working_container()
 
     echo "$base_toolbox_command: checking if 'buildah unshare' supports sh -c" >&3
 
-    if $prefix_sudo buildah unshare sh -c 'echo "hello world"' >/dev/null 2>&3; then
+    if $prefix_sudo buildah unshare -- sh -c 'echo "hello world"' >/dev/null 2>&3; then
         echo "$base_toolbox_command: 'buildah unshare' supports sh -c" >&3
         buildah_unshare_supports_sh_c=true
     fi
@@ -320,7 +320,7 @@ configure_working_container()
 
     if $buildah_unshare_supports_sh_c && $podman_create_supports_dns_none_no_hosts; then
         # shellcheck disable=SC2016
-        if ! $prefix_sudo buildah unshare \
+        if ! $prefix_sudo buildah unshare --\
                      sh -c 'working_container_root=$(buildah mount "$1") '\
 '                                   && cd "$working_container_root/etc" '\
 '                                   && unlink hosts '\
@@ -333,7 +333,7 @@ configure_working_container()
         fi
 
         # shellcheck disable=SC2016
-        if ! $prefix_sudo buildah unshare \
+        if ! $prefix_sudo buildah unshare -- \
                      sh -c 'working_container_root=$(buildah mount "$1") '\
 '                                   && cd "$working_container_root/etc" '\
 '                                   && unlink resolv.conf '\
