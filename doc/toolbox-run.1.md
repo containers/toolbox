@@ -25,15 +25,14 @@ The following options are understood:
 
 **--container** NAME, **-c** NAME
 
-Run command inside a toolbox container with the given NAME. This is
-useful when there are multiple toolbox containers created from the
-same base image, or entirely customized containers created from
-custom-built base images.
+Run command inside a toolbox container with the given NAME. This is useful
+when there are multiple toolbox containers created from the same base image,
+or entirely customized containers created from custom-built base images.
 
 **--release** RELEASE, **-r** RELEASE
 
-Run command inside a toolbox container for a different operating
-system RELEASE than the host.
+Run command inside a toolbox container for a different operating system
+RELEASE than the host.
 
 ## EXAMPLES
 
