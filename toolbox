@@ -321,11 +321,6 @@ configure_working_container()
         return 1
     fi
 
-    if ! $prefix_sudo buildah config --workingdir "$HOME" "$working_container_name" >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to configure the initial working directory to $HOME" >&2
-        return 1
-    fi
-
     if $buildah_unshare_supports_sh_c && $podman_create_supports_dns_none_no_hosts; then
         # shellcheck disable=SC2016
         if ! $prefix_sudo buildah unshare \
@@ -960,6 +955,7 @@ create()
             --volume /media:/media:rslave \
             --volume /mnt:/mnt:rslave \
             --volume /run/media:/run/media:rslave \
+            --workdir "$HOME" \
             $toolbox_image \
             sleep +Inf >/dev/null 2>&3
     ret_val=$?
