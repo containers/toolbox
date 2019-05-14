@@ -925,6 +925,7 @@ create()
             $toolbox_path_set \
             --group-add wheel \
             --hostname toolbox \
+            --label "com.github.debarshiray.toolbox=true" \
             --name $toolbox_container \
             --network host \
             $no_hosts \
