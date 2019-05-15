@@ -994,12 +994,14 @@ run()
                                  --format "{{.ImageName}}" \
                                  --type container \
                                  $toolbox_container 2>&3); then
-        echo "$base_toolbox_command: checking if container $toolbox_container_old exists" >&3
+        echo "$base_toolbox_command: container $toolbox_container not found" >&3
 
         if toolbox_image=$($prefix_sudo podman inspect \
                                    --format "{{.ImageName}}" \
                                    --type container \
                                    "$toolbox_container_old" 2>&3); then
+            echo "$base_toolbox_command: container $toolbox_container_old found" >&3
+
             # shellcheck disable=SC2030
             toolbox_container="$toolbox_container_old"
         else
