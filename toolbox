@@ -450,12 +450,14 @@ create_environment_options()
 
 create_toolbox_container_name()
 (
-    basename=$(image_reference_get_basename "$toolbox_image")
+    image="$1"
+
+    basename=$(image_reference_get_basename "$image")
     if [ "$basename" = "" ] 2>&3; then
         return 100
     fi
 
-    tag=$(image_reference_get_tag "$toolbox_image")
+    tag=$(image_reference_get_tag "$image")
     if [ "$tag" = "" ] 2>&3; then
         return 101
     fi
@@ -1492,7 +1494,7 @@ update_container_and_image_names()
 
     # shellcheck disable=SC2031
     if [ "$toolbox_container" = "" ]; then
-        toolbox_container=$(create_toolbox_container_name)
+        toolbox_container=$(create_toolbox_container_name "$toolbox_image")
         if ! (
                  ret_val=$?
                  if [ "$ret_val" -ne 0 ] 2>&3; then
