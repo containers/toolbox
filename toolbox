@@ -937,7 +937,7 @@ create()
             --pid host \
             --privileged \
             --security-opt label=disable \
-            --tmpfs /dev/shm:size=$tmpfs_size \
+            --tmpfs /dev/shm:size="$tmpfs_size" \
             --uidmap "$user_id_real":0:1 \
             --uidmap 0:1:"$user_id_real" \
             --uidmap "$uid_plus_one":"$uid_plus_one":"$max_minus_uid" \
@@ -956,7 +956,7 @@ create()
             --volume /mnt:/mnt:rslave \
             --volume /run/media:/run/media:rslave \
             --workdir "$HOME" \
-            $toolbox_image \
+            "$toolbox_image" \
             sleep +Inf >/dev/null 2>&3
     ret_val=$?
 
