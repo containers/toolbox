@@ -255,8 +255,7 @@ check_image_for_volumes()
 configure_working_container()
 (
     working_container_name="$1"
-    kcm_ccache_configuration="$2"
-    podman_create_supports_dns_none_no_hosts="$3"
+    podman_create_supports_dns_none_no_hosts="$2"
 
     buildah_unshare_supports_sh_c=false
 
@@ -282,14 +281,12 @@ configure_working_container()
         fi
     fi
 
-    if [ "$kcm_ccache_configuration" != "" ] 2>&3; then
-        if ! $prefix_sudo buildah copy "$working_container_name" \
-                     "$kcm_ccache_configuration" \
-                     /etc/krb5.conf.d >/dev/null 2>&3; then
-            $prefix_sudo buildah rm "$working_container_name" >/dev/null 2>&3
-            echo "$base_toolbox_command: failed to set KCM as the default Kerberos credential cache" >&2
-            return 1
-        fi
+    if ! $prefix_sudo buildah copy "$working_container_name" \
+                 /etc/krb5.conf.d/kcm_default_ccache \
+                 /etc/krb5.conf.d >/dev/null 2>&3; then
+        $prefix_sudo buildah rm "$working_container_name" >/dev/null 2>&3
+        echo "$base_toolbox_command: failed to set KCM as the default Kerberos credential cache" >&2
+        return 1
     fi
 
     if ! $prefix_sudo buildah run "$working_container_name" -- useradd \
@@ -728,7 +725,6 @@ create()
 
     dbus_system_bus_address="unix:path=/var/run/dbus/system_bus_socket"
     dns_none=""
-    kcm_ccache_configuration=""
     kcm_socket=""
     kcm_socket_bind=""
     no_hosts=""
@@ -771,7 +767,6 @@ create()
     echo "$base_toolbox_command: parsing value $kcm_socket_listen of property Listen in sssd-kcm.socket" >&3
 
     if [ "$kcm_socket_listen" != "" ] 2>&3; then
-        kcm_ccache_configuration="/etc/krb5.conf.d/kcm_default_ccache"
         kcm_socket=${kcm_socket_listen%" (Stream)"}
         kcm_socket_bind="--volume $kcm_socket:$kcm_socket"
     fi
@@ -844,7 +839,6 @@ create()
 
         configure_working_container \
                 "$working_container_name" \
-                "$kcm_ccache_configuration" \
                 "$podman_create_supports_dns_none_no_hosts"
         ret_val=$?
 
