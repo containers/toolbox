@@ -55,7 +55,7 @@ Create a new toolbox container.
 
 **toolbox-enter(1)**
 
-Enter an existing toolbox container for interactive use.
+Enter a toolbox container for interactive use.
 
 **toolbox-list(1)**
 
@@ -68,6 +68,10 @@ Remove one or more toolbox containers.
 **toolbox-rmi(1)**
 
 Remove one or more toolbox images.
+
+**toolbox-run(1)**
+
+Run a command in an existing toolbox container.
 
 ## SEE ALSO
 
