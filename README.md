@@ -37,5 +37,5 @@ for your host user.
 ### Enter the toolbox:
 ```
 [user@hostname ~]$ toolbox enter
-🔹[user@toolbox ~]$
+⬢[user@toolbox ~]$
 ```
