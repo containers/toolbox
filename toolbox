@@ -728,7 +728,6 @@ create()
     $prefix_sudo podman create \
             $dns_none \
             $toolbox_path_set \
-            --group-add wheel \
             --hostname toolbox \
             --label "com.github.debarshiray.toolbox=true" \
             --name $toolbox_container \
