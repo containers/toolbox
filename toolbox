@@ -582,7 +582,7 @@ pull_base_toolbox_image()
     echo "$base_toolbox_command: pulling image $base_toolbox_image_full" >&3
 
     if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
-        spinner_message="$base_toolbox_command: pulling $base_toolbox_image_full: "
+        spinner_message="Pulling $base_toolbox_image_full: "
         if ! spinner_start "$spinner_directory" "$spinner_message"; then
             spinner_directory=""
         fi
@@ -715,7 +715,7 @@ create()
     echo "$base_toolbox_command: trying to create container $toolbox_container" >&3
 
     if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
-        spinner_message="$base_toolbox_command: creating container $toolbox_container: "
+        spinner_message="Creating container $toolbox_container: "
         if ! spinner_start "$spinner_directory" "$spinner_message"; then
             spinner_directory=""
         fi
