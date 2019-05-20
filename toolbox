@@ -394,6 +394,22 @@ enter_print_container_not_found()
 )
 
 
+get_group_for_sudo()
+(
+    group=""
+    if getent group sudo >/dev/null 2>&3; then
+        group="sudo"
+    elif getent group wheel >/dev/null 2>&3; then
+        group="wheel"
+    else
+        return 1
+    fi
+
+    echo "$group"
+    return 0
+)
+
+
 get_host_id()
 (
     # shellcheck disable=SC1091
@@ -696,6 +712,11 @@ create()
         return 1
     fi
 
+    if ! group_for_sudo=$(get_group_for_sudo); then
+        echo "$base_toolbox_command: failed to create container $toolbox_container: group for sudo not found" >&2
+        return 1
+    fi
+
     total_ram=$(awk '( $1 == "MemTotal:" ) { print $2 }' /proc/meminfo 2>&3) # kibibytes
     if is_integer "$total_ram"; then
         tmpfs_size=$((total_ram * 1024 / 2)) # bytes
@@ -728,7 +749,7 @@ create()
     $prefix_sudo podman create \
             $dns_none \
             $toolbox_path_set \
-            --group-add wheel \
+            --group-add "$group_for_sudo" \
             --hostname toolbox \
             --label "com.github.debarshiray.toolbox=true" \
             --name $toolbox_container \
@@ -832,12 +853,17 @@ init_container()
             fi
         fi
 
+        if ! groups=$(get_group_for_sudo); then
+            echo "$base_toolbox_command: failed to add user $init_container_user: group for sudo not found" >&2
+            return 1
+        fi
+
         if ! useradd \
                      --home-dir "$init_container_home" \
                      --no-create-home \
                      --shell "$init_container_shell" \
                      --uid "$init_container_uid" \
-                     --groups wheel \
+                     --groups "$groups" \
                      "$init_container_user" >/dev/null 2>&3; then
             echo "$base_toolbox_command: failed to add user $init_container_user with UID $init_container_uid" >&2
             return 1
