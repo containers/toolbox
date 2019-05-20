@@ -757,7 +757,7 @@ create()
             --volume /run/media:/run/media:rslave \
             --workdir "$HOME" \
             "$base_toolbox_image_full" \
-            toolbox init-container \
+            toolbox --verbose init-container \
                     --home "$HOME" \
                     $monitor_host \
                     --shell "$SHELL" \
