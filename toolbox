@@ -855,7 +855,7 @@ init_container()
 
     fi
 
-    if ! [ -f /etc/krb5.conf.d/kcm_default_ccache ] 2>&3; then
+    if [ -d /etc/krb5.conf.d ] 2>&3 && ! [ -f /etc/krb5.conf.d/kcm_default_ccache ] 2>&3; then
         cat <<EOF >/etc/krb5.conf.d/kcm_default_ccache 2>&3
 # Written by Toolbox
 # https://github.com/debarshiray/toolbox
