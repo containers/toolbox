@@ -801,16 +801,16 @@ init_container()
         working_directory="$PWD"
 
         if ! readlink /etc/hosts >/dev/null 2>&3; then
-            if ! cd /etc 2>&3 && unlink hosts 2>&3 && ln --symbolic /run/host/etc/hosts hosts 2>&3; then
+            if ! (cd /etc 2>&3 && unlink hosts 2>&3 && ln --symbolic /run/host/etc/hosts hosts 2>&3); then
                 echo "$base_toolbox_command: failed to redirect /etc/hosts to /run/host/etc/hosts" >&2
                 return 1
             fi
         fi
 
         if ! readlink /etc/resolv.conf >/dev/null 2>&3; then
-            if ! cd /etc 2>&3 \
-                 && unlink resolv.conf 2>&3 \
-                 && ln --symbolic /run/host/etc/resolv.conf resolv.conf 2>&3; then
+            if ! (cd /etc 2>&3 \
+                  && unlink resolv.conf 2>&3 \
+                  && ln --symbolic /run/host/etc/resolv.conf resolv.conf 2>&3); then
                 echo "$base_toolbox_command: failed to redirect /etc/resolv.conf to /run/host/etc/resolv.conf" >&2
                 return 1
             fi
