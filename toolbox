@@ -1122,6 +1122,73 @@ list_containers()
 )
 
 
+migrate()
+(
+    configuration_directory="$HOME/.config/toolbox"
+    migrate_stamp="$configuration_directory/podman-system-migrate"
+
+    runtime_directory="$XDG_RUNTIME_DIR"/toolbox
+    migrate_lock="$runtime_directory"/migrate.lock
+
+    echo "$base_toolbox_command: checking if 'podman system migrate' exists" >&3
+
+    if ! $prefix_sudo podman system --help 2>&3 | grep "Migrate containers" >/dev/null 2>&3; then
+        echo "$base_toolbox_command: migration not needed: 'podman system migrate' doesn't exist" >&3
+        return 0
+    fi
+
+    if ! version=$($prefix_sudo podman version --format "{{.Version}}" 2>&3); then
+        echo "$base_toolbox_command: unable to migrate containers: Podman version couldn't be read" >&2
+        return 1
+    fi
+
+    if ! mkdir --parents "$configuration_directory" 2>&3; then
+        echo "$base_toolbox_command: unable to migrate containers: configuration directory not created" >&2
+        return 1
+    fi
+
+    # shellcheck disable=SC2174
+    if ! mkdir --mode 700 --parents "$runtime_directory" 2>&3; then
+        echo "$base_toolbox_command: unable to migrate containers: runtime directory not created" >&2
+        return 1
+    fi
+
+    exec 5>"$migrate_lock"
+    if ! flock 5 2>&3; then
+        echo "$base_toolbox_command: unable to migrate containers: migration lock not acquired" >&3
+        return 1
+    fi
+
+    if [ -f "$migrate_stamp" ] 2>&3; then
+        if grep "$version" "$migrate_stamp" >/dev/null 2>&3; then
+            echo "$base_toolbox_command: migration not needed: $version is unchanged" >&3
+            return 0
+        fi
+
+        if ! version_old=$(printf "%s\n" "$version" \
+                           | cat "$migrate_stamp" - 2>&3 \
+                           | sort --version-sort 2>&3 \
+                           | head --lines 1 2>&3); then
+            echo "$base_toolbox_command: unable to migrate containers: Podman versions couldn't be sorted" >&2
+            return 1
+        fi
+
+        if [ "$version" = "$version_old" ] 2>&3; then
+            echo "$base_toolbox_command: migration not needed: $version is old" >&3
+            return 0
+        fi
+    fi
+
+    if ! $prefix_sudo podman system migrate >/dev/null 2>&3; then
+        echo "$base_toolbox_command: unable to migrate containers" >&2
+        return 1
+    fi
+
+    echo "$version" >"$migrate_stamp"
+    return 0
+)
+
+
 remove_containers()
 (
     ids=$1
@@ -1600,6 +1667,10 @@ if [ -f /run/.containerenv ] 2>&3; then
            exit 1
            ;;
     esac
+fi
+
+if ! migrate; then
+    exit 1
 fi
 
 case $op in
