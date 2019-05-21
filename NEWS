@@ -1,3 +1,18 @@
+Overview of changes in 0.0.10
+=============================
+
+* Add a run command
+* Create /run/.toolboxenv in 'toolbox enter' for identification
+* Drop the Buildah dependency and the user-specific customized image
+* Keep /etc/hosts and /etc/resolv.conf synchronized with the host
+* Migrate existing containers when Podman is updated
+* Retain the PS1 across su(1) and sudo(8)
+* Set the Kerberos credential cache type only if Kerberos is available
+* Support column(1) from bsdmainutils
+* Support 'sudo' as default sudo(8) group
+* Use a magenta hexagon instead of 🔹 in the PS1
+
+
 Overview of changes in 0.0.9
 ============================
 
