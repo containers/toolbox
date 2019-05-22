@@ -192,11 +192,11 @@ fn create(opts: &Opt) -> Fallible<()> {
         "--interactive",
         "--tty",
         "--hostname=toolbox",
-        "--name=coreos-toolbox",
         "--network=host",
         "--privileged",
         "--security-opt=label=disable",
     ]);
+    podman.arg(format!("--name={}", CONTAINER_NAME));
     podman.arg(format!("--volume={}:/usr/bin/toolbox:ro", self_bin));
     let real_uid: u32 = nix::unistd::getuid().into();
     // In true privileged mode we don't use userns
