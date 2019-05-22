@@ -81,6 +81,7 @@ struct Opt {
 #[derive(Debug, StructOpt)]
 #[structopt(rename_all = "kebab-case")]
 enum Cmd {
+    Run,
     Exec,
     Rm,
 }
@@ -443,6 +444,7 @@ fn main() {
         let opts = Opt::from_args();
         if let Some(cmd) = opts.cmd.as_ref() {
             match cmd {
+                Cmd::Run => run(opts),
                 Cmd::Exec => entrypoint::exec(),
                 Cmd::Rm => rm(opts),
             }
