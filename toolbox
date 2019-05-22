@@ -746,12 +746,14 @@ create()
         spinner_directory=""
     fi
 
+    toolbox_hostname="$(hostname)::$toolbox_container::$base_toolbox_image"
+
     # shellcheck disable=SC2086
     $prefix_sudo podman create \
             $dns_none \
             $toolbox_path_set \
             --group-add "$group_for_sudo" \
-            --hostname toolbox \
+            --hostname $toolbox_hostname \
             --label "com.github.debarshiray.toolbox=true" \
             --name $toolbox_container \
             --network host \
