@@ -76,16 +76,21 @@ struct Opt {
     nested: bool,
 
     #[structopt(subcommand)]
+    /// Subcommand; defaults to `run` if not specified
     cmd: Option<Cmd>,
 }
 
 #[derive(Debug, StructOpt)]
 #[structopt(rename_all = "kebab-case")]
 enum Cmd {
+    /// Enter the toolbox
     Run,
-    Exec,
+    /// Delete the toolbox container
     Rm,
+    /// Internal implementation detail; do not use
     RunPid1,
+    /// Internal implementation detail; do not use
+    Exec,
 }
 
 fn cmd_podman() -> Command {
