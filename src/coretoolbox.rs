@@ -82,6 +82,7 @@ struct Opt {
 #[structopt(rename_all = "kebab-case")]
 enum Cmd {
     Exec,
+    Rm,
 }
 
 fn cmd_podman() -> Command {
@@ -261,6 +262,12 @@ fn run(opts: Opt) -> Fallible<()> {
     return Err(podman.exec().into());
 }
 
+fn rm(_opts: Opt) -> Fallible<()> {
+    let mut podman = cmd_podman();
+    podman.args(&["rm", "-f", CONTAINER_NAME]);
+    Err(podman.exec().into())
+}
+
 mod entrypoint {
     use super::CommandRunExt;
     use super::EntrypointState;
@@ -425,6 +432,7 @@ fn main() {
         if let Some(cmd) = opts.cmd.as_ref() {
             match cmd {
                 Cmd::Exec => entrypoint::exec(),
+                Cmd::Rm => rm(opts),
             }
         } else {
             run(opts)
