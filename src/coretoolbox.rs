@@ -210,7 +210,7 @@ fn create(opts: &Opt) -> Fallible<()> {
             podman.arg(format!("--volume={}:{}:rslave", p, p));
         }
     }
-    for p in &["/usr", "/var", "/etc", "/run"] {
+    for p in &["/usr", "/var", "/etc", "/run", "/tmp"] {
         podman.arg(format!("--volume={}:/host{}:rslave", p, p));
     }
     if is_ostree_based_host() {
@@ -369,12 +369,24 @@ mod entrypoint {
             std::fs::create_dir("/var/home")?;
         }
 
-        // Propagate "data" directories to the host
-        ["/srv", "/media", "/mnt"]
+        // Remove anaconda cruft
+        std::fs::read_dir("/tmp")?
+            .try_for_each(|e| -> Fallible<()> {
+                let e = e?;
+                if let Some(name) = e.file_name().to_str() {
+                    if name.starts_with("ks-script-") {
+                        std::fs::remove_file(e.path())?;
+                    }
+                }
+                Ok(())
+            })?;
+
+        // Propagate data and temporary directories to the host
+        ["/srv", "/media", "/mnt", "/tmp", "/var/tmp"]
             .par_iter()
             .try_for_each(|d| -> Fallible<()> {
                 std::fs::remove_dir(d)?;
-                let hostd = format!("host{}", d);
+                let hostd = format!("/host{}", d);
                 unix::fs::symlink(hostd, d)?;
                 Ok(())
             })?;
