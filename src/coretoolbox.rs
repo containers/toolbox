@@ -254,7 +254,9 @@ fn run(opts: Opt) -> Fallible<()> {
     }
     create(&opts)?;
 
-    cmd_podman().args(&["start", CONTAINER_NAME]).run()?;
+    cmd_podman().args(&["start", CONTAINER_NAME])
+        .stdout(Stdio::null())
+        .run()?;
 
     let mut podman = cmd_podman();
     podman.args(&["exec", "--interactive", "--tty"]);
