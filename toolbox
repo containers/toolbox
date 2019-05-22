@@ -728,6 +728,17 @@ create()
     max_minus_uid=$((max_uid_count - user_id_real))
     uid_plus_one=$((user_id_real + 1))
 
+    echo "$base_toolbox_command: calling org.freedesktop.Flatpak.SessionHelper.RequestSession" >&3
+
+    if ! gdbus call \
+                 --session \
+                 --dest org.freedesktop.Flatpak \
+                 --object-path /org/freedesktop/Flatpak/SessionHelper \
+                 --method org.freedesktop.Flatpak.SessionHelper.RequestSession >/dev/null 2>&3; then
+        echo "$base_toolbox_command: failed to call org.freedesktop.Flatpak.SessionHelper.RequestSession" >&2
+        exit 1
+    fi
+
     echo "$base_toolbox_command: trying to create container $toolbox_container" >&3
 
     if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
@@ -763,6 +774,7 @@ create()
             $toolbox_profile_bind \
             --volume "$HOME":"$HOME":rslave \
             --volume "$XDG_RUNTIME_DIR":"$XDG_RUNTIME_DIR" \
+            --volume "$XDG_RUNTIME_DIR"/.flatpak-helper/monitor:/run/host/monitor \
             --volume "$dbus_system_bus_path":"$dbus_system_bus_path" \
             --volume /etc:/run/host/etc \
             --volume /dev/bus:/dev/bus \
@@ -832,11 +844,30 @@ init_container()
             fi
         fi
 
+        if ! localtime_target=$(readlink /etc/localtime >/dev/null 2>&3) \
+           || [ "$localtime_target" != "/run/host/monitor/localtime" ] 2>&3; then
+            if ! (cd /etc 2>&3 \
+                  && unlink localtime 2>&3 \
+                  && ln --symbolic /run/host/monitor/localtime localtime 2>&3); then
+                echo "$base_toolbox_command: failed to redirect /etc/localtime to /run/host/monitor/localtime" >&2
+                return 1
+            fi
+        fi
+
         if ! readlink /etc/resolv.conf >/dev/null 2>&3; then
             if ! (cd /etc 2>&3 \
                   && unlink resolv.conf 2>&3 \
                   && ln --symbolic /run/host/etc/resolv.conf resolv.conf 2>&3); then
                 echo "$base_toolbox_command: failed to redirect /etc/resolv.conf to /run/host/etc/resolv.conf" >&2
+                return 1
+            fi
+        fi
+
+        if ! readlink /etc/timezone >/dev/null 2>&3; then
+            if ! (cd /etc 2>&3 \
+                  && rm --force timezone 2>&3 \
+                  && ln --symbolic /run/host/monitor/timezone timezone 2>&3); then
+                echo "$base_toolbox_command: failed to redirect /etc/timezone to /run/host/monitor/timezone" >&2
                 return 1
             fi
         fi
@@ -994,6 +1025,17 @@ run()
                 exit 1
             fi
         fi
+    fi
+
+    echo "$base_toolbox_command: calling org.freedesktop.Flatpak.SessionHelper.RequestSession" >&3
+
+    if ! gdbus call \
+                 --session \
+                 --dest org.freedesktop.Flatpak \
+                 --object-path /org/freedesktop/Flatpak/SessionHelper \
+                 --method org.freedesktop.Flatpak.SessionHelper.RequestSession >/dev/null 2>&3; then
+        echo "$base_toolbox_command: failed to call org.freedesktop.Flatpak.SessionHelper.RequestSession" >&2
+        exit 1
     fi
 
     echo "$base_toolbox_command: trying to start container $toolbox_container" >&3
