@@ -18,6 +18,7 @@ tempfile = "3.0.7"
 serde = { version = "1.0.78", features = ["derive"] }
 serde_derive = "1.0.78"
 serde_json = "1.0"
+signal-hook = "0.1.9"
 
 [[bin]]
 name = "coretoolbox"

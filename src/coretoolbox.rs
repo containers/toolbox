@@ -8,6 +8,7 @@ use std::os::unix::process::CommandExt;
 use std::path::Path;
 use std::process::{Command, Stdio};
 use structopt::StructOpt;
+use signal_hook;
 
 lazy_static! {
     static ref APPDIRS: directories::ProjectDirs =
@@ -84,6 +85,7 @@ enum Cmd {
     Run,
     Exec,
     Rm,
+    RunPid1,
 }
 
 fn cmd_podman() -> Command {
@@ -238,7 +240,7 @@ fn create(opts: &Opt) -> Fallible<()> {
     }
 
     podman.arg(&opts.image);
-    podman.args(&["sleep", "infinity"]);
+    podman.args(&["/usr/bin/toolbox", "run-pid1"]);
     podman.stdout(Stdio::null());
     podman.run()?;
     Ok(())
@@ -267,8 +269,19 @@ fn run(opts: Opt) -> Fallible<()> {
 
 fn rm(_opts: Opt) -> Fallible<()> {
     let mut podman = cmd_podman();
-    podman.args(&["rm", "-f", CONTAINER_NAME]);
+    podman.args(&["rm", "-f", CONTAINER_NAME])
+        .stdout(Stdio::null());
     Err(podman.exec().into())
+}
+
+fn run_pid1(_opts: Opt) -> Fallible<()> {
+    unsafe {
+        signal_hook::register(signal_hook::SIGCHLD, || { })?;
+        signal_hook::register(signal_hook::SIGTERM, || std::process::exit(0))?;
+    };
+    loop {
+        std::thread::sleep(std::time::Duration::from_secs(1_000_000));
+    }
 }
 
 mod entrypoint {
@@ -449,6 +462,7 @@ fn main() {
                 Cmd::Run => run(opts),
                 Cmd::Exec => entrypoint::exec(),
                 Cmd::Rm => rm(opts),
+                Cmd::RunPid1 => run_pid1(opts),
             }
         } else {
             run(opts)
