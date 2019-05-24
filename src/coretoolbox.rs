@@ -3,12 +3,12 @@ use failure::{bail, Fallible};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use serde_json;
+use signal_hook;
 use std::io::prelude::*;
 use std::os::unix::process::CommandExt;
 use std::path::Path;
 use std::process::{Command, Stdio};
 use structopt::StructOpt;
-use signal_hook;
 
 lazy_static! {
     static ref APPDIRS: directories::ProjectDirs =
@@ -262,7 +262,8 @@ fn run(opts: Opt) -> Fallible<()> {
     }
     create(&opts)?;
 
-    cmd_podman().args(&["start", CONTAINER_NAME])
+    cmd_podman()
+        .args(&["start", CONTAINER_NAME])
         .stdout(Stdio::null())
         .run()?;
 
@@ -275,7 +276,8 @@ fn run(opts: Opt) -> Fallible<()> {
 
 fn rm(_opts: Opt) -> Fallible<()> {
     let mut podman = cmd_podman();
-    podman.args(&["rm", "-f", CONTAINER_NAME])
+    podman
+        .args(&["rm", "-f", CONTAINER_NAME])
         .stdout(Stdio::null());
     Err(podman.exec().into())
 }
@@ -293,8 +295,8 @@ fn run_pid1(_opts: Opt) -> Fallible<()> {
 fn waitpid_all() {
     loop {
         match nix::sys::wait::waitpid(None, Some(nix::sys::wait::WaitPidFlag::WNOHANG)) {
-           Ok(_) => {},
-           Err(_) => break,
+            Ok(_) => {}
+            Err(_) => break,
         }
     }
 }
@@ -318,7 +320,7 @@ mod entrypoint {
     /// and bind mount the homedir.
     fn adduser(state: &EntrypointState) -> Fallible<()> {
         if state.uid == 0 {
-            return Ok(())
+            return Ok(());
         }
         let uidstr = format!("{}", state.uid);
         Command::new("useradd")
@@ -353,9 +355,9 @@ mod entrypoint {
         let path = p.as_ref();
         std::fs::create_dir_all(path.parent().unwrap())?;
         match std::fs::remove_dir_all(path) {
-          Ok(_) => Ok(()),
-          Err(ref e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
-          Err(e) => Err(e),
+            Ok(_) => Ok(()),
+            Err(ref e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+            Err(e) => Err(e),
         }?;
         unix::fs::symlink(format!("/host{}", p), path)?;
         Ok(())
@@ -406,16 +408,15 @@ mod entrypoint {
         }
 
         // Remove anaconda cruft
-        std::fs::read_dir("/tmp")?
-            .try_for_each(|e| -> Fallible<()> {
-                let e = e?;
-                if let Some(name) = e.file_name().to_str() {
-                    if name.starts_with("ks-script-") {
-                        std::fs::remove_file(e.path())?;
-                    }
+        std::fs::read_dir("/tmp")?.try_for_each(|e| -> Fallible<()> {
+            let e = e?;
+            if let Some(name) = e.file_name().to_str() {
+                if name.starts_with("ks-script-") {
+                    std::fs::remove_file(e.path())?;
                 }
-                Ok(())
-            })?;
+            }
+            Ok(())
+        })?;
 
         // Propagate data and temporary directories to the host
         ["/srv", "/media", "/mnt", "/tmp", "/var/tmp"]
@@ -464,7 +465,8 @@ mod entrypoint {
             bail!("toolbox not initialized");
         }
         let username = super::getenv_required_utf8("USER")?;
-        let su_preserved_env_arg = format!("--whitelist-environment={}", super::PRESERVED_ENV.join(","));
+        let su_preserved_env_arg =
+            format!("--whitelist-environment={}", super::PRESERVED_ENV.join(","));
         Err(Command::new("setpriv")
             .args(&[
                 "--inh-caps=-all",
