@@ -342,6 +342,11 @@ mod entrypoint {
     fn host_symlink<P: AsRef<Path> + std::fmt::Display>(p: P) -> Fallible<()> {
         let path = p.as_ref();
         std::fs::create_dir_all(path.parent().unwrap())?;
+        match std::fs::remove_dir_all(path) {
+          Ok(_) => Ok(()),
+          Err(ref e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+          Err(e) => Err(e),
+        }?;
         unix::fs::symlink(format!("/host{}", p), path)?;
         Ok(())
     }
@@ -410,13 +415,15 @@ mod entrypoint {
                 let hostd = format!("/host{}", d);
                 unix::fs::symlink(hostd, d)?;
                 Ok(())
-            })?;
+            })
+            .with_context(|e| format!("Symlinking host dir: {}", e))?;
 
         // These symlinks into /host are our set of default forwarded APIs/state
         // directories.
         super::STATIC_HOST_FORWARDS
             .par_iter()
-            .try_for_each(host_symlink)?;
+            .try_for_each(host_symlink)
+            .with_context(|e| format!("Enabling static host forwards: {}", e))?;
 
         // Allow sudo
         || -> Fallible<()> {
