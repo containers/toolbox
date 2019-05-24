@@ -418,6 +418,9 @@ mod entrypoint {
             })
             .with_context(|e| format!("Symlinking host dir: {}", e))?;
 
+        // And forward the runtime dir
+        host_symlink(runtime_dir).with_context(|e| format!("Forwarding runtime dir: {}", e))?;
+
         // These symlinks into /host are our set of default forwarded APIs/state
         // directories.
         super::STATIC_HOST_FORWARDS
