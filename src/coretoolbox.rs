@@ -281,11 +281,20 @@ fn rm(_opts: Opt) -> Fallible<()> {
 
 fn run_pid1(_opts: Opt) -> Fallible<()> {
     unsafe {
-        signal_hook::register(signal_hook::SIGCHLD, || { })?;
+        signal_hook::register(signal_hook::SIGCHLD, waitpid_all)?;
         signal_hook::register(signal_hook::SIGTERM, || std::process::exit(0))?;
     };
     loop {
         std::thread::sleep(std::time::Duration::from_secs(1_000_000));
+    }
+}
+
+fn waitpid_all() {
+    loop {
+        match nix::sys::wait::waitpid(None, Some(nix::sys::wait::WaitPidFlag::WNOHANG)) {
+           Ok(_) => {},
+           Err(_) => break,
+        }
     }
 }
 
