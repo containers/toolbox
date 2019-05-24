@@ -455,6 +455,8 @@ mod entrypoint {
             .args(&[
                 "--ruid",
                 &username,
+                "--rgid",
+                &username,
                 "--init-groups",
                 "--inh-caps=-all",
                 "/bin/bash",
