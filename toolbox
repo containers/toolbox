@@ -1661,6 +1661,15 @@ if [ -f /run/.containerenv ] 2>&3; then
         exit 1
     fi
 else
+    echo "$base_toolbox_command: checking if /etc/subgid and /etc/subuid have entries for user $USER" >&3
+
+    if ! grep "$USER" /etc/subgid >/dev/null 2>&3 || ! grep "$USER" /etc/subuid >/dev/null 2>&3; then
+        echo "$base_toolbox_command: /etc/subgid and /etc/subuid don't have entries for user $USER" >&2
+        echo "See the podman(1), subgid(5), subuid(5) and usermod(8) manuals for more" >&2
+        echo "information." >&2
+        exit 1
+    fi
+
     if [ "$TOOLBOX_PATH" = "" ] 2>&3; then
         TOOLBOX_PATH="$toolbox_command_path"
     fi
