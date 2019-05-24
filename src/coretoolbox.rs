@@ -60,32 +60,26 @@ impl CommandRunExt for Command {
 }
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "coretoolbox", about = "Toolbox")]
-#[structopt(rename_all = "kebab-case")]
-/// Main options struct
-struct Opt {
+struct RunOpts {
     #[structopt(
         short = "I",
         long = "image",
         default_value = "registry.fedoraproject.org/f30/fedora-toolbox:30"
     )]
-    /// Use a versioned installer binary
+    /// Use a different base image
     image: String,
 
     #[structopt(short = "N", long = "nested")]
     /// Allow running inside a container
     nested: bool,
-
-    #[structopt(subcommand)]
-    /// Subcommand; defaults to `run` if not specified
-    cmd: Option<Cmd>,
 }
 
 #[derive(Debug, StructOpt)]
+#[structopt(name = "coretoolbox", about = "Toolbox")]
 #[structopt(rename_all = "kebab-case")]
-enum Cmd {
+enum Opt {
     /// Enter the toolbox
-    Run,
+    Run(RunOpts),
     /// Delete the toolbox container
     Rm,
     /// Internal implementation detail; do not use
@@ -169,7 +163,7 @@ fn append_preserved_env(c: &mut Command) -> Fallible<()> {
     Ok(())
 }
 
-fn create(opts: &Opt) -> Fallible<()> {
+fn create(opts: &RunOpts) -> Fallible<()> {
     ensure_image(&opts.image)?;
 
     if podman_has(InspectType::Container, CONTAINER_NAME)? {
@@ -256,7 +250,7 @@ fn in_container() -> bool {
     Path::new("/run/.containerenv").exists()
 }
 
-fn run(opts: Opt) -> Fallible<()> {
+fn run(opts: &RunOpts) -> Fallible<()> {
     if in_container() && !opts.nested {
         bail!("Already inside a container");
     }
@@ -485,15 +479,11 @@ mod entrypoint {
 fn main() {
     || -> Fallible<()> {
         let opts = Opt::from_args();
-        if let Some(cmd) = opts.cmd.as_ref() {
-            match cmd {
-                Cmd::Run => run(opts),
-                Cmd::Exec => entrypoint::exec(),
-                Cmd::Rm => rm(opts),
-                Cmd::RunPid1 => run_pid1(opts),
-            }
-        } else {
-            run(opts)
+         match opts {
+            Opt::Run(ref runopts) => run(runopts),
+            Opt::Exec => entrypoint::exec(),
+            Opt::Rm => rm(opts),
+            Opt::RunPid1 => run_pid1(opts),
         }
     }()
     .unwrap_or_else(|e| {
