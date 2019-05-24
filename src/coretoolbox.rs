@@ -42,6 +42,7 @@ static PRESERVED_ENV: &[&str] = &[
     "XDG_SESSION_ID",
     "XDG_SESSION_TYPE",
     "XDG_VTNR",
+    "WAYLAND_DISPLAY",
 ];
 
 trait CommandRunExt {
@@ -463,10 +464,12 @@ mod entrypoint {
             bail!("toolbox not initialized");
         }
         let username = super::getenv_required_utf8("USER")?;
+        let su_preserved_env_arg = format!("--whitelist-environment={}", super::PRESERVED_ENV.join(","));
         Err(Command::new("setpriv")
             .args(&[
                 "--inh-caps=-all",
                 "su",
+                su_preserved_env_arg.as_str(),
                 "-",
                 &username,
             ])
