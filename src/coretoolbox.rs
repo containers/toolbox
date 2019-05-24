@@ -401,10 +401,15 @@ mod entrypoint {
             serde_json::from_reader(std::io::BufReader::new(f))?
         };
 
+        let var_mnt_dirs = ["/srv", "/mnt"];
         if state.ostree_based_host {
-            std::fs::remove_dir("/home")?;
-            unix::fs::symlink("../var/home", "/home")?;
-            std::fs::create_dir("/var/home")?;
+            var_mnt_dirs.par_iter().chain(["/home"].par_iter())
+            .try_for_each(|d| -> Fallible<()> {
+                let hostd = format!("/host{}", d);
+                let vard = format!("var{}", d);
+                unix::fs::symlink(vard, hostd)?;
+                Ok(())
+            })?;
         }
 
         // Remove anaconda cruft
@@ -419,8 +424,7 @@ mod entrypoint {
         })?;
 
         // Propagate data and temporary directories to the host
-        ["/srv", "/media", "/mnt", "/tmp", "/var/tmp"]
-            .par_iter()
+        var_mnt_dirs.par_iter().chain(["/tmp", "/var/tmp"].par_iter())
             .try_for_each(|d| -> Fallible<()> {
                 std::fs::remove_dir(d)?;
                 let hostd = format!("/host{}", d);
