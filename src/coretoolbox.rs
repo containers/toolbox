@@ -456,13 +456,10 @@ mod entrypoint {
         let username = super::getenv_required_utf8("USER")?;
         Err(Command::new("setpriv")
             .args(&[
-                "--ruid",
-                &username,
-                "--rgid",
-                &username,
-                "--init-groups",
                 "--inh-caps=-all",
-                "/bin/bash",
+                "su",
+                "-",
+                &username,
             ])
             .env_remove("TOOLBOX_STATEFILE")
             .exec()
