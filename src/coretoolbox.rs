@@ -287,9 +287,15 @@ fn run_pid1(_opts: Opt) -> Fallible<()> {
 }
 
 fn waitpid_all() {
+    use nix::sys::wait::WaitStatus;
     loop {
         match nix::sys::wait::waitpid(None, Some(nix::sys::wait::WaitPidFlag::WNOHANG)) {
-            Ok(_) => {}
+            Ok(status) => {
+                match status {
+                    WaitStatus::StillAlive => break,
+                    _ => {},
+                }
+            }
             Err(_) => break,
         }
     }
