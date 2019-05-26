@@ -72,6 +72,10 @@ struct RunOpts {
     #[structopt(short = "N", long = "nested")]
     /// Allow running inside a container
     nested: bool,
+
+    #[structopt(short = "D", long = "destroy")]
+    /// Destroy any existing container
+    destroy: bool,
 }
 
 #[derive(Debug, StructOpt)]
@@ -254,6 +258,11 @@ fn run(opts: &RunOpts) -> Fallible<()> {
     if in_container() && !opts.nested {
         bail!("Already inside a container");
     }
+
+    if opts.destroy {
+        rm()?;
+    }
+
     create(&opts)?;
 
     cmd_podman()
@@ -268,7 +277,10 @@ fn run(opts: &RunOpts) -> Fallible<()> {
     return Err(podman.exec().into());
 }
 
-fn rm(_opts: Opt) -> Fallible<()> {
+fn rm() -> Fallible<()> {
+    if !podman_has(InspectType::Container, CONTAINER_NAME)? {
+        return Ok(());
+    }
     let mut podman = cmd_podman();
     podman
         .args(&["rm", "-f", CONTAINER_NAME])
@@ -492,7 +504,7 @@ fn main() {
          match opts {
             Opt::Run(ref runopts) => run(runopts),
             Opt::Exec => entrypoint::exec(),
-            Opt::Rm => rm(opts),
+            Opt::Rm => rm(),
             Opt::RunPid1 => run_pid1(opts),
         }
     }()
