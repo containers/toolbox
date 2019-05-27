@@ -72,6 +72,7 @@ toolbox_image=""
 toolbox_runtime_directory="$XDG_RUNTIME_DIR"/toolbox
 user_id_real=$(id -ru 2>&3)
 verbose=false
+init=false
 
 
 LGC='\033[1;32m' # Light Green Color
@@ -1059,6 +1060,14 @@ create()
         spinner_directory=""
     fi
 
+    if $init; then
+        pid_ns=""
+        init_option="--init"
+    else
+        pid_ns="--pid host"
+        init_option=""
+    fi
+
     # shellcheck disable=SC2086
     $podman_command create \
             --dns none \
@@ -1071,7 +1080,7 @@ create()
             --name $toolbox_container \
             --network host \
             --no-hosts \
-            --pid host \
+            $pid_ns \
             --privileged \
             --security-opt label=disable \
             $ulimit_host \
@@ -1095,6 +1104,7 @@ create()
             --volume /var:/run/host/var:rslave \
             "$base_toolbox_image_full" \
             toolbox --verbose init-container \
+                    $init_option \
                     --home "$HOME" \
                     $home_link \
                     $media_link \
@@ -1346,9 +1356,13 @@ EOF
         return 1
     fi
 
-    echo "$base_toolbox_command: going to sleep" >&3
-
-    exec sleep +Inf
+    if $init; then
+        echo "$base_toolbox_command: starting /sbin/init" >&3
+        exec /sbin/init
+    else
+        echo "$base_toolbox_command: going to sleep" >&3
+        sleep +Inf
+    fi
 }
 
 
@@ -2290,6 +2304,9 @@ if [ -f /run/.containerenv ] 2>&3; then
                         exit_if_missing_argument --user "$1"
                         init_container_user="$1"
                         ;;
+                    --init )
+                        init=true
+                        ;;
                     * )
                         exit_if_unrecognized_option "$1"
                 esac
@@ -2336,6 +2353,9 @@ case $op in
             case $1 in
                 --candidate-registry )
                     registry=$registry_candidate
+                    ;;
+                --init )
+                    init=true
                     ;;
                 -c | --container )
                     shift

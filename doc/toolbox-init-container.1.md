@@ -11,6 +11,7 @@ toolbox\-init\-container - Initialize a running container
                        *--shell SHELL*
                        *--uid UID*
                        *--user USER*
+                       *--init*
 
 ## DESCRIPTION
 
@@ -52,6 +53,10 @@ Create a user inside the toolbox container whose numerical user ID is UID.
 **--user** USER
 
 Create a user inside the toolbox container whose login name is LOGIN.
+
+**--init**
+
+Run init inside container.
 
 ## SEE ALSO
 
