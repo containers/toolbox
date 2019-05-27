@@ -15,7 +15,6 @@ lazy_static! {
         directories::ProjectDirs::from("com", "coreos", "toolbox").expect("creating appdirs");
 }
 
-static CONTAINER_NAME: &str = "coreos-toolbox";
 static MAX_UID_COUNT: u32 = 65536;
 
 /// Set of statically known paths to files/directories
@@ -69,6 +68,14 @@ struct RunOpts {
     /// Use a different base image
     image: String,
 
+    #[structopt(
+        short = "n",
+        long = "name",
+        default_value = "coreos-toolbox"
+    )]
+    /// Name the container
+    name: String,
+
     #[structopt(short = "N", long = "nested")]
     /// Allow running inside a container
     nested: bool,
@@ -78,6 +85,18 @@ struct RunOpts {
     destroy: bool,
 }
 
+
+#[derive(Debug, StructOpt)]
+struct RmOpts {
+    #[structopt(
+        short = "n",
+        long = "name",
+        default_value = "coreos-toolbox"
+    )]
+    /// Name for container
+    name: String,
+}
+
 #[derive(Debug, StructOpt)]
 #[structopt(name = "coretoolbox", about = "Toolbox")]
 #[structopt(rename_all = "kebab-case")]
@@ -85,7 +104,7 @@ enum Opt {
     /// Enter the toolbox
     Run(RunOpts),
     /// Delete the toolbox container
-    Rm,
+    Rm(RmOpts),
     /// Internal implementation detail; do not use
     RunPid1,
     /// Internal implementation detail; do not use
@@ -170,7 +189,7 @@ fn append_preserved_env(c: &mut Command) -> Fallible<()> {
 fn create(opts: &RunOpts) -> Fallible<()> {
     ensure_image(&opts.image)?;
 
-    if podman_has(InspectType::Container, CONTAINER_NAME)? {
+    if podman_has(InspectType::Container, &opts.name)? {
         return Ok(());
     }
 
@@ -194,8 +213,9 @@ fn create(opts: &RunOpts) -> Fallible<()> {
         "--network=host",
         "--privileged",
         "--security-opt=label=disable",
+        "--label=com.coreos.toolbox=true",
     ]);
-    podman.arg(format!("--name={}", CONTAINER_NAME));
+    podman.arg(format!("--name={}", opts.name));
     podman.arg(format!("--volume={}:/usr/bin/toolbox:ro", self_bin));
     let real_uid: u32 = nix::unistd::getuid().into();
     // In true privileged mode we don't use userns
@@ -260,30 +280,30 @@ fn run(opts: &RunOpts) -> Fallible<()> {
     }
 
     if opts.destroy {
-        rm()?;
+        rm(&RmOpts { name: opts.name.clone() })?;
     }
 
     create(&opts)?;
 
     cmd_podman()
-        .args(&["start", CONTAINER_NAME])
+        .args(&["start", opts.name.as_str()])
         .stdout(Stdio::null())
         .run()?;
 
     let mut podman = cmd_podman();
     podman.args(&["exec", "--interactive", "--tty"]);
     append_preserved_env(&mut podman)?;
-    podman.args(&[CONTAINER_NAME, "/usr/bin/toolbox", "exec"]);
+    podman.args(&[opts.name.as_str(), "/usr/bin/toolbox", "exec"]);
     return Err(podman.exec().into());
 }
 
-fn rm() -> Fallible<()> {
-    if !podman_has(InspectType::Container, CONTAINER_NAME)? {
+fn rm(opts: &RmOpts) -> Fallible<()> {
+    if !podman_has(InspectType::Container, opts.name.as_str())? {
         return Ok(());
     }
     let mut podman = cmd_podman();
     podman
-        .args(&["rm", "-f", CONTAINER_NAME])
+        .args(&["rm", "-f", opts.name.as_str()])
         .stdout(Stdio::null());
     Err(podman.exec().into())
 }
@@ -504,7 +524,7 @@ fn main() {
          match opts {
             Opt::Run(ref runopts) => run(runopts),
             Opt::Exec => entrypoint::exec(),
-            Opt::Rm => rm(),
+            Opt::Rm(ref opts) => rm(opts),
             Opt::RunPid1 => run_pid1(opts),
         }
     }()
