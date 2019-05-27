@@ -1063,9 +1063,11 @@ create()
     if $init; then
         pid_ns=""
         init_option="--init"
+        system_dbus_bind=""
     else
         pid_ns="--pid host"
         init_option=""
+        system_dbus_bind="--volume $dbus_system_bus_path:$dbus_system_bus_path"
     fi
 
     # shellcheck disable=SC2086
@@ -1094,7 +1096,7 @@ create()
             --volume "$TOOLBOX_PATH":/usr/bin/toolbox:ro \
             --volume "$XDG_RUNTIME_DIR":"$XDG_RUNTIME_DIR" \
             --volume "$XDG_RUNTIME_DIR"/.flatpak-helper/monitor:/run/host/monitor \
-            --volume "$dbus_system_bus_path":"$dbus_system_bus_path" \
+            $system_dbus_bind \
             --volume "$home_canonical":"$home_canonical":rslave \
             --volume /etc:/run/host/etc \
             --volume /dev:/dev:rslave \
