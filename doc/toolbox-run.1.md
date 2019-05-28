@@ -5,7 +5,7 @@ toolbox\-run - Run a command in an existing toolbox container
 
 ## SYNOPSIS
 **toolbox run** [*--container NAME* | *-c NAME*]
-            [*--release RELEASE* | *-r RELEASE*] [*COMMAND*]
+            [*--release RELEASE* | *-r RELEASE*] [*-notty* | *-n*] [*COMMAND*]
 
 ## DESCRIPTION
 
@@ -33,6 +33,11 @@ or entirely customized containers created from custom-built base images.
 
 Run command inside a toolbox container for a different operating system
 RELEASE than the host.
+
+**--notty** **-n**
+
+Run command inside a toolbox container but do not allocate a tty. This
+is mostly useful for running commands from dmenu, rofi and so on.
 
 ## EXAMPLES
 

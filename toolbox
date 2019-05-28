@@ -72,6 +72,7 @@ toolbox_image=""
 toolbox_runtime_directory="$XDG_RUNTIME_DIR"/toolbox
 user_id_real=$(id -ru 2>&3)
 verbose=false
+notty=false
 
 
 LGC='\033[1;32m' # Light Green Color
@@ -1588,12 +1589,16 @@ run()
 
     $emit_escape_sequence && printf "\033]777;container;push;%s;toolbox\033\\" "$toolbox_container"
 
+    tty_arguments="--interactive --tty"
+    if $notty; then
+	tty_arguments=""
+    fi
+
     # shellcheck disable=SC2016
     # for the command passed to capsh
     # shellcheck disable=SC2086
     $podman_command exec \
-            --interactive \
-            --tty \
+            $tty_arguments \
             --user "$USER" \
             --workdir "$PWD" \
             $set_environment \
@@ -2178,7 +2183,6 @@ update_container_and_image_names()
     return 0
 }
 
-
 arguments=$(save_positional_parameters "$@")
 
 host_id=$(get_host_id)
@@ -2607,6 +2611,9 @@ case $op in
                     exit_if_non_positive_argument --release "$arg"
                     release=$arg
                     ;;
+		-n | --notty )
+		    notty=true
+		    ;;
                 * )
                     exit_if_unrecognized_option "$1"
             esac
