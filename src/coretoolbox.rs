@@ -20,6 +20,8 @@ static MAX_UID_COUNT: u32 = 65536;
 /// Set of statically known paths to files/directories
 /// that we redirect inside the container to /host.
 static STATIC_HOST_FORWARDS: &[&str] = &["/run/dbus", "/run/libvirt"];
+/// Set of devices we forward (if they exist)
+static FORWARDED_DEVICES: &[&str] = &["bus", "dri", "kvm", "fuse"];
 
 static PRESERVED_ENV: &[&str] = &[
     "COLORTERM",
@@ -231,13 +233,8 @@ fn create(opts: &RunOpts) -> Fallible<()> {
             ),
         ]);
     }
-    // TODO: Detect what devices are accessible
-    for p in &["/dev/bus", "/dev/dri", "/dev/fuse"] {
-        if Path::new(p).exists() {
-            podman.arg(format!("--volume={}:{}:rslave", p, p));
-        }
-    }
-    for p in &["/usr", "/var", "/etc", "/run", "/tmp"] {
+
+    for p in &["/dev", "/usr", "/var", "/etc", "/run", "/tmp"] {
         podman.arg(format!("--volume={}:/host{}:rslave", p, p));
     }
     if is_ostree_based_host() {
@@ -474,6 +471,18 @@ mod entrypoint {
             .par_iter()
             .try_for_each(host_symlink)
             .with_context(|e| format!("Enabling static host forwards: {}", e))?;
+
+        // And these are into /dev
+        super::FORWARDED_DEVICES
+            .par_iter()
+            .try_for_each(|d| -> Fallible<()> {
+                let hostd = format!("/host/dev/{}", d);
+                if Path::new(&hostd).exists() {
+                    unix::fs::symlink(hostd, format!("/dev/{}", d))?;
+                }
+                Ok(())
+            })
+            .with_context(|e| format!("Forwarding devices: {}", e))?;
 
         // Allow sudo
         || -> Fallible<()> {
