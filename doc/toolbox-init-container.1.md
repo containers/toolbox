@@ -5,6 +5,7 @@ toolbox\-init\-container - Initialize a running container
 
 ## SYNOPSIS
 **toolbox init-container** *--home HOME*
+                       *--home-link*
                        *--monitor-host*
                        *--shell SHELL*
                        *--uid UID*
@@ -24,6 +25,10 @@ The following options are understood:
 **--home** HOME
 
 Create a user inside the toolbox container whose login directory is HOME.
+
+**--home-link**
+
+Make `/home` a symbolic link to `/var/home`.
 
 **--monitor-host**
 
