@@ -19,7 +19,7 @@ __toolbox() {
   declare -A options
   local options=([create]="--candidate-registry --container --image --release" \
                  [enter]="--container --release" \
-                 [init-container]="--home --monitor-host --shell --uid --user" \
+                 [init-container]="--home --home-link --monitor-host --shell --uid --user" \
 		 [list]="--containers --images" \
 		 [rm]="--all --force" \
 		 [rmi]="--all --force" \

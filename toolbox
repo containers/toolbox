@@ -642,6 +642,7 @@ create()
 
     dbus_system_bus_address="unix:path=/var/run/dbus/system_bus_socket"
     dns_none=""
+    home_link=""
     kcm_socket=""
     kcm_socket_bind=""
     monitor_host=""
@@ -741,6 +742,20 @@ create()
     max_minus_uid=$((max_uid_count - user_id_real))
     uid_plus_one=$((user_id_real + 1))
 
+    if ! home_canonical=$(readlink --canonicalize "$HOME" 2>&3); then
+        echo "$base_toolbox_command: failed to canonicalize $HOME" >&2
+        return 1
+    fi
+
+    echo "$base_toolbox_command: $HOME canonicalized to $home_canonical" >&3
+
+    echo "$base_toolbox_command: checking if /home is a symbolic link to /var/home" >&3
+
+    if [ "$(readlink /home)" = var/home ] 2>&3; then
+	echo "$base_toolbox_command: /home is a symbolic link to /var/home" >&3
+	home_link="--home-link"
+    fi
+
     echo "$base_toolbox_command: calling org.freedesktop.Flatpak.SessionHelper.RequestSession" >&3
 
     if ! gdbus call \
@@ -785,19 +800,19 @@ create()
             $kcm_socket_bind \
             $toolbox_path_bind \
             $toolbox_profile_bind \
-            --volume "$HOME":"$HOME":rslave \
             --volume "$XDG_RUNTIME_DIR":"$XDG_RUNTIME_DIR" \
             --volume "$XDG_RUNTIME_DIR"/.flatpak-helper/monitor:/run/host/monitor \
             --volume "$dbus_system_bus_path":"$dbus_system_bus_path" \
+            --volume "$home_canonical":"$home_canonical":rslave \
             --volume /etc:/run/host/etc \
             --volume /dev:/dev:rslave \
             --volume /media:/media:rslave \
             --volume /mnt:/mnt:rslave \
             --volume /run/media:/run/media:rslave \
-            --workdir "$HOME" \
             "$base_toolbox_image_full" \
             toolbox --verbose init-container \
                     --home "$HOME" \
+                    $home_link \
                     $monitor_host \
                     --shell "$SHELL" \
                     --uid "$user_id_real" \
@@ -831,10 +846,11 @@ enter()
 init_container()
 {
     init_container_home="$1"
-    init_container_monitor_host="$2"
-    init_container_shell="$3"
-    init_container_uid="$4"
-    init_container_user="$5"
+    init_container_home_link="$2"
+    init_container_monitor_host="$3"
+    init_container_shell="$4"
+    init_container_uid="$5"
+    init_container_user="$6"
 
     if $init_container_monitor_host; then
         working_directory="$PWD"
@@ -889,7 +905,7 @@ init_container()
     fi
 
     if ! id -u "$init_container_user" >/dev/null 2>&3; then
-        if [ "$(readlink /home)" = var/home ] 2>&3; then
+        if $init_container_home_link ; then
             # shellcheck disable=SC2174
             if ! (rmdir /home 2>&3 \
                   && mkdir --mode 0755 --parents /var/home 2>&3 \
@@ -1606,6 +1622,7 @@ usage()
     echo "   or: toolbox [-v | --verbose]"
     echo "               [-y | --assumeyes]"
     echo "               init-container --home"
+    echo "                              --home-link"
     echo "                              --monitor-host"
     echo "                              --shell"
     echo "                              --uid"
@@ -1718,6 +1735,7 @@ if [ -f /run/.containerenv ] 2>&3; then
             exit "$?"
             ;;
         init-container )
+            init_container_home_link=false
             init_container_monitor_host=false
             while has_prefix "$1" -; do
                 case $1 in
@@ -1725,6 +1743,9 @@ if [ -f /run/.containerenv ] 2>&3; then
                         shift
                         exit_if_missing_argument --home "$1"
                         init_container_home="$1"
+                        ;;
+                    --home-link )
+                        init_container_home_link=true
                         ;;
                     --monitor-host )
                         init_container_monitor_host=true
@@ -1751,6 +1772,7 @@ if [ -f /run/.containerenv ] 2>&3; then
             done
             init_container \
                     "$init_container_home" \
+                    "$init_container_home_link" \
                     "$init_container_monitor_host" \
                     "$init_container_shell" \
                     "$init_container_uid" \
