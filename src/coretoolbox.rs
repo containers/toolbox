@@ -216,6 +216,7 @@ fn create(opts: &RunOpts) -> Fallible<()> {
         "--privileged",
         "--security-opt=label=disable",
         "--label=com.coreos.toolbox=true",
+        "--tmpfs=/run:rw"
     ]);
     podman.arg(format!("--name={}", opts.name));
     podman.arg(format!("--volume={}:/usr/bin/toolbox:ro", self_bin));
