@@ -247,6 +247,8 @@ copy_etc_profile_d_toolbox_to_container()
 (
     container="$1"
 
+    pause_false=""
+
     if ! [ -f /etc/profile.d/toolbox.sh ] 2>&3; then
         return 0
     fi
@@ -273,10 +275,18 @@ copy_etc_profile_d_toolbox_to_container()
         return 0
     fi
 
+    echo "$base_toolbox_command: checking if 'podman cp' supports --pause" >&3
+
+    if $prefix_sudo podman cp --help 2>&3 | grep "pause" >/dev/null 2>&3; then
+        echo "$base_toolbox_command: 'podman cp' supports --pause" >&3
+        pause_false="--pause=false"
+    fi
+
     echo "$base_toolbox_command: copying /etc/profile.d/toolbox.sh to container $toolbox_container" >&3
 
+    # shellcheck disable=SC2086
     if ! $prefix_sudo podman cp \
-                 --pause=false \
+                 $pause_false \
                  /etc/profile.d/toolbox.sh \
                  "$toolbox_container":/etc/profile.d 2>&3; then
         echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh to container $toolbox_container" >&2
