@@ -275,7 +275,10 @@ copy_etc_profile_d_toolbox_to_container()
 
     echo "$base_toolbox_command: copying /etc/profile.d/toolbox.sh to container $toolbox_container" >&3
 
-    if ! $prefix_sudo podman cp /etc/profile.d/toolbox.sh "$toolbox_container":/etc/profile.d 2>&3; then
+    if ! $prefix_sudo podman cp \
+                 --pause=false \
+                 /etc/profile.d/toolbox.sh \
+                 "$toolbox_container":/etc/profile.d 2>&3; then
         echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh to container $toolbox_container" >&2
         return 1
     fi
