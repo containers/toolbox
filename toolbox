@@ -891,9 +891,9 @@ init_container()
     if ! id -u "$init_container_user" >/dev/null 2>&3; then
         if [ "$(readlink /home)" = var/home ] 2>&3; then
             # shellcheck disable=SC2174
-            if ! rmdir /home 2>&3 \
-                 && mkdir --mode 0755 --parents /var/home 2>&3 \
-                 && ln --symbolic var/home /home 2>&3; then
+            if ! (rmdir /home 2>&3 \
+                  && mkdir --mode 0755 --parents /var/home 2>&3 \
+                  && ln --symbolic var/home /home 2>&3); then
                 echo "$base_toolbox_command: failed to make /home a symlink" >&2
                 return 1
             fi
