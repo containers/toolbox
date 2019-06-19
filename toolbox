@@ -839,7 +839,7 @@ create()
 
 enter()
 {
-    run true false "$SHELL" -l
+    run true true false "$SHELL" -l
 }
 
 
@@ -967,10 +967,11 @@ EOF
 
 run()
 (
-    fallback_to_bash="$1"
-    pedantic="$2"
-    program="$3"
-    shift 3
+    emit_escape_sequence="$1"
+    fallback_to_bash="$2"
+    pedantic="$3"
+    program="$4"
+    shift 4
 
     create_toolbox_container=false
     prompt_for_create=true
@@ -1105,6 +1106,8 @@ run()
         echo "$base_toolbox_command: $i" >&3
     done
 
+    $emit_escape_sequence && printf "\033]777;container;push;%s;toolbox\033\\" "$toolbox_container"
+
     # shellcheck disable=SC2016
     # for the command passed to capsh
     # shellcheck disable=SC2086
@@ -1115,6 +1118,11 @@ run()
             $set_environment \
             "$toolbox_container" \
             capsh --caps="" -- -c 'cd "$1"; shift; exec "$@"' /bin/sh "$PWD" "$program" "$@" 2>&3
+    ret_val="$?"
+
+    $emit_escape_sequence && printf "\033]777;container;pop;;\033\\"
+
+    exit "$ret_val"
 )
 
 
@@ -1967,7 +1975,7 @@ case $op in
         if ! update_container_and_image_names; then
             exit 1
         fi
-        run false true "$@"
+        run false false true "$@"
         exit
         ;;
     * )
