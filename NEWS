@@ -1,3 +1,17 @@
+Overview of changes in 0.0.11
+=============================
+
+* Allow Qt applications to work without QT_X11_NO_MITSHM
+* Check if /etc/subgid and /etc/subuid have entries for the user
+* Give access to the entire /dev from the host operating system
+* Keep /etc/host.conf, /etc/localtime and /etc/timezone synchronized with the
+  host
+* Notify the terminal about the current toolbox container in use
+* Prevent Podman from complaining about 'podman cp --pause=true ...'
+* Unbreak rendering & wrapping of commands typed at an interactive prompt
+* Unbreak setting up /home as a symbolic link
+
+
 Overview of changes in 0.0.10
 =============================
 
