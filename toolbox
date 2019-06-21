@@ -265,13 +265,13 @@ copy_etc_profile_d_toolbox_to_container()
         return 1
     fi
 
-    echo "$base_toolbox_command: looking for /etc/profile.d/toolbox.sh in container $toolbox_container" >&3
+    echo "$base_toolbox_command: looking for /etc/profile.d/toolbox.sh in container $container" >&3
 
     if $prefix_sudo podman exec \
                --user "$USER" \
                "$container" \
                sh -c 'mount | grep /etc/profile.d/toolbox.sh >/dev/null 2>/dev/null' 2>&3; then
-        echo "$base_toolbox_command: /etc/profile.d/toolbox.sh already mounted in container $toolbox_container" >&3
+        echo "$base_toolbox_command: /etc/profile.d/toolbox.sh already mounted in container $container" >&3
         return 0
     fi
 
@@ -282,22 +282,22 @@ copy_etc_profile_d_toolbox_to_container()
         pause_false="--pause=false"
     fi
 
-    echo "$base_toolbox_command: copying /etc/profile.d/toolbox.sh to container $toolbox_container" >&3
+    echo "$base_toolbox_command: copying /etc/profile.d/toolbox.sh to container $container" >&3
 
     # shellcheck disable=SC2086
     if ! $prefix_sudo podman cp \
                  $pause_false \
                  /etc/profile.d/toolbox.sh \
-                 "$toolbox_container":/etc/profile.d 2>&3; then
-        echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh to container $toolbox_container" >&2
+                 "$container":/etc/profile.d 2>&3; then
+        echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh to container $container" >&2
         return 1
     fi
 
     if ! $prefix_sudo podman exec \
                  --user root:root \
-                 "$toolbox_container" \
+                 "$container" \
                  chown root:root /etc/profile.d/toolbox.sh 2>&3; then
-        echo "$base_toolbox_command: unable to chown /etc/profile.d/toolbox.sh in container $toolbox_container" >&2
+        echo "$base_toolbox_command: unable to chown /etc/profile.d/toolbox.sh in container $container" >&2
         return 1
     fi
 
