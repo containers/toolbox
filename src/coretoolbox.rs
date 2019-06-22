@@ -516,7 +516,7 @@ mod entrypoint {
             bail!("toolbox not initialized");
         }
         // Set a sane umask (022) by default; something seems to be setting it to 077
-        nix::sys::stat::umask(Mode::S_IWGRP & Mode::S_IWOTH);
+        nix::sys::stat::umask(Mode::S_IWGRP | Mode::S_IWOTH);
         let username = super::getenv_required_utf8("USER")?;
         let su_preserved_env_arg =
             format!("--whitelist-environment={}", super::PRESERVED_ENV.join(","));
