@@ -420,6 +420,10 @@ mod entrypoint {
             .open(CONTAINER_INITIALIZED_LOCK)?;
         lockf.lock_exclusive()?;
 
+        if initstamp.exists() {
+            return Ok(());
+        }
+
         workaround_podman_selinux()?;
 
         let runtime_dir = super::getenv_required_utf8("XDG_RUNTIME_DIR")?;
