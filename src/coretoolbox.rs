@@ -457,8 +457,25 @@ mod entrypoint {
             Ok(())
         })?;
 
-        // Propagate data and temporary directories to the host
-        var_mnt_dirs.par_iter().chain(["/tmp", "/var/tmp"].par_iter())
+        // Generate a unique tempdir in the host's /tmp and /var/tmp
+        // so that we don't clash with any well-known dirs.  For example
+        // fish creates /tmp/root.fish which will break with `sudo`
+        // as the userns uid 0 isn't the same as the real uid 0 of course.
+        ["/tmp", "/var/tmp"].par_iter()
+            .try_for_each(|d| -> Fallible<()> {
+                std::fs::remove_dir(d)?;
+                let hostd = format!("/host{}", d);
+                let tmpd = tempfile::TempDir::new_in(&hostd)?.into_path();
+                let uid = nix::unistd::Uid::from_raw(state.uid);
+                let gid = nix::unistd::Gid::from_raw(state.uid);
+                nix::unistd::chown(&tmpd, Some(uid), Some(gid))?;
+                unix::fs::symlink(&tmpd, d)?;
+                Ok(())
+            })
+            .with_context(|e| format!("Handling tmpdirs: {}", e))?;
+
+        // Propagate data  directories to the host
+        var_mnt_dirs.par_iter()
             .try_for_each(|d| -> Fallible<()> {
                 std::fs::remove_dir(d)?;
                 let hostd = format!("/host{}", d);
