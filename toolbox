@@ -66,6 +66,7 @@ toolbox_container_old_v1=""
 toolbox_container_old_v2=""
 toolbox_container_prefix_default=""
 toolbox_image=""
+toolbox_runtime_directory="$XDG_RUNTIME_DIR"/toolbox
 user_id_real=$(id -ru 2>&3)
 verbose=false
 
@@ -248,18 +249,19 @@ copy_etc_profile_d_toolbox_to_container()
     container="$1"
 
     pause_false=""
+    profile_d_lock="$toolbox_runtime_directory"/profile.d-toolbox.lock
 
     if ! [ -f /etc/profile.d/toolbox.sh ] 2>&3; then
         return 0
     fi
 
     # shellcheck disable=SC2174
-    if ! mkdir --mode 700 --parents "$XDG_RUNTIME_DIR"/toolbox 2>&3; then
+    if ! mkdir --mode 700 --parents "$toolbox_runtime_directory" 2>&3; then
         echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh: runtime directory not created" >&2
         return 1
     fi
 
-    exec 5>"$XDG_RUNTIME_DIR"/toolbox/profile.d-toolbox.lock
+    exec 5>"$profile_d_lock"
     if ! flock 5 2>&3; then
         echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh: copy lock not acquired" >&2
         return 1
@@ -1238,8 +1240,7 @@ migrate()
     configuration_directory="$HOME/.config/toolbox"
     migrate_stamp="$configuration_directory/podman-system-migrate"
 
-    runtime_directory="$XDG_RUNTIME_DIR"/toolbox
-    migrate_lock="$runtime_directory"/migrate.lock
+    migrate_lock="$toolbox_runtime_directory"/migrate.lock
 
     echo "$base_toolbox_command: checking if 'podman system migrate' exists" >&3
 
@@ -1259,7 +1260,7 @@ migrate()
     fi
 
     # shellcheck disable=SC2174
-    if ! mkdir --mode 700 --parents "$runtime_directory" 2>&3; then
+    if ! mkdir --mode 700 --parents "$toolbox_runtime_directory" 2>&3; then
         echo "$base_toolbox_command: unable to migrate containers: runtime directory not created" >&2
         return 1
     fi
