@@ -865,6 +865,11 @@ init_container()
     init_container_uid="$5"
     init_container_user="$6"
 
+    if ! touch /run/.toolboxenv 2>&3; then
+        echo "$base_toolbox_command: failed to create /run/.toolboxenv" >&2
+        return 1
+    fi
+
     if $init_container_monitor_host; then
         working_directory="$PWD"
 
