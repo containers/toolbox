@@ -865,6 +865,8 @@ init_container()
     init_container_uid="$5"
     init_container_user="$6"
 
+    echo "$base_toolbox_command: creating /run/.toolboxenv" >&3
+
     if ! touch /run/.toolboxenv 2>&3; then
         echo "$base_toolbox_command: failed to create /run/.toolboxenv" >&2
         return 1
@@ -874,6 +876,8 @@ init_container()
         working_directory="$PWD"
 
         if ! readlink /etc/host.conf >/dev/null 2>&3; then
+            echo "$base_toolbox_command: redirecting /etc/host.conf to /run/host/etc/host.conf" >&3
+
             if ! (cd /etc 2>&3 \
                   && unlink host.conf 2>&3 \
                   && ln --symbolic /run/host/etc/host.conf host.conf 2>&3); then
@@ -883,6 +887,8 @@ init_container()
         fi
 
         if ! readlink /etc/hosts >/dev/null 2>&3; then
+            echo "$base_toolbox_command: redirecting /etc/hosts to /run/host/etc/hosts" >&3
+
             if ! (cd /etc 2>&3 && unlink hosts 2>&3 && ln --symbolic /run/host/etc/hosts hosts 2>&3); then
                 echo "$base_toolbox_command: failed to redirect /etc/hosts to /run/host/etc/hosts" >&2
                 return 1
@@ -891,6 +897,8 @@ init_container()
 
         if ! localtime_target=$(readlink /etc/localtime >/dev/null 2>&3) \
            || [ "$localtime_target" != "/run/host/monitor/localtime" ] 2>&3; then
+            echo "$base_toolbox_command: redirecting /etc/localtime to /run/host/monitor/localtime" >&3
+
             if ! (cd /etc 2>&3 \
                   && unlink localtime 2>&3 \
                   && ln --symbolic /run/host/monitor/localtime localtime 2>&3); then
@@ -900,6 +908,8 @@ init_container()
         fi
 
         if ! readlink /etc/resolv.conf >/dev/null 2>&3; then
+            echo "$base_toolbox_command: redirecting /etc/resolv.conf to /run/host/etc/resolv.conf" >&3
+
             if ! (cd /etc 2>&3 \
                   && unlink resolv.conf 2>&3 \
                   && ln --symbolic /run/host/etc/resolv.conf resolv.conf 2>&3); then
@@ -909,6 +919,8 @@ init_container()
         fi
 
         if ! readlink /etc/timezone >/dev/null 2>&3; then
+            echo "$base_toolbox_command: redirecting /etc/timezone to /run/host/monitor/timezone" >&3
+
             if ! (cd /etc 2>&3 \
                   && rm --force timezone 2>&3 \
                   && ln --symbolic /run/host/monitor/timezone timezone 2>&3); then
@@ -924,6 +936,8 @@ init_container()
 
     if ! id -u "$init_container_user" >/dev/null 2>&3; then
         if $init_container_home_link ; then
+            echo "$base_toolbox_command: making /home a symlink" >&3
+
             # shellcheck disable=SC2174
             if ! (rmdir /home 2>&3 \
                   && mkdir --mode 0755 --parents /var/home 2>&3 \
@@ -938,6 +952,8 @@ init_container()
             return 1
         fi
 
+        echo "$base_toolbox_command: adding user $init_container_user with UID $init_container_uid" >&3
+
         if ! useradd \
                      --home-dir "$init_container_home" \
                      --no-create-home \
@@ -949,10 +965,14 @@ init_container()
             return 1
         fi
 
+        echo "$base_toolbox_command: removing password for user $init_container_user" >&3
+
         if ! passwd --delete "$init_container_user" >/dev/null 2>&3; then
             echo "$base_toolbox_command: failed to remove password for user $init_container_user" >&2
             return 1
         fi
+
+        echo "$base_toolbox_command: removing password for user root" >&3
 
         if ! passwd --delete root >/dev/null 2>&3; then
             echo "$base_toolbox_command: failed to remove password for user root" >&2
@@ -962,6 +982,8 @@ init_container()
     fi
 
     if [ -d /etc/krb5.conf.d ] 2>&3 && ! [ -f /etc/krb5.conf.d/kcm_default_ccache ] 2>&3; then
+        echo "$base_toolbox_command: setting KCM as the default Kerberos credential cache" >&3
+
         cat <<EOF >/etc/krb5.conf.d/kcm_default_ccache 2>&3
 # Written by Toolbox
 # https://github.com/debarshiray/toolbox
@@ -978,6 +1000,8 @@ EOF
             return 1
         fi
     fi
+
+    echo "$base_toolbox_command: going to sleep" >&3
 
     exec sleep +Inf
 }
