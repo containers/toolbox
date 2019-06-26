@@ -1762,7 +1762,7 @@ host_id=$(get_host_id)
 if [ "$host_id" = "fedora" ] 2>&3; then
     release_default=$(get_host_version_id)
 else
-    release_default="29"
+    release_default="30"
 fi
 toolbox_container_prefix_default="fedora-toolbox"
 toolbox_container_default="$toolbox_container_prefix_default-$release_default"
