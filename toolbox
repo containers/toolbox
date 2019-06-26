@@ -780,7 +780,7 @@ create()
         exit 1
     fi
 
-    echo "$base_toolbox_command: trying to create container $toolbox_container" >&3
+    echo "$base_toolbox_command: creating container $toolbox_container" >&3
 
     if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
         spinner_message="Creating container $toolbox_container: "
@@ -1084,7 +1084,7 @@ run()
         exit 1
     fi
 
-    echo "$base_toolbox_command: trying to start container $toolbox_container" >&3
+    echo "$base_toolbox_command: starting container $toolbox_container" >&3
 
     if is_etc_profile_d_toolbox_a_bind_mount "$toolbox_container"; then
         echo "$base_toolbox_command: /etc/profile.d/toolbox.sh already mounted in container $toolbox_container" >&3
