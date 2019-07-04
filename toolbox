@@ -534,10 +534,11 @@ is_etc_profile_d_toolbox_a_bind_mount()
 {
     container="$1"
 
-    $prefix_sudo podman inspect --format "[{{range .Mounts}}{{.Dst}} {{end}}]" --type container "$container" 2>&3 \
-    | grep /etc/profile.d/toolbox.sh >/dev/null 2>/dev/null 2>&3
-
-    return "$?"
+    $prefix_sudo podman exec \
+            --user "$USER" \
+            "$container" \
+            sh -c 'mount | grep /etc/profile.d/toolbox.sh >/dev/null 2>/dev/null' 2>&3
+    return $?
 }
 
 
