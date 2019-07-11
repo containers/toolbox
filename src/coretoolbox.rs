@@ -346,6 +346,13 @@ mod entrypoint {
     static CONTAINER_INITIALIZED_LOCK: &str = "/run/coreos-toolbox.lock";
     static CONTAINER_INITIALIZED_STAMP: &str = "/etc/coreos-toolbox.initialized";
 
+    fn rbind(src: &str, dest: &str) -> Fallible<()> {
+        Command::new("mount")
+            .args(&["--rbind", src, dest])
+            .run()?;
+        Ok(())
+    }
+
     /// Update /etc/passwd with the same user from the host,
     /// and bind mount the homedir.
     fn adduser(state: &EntrypointState) -> Fallible<()> {
@@ -373,9 +380,7 @@ mod entrypoint {
         let gid = nix::unistd::Gid::from_raw(state.uid);
         nix::unistd::chown(state.home.as_str(), Some(uid), Some(gid))?;
         let host_home = format!("/host{}", state.home);
-        Command::new("mount")
-            .args(&["--bind", host_home.as_str(), state.home.as_str()])
-            .run()?;
+        rbind(host_home.as_str(), state.home.as_str())?;
         Ok(())
     }
 
@@ -400,9 +405,7 @@ mod entrypoint {
     fn workaround_podman_selinux() -> Fallible<()> {
         let sysfs_selinux = "/sys/fs/selinux";
         if Path::new(sysfs_selinux).join("status").exists() {
-            Command::new("mount")
-                .args(&["--bind", "/usr/share/empty", sysfs_selinux])
-                .run()?;
+            rbind("/usr/share/empty", sysfs_selinux)?;
         }
         Ok(())
     }
