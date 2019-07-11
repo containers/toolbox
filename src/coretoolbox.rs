@@ -344,7 +344,7 @@ mod entrypoint {
     use std::process::Command;
 
     static CONTAINER_INITIALIZED_LOCK: &str = "/run/coreos-toolbox.lock";
-    static CONTAINER_INITIALIZED_STAMP: &str = "/run/coreos-toolbox.initialized";
+    static CONTAINER_INITIALIZED_STAMP: &str = "/etc/coreos-toolbox.initialized";
 
     /// Update /etc/passwd with the same user from the host,
     /// and bind mount the homedir.
