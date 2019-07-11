@@ -467,12 +467,18 @@ mod entrypoint {
         ["/tmp", "/var/tmp"].par_iter()
             .try_for_each(|d| -> Fallible<()> {
                 std::fs::remove_dir(d)?;
+                std::fs::create_dir(d)?;
                 let hostd = format!("/host{}", d);
                 let tmpd = tempfile::TempDir::new_in(&hostd)?.into_path();
                 let uid = nix::unistd::Uid::from_raw(state.uid);
                 let gid = nix::unistd::Gid::from_raw(state.uid);
+                // Chown the dir rather than make it sticky+world-writable
+                // like a regular tmpdir so that other users on the host
+                // can't write to it too.  We rely on the userns root having
+                // CAP_DAC_OVERRIDE for access to it as well.  This does
+                // break *other* uids inside the toolbox, but eh.
                 nix::unistd::chown(&tmpd, Some(uid), Some(gid))?;
-                unix::fs::symlink(&tmpd, d)?;
+                rbind(tmpd.as_path().as_os_str().to_str().unwrap(), d)?;
                 Ok(())
             })
             .with_context(|e| format!("Handling tmpdirs: {}", e))?;
