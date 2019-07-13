@@ -9,9 +9,8 @@ if [ -f /run/ostree-booted ] \
    && ! [ -f "$host_welcome_stub" ]; then
     echo ""
     echo "Welcome to Fedora Silverblue. This terminal is running on the"
-    echo "immutable host system. You may want to try out the Toolbox for a"
-    echo "more traditional environment that allows package installation"
-    echo "with DNF."
+    echo "host system. You may want to try out the Toolbox for a directly"
+    echo "mutable environment that allows package installation with DNF."
     echo ""
     printf "For more information, see the "
     # shellcheck disable=SC1003
