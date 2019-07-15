@@ -1189,6 +1189,18 @@ run()
 )
 
 
+help()
+(
+    to_help_command="$1"
+
+    if [ "$to_help_command" = "" ] 2>&3 || [ "$to_help_command" = "$base_toolbox_command" ] 2>&3; then
+        exec man toolbox 2>&1
+    fi
+
+    exec man toolbox-"$to_help_command" 2>&1
+)
+
+
 list_images()
 (
     output=""
@@ -1677,44 +1689,6 @@ update_container_and_image_names()
 }
 
 
-usage()
-{
-    echo "Usage: toolbox [-v | --verbose]"
-    echo "               [-y | --assumeyes]"
-    echo "               create [--candidate-registry]"
-    echo "                      [-c | --container <name>]"
-    echo "                      [-i | --image <name>]"
-    echo "                      [-r | --release <release>]"
-    echo "   or: toolbox [-v | --verbose]"
-    echo "               [-y | --assumeyes]"
-    echo "               enter [-c | --container <name>]"
-    echo "                     [-r | --release <release>]"
-    echo "   or: toolbox [-v | --verbose]"
-    echo "               [-y | --assumeyes]"
-    echo "               init-container --home"
-    echo "                              --home-link"
-    echo "                              --monitor-host"
-    echo "                              --shell"
-    echo "                              --uid"
-    echo "                              --user"
-    echo "   or: toolbox [-v | --verbose]"
-    echo "               [-y | --assumeyes]"
-    echo "               list [-c | --containers]"
-    echo "                    [-i | --images]"
-    echo "   or: toolbox [-y | --assumeyes]"
-    echo "               rm [-a | --all]"
-    echo "                  [-f | --force] [<container> ...]"
-    echo "   or: toolbox [-y | --assumeyes]"
-    echo "               rmi [-a | --all]"
-    echo "                   [-f | --force] [<image> ...]"
-    echo "   or: toolbox [-v | --verbose]"
-    echo "               [-y | --assumeyes]"
-    echo "               run [-c | --container <name>]"
-    echo "                   [-r | --release <release>] <command>"
-    echo "   or: toolbox --help"
-}
-
-
 arguments=$(save_positional_parameters "$@")
 
 host_id=$(get_host_id)
@@ -1732,7 +1706,18 @@ while has_prefix "$1" -; do
             assume_yes=true
             ;;
         -h | --help )
-            usage
+            if [ -f /run/.containerenv ] 2>&3; then
+                if ! [ -f /run/.toolboxenv ] 2>&3; then
+                    echo "$base_toolbox_command: this is not a toolbox container" >&2
+                    exit 1
+                fi
+
+                # shellcheck disable=SC2119
+                forward_to_host
+                exit
+            fi
+
+            help "$2"
             exit
             ;;
         --sudo )
@@ -1794,7 +1779,7 @@ shift
 
 if [ -f /run/.containerenv ] 2>&3; then
     case $op in
-        create | enter | list | rm | rmi | run )
+        create | enter | list | rm | rmi | run | help )
             if ! [ -f /run/.toolboxenv ] 2>&3; then
                 echo "$base_toolbox_command: this is not a toolbox container" >&2
                 exit 1
@@ -1809,6 +1794,11 @@ if [ -f /run/.containerenv ] 2>&3; then
             init_container_monitor_host=false
             while has_prefix "$1" -; do
                 case $1 in
+                    -h | --help )
+                        # shellcheck disable=SC2119
+                        forward_to_host
+                        exit
+                        ;;
                     --home )
                         shift
                         exit_if_missing_argument --home "$1"
@@ -1880,6 +1870,10 @@ case $op in
                     fi
                     toolbox_container="$arg"
                     ;;
+                -h | --help )
+                    help "$op"
+                    exit
+                    ;;
                 -i | --image )
                     shift
                     exit_if_missing_argument --image "$1"
@@ -1914,6 +1908,10 @@ case $op in
                     exit_if_missing_argument --container "$1"
                     toolbox_container=$1
                     ;;
+                -h | --help )
+                    help "$op"
+                    exit
+                    ;;
                 -r | --release )
                     shift
                     exit_if_missing_argument --release "$1"
@@ -1933,7 +1931,30 @@ case $op in
         enter
         exit
         ;;
+    help )
+        while has_prefix "$1" -; do
+            case $1 in
+                -h | --help )
+                    help "$op"
+                    exit
+                    ;;
+                * )
+                    exit_if_unrecognized_option "$1"
+            esac
+            shift
+        done
+        help "$1"
+        exit
+        ;;
     init-container )
+        while has_prefix "$1" -; do
+            case $1 in
+                -h | --help )
+                    help "$op"
+                    exit
+            esac
+            shift
+        done
         echo "$base_toolbox_command: The 'init-container' command can only be used inside containers" >&2
         echo "Try '$base_toolbox_command --help' for more information." >&2
         exit 1
@@ -1945,6 +1966,10 @@ case $op in
             case $1 in
                 -c | --containers )
                     ls_containers=true
+                    ;;
+                -h | --help )
+                    help "$op"
+                    exit
                     ;;
                 -i | --images )
                     ls_images=true
@@ -1988,6 +2013,10 @@ case $op in
                 -f | --force )
                     rm_force=true
                     ;;
+                -h | --help )
+                    help "$op"
+                    exit
+                    ;;
                 * )
                     exit_if_unrecognized_option "$1"
             esac
@@ -2021,6 +2050,10 @@ case $op in
                     shift
                     exit_if_missing_argument --container "$1"
                     toolbox_container=$1
+                    ;;
+                -h | --help )
+                    help "$op"
+                    exit
                     ;;
                 -r | --release )
                     shift

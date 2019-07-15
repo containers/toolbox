@@ -56,6 +56,10 @@ Create a new toolbox container.
 
 Enter a toolbox container for interactive use.
 
+**toolbox-help(1)**
+
+Display help information about Toolbox.
+
 **toolbox-init-container(1)**
 
 Initialize a running container.
