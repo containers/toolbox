@@ -18,6 +18,8 @@
 
 exec 3>/dev/null
 
+toolbox_version="0.0.11"
+
 arguments=""
 assume_yes=false
 base_toolbox_command=$(basename "$0" 2>&3)
@@ -407,6 +409,20 @@ enter_print_container_not_found()
     echo "Use the 'create' command to create a toolbox." >&2
     echo "Try '$base_toolbox_command --help' for more information." >&2
 )
+
+
+get_podman_version()
+{
+    if ! podman_version=$(podman --version 2>&3); then
+        return 1
+    fi
+    if podman_version=$(echo "$podman_version" | grep -oP 'podman version \K.*' 2>&3); then
+        echo "$podman_version"
+        return 0
+    fi
+
+    return 1
+}
 
 
 get_group_for_sudo()
@@ -1714,6 +1730,14 @@ usage()
     echo "   or: toolbox --help"
 }
 
+version()
+{
+    printf "Toolbox:\t%s\n" "${toolbox_version}"
+    if podman_version=$(get_podman_version); then
+        printf "Podman:\t\t%s\n" "${podman_version}"
+    fi
+}
+
 
 arguments=$(save_positional_parameters "$@")
 
@@ -1733,6 +1757,10 @@ while has_prefix "$1" -; do
             ;;
         -h | --help )
             usage
+            exit
+            ;;
+        --version )
+            version
             exit
             ;;
         --sudo )
@@ -2038,6 +2066,10 @@ case $op in
             exit 1
         fi
         run false false true "$@"
+        exit
+        ;;
+    version )
+        version
         exit
         ;;
     * )
