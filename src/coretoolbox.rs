@@ -504,16 +504,18 @@ mod entrypoint {
             .with_context(|e| format!("Enabling static host forwards: {}", e))?;
 
         // And these are into /dev
-        super::FORWARDED_DEVICES
-            .par_iter()
-            .try_for_each(|d| -> Fallible<()> {
-                let hostd = format!("/host/dev/{}", d);
-                if Path::new(&hostd).exists() {
-                    unix::fs::symlink(hostd, format!("/dev/{}", d))?;
-                }
-                Ok(())
-            })
-            .with_context(|e| format!("Forwarding devices: {}", e))?;
+        if state.uid != 0 {
+            super::FORWARDED_DEVICES
+                .par_iter()
+                .try_for_each(|d| -> Fallible<()> {
+                    let hostd = format!("/host/dev/{}", d);
+                    if Path::new(&hostd).exists() {
+                        unix::fs::symlink(hostd, format!("/dev/{}", d)).with_context(|e| format!("symlinking {}: {}", d, e))?;
+                    }
+                    Ok(())
+                })
+                .with_context(|e| format!("Forwarding devices: {}", e))?;
+        }
 
         // Allow sudo
         || -> Fallible<()> {
