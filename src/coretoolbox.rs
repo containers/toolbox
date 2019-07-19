@@ -98,6 +98,11 @@ enum Opt {
     Run(RunOpts),
     /// Delete the toolbox container
     Rm(RmOpts),
+}
+
+#[derive(Debug, StructOpt)]
+#[structopt(rename_all = "kebab-case")]
+enum InternalOpt {
     /// Internal implementation detail; do not use
     RunPid1,
     /// Internal implementation detail; do not use
@@ -200,7 +205,6 @@ fn create(opts: &RunOpts) -> Fallible<()> {
     let privileged = real_uid == 0;
 
     let mut podman = cmd_podman();
-    podman.arg(format!("--name={}", opts.name));
     // The basic arguments.
     podman.args(&[
         "create",
@@ -214,6 +218,7 @@ fn create(opts: &RunOpts) -> Fallible<()> {
         "--label=com.coreos.toolbox=true",
         "--tmpfs=/run:rw",
     ]);
+    podman.arg(format!("--name={}", opts.name));
     // In privileged mode we assume we want to control all host processes by default;
     // we're more about debugging/management and less of a "dev container".
     if privileged {
@@ -270,7 +275,7 @@ fn create(opts: &RunOpts) -> Fallible<()> {
     }
 
     podman.arg(&opts.image);
-    podman.args(&["/usr/bin/toolbox", "run-pid1"]);
+    podman.args(&["/usr/bin/toolbox", "internals", "run-pid1"]);
     podman.stdout(Stdio::null());
     podman.run()?;
     Ok(())
@@ -301,7 +306,7 @@ fn run(opts: &RunOpts) -> Fallible<()> {
     let mut podman = cmd_podman();
     podman.args(&["exec", "--interactive", "--tty"]);
     append_preserved_env(&mut podman)?;
-    podman.args(&[opts.name.as_str(), "/usr/bin/toolbox", "exec"]);
+    podman.args(&[opts.name.as_str(), "/usr/bin/toolbox", "internals", "exec"]);
     return Err(podman.exec().into());
 }
 
@@ -316,7 +321,7 @@ fn rm(opts: &RmOpts) -> Fallible<()> {
     Err(podman.exec().into())
 }
 
-fn run_pid1(_opts: Opt) -> Fallible<()> {
+fn run_pid1(_opts: InternalOpt) -> Fallible<()> {
     unsafe {
         signal_hook::register(signal_hook::SIGCHLD, waitpid_all)?;
         signal_hook::register(signal_hook::SIGTERM, || std::process::exit(0))?;
@@ -576,12 +581,20 @@ mod entrypoint {
 /// Primary entrypoint
 fn main() {
     || -> Fallible<()> {
-        let opts = Opt::from_args();
-        match opts {
-            Opt::Run(ref runopts) => run(runopts),
-            Opt::Exec => entrypoint::exec(),
-            Opt::Rm(ref opts) => rm(opts),
-            Opt::RunPid1 => run_pid1(opts),
+        let mut args : Vec<String> = std::env::args().collect();
+        if let Some("internals") = args.get(1).map(|s| s.as_str()) {
+            args.remove(1);
+            let opts = InternalOpt::from_iter(args.iter());
+            match opts {
+                InternalOpt::Exec => entrypoint::exec(),
+                InternalOpt::RunPid1 => run_pid1(opts),
+            }
+        } else {
+            let opts = Opt::from_iter(args.iter());
+            match opts {
+                Opt::Run(ref runopts) => run(runopts),
+                Opt::Rm(ref opts) => rm(opts),
+            }
         }
     }()
     .unwrap_or_else(|e| {
