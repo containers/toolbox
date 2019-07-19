@@ -70,11 +70,7 @@ struct RunOpts {
     /// Use a different base image
     image: String,
 
-    #[structopt(
-        short = "n",
-        long = "name",
-        default_value = "coreos-toolbox"
-    )]
+    #[structopt(short = "n", long = "name", default_value = "coreos-toolbox")]
     /// Name the container
     name: String,
 
@@ -87,14 +83,9 @@ struct RunOpts {
     destroy: bool,
 }
 
-
 #[derive(Debug, StructOpt)]
 struct RmOpts {
-    #[structopt(
-        short = "n",
-        long = "name",
-        default_value = "coreos-toolbox"
-    )]
+    #[structopt(short = "n", long = "name", default_value = "coreos-toolbox")]
     /// Name for container
     name: String,
 }
@@ -221,7 +212,7 @@ fn create(opts: &RunOpts) -> Fallible<()> {
         "--privileged",
         "--security-opt=label=disable",
         "--label=com.coreos.toolbox=true",
-        "--tmpfs=/run:rw"
+        "--tmpfs=/run:rw",
     ]);
     // In privileged mode we assume we want to control all host processes by default;
     // we're more about debugging/management and less of a "dev container".
@@ -295,7 +286,9 @@ fn run(opts: &RunOpts) -> Fallible<()> {
     }
 
     if opts.destroy {
-        rm(&RmOpts { name: opts.name.clone() })?;
+        rm(&RmOpts {
+            name: opts.name.clone(),
+        })?;
     }
 
     create(&opts)?;
@@ -337,12 +330,10 @@ fn waitpid_all() {
     use nix::sys::wait::WaitStatus;
     loop {
         match nix::sys::wait::waitpid(None, Some(nix::sys::wait::WaitPidFlag::WNOHANG)) {
-            Ok(status) => {
-                match status {
-                    WaitStatus::StillAlive => break,
-                    _ => {},
-                }
-            }
+            Ok(status) => match status {
+                WaitStatus::StillAlive => break,
+                _ => {}
+            },
             Err(_) => break,
         }
     }
@@ -364,9 +355,7 @@ mod entrypoint {
     static CONTAINER_INITIALIZED_STAMP: &str = "/etc/coreos-toolbox.initialized";
 
     fn rbind(src: &str, dest: &str) -> Fallible<()> {
-        Command::new("mount")
-            .args(&["--rbind", src, dest])
-            .run()?;
+        Command::new("mount").args(&["--rbind", src, dest]).run()?;
         Ok(())
     }
 
@@ -457,13 +446,15 @@ mod entrypoint {
 
         let var_mnt_dirs = ["/srv", "/mnt"];
         if state.ostree_based_host {
-            var_mnt_dirs.par_iter().chain(["/home"].par_iter())
-            .try_for_each(|d| -> Fallible<()> {
-                let hostd = format!("/host{}", d);
-                let vard = format!("var{}", d);
-                unix::fs::symlink(vard, hostd)?;
-                Ok(())
-            })?;
+            var_mnt_dirs
+                .par_iter()
+                .chain(["/home"].par_iter())
+                .try_for_each(|d| -> Fallible<()> {
+                    let hostd = format!("/host{}", d);
+                    let vard = format!("var{}", d);
+                    unix::fs::symlink(vard, hostd)?;
+                    Ok(())
+                })?;
         }
 
         // Remove anaconda cruft
@@ -481,7 +472,8 @@ mod entrypoint {
         // so that we don't clash with any well-known dirs.  For example
         // fish creates /tmp/root.fish which will break with `sudo`
         // as the userns uid 0 isn't the same as the real uid 0 of course.
-        ["/tmp", "/var/tmp"].par_iter()
+        ["/tmp", "/var/tmp"]
+            .par_iter()
             .try_for_each(|d| -> Fallible<()> {
                 std::fs::remove_dir(d)?;
                 std::fs::create_dir(d)?;
@@ -501,7 +493,8 @@ mod entrypoint {
             .with_context(|e| format!("Handling tmpdirs: {}", e))?;
 
         // Propagate data  directories to the host
-        var_mnt_dirs.par_iter()
+        var_mnt_dirs
+            .par_iter()
             .try_for_each(|d| -> Fallible<()> {
                 std::fs::remove_dir(d)?;
                 let hostd = format!("/host{}", d);
@@ -527,7 +520,8 @@ mod entrypoint {
                 .try_for_each(|d| -> Fallible<()> {
                     let hostd = format!("/host/dev/{}", d);
                     if Path::new(&hostd).exists() {
-                        unix::fs::symlink(hostd, format!("/dev/{}", d)).with_context(|e| format!("symlinking {}: {}", d, e))?;
+                        unix::fs::symlink(hostd, format!("/dev/{}", d))
+                            .with_context(|e| format!("symlinking {}: {}", d, e))?;
                     }
                     Ok(())
                 })
@@ -583,7 +577,7 @@ mod entrypoint {
 fn main() {
     || -> Fallible<()> {
         let opts = Opt::from_args();
-         match opts {
+        match opts {
             Opt::Run(ref runopts) => run(runopts),
             Opt::Exec => entrypoint::exec(),
             Opt::Rm(ref opts) => rm(opts),
