@@ -205,24 +205,34 @@ fn create(opts: &RunOpts) -> Fallible<()> {
 
     let runtime_dir = getenv_required_utf8("XDG_RUNTIME_DIR")?;
     let statefile = "coreos-toolbox.initdata";
+    let real_uid: u32 = nix::unistd::getuid().into();
+    let privileged = real_uid == 0;
 
     let mut podman = cmd_podman();
+    podman.arg(format!("--name={}", opts.name));
+    // The basic arguments.
     podman.args(&[
         "create",
         "--interactive",
         "--tty",
         "--hostname=toolbox",
         "--network=host",
+        // We are not aiming for security isolation here.
         "--privileged",
         "--security-opt=label=disable",
         "--label=com.coreos.toolbox=true",
         "--tmpfs=/run:rw"
     ]);
-    podman.arg(format!("--name={}", opts.name));
+    // In privileged mode we assume we want to control all host processes by default;
+    // we're more about debugging/management and less of a "dev container".
+    if privileged {
+        podman.arg("--pid=host");
+    }
+    // We bind ourself in so we can handle recursive invocation.
     podman.arg(format!("--volume={}:/usr/bin/toolbox:ro", self_bin));
-    let real_uid: u32 = nix::unistd::getuid().into();
+
     // In true privileged mode we don't use userns
-    if real_uid != 0 {
+    if !privileged {
         let uid_plus_one = real_uid + 1;
         let max_minus_uid = MAX_UID_COUNT - real_uid;
         podman.args(&[
@@ -237,6 +247,13 @@ fn create(opts: &RunOpts) -> Fallible<()> {
 
     for p in &["/dev", "/usr", "/var", "/etc", "/run", "/tmp"] {
         podman.arg(format!("--volume={}:/host{}:rslave", p, p));
+    }
+    if privileged {
+        let debugfs = "/sys/kernel/debug";
+        if Path::new(debugfs).exists() {
+            // Bind debugfs in privileged mode so we can use e.g. bpftrace
+            podman.arg(format!("--volume={}:{}:rslave", debugfs, debugfs));
+        }
     }
     if is_ostree_based_host() {
         podman.arg(format!("--volume=/sysroot:/host/sysroot:rslave"));
