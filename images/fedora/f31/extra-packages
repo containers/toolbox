@@ -20,7 +20,6 @@ man-pages
 mlocate
 mtr
 openssh-clients
-PackageKit-command-not-found
 passwd
 pigz
 procps-ng
