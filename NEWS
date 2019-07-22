@@ -1,3 +1,12 @@
+Overview of changes in 0.0.12
+=============================
+
+* Create /run/.toolboxenv inside the toolbox container's entry point too
+* Don't use 'podman cp' to copy toolbox.sh to old containers
+* Drop the "immutable" term
+* Unbreak /etc/localtime & /etc/timezone if /run/host/monitor is absent
+
+
 Overview of changes in 0.0.11
 =============================
 
