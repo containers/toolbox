@@ -692,6 +692,7 @@ create()
     monitor_host=""
     no_hosts=""
     toolbox_profile_bind=""
+    ulimit_host=""
 
     # shellcheck disable=SC2153
     if [ "$DBUS_SYSTEM_BUS_ADDRESS" != "" ]; then
@@ -748,6 +749,14 @@ create()
         no_hosts="--no-hosts"
 
         monitor_host="--monitor-host"
+    fi
+
+    echo "$base_toolbox_command: checking if 'podman create' supports --ulimit host" >&3
+
+    if man podman-create 2>&3 | grep "You can pass host" >/dev/null 2>&3; then
+        echo "$base_toolbox_command: 'podman create' supports --ulimit host" >&3
+
+        ulimit_host="--ulimit host"
     fi
 
     if ! pull_base_toolbox_image; then
@@ -841,6 +850,7 @@ create()
             --pid host \
             --privileged \
             --security-opt label=disable \
+            $ulimit_host \
             --userns=keep-id \
             --user root:root \
             $flatpak_system_directory_bind \
