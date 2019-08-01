@@ -507,29 +507,6 @@ image_reference_has_domain()
 )
 
 
-images_get_details()
-(
-    images="$1"
-
-    if ! echo "$images" | while read -r image; do
-            [ "$image" = "" ] 2>&3 && continue
-
-            if ! $prefix_sudo podman images \
-                         --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Created}}" \
-                         --noheading \
-                         "$image" 2>&3; then
-                echo "$base_toolbox_command: failed to get details for image $image" >&2
-                return 1
-            fi
-            echo
-         done; then
-        return 1
-    fi
-
-    return 0
-)
-
-
 is_etc_profile_d_toolbox_a_bind_mount()
 {
     container="$1"
@@ -539,29 +516,6 @@ is_etc_profile_d_toolbox_a_bind_mount()
 
     return "$?"
 }
-
-
-list_container_names()
-(
-    if ! containers_old=$($prefix_sudo podman ps \
-                                  --all \
-                                  --filter "label=com.redhat.component=fedora-toolbox" \
-                                  --format "{{.Names}}" 2>&3); then
-        echo "$base_toolbox_command: failed to list containers with com.redhat.component=fedora-toolbox" >&2
-        return 1
-    fi
-
-    if ! containers=$($prefix_sudo podman ps \
-                              --all \
-                              --filter "label=com.github.debarshiray.toolbox=true" \
-                              --format "{{.Names}}" 2>&3); then
-        echo "$base_toolbox_command: failed to list containers with com.github.debarshiray.toolbox=true" >&2
-        return 1
-    fi
-
-    printf "%s\n%s\n" "$containers_old" "$containers" | sort 2>&3 | uniq 2>&3
-    return 0
-)
 
 
 pull_base_toolbox_image()
@@ -1195,31 +1149,37 @@ help()
 )
 
 
-list_images()
+get_images()
 (
-    output=""
-
     if ! images_old=$($prefix_sudo podman images \
                               --filter "label=com.redhat.component=fedora-toolbox" \
-                              --format "{{.Repository}}:{{.Tag}}" 2>&3); then
+                              --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Created}}" 2>&3); then
         echo "$base_toolbox_command: failed to list images with com.redhat.component=fedora-toolbox" >&2
         return 1
     fi
 
     if ! images=$($prefix_sudo podman images \
                           --filter "label=com.github.debarshiray.toolbox=true" \
-                          --format "{{.Repository}}:{{.Tag}}" 2>&3); then
+                          --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Created}}" 2>&3); then
         echo "$base_toolbox_command: failed to list images with com.github.debarshiray.toolbox=true" >&2
         return 1
     fi
 
-    images=$(printf "%s\n%s\n" "$images_old" "$images" | sort 2>&3 | uniq 2>&3)
-    if ! details=$(images_get_details "$images"); then
+    printf "%s\n%s\n" "$images_old" "$images" | sort 2>&3 | uniq 2>&3
+    return 0
+)
+
+
+list_images()
+(
+    output=""
+
+    if ! images_info=$(get_images); then
         return 1
     fi
 
-    if [ "$details" != "" ] 2>&3; then
-        table_data=$(printf "%s\t%s\t%s\n" "IMAGE ID" "IMAGE NAME" "CREATED"; echo "$details")
+    if [ "$images_info" != "" ] 2>&3; then
+        table_data=$(printf "%s\t%s\t%s\n" "IMAGE ID" "IMAGE NAME" "CREATED"; echo "$images_info")
         if ! output=$(echo "$table_data" | sed "s/ \{2,\}/\t/g" 2>&3 | column -s "$tab" -t 2>&3); then
             echo "$base_toolbox_command: failed to parse list of images" >&2
             return 1
@@ -1236,23 +1196,25 @@ list_images()
 )
 
 
-containers_get_details()
+get_containers()
 (
-    containers="$1"
-
-    if ! echo "$containers" | while read -r container; do
-            [ "$container" = "" ] 2>&3 && continue
-
-            if ! $prefix_sudo podman ps --all \
-                         --filter "name=$container" \
-                         --format "{{.ID}}  {{.Names}}  {{.Created}}  {{.Status}}  {{.Image}}" 2>&3; then
-                echo "$base_toolbox_command: failed to get details for container $container" >&2
-                return 1
-            fi
-         done; then
+    if ! containers_old=$($prefix_sudo podman ps \
+                                  --all \
+                                  --filter "label=com.redhat.component=fedora-toolbox" \
+                                  --format "{{.ID}}  {{.Names}}  {{.Created}}  {{.Status}}  {{.Image}}" 2>&3); then
+        echo "$base_toolbox_command: failed to list containers with com.redhat.component=fedora-toolbox" >&2
         return 1
     fi
 
+    if ! containers=$($prefix_sudo podman ps \
+                              --all \
+                              --filter "label=com.github.debarshiray.toolbox=true" \
+                              --format "{{.ID}}  {{.Names}}  {{.Created}}  {{.Status}}  {{.Image}}" 2>&3); then
+        echo "$base_toolbox_command: failed to list containers with com.github.debarshiray.toolbox=true" >&2
+        return 1
+    fi
+
+    printf "%s\n%s\n" "$containers_old" "$containers" | sort 2>&3 | uniq 2>&3
     return 0
 )
 
@@ -1261,17 +1223,13 @@ list_containers()
 (
     output=""
 
-    if ! containers=$(list_container_names); then
+    if ! containers=$(get_containers); then
         return 1
     fi
 
-    if ! details=$(containers_get_details "$containers"); then
-        return 1
-    fi
-
-    if [ "$details" != "" ] 2>&3; then
+    if [ "$containers" != "" ] 2>&3; then
         table_data=$(printf "%s\t%s\t%s\t%s\t%s\n" "CONTAINER ID" "CONTAINER NAME" "CREATED" "STATUS" "IMAGE NAME"
-                     echo "$details")
+                     echo "$containers")
         if ! output=$(echo "$table_data" | sed "s/ \{2,\}/\t/g" 2>&3 | column -s "$tab" -t 2>&3); then
             echo "$base_toolbox_command: failed to parse list of containers" >&2
             return 1
