@@ -449,6 +449,7 @@ mod entrypoint {
             serde_json::from_reader(std::io::BufReader::new(f))?
         };
 
+        // Propagate standard mount points into the container
         let var_mnt_dirs = ["/srv", "/mnt"];
         if state.ostree_based_host {
             var_mnt_dirs
@@ -461,6 +462,9 @@ mod entrypoint {
                     Ok(())
                 })?;
         }
+
+        // This is another mount point used by udisks
+        unix::fs::symlink("/host/run/media", "/run/media")?;
 
         // Remove anaconda cruft
         std::fs::read_dir("/tmp")?.try_for_each(|e| -> Fallible<()> {
