@@ -117,11 +117,6 @@ fn cmd_podman() -> Command {
     }
 }
 
-/// Returns true if the host is OSTree based
-fn is_ostree_based_host() -> bool {
-    std::path::Path::new("/run/ostree-booted").exists()
-}
-
 #[allow(dead_code)]
 enum InspectType {
     Container,
@@ -167,7 +162,6 @@ struct EntrypointState {
     username: String,
     uid: u32,
     home: String,
-    ostree_based_host: bool,
 }
 
 fn append_preserved_env(c: &mut Command) -> Fallible<()> {
@@ -259,7 +253,6 @@ fn create(opts: &RunOpts) -> Fallible<()> {
             username: getenv_required_utf8("USER")?,
             uid: real_uid,
             home: getenv_required_utf8("HOME")?,
-            ostree_based_host: is_ostree_based_host(),
         };
         let w = std::fs::File::create(format!("{}/{}", runtime_dir, statefile))?;
         let mut w = std::io::BufWriter::new(w);
@@ -437,8 +430,10 @@ mod entrypoint {
             serde_json::from_reader(std::io::BufReader::new(f))?
         };
 
+        let ostree_based_host = std::path::Path::new("/host/run/ostree-booted").exists();
+
         // Convert the container to ostree-style layout
-        if state.ostree_based_host {
+        if ostree_based_host {
             DATADIRS.par_iter()
                 .try_for_each(|d| -> Fallible<()> {
                     std::fs::remove_dir(d)?;
