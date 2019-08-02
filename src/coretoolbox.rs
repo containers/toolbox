@@ -350,7 +350,16 @@ mod entrypoint {
     use std::process::Command;
 
     static CONTAINER_INITIALIZED_LOCK: &str = "/run/coreos-toolbox.lock";
+    /// This file is created when we've generated a "container image" (overlayfs layer)
+    /// that has things like our modifications to /etc/passwd, and the root `/`.
     static CONTAINER_INITIALIZED_STAMP: &str = "/etc/coreos-toolbox.initialized";
+    /// This file is created when we've completed *runtime* state configuration
+    /// changes such as bind mounts.
+    static CONTAINER_INITIALIZED_RUNTIME_STAMP: &str = "/run/coreos-toolbox.initialized";
+
+    /// Set of directories we explicitly make bind mounts rather than symlinks to /host.
+    /// To ensure that paths are the same inside and out.
+    static DATADIRS: &[&str] = &["/srv", "/mnt", "/home"];
 
     fn rbind(src: &str, dest: &str) -> Fallible<()> {
         Command::new("mount").args(&["--rbind", src, dest]).run()?;
@@ -402,19 +411,7 @@ mod entrypoint {
         Ok(())
     }
 
-    /// Podman unprivileged mode has a bug where it exposes the host
-    /// selinuxfs which is bad because it can make e.g. librpm
-    /// think it can do domain transitions to rpm_exec_t, which
-    /// isn't actually permitted.
-    fn workaround_podman_selinux() -> Fallible<()> {
-        let sysfs_selinux = "/sys/fs/selinux";
-        if Path::new(sysfs_selinux).join("status").exists() {
-            rbind("/usr/share/empty", sysfs_selinux)?;
-        }
-        Ok(())
-    }
-
-    fn init_container() -> Fallible<()> {
+    fn init_container_static() -> Fallible<()> {
         let initstamp = Path::new(CONTAINER_INITIALIZED_STAMP);
         if initstamp.exists() {
             return Ok(());
@@ -431,8 +428,6 @@ mod entrypoint {
             return Ok(());
         }
 
-        workaround_podman_selinux()?;
-
         let runtime_dir = super::getenv_required_utf8("XDG_RUNTIME_DIR")?;
         let state: EntrypointState = {
             let p = format!("/host/{}/{}", runtime_dir, "coreos-toolbox.initdata");
@@ -442,27 +437,14 @@ mod entrypoint {
             serde_json::from_reader(std::io::BufReader::new(f))?
         };
 
-        // Propagate standard mount points into the container.
-        // We make these bind mounts instead of symlinks as
-        // some programs get confused by absolute paths.
-        let datadirs = ["/srv", "/mnt", "/home"];
+        // Convert the container to ostree-style layout
         if state.ostree_based_host {
-            // Convert the container to ostree-style layout
-            datadirs.par_iter()
+            DATADIRS.par_iter()
                 .try_for_each(|d| -> Fallible<()> {
                     std::fs::remove_dir(d)?;
                     let vard = format!("var{}", d);
                     unix::fs::symlink(&vard, d)?;
                     std::fs::create_dir(&vard)?;
-                    let hostd = format!("/host/{}", &vard);
-                    rbind(&hostd, &vard)?;
-                    Ok(())
-                })?;
-        } else {
-            datadirs.par_iter()
-                .try_for_each(|d| -> Fallible<()> {
-                    let hostd = format!("/host/{}", d);
-                    rbind(&hostd, d)?;
                     Ok(())
                 })?;
         }
@@ -546,12 +528,65 @@ mod entrypoint {
         Ok(())
     }
 
+    fn init_container_runtime() -> Fallible<()> {
+        let initstamp = Path::new(CONTAINER_INITIALIZED_RUNTIME_STAMP);
+        if initstamp.exists() {
+            return Ok(());
+        }
+
+        let lockf = std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open(CONTAINER_INITIALIZED_LOCK)?;
+        lockf.lock_exclusive()?;
+
+        if initstamp.exists() {
+            return Ok(());
+        }
+
+        // Podman unprivileged mode has a bug where it exposes the host
+        // selinuxfs which is bad because it can make e.g. librpm
+        // think it can do domain transitions to rpm_exec_t, which
+        // isn't actually permitted.
+        let sysfs_selinux = "/sys/fs/selinux";
+        if Path::new(sysfs_selinux).join("status").exists() {
+            rbind("/usr/share/empty", sysfs_selinux)?;
+        }
+
+        let ostree_based_host = std::path::Path::new("/host/run/ostree-booted").exists();
+
+        // Propagate standard mount points into the container.
+        // We make these bind mounts instead of symlinks as
+        // some programs get confused by absolute paths.
+        if ostree_based_host {
+            DATADIRS.par_iter()
+                .try_for_each(|d| -> Fallible<()> {
+                    let vard = format!("var{}", d);
+                    let hostd = format!("/host/{}", &vard);
+                    rbind(&hostd, &vard)?;
+                    Ok(())
+                })?;
+        } else {
+            DATADIRS.par_iter()
+                .try_for_each(|d| -> Fallible<()> {
+                    let hostd = format!("/host/{}", d);
+                    rbind(&hostd, d)?;
+                    Ok(())
+                })?;
+        }
+
+        Ok(())
+    }
+
+
     pub(crate) fn exec() -> Fallible<()> {
         use nix::sys::stat::Mode;
         if !super::in_container() {
             bail!("Not inside a container");
         }
-        init_container().with_context(|e| format!("Initializing container: {}", e))?;
+        init_container_static().with_context(|e| format!("Initializing container (static): {}", e))?;
+        init_container_runtime().with_context(|e| format!("Initializing container (runtime): {}", e))?;
         let initstamp = Path::new(CONTAINER_INITIALIZED_STAMP);
         if !initstamp.exists() {
             bail!("toolbox not initialized");
