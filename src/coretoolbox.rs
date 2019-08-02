@@ -251,13 +251,6 @@ fn create(opts: &RunOpts) -> Fallible<()> {
             podman.arg(format!("--volume={}:{}:rslave", debugfs, debugfs));
         }
     }
-    if is_ostree_based_host() {
-        podman.arg(format!("--volume=/sysroot:/host/sysroot:rslave"));
-    } else {
-        for p in &["/media", "/mnt", "/home", "/srv"] {
-            podman.arg(format!("--volume={}:/host{}:rslave", p, p));
-        }
-    }
     append_preserved_env(&mut podman)?;
     podman.arg(format!("--env=TOOLBOX_STATEFILE={}", statefile));
 
@@ -449,16 +442,27 @@ mod entrypoint {
             serde_json::from_reader(std::io::BufReader::new(f))?
         };
 
-        // Propagate standard mount points into the container
-        let var_mnt_dirs = ["/srv", "/mnt"];
+        // Propagate standard mount points into the container.
+        // We make these bind mounts instead of symlinks as
+        // some programs get confused by absolute paths.
+        let datadirs = ["/srv", "/mnt", "/home"];
         if state.ostree_based_host {
-            var_mnt_dirs
-                .par_iter()
-                .chain(["/home"].par_iter())
+            // Convert the container to ostree-style layout
+            datadirs.par_iter()
                 .try_for_each(|d| -> Fallible<()> {
-                    let hostd = format!("/host{}", d);
+                    std::fs::remove_dir(d)?;
                     let vard = format!("var{}", d);
-                    unix::fs::symlink(vard, hostd)?;
+                    unix::fs::symlink(&vard, d)?;
+                    std::fs::create_dir(&vard)?;
+                    let hostd = format!("/host/{}", &vard);
+                    rbind(&hostd, &vard)?;
+                    Ok(())
+                })?;
+        } else {
+            datadirs.par_iter()
+                .try_for_each(|d| -> Fallible<()> {
+                    let hostd = format!("/host/{}", d);
+                    rbind(&hostd, d)?;
                     Ok(())
                 })?;
         }
@@ -500,17 +504,6 @@ mod entrypoint {
                 Ok(())
             })
             .with_context(|e| format!("Handling tmpdirs: {}", e))?;
-
-        // Propagate data  directories to the host
-        var_mnt_dirs
-            .par_iter()
-            .try_for_each(|d| -> Fallible<()> {
-                std::fs::remove_dir(d)?;
-                let hostd = format!("/host{}", d);
-                unix::fs::symlink(hostd, d)?;
-                Ok(())
-            })
-            .with_context(|e| format!("Symlinking host dir: {}", e))?;
 
         // And forward the runtime dir
         host_symlink(runtime_dir).with_context(|e| format!("Forwarding runtime dir: {}", e))?;
