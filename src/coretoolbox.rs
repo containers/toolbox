@@ -1,5 +1,5 @@
 use directories;
-use failure::{bail, Fallible};
+use failure::{bail, Fallible, ResultExt};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use serde_json;
@@ -9,6 +9,20 @@ use std::os::unix::process::CommandExt;
 use std::path::Path;
 use std::process::{Command, Stdio};
 use structopt::StructOpt;
+
+#[derive(Deserialize, Clone, Debug)]
+struct PodmanImageInspect {
+    id: String,
+    names: Vec<String>,
+}
+
+static DEFAULT_IMAGE: &str = "registry.fedoraproject.org/f30/fedora-toolbox:30";
+/// The label set on toolbox images and containers.
+static TOOLBOX_LABEL: &str = "com.coreos.toolbox";
+/// The label set on github.com/debarshiray/fedora-toolbox images and containers.
+static D_TOOLBOX_LABEL: &str = "com.github.debarshiray.toolbox";
+/// The default container name
+static DEFAULT_NAME: &str = "coreos-toolbox";
 
 lazy_static! {
     static ref APPDIRS: directories::ProjectDirs =
@@ -61,18 +75,17 @@ impl CommandRunExt for Command {
 }
 
 #[derive(Debug, StructOpt)]
-struct RunOpts {
+struct CreateOpts {
     #[structopt(
         short = "I",
         long = "image",
-        default_value = "registry.fedoraproject.org/f30/fedora-toolbox:30"
     )]
     /// Use a different base image
-    image: String,
+    image: Option<String>,
 
-    #[structopt(short = "n", long = "name", default_value = "coreos-toolbox")]
+    #[structopt(short = "n", long = "name")]
     /// Name the container
-    name: String,
+    name: Option<String>,
 
     #[structopt(short = "N", long = "nested")]
     /// Allow running inside a container
@@ -81,6 +94,17 @@ struct RunOpts {
     #[structopt(short = "D", long = "destroy")]
     /// Destroy any existing container
     destroy: bool,
+}
+
+#[derive(Debug, StructOpt)]
+struct RunOpts {
+    #[structopt(short = "n", long = "name")]
+    /// Name of container
+    name: Option<String>,
+
+    #[structopt(short = "N", long = "nested")]
+    /// Allow running inside a container
+    nested: bool,
 }
 
 #[derive(Debug, StructOpt)]
@@ -94,10 +118,14 @@ struct RmOpts {
 #[structopt(name = "coretoolbox", about = "Toolbox")]
 #[structopt(rename_all = "kebab-case")]
 enum Opt {
+    /// Create a  toolbox
+    Create(CreateOpts),
     /// Enter the toolbox
     Run(RunOpts),
     /// Delete the toolbox container
     Rm(RmOpts),
+    /// Display names of already downloaded images with toolbox labels
+    ListToolboxImages,
 }
 
 #[derive(Debug, StructOpt)]
@@ -136,6 +164,35 @@ fn podman_has(t: InspectType, name: &str) -> Fallible<bool> {
         .stderr(Stdio::null())
         .status()?
         .success())
+}
+
+fn podman_image_inspect<I, S>(args: I) -> Fallible<Vec<PodmanImageInspect>>
+    where I: IntoIterator<Item=S>, S: AsRef<std::ffi::OsStr>
+ {
+    let mut proc = cmd_podman()
+        .stdout(std::process::Stdio::piped())
+        .args(&["images", "--format", "json"])
+        .args(args)
+        .spawn()?;
+    let sout = proc.stdout.take().expect("stdout piped");
+    let mut sout = std::io::BufReader::new(sout);
+    let res = if sout.fill_buf()?.len() > 0 {
+        serde_json::from_reader(sout)?
+    } else {
+        Vec::new()
+    };
+    if !proc.wait()?.success() {
+        bail!("podman images failed")
+    }
+    Ok(res)
+}
+
+fn get_toolbox_images() -> Fallible<Vec<PodmanImageInspect>> {
+    let label = format!("label={}=true", TOOLBOX_LABEL);
+    let mut ret = podman_image_inspect(&["--filter", label.as_str()]).with_context(|e| format!(r#"Finding containers with label "{}": {}"#, TOOLBOX_LABEL, e))?;
+    let dlabel = format!("label={}=true", D_TOOLBOX_LABEL);
+    ret.extend(podman_image_inspect(&["--filter", dlabel.as_str()]).with_context(|e| format!(r#"Finding containers with label "{}": {}"#, D_TOOLBOX_LABEL, e))?);
+    Ok(ret)
 }
 
 /// Pull a container image if not present
@@ -178,12 +235,49 @@ fn append_preserved_env(c: &mut Command) -> Fallible<()> {
     Ok(())
 }
 
-fn create(opts: &RunOpts) -> Fallible<()> {
-    ensure_image(&opts.image)?;
+fn get_default_image() -> Fallible<String> {
+    let toolboxes = get_toolbox_images()?;
+    Ok(match toolboxes.len() {
+        0 => {
+            print!("Welcome to coretoolbox
+Enter a pull spec for toolbox image; default: {defimg}
+Image: ", defimg=DEFAULT_IMAGE);
+            std::io::stdout().flush()?;
+            let mut input = String::new();
+            std::io::stdin().read_line(&mut input)?;
+            input.truncate(input.trim_end().len());
+            if input.is_empty() {
+                DEFAULT_IMAGE.to_owned()
+            } else {
+                input
+            }
+        }
+        1 => toolboxes[0].names[0].clone(),
+        _ => bail!("Multiple toolbox images found, must specify via -I"),
+    })
+}
 
-    if podman_has(InspectType::Container, &opts.name)? {
-        return Ok(());
+fn create(opts: &CreateOpts) -> Fallible<()> {
+    if in_container() && !opts.nested {
+        bail!("Already inside a container");
     }
+
+    let image =
+        if opts.image.is_none() && opts.name.is_none() && !podman_has(InspectType::Container, DEFAULT_NAME)? {
+            get_default_image()?
+        } else {
+            opts.image.as_ref().map(|s|s.as_str()).unwrap_or(DEFAULT_IMAGE).to_owned()
+        };
+
+    let name = opts.name.as_ref().map(|s|s.as_str()).unwrap_or(DEFAULT_NAME);
+
+    if opts.destroy {
+        rm(&RmOpts {
+            name: name.to_owned(),
+        })?;
+    }
+
+    ensure_image(&image)?;
 
     // exec ourself as the entrypoint.  In the future this
     // would be better with podman fd passing.
@@ -209,10 +303,10 @@ fn create(opts: &RunOpts) -> Fallible<()> {
         // We are not aiming for security isolation here.
         "--privileged",
         "--security-opt=label=disable",
-        "--label=com.coreos.toolbox=true",
         "--tmpfs=/run:rw",
     ]);
-    podman.arg(format!("--name={}", opts.name));
+    podman.arg(format!("--label={}=true", TOOLBOX_LABEL));
+    podman.arg(format!("--name={}", name));
     // In privileged mode we assume we want to control all host processes by default;
     // we're more about debugging/management and less of a "dev container".
     if privileged {
@@ -260,7 +354,7 @@ fn create(opts: &RunOpts) -> Fallible<()> {
         w.flush()?;
     }
 
-    podman.arg(&opts.image);
+    podman.arg(&image);
     podman.args(&["/usr/bin/toolbox", "internals", "run-pid1"]);
     podman.stdout(Stdio::null());
     podman.run()?;
@@ -276,23 +370,26 @@ fn run(opts: &RunOpts) -> Fallible<()> {
         bail!("Already inside a container");
     }
 
-    if opts.destroy {
-        rm(&RmOpts {
-            name: opts.name.clone(),
-        })?;
+    let name = opts.name.as_ref().map(|s|s.as_str()).unwrap_or(DEFAULT_NAME);
+
+    if !podman_has(InspectType::Container, &name)? {
+        let toolboxes = get_toolbox_images()?;
+        if toolboxes.len() == 0 {
+            bail!("No toolbox container or images found; use `create` to create one")
+        } else {
+            bail!("No toolbox container '{}' found", name)
+        }
     }
 
-    create(&opts)?;
-
     cmd_podman()
-        .args(&["start", opts.name.as_str()])
+        .args(&["start", name])
         .stdout(Stdio::null())
         .run()?;
 
     let mut podman = cmd_podman();
     podman.args(&["exec", "--interactive", "--tty"]);
     append_preserved_env(&mut podman)?;
-    podman.args(&[opts.name.as_str(), "/usr/bin/toolbox", "internals", "exec"]);
+    podman.args(&[name, "/usr/bin/toolbox", "internals", "exec"]);
     return Err(podman.exec().into());
 }
 
@@ -305,6 +402,18 @@ fn rm(opts: &RmOpts) -> Fallible<()> {
         .args(&["rm", "-f", opts.name.as_str()])
         .stdout(Stdio::null());
     Err(podman.exec().into())
+}
+
+fn list_toolbox_images() -> Fallible<()> {
+    let toolboxes = get_toolbox_images()?;
+    if toolboxes.is_empty() {
+        println!("No toolbox images found.")
+    } else {
+        for i in toolboxes {
+            println!("{}", i.names[0]);
+        }
+    }
+    Ok(())
 }
 
 fn run_pid1(_opts: InternalOpt) -> Fallible<()> {
@@ -619,8 +728,10 @@ fn main() {
         } else {
             let opts = Opt::from_iter(args.iter());
             match opts {
-                Opt::Run(ref runopts) => run(runopts),
+                Opt::Create(ref opts) => create(opts),
+                Opt::Run(ref opts) => run(opts),
                 Opt::Rm(ref opts) => rm(opts),
+                Opt::ListToolboxImages => list_toolbox_images(),
             }
         }
     }()

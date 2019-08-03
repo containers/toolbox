@@ -1,10 +1,34 @@
 coreos-toolbox
----
+===
 
 This is a new implementation of https://github.com/debarshiray/toolbox/
 
+Getting started
+---
+
+One time setup
+
+```
+$ coretoolbox create
+<answer questions>
+$
+```
+
+Now, each time you want to enter the toolbox:
+
+```
+$ coretoolbox run
+```
+
+One suggestion is to add a "profile" or configuration to your terminal
+emulator that runs `coretoolbox run` by default, so that you can
+easily create new tabs/windows in the toolbox.
+
+Rationale
+---
+
 In order to disambiguate in this text we'll call this tool
-"ctb", and the other one "dtb". 
+"ctb", and the other one "dtb".
 
 The main reason to introduce a new tool is that dtb too strongly
 encourages true "pet" containers, where significant state is stored
