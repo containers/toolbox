@@ -5,8 +5,13 @@ toolbox_config="$HOME/.config/toolbox"
 host_welcome_stub="$toolbox_config/host-welcome-shown"
 toolbox_welcome_stub="$toolbox_config/toolbox-welcome-shown"
 
+# shellcheck disable=SC1091
+. /usr/lib/os-release
+
 if [ -f /run/ostree-booted ] \
-   && ! [ -f "$host_welcome_stub" ]; then
+   && ! [ -f "$host_welcome_stub" ] \
+   && [ "${ID}" = "fedora" ] \
+   && { [ "${VARIANT_ID}" = "workstation" ] || [ "${VARIANT_ID}" = "silverblue" ]; }; then
     echo ""
     echo "Welcome to Fedora Silverblue. This terminal is running on the"
     echo "host system. You may want to try out the Toolbox for a directly"
