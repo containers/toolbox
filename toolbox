@@ -691,6 +691,7 @@ create()
     libvirt_system_directory_bind=""
     monitor_host=""
     no_hosts=""
+    run_media_path_bind=""
     toolbox_profile_bind=""
     ulimit_host=""
 
@@ -799,6 +800,10 @@ create()
         toolbox_profile_bind="--volume /etc/profile.d/toolbox.sh:/etc/profile.d/toolbox.sh:ro"
     fi
 
+    if [ -d /run/media ] 2>&3; then
+        run_media_path_bind="--volume /run/media:/run/media:rslave"
+    fi
+
     if ! home_canonical=$(readlink --canonicalize "$HOME" 2>&3); then
         echo "$base_toolbox_command: failed to canonicalize $HOME" >&2
         return 1
@@ -856,6 +861,7 @@ create()
             $flatpak_system_directory_bind \
             $kcm_socket_bind \
             $libvirt_system_directory_bind \
+            $run_media_path_bind \
             $toolbox_path_bind \
             $toolbox_profile_bind \
             --volume "$XDG_RUNTIME_DIR":"$XDG_RUNTIME_DIR" \
@@ -866,7 +872,6 @@ create()
             --volume /dev:/dev:rslave \
             --volume /media:/media:rslave \
             --volume /mnt:/mnt:rslave \
-            --volume /run/media:/run/media:rslave \
             "$base_toolbox_image_full" \
             toolbox --verbose init-container \
                     --home "$HOME" \
