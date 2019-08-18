@@ -27,6 +27,8 @@ base_toolbox_image=""
 # https://github.com/containers/libpod/blob/master/libpod/options.go
 container_name_regexp="[a-zA-Z0-9][a-zA-Z0-9_.-]*"
 
+dnf_cache_dir=""
+
 environment=$(set)
 environment_variables="COLORTERM \
         DBUS_SESSION_BUS_ADDRESS \
@@ -52,6 +54,7 @@ environment_variables="COLORTERM \
 fgc=""
 
 prefix_sudo=""
+private_dnf_cache=""
 registry="registry.fedoraproject.org"
 registry_candidate="candidate-registry.fedoraproject.org"
 release=""
@@ -769,6 +772,20 @@ create()
 	home_link="--home-link"
     fi
 
+    if [ -z "$prefix_sudo" ]; then
+	dnf_cache_dir="$HOME/.cache/toolbox/$fgc"
+    fi
+
+    # Don't do this if --private-dnf-cache" is specified"
+    if [ -z "$prefix_sudo" ] &&   [ -z "$private_dnf_cache" ]; then
+	if ! [ -d "$dnf_cache_dir" ]; then
+	    echo "$base_toolbox_command: creating dnf cache directory at $dnf_cache_dir" >&3
+	    mkdir -p "$dnf_cache_dir"
+	fi
+	echo "$base_toolbox_command: using shared dnf cache $dnf_cache_dir" >&3
+	dnf_cache_bind="--volume $dnf_cache_dir:/var/cache/dnf"
+    fi
+
     echo "$base_toolbox_command: calling org.freedesktop.Flatpak.SessionHelper.RequestSession" >&3
 
     if ! gdbus call \
@@ -810,6 +827,7 @@ create()
             --uidmap 0:1:"$user_id_real" \
             --uidmap "$uid_plus_one":"$uid_plus_one":"$max_minus_uid" \
             --user root:root \
+	    $dnf_cache_bind \
             $kcm_socket_bind \
             $toolbox_path_bind \
             $toolbox_profile_bind \
@@ -1023,6 +1041,8 @@ run()
 
     create_toolbox_container=false
     prompt_for_create=true
+
+
 
     echo "$base_toolbox_command: checking if container $toolbox_container exists" >&3
 
@@ -1683,6 +1703,7 @@ usage()
     echo "               [-y | --assumeyes]"
     echo "               create [--candidate-registry]"
     echo "                      [-c | --container <name>]"
+    echo "                      [--private-dnf-cache]"
     echo "                      [-i | --image <name>]"
     echo "                      [-r | --release <release>]"
     echo "   or: toolbox [-v | --verbose]"
@@ -1885,6 +1906,9 @@ case $op in
                     exit_if_missing_argument --image "$1"
                     base_toolbox_image=$1
                     ;;
+		--private-dnf-cache )
+		    private_dnf_cache="true"
+		    ;;
                 -r | --release )
                     shift
                     exit_if_missing_argument --release "$1"
