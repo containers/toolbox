@@ -257,6 +257,17 @@ Image: ", defimg=DEFAULT_IMAGE);
     })
 }
 
+/// Return the user's runtime directory, and create it if it doesn't exist.
+/// The latter behavior is mostly necessary for running `sudo`.
+fn get_ensure_runtime_dir() -> Fallible<String> {
+    let real_uid: u32 = nix::unistd::getuid().into();
+    let runtime_dir_val = std::env::var_os("XDG_RUNTIME_DIR");
+    Ok(match runtime_dir_val.as_ref() {
+        Some(d) => d.to_str().ok_or_else(|| failure::format_err!("XDG_RUNTIME_DIR is invalid UTF-8"))?.to_string(),
+        None => format!("/run/user/{}", real_uid),
+    })
+}
+
 fn create(opts: &CreateOpts) -> Fallible<()> {
     if in_container() && !opts.nested {
         bail!("Already inside a container");
@@ -287,10 +298,12 @@ fn create(opts: &CreateOpts) -> Fallible<()> {
         .to_str()
         .ok_or_else(|| failure::err_msg("non-UTF8 self"))?;
 
-    let runtime_dir = getenv_required_utf8("XDG_RUNTIME_DIR")?;
-    let statefile = "coreos-toolbox.initdata";
     let real_uid: u32 = nix::unistd::getuid().into();
     let privileged = real_uid == 0;
+
+    let runtime_dir = get_ensure_runtime_dir()?;
+    std::fs::create_dir_all(&runtime_dir)?;
+    let statefile = "coreos-toolbox.initdata";
 
     let mut podman = cmd_podman();
     // The basic arguments.
@@ -530,7 +543,7 @@ mod entrypoint {
             return Ok(());
         }
 
-        let runtime_dir = super::getenv_required_utf8("XDG_RUNTIME_DIR")?;
+        let runtime_dir = super::get_ensure_runtime_dir()?;
         let state: EntrypointState = {
             let p = format!("/host/{}/{}", runtime_dir, "coreos-toolbox.initdata");
             let f =
