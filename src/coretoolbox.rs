@@ -23,6 +23,8 @@ static TOOLBOX_LABEL: &str = "com.coreos.toolbox";
 static D_TOOLBOX_LABEL: &str = "com.github.debarshiray.toolbox";
 /// The default container name
 static DEFAULT_NAME: &str = "coreos-toolbox";
+/// The path to our binary inside the container
+static USR_BIN_SELF: &str = "/usr/bin/coretoolbox";
 
 lazy_static! {
     static ref APPDIRS: directories::ProjectDirs =
@@ -118,7 +120,7 @@ struct RmOpts {
 #[structopt(name = "coretoolbox", about = "Toolbox")]
 #[structopt(rename_all = "kebab-case")]
 enum Opt {
-    /// Create a  toolbox
+    /// Create a toolbox
     Create(CreateOpts),
     /// Enter the toolbox
     Run(RunOpts),
@@ -326,7 +328,7 @@ fn create(opts: &CreateOpts) -> Fallible<()> {
         podman.arg("--pid=host");
     }
     // We bind ourself in so we can handle recursive invocation.
-    podman.arg(format!("--volume={}:/usr/bin/toolbox:ro", self_bin));
+    podman.arg(format!("--volume={}:{}:ro", self_bin, USR_BIN_SELF));
 
     // In true privileged mode we don't use userns
     if !privileged {
@@ -368,7 +370,7 @@ fn create(opts: &CreateOpts) -> Fallible<()> {
     }
 
     podman.arg(&image);
-    podman.args(&["/usr/bin/toolbox", "internals", "run-pid1"]);
+    podman.args(&[USR_BIN_SELF, "internals", "run-pid1"]);
     podman.stdout(Stdio::null());
     podman.run()?;
     Ok(())
@@ -402,7 +404,7 @@ fn run(opts: &RunOpts) -> Fallible<()> {
     let mut podman = cmd_podman();
     podman.args(&["exec", "--interactive", "--tty"]);
     append_preserved_env(&mut podman)?;
-    podman.args(&[name, "/usr/bin/toolbox", "internals", "exec"]);
+    podman.args(&[name, USR_BIN_SELF, "internals", "exec"]);
     return Err(podman.exec().into());
 }
 
