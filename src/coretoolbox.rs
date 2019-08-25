@@ -35,7 +35,7 @@ static MAX_UID_COUNT: u32 = 65536;
 
 /// Set of statically known paths to files/directories
 /// that we redirect inside the container to /host.
-static STATIC_HOST_FORWARDS: &[&str] = &["/run/dbus", "/run/libvirt"];
+static STATIC_HOST_FORWARDS: &[&str] = &["/run/dbus", "/run/libvirt", "/var/tmp"];
 /// Set of devices we forward (if they exist)
 static FORWARDED_DEVICES: &[&str] = &["bus", "dri", "kvm", "fuse"];
 
@@ -319,6 +319,7 @@ fn create(opts: &CreateOpts) -> Fallible<()> {
         "--privileged",
         "--security-opt=label=disable",
         "--tmpfs=/run:rw",
+        "--tmpfs=/tmp:rw",
     ]);
     podman.arg(format!("--label={}=true", TOOLBOX_LABEL));
     podman.arg(format!("--name={}", name));
@@ -581,30 +582,6 @@ mod entrypoint {
             }
             Ok(())
         })?;
-
-        // Generate a unique tempdir in the host's /tmp and /var/tmp
-        // so that we don't clash with any well-known dirs.  For example
-        // fish creates /tmp/root.fish which will break with `sudo`
-        // as the userns uid 0 isn't the same as the real uid 0 of course.
-        ["/tmp", "/var/tmp"]
-            .par_iter()
-            .try_for_each(|d| -> Fallible<()> {
-                std::fs::remove_dir(d)?;
-                std::fs::create_dir(d)?;
-                let hostd = format!("/host{}", d);
-                let tmpd = tempfile::TempDir::new_in(&hostd)?.into_path();
-                let uid = nix::unistd::Uid::from_raw(state.uid);
-                let gid = nix::unistd::Gid::from_raw(state.uid);
-                // Chown the dir rather than make it sticky+world-writable
-                // like a regular tmpdir so that other users on the host
-                // can't write to it too.  We rely on the userns root having
-                // CAP_DAC_OVERRIDE for access to it as well.  This does
-                // break *other* uids inside the toolbox, but eh.
-                nix::unistd::chown(&tmpd, Some(uid), Some(gid))?;
-                rbind(tmpd.as_path().as_os_str().to_str().unwrap(), d)?;
-                Ok(())
-            })
-            .with_context(|e| format!("Handling tmpdirs: {}", e))?;
 
         // And forward the runtime dir
         host_symlink(runtime_dir).with_context(|e| format!("Forwarding runtime dir: {}", e))?;
