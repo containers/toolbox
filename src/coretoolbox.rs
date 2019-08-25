@@ -5,9 +5,9 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use signal_hook;
 use std::io::prelude::*;
+use std::os::unix::process::CommandExt;
 use std::path::Path;
 use std::process::{Command, Stdio};
-use std::os::unix::process::CommandExt;
 use structopt::StructOpt;
 
 mod podman;
@@ -74,10 +74,7 @@ impl CommandRunExt for Command {
 
 #[derive(Debug, StructOpt)]
 struct CreateOpts {
-    #[structopt(
-        short = "I",
-        long = "image",
-    )]
+    #[structopt(short = "I", long = "image")]
     /// Use a different base image
     image: Option<String>,
 
@@ -137,9 +134,21 @@ enum InternalOpt {
 
 fn get_toolbox_images() -> Fallible<Vec<podman::ImageInspect>> {
     let label = format!("label={}=true", TOOLBOX_LABEL);
-    let mut ret = podman::image_inspect(&["--filter", label.as_str()]).with_context(|e| format!(r#"Finding containers with label "{}": {}"#, TOOLBOX_LABEL, e))?;
+    let mut ret = podman::image_inspect(&["--filter", label.as_str()]).with_context(|e| {
+        format!(
+            r#"Finding containers with label "{}": {}"#,
+            TOOLBOX_LABEL, e
+        )
+    })?;
     let dlabel = format!("label={}=true", D_TOOLBOX_LABEL);
-    ret.extend(podman::image_inspect(&["--filter", dlabel.as_str()]).with_context(|e| format!(r#"Finding containers with label "{}": {}"#, D_TOOLBOX_LABEL, e))?);
+    ret.extend(
+        podman::image_inspect(&["--filter", dlabel.as_str()]).with_context(|e| {
+            format!(
+                r#"Finding containers with label "{}": {}"#,
+                D_TOOLBOX_LABEL, e
+            )
+        })?,
+    );
     Ok(ret)
 }
 
@@ -187,9 +196,12 @@ fn get_default_image() -> Fallible<String> {
     let toolboxes = get_toolbox_images()?;
     Ok(match toolboxes.len() {
         0 => {
-            print!("Welcome to coretoolbox
+            print!(
+                "Welcome to coretoolbox
 Enter a pull spec for toolbox image; default: {defimg}
-Image: ", defimg=DEFAULT_IMAGE);
+Image: ",
+                defimg = DEFAULT_IMAGE
+            );
             std::io::stdout().flush()?;
             let mut input = String::new();
             std::io::stdin().read_line(&mut input)?;
@@ -211,7 +223,10 @@ fn get_ensure_runtime_dir() -> Fallible<String> {
     let real_uid: u32 = nix::unistd::getuid().into();
     let runtime_dir_val = std::env::var_os("XDG_RUNTIME_DIR");
     Ok(match runtime_dir_val.as_ref() {
-        Some(d) => d.to_str().ok_or_else(|| failure::format_err!("XDG_RUNTIME_DIR is invalid UTF-8"))?.to_string(),
+        Some(d) => d
+            .to_str()
+            .ok_or_else(|| failure::format_err!("XDG_RUNTIME_DIR is invalid UTF-8"))?
+            .to_string(),
         None => format!("/run/user/{}", real_uid),
     })
 }
@@ -221,14 +236,24 @@ fn create(opts: &CreateOpts) -> Fallible<()> {
         bail!("Already inside a container");
     }
 
-    let image =
-        if opts.image.is_none() && opts.name.is_none() && !podman::has_object(podman::InspectType::Container, DEFAULT_NAME)? {
-            get_default_image()?
-        } else {
-            opts.image.as_ref().map(|s|s.as_str()).unwrap_or(DEFAULT_IMAGE).to_owned()
-        };
+    let image = if opts.image.is_none()
+        && opts.name.is_none()
+        && !podman::has_object(podman::InspectType::Container, DEFAULT_NAME)?
+    {
+        get_default_image()?
+    } else {
+        opts.image
+            .as_ref()
+            .map(|s| s.as_str())
+            .unwrap_or(DEFAULT_IMAGE)
+            .to_owned()
+    };
 
-    let name = opts.name.as_ref().map(|s|s.as_str()).unwrap_or(DEFAULT_NAME);
+    let name = opts
+        .name
+        .as_ref()
+        .map(|s| s.as_str())
+        .unwrap_or(DEFAULT_NAME);
 
     if opts.destroy {
         rm(&RmOpts {
@@ -332,7 +357,11 @@ fn run(opts: &RunOpts) -> Fallible<()> {
         bail!("Already inside a container");
     }
 
-    let name = opts.name.as_ref().map(|s|s.as_str()).unwrap_or(DEFAULT_NAME);
+    let name = opts
+        .name
+        .as_ref()
+        .map(|s| s.as_str())
+        .unwrap_or(DEFAULT_NAME);
 
     if !podman::has_object(podman::InspectType::Container, &name)? {
         let toolboxes = get_toolbox_images()?;
@@ -505,14 +534,13 @@ mod entrypoint {
 
         // Convert the container to ostree-style layout
         if ostree_based_host {
-            DATADIRS.par_iter()
-                .try_for_each(|d| -> Fallible<()> {
-                    std::fs::remove_dir(d)?;
-                    let vard = format!("var{}", d);
-                    unix::fs::symlink(&vard, d)?;
-                    std::fs::create_dir(&vard)?;
-                    Ok(())
-                })?;
+            DATADIRS.par_iter().try_for_each(|d| -> Fallible<()> {
+                std::fs::remove_dir(d)?;
+                let vard = format!("var{}", d);
+                unix::fs::symlink(&vard, d)?;
+                std::fs::create_dir(&vard)?;
+                Ok(())
+            })?;
         }
 
         // This is another mount point used by udisks
@@ -602,33 +630,32 @@ mod entrypoint {
         // We make these bind mounts instead of symlinks as
         // some programs get confused by absolute paths.
         if ostree_based_host {
-            DATADIRS.par_iter()
-                .try_for_each(|d| -> Fallible<()> {
-                    let vard = format!("var{}", d);
-                    let hostd = format!("/host/{}", &vard);
-                    rbind(&hostd, &vard)?;
-                    Ok(())
-                })?;
+            DATADIRS.par_iter().try_for_each(|d| -> Fallible<()> {
+                let vard = format!("var{}", d);
+                let hostd = format!("/host/{}", &vard);
+                rbind(&hostd, &vard)?;
+                Ok(())
+            })?;
         } else {
-            DATADIRS.par_iter()
-                .try_for_each(|d| -> Fallible<()> {
-                    let hostd = format!("/host/{}", d);
-                    rbind(&hostd, d)?;
-                    Ok(())
-                })?;
+            DATADIRS.par_iter().try_for_each(|d| -> Fallible<()> {
+                let hostd = format!("/host/{}", d);
+                rbind(&hostd, d)?;
+                Ok(())
+            })?;
         }
 
         Ok(())
     }
-
 
     pub(crate) fn exec() -> Fallible<()> {
         use nix::sys::stat::Mode;
         if !super::in_container() {
             bail!("Not inside a container");
         }
-        init_container_static().with_context(|e| format!("Initializing container (static): {}", e))?;
-        init_container_runtime().with_context(|e| format!("Initializing container (runtime): {}", e))?;
+        init_container_static()
+            .with_context(|e| format!("Initializing container (static): {}", e))?;
+        init_container_runtime()
+            .with_context(|e| format!("Initializing container (runtime): {}", e))?;
         let initstamp = Path::new(CONTAINER_INITIALIZED_STAMP);
         if !initstamp.exists() {
             bail!("toolbox not initialized");
@@ -655,7 +682,7 @@ mod entrypoint {
 /// Primary entrypoint
 fn main() {
     || -> Fallible<()> {
-        let mut args : Vec<String> = std::env::args().collect();
+        let mut args: Vec<String> = std::env::args().collect();
         if let Some("internals") = args.get(1).map(|s| s.as_str()) {
             args.remove(1);
             let opts = InternalOpt::from_iter(args.iter());

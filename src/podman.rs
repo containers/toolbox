@@ -1,8 +1,8 @@
-use std::process::{Command, Stdio};
-use std::io::prelude::*;
-use serde::{Deserialize};
+use failure::{bail, Fallible};
+use serde::Deserialize;
 use serde_json;
-use failure::{Fallible, bail};
+use std::io::prelude::*;
+use std::process::{Command, Stdio};
 
 #[allow(dead_code)]
 pub(crate) enum InspectType {
@@ -40,8 +40,10 @@ pub(crate) fn has_object(t: InspectType, name: &str) -> Fallible<bool> {
 }
 
 pub(crate) fn image_inspect<I, S>(args: I) -> Fallible<Vec<ImageInspect>>
-    where I: IntoIterator<Item=S>, S: AsRef<std::ffi::OsStr>
- {
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<std::ffi::OsStr>,
+{
     let mut proc = cmd()
         .stdout(Stdio::piped())
         .args(&["images", "--format", "json"])
