@@ -3,6 +3,9 @@ name = "coretoolbox"
 version = "0.1.0"
 authors = ["Colin Walters <walters@verbum.org>"]
 edition = "2018"
+license = "MIT/Apache-2.0"
+keywords = ["podman", "containers", "toolbox"]
+homepage = "https://github.com/cgwalters/coretoolbox"
 
 [dependencies]
 nix = "0.13"
