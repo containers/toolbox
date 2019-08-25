@@ -5,16 +5,12 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use signal_hook;
 use std::io::prelude::*;
-use std::os::unix::process::CommandExt;
 use std::path::Path;
 use std::process::{Command, Stdio};
+use std::os::unix::process::CommandExt;
 use structopt::StructOpt;
 
-#[derive(Deserialize, Clone, Debug)]
-struct PodmanImageInspect {
-    id: String,
-    names: Vec<String>,
-}
+mod podman;
 
 static DEFAULT_IMAGE: &str = "registry.fedoraproject.org/f30/fedora-toolbox:30";
 /// The label set on toolbox images and containers.
@@ -139,68 +135,18 @@ enum InternalOpt {
     Exec,
 }
 
-fn cmd_podman() -> Command {
-    if let Some(podman) = std::env::var_os("podman") {
-        Command::new(podman)
-    } else {
-        Command::new("podman")
-    }
-}
-
-#[allow(dead_code)]
-enum InspectType {
-    Container,
-    Image,
-}
-
-/// Returns true if an image or container is in the podman
-/// storage.
-fn podman_has(t: InspectType, name: &str) -> Fallible<bool> {
-    let typearg = match t {
-        InspectType::Container => "container",
-        InspectType::Image => "image",
-    };
-    Ok(cmd_podman()
-        .args(&["inspect", "--type", typearg, name])
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .status()?
-        .success())
-}
-
-fn podman_image_inspect<I, S>(args: I) -> Fallible<Vec<PodmanImageInspect>>
-    where I: IntoIterator<Item=S>, S: AsRef<std::ffi::OsStr>
- {
-    let mut proc = cmd_podman()
-        .stdout(std::process::Stdio::piped())
-        .args(&["images", "--format", "json"])
-        .args(args)
-        .spawn()?;
-    let sout = proc.stdout.take().expect("stdout piped");
-    let mut sout = std::io::BufReader::new(sout);
-    let res = if sout.fill_buf()?.len() > 0 {
-        serde_json::from_reader(sout)?
-    } else {
-        Vec::new()
-    };
-    if !proc.wait()?.success() {
-        bail!("podman images failed")
-    }
-    Ok(res)
-}
-
-fn get_toolbox_images() -> Fallible<Vec<PodmanImageInspect>> {
+fn get_toolbox_images() -> Fallible<Vec<podman::ImageInspect>> {
     let label = format!("label={}=true", TOOLBOX_LABEL);
-    let mut ret = podman_image_inspect(&["--filter", label.as_str()]).with_context(|e| format!(r#"Finding containers with label "{}": {}"#, TOOLBOX_LABEL, e))?;
+    let mut ret = podman::image_inspect(&["--filter", label.as_str()]).with_context(|e| format!(r#"Finding containers with label "{}": {}"#, TOOLBOX_LABEL, e))?;
     let dlabel = format!("label={}=true", D_TOOLBOX_LABEL);
-    ret.extend(podman_image_inspect(&["--filter", dlabel.as_str()]).with_context(|e| format!(r#"Finding containers with label "{}": {}"#, D_TOOLBOX_LABEL, e))?);
+    ret.extend(podman::image_inspect(&["--filter", dlabel.as_str()]).with_context(|e| format!(r#"Finding containers with label "{}": {}"#, D_TOOLBOX_LABEL, e))?);
     Ok(ret)
 }
 
 /// Pull a container image if not present
 fn ensure_image(name: &str) -> Fallible<()> {
-    if !podman_has(InspectType::Image, name)? {
-        cmd_podman().args(&["pull", name]).run()?;
+    if !podman::has_object(podman::InspectType::Image, name)? {
+        podman::cmd().args(&["pull", name]).run()?;
     }
     Ok(())
 }
@@ -276,7 +222,7 @@ fn create(opts: &CreateOpts) -> Fallible<()> {
     }
 
     let image =
-        if opts.image.is_none() && opts.name.is_none() && !podman_has(InspectType::Container, DEFAULT_NAME)? {
+        if opts.image.is_none() && opts.name.is_none() && !podman::has_object(podman::InspectType::Container, DEFAULT_NAME)? {
             get_default_image()?
         } else {
             opts.image.as_ref().map(|s|s.as_str()).unwrap_or(DEFAULT_IMAGE).to_owned()
@@ -307,7 +253,7 @@ fn create(opts: &CreateOpts) -> Fallible<()> {
     std::fs::create_dir_all(&runtime_dir)?;
     let statefile = "coreos-toolbox.initdata";
 
-    let mut podman = cmd_podman();
+    let mut podman = podman::cmd();
     // The basic arguments.
     podman.args(&[
         "create",
@@ -388,7 +334,7 @@ fn run(opts: &RunOpts) -> Fallible<()> {
 
     let name = opts.name.as_ref().map(|s|s.as_str()).unwrap_or(DEFAULT_NAME);
 
-    if !podman_has(InspectType::Container, &name)? {
+    if !podman::has_object(podman::InspectType::Container, &name)? {
         let toolboxes = get_toolbox_images()?;
         if toolboxes.len() == 0 {
             bail!("No toolbox container or images found; use `create` to create one")
@@ -397,12 +343,12 @@ fn run(opts: &RunOpts) -> Fallible<()> {
         }
     }
 
-    cmd_podman()
+    podman::cmd()
         .args(&["start", name])
         .stdout(Stdio::null())
         .run()?;
 
-    let mut podman = cmd_podman();
+    let mut podman = podman::cmd();
     podman.args(&["exec", "--interactive", "--tty"]);
     append_preserved_env(&mut podman)?;
     podman.args(&[name, USR_BIN_SELF, "internals", "exec"]);
@@ -410,10 +356,10 @@ fn run(opts: &RunOpts) -> Fallible<()> {
 }
 
 fn rm(opts: &RmOpts) -> Fallible<()> {
-    if !podman_has(InspectType::Container, opts.name.as_str())? {
+    if !podman::has_object(podman::InspectType::Container, opts.name.as_str())? {
         return Ok(());
     }
-    let mut podman = cmd_podman();
+    let mut podman = podman::cmd();
     podman
         .args(&["rm", "-f", opts.name.as_str()])
         .stdout(Stdio::null());
