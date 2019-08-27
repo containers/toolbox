@@ -11,6 +11,8 @@ use std::process::{Command, Stdio};
 use structopt::StructOpt;
 
 mod podman;
+mod cmdrunext;
+use cmdrunext::CommandRunExt;
 
 static DEFAULT_IMAGE: &str = "registry.fedoraproject.org/f30/fedora-toolbox:30";
 /// The label set on toolbox images and containers.
@@ -57,20 +59,6 @@ static PRESERVED_ENV: &[&str] = &[
     "XDG_VTNR",
     "WAYLAND_DISPLAY",
 ];
-
-trait CommandRunExt {
-    fn run(&mut self) -> Fallible<()>;
-}
-
-impl CommandRunExt for Command {
-    fn run(&mut self) -> Fallible<()> {
-        let r = self.status()?;
-        if !r.success() {
-            bail!("Child [{:?}] exited: {}", self, r);
-        }
-        Ok(())
-    }
-}
 
 #[derive(Debug, StructOpt)]
 struct CreateOpts {
