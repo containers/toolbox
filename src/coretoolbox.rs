@@ -286,7 +286,10 @@ fn create(opts: &CreateOpts) -> Fallible<()> {
         "--tty",
         "--hostname=toolbox",
         "--network=host",
-        // We are not aiming for security isolation here.
+        // We are not aiming for security isolation here; besides these, the
+        // user's home directory is mounted in, so anything that wants to "escape"
+        // can just mutate ~/.bashrc for example.
+        "--ipc=host",
         "--privileged",
         "--security-opt=label=disable",
         "--tmpfs=/run:rw",

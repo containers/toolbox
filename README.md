@@ -3,6 +3,17 @@ coreos-toolbox
 
 This is a new implementation of https://github.com/debarshiray/toolbox/
 
+Installation
+---
+
+Be sure you have [cargo installed](https://doc.rust-lang.org/cargo/getting-started/installation.html).
+
+Then:
+`cargo install --git https://github.com/cgwalters/coretoolbox`
+
+In the future we may invest in packaging this for different distributions, or
+see about shipping it with e.g. podman by default.
+
 Getting started
 ---
 
