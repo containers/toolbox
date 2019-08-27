@@ -3,7 +3,6 @@ use failure::{bail, Fallible, ResultExt};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use serde_json;
-use signal_hook;
 use std::io::prelude::*;
 use std::os::unix::process::CommandExt;
 use std::path::Path;
@@ -398,29 +397,6 @@ fn list_toolbox_images() -> Fallible<()> {
     Ok(())
 }
 
-fn run_pid1(_opts: InternalOpt) -> Fallible<()> {
-    unsafe {
-        signal_hook::register(signal_hook::SIGCHLD, waitpid_all)?;
-        signal_hook::register(signal_hook::SIGTERM, || std::process::exit(0))?;
-    };
-    loop {
-        std::thread::sleep(std::time::Duration::from_secs(1_000_000));
-    }
-}
-
-fn waitpid_all() {
-    use nix::sys::wait::WaitStatus;
-    loop {
-        match nix::sys::wait::waitpid(None, Some(nix::sys::wait::WaitPidFlag::WNOHANG)) {
-            Ok(status) => match status {
-                WaitStatus::StillAlive => break,
-                _ => {}
-            },
-            Err(_) => break,
-        }
-    }
-}
-
 mod entrypoint {
     use super::CommandRunExt;
     use super::EntrypointState;
@@ -668,6 +644,30 @@ mod entrypoint {
             .exec()
             .into())
     }
+
+    pub(crate) fn run_pid1() -> Fallible<()> {
+        unsafe {
+            signal_hook::register(signal_hook::SIGCHLD, waitpid_all)?;
+            signal_hook::register(signal_hook::SIGTERM, || std::process::exit(0))?;
+        };
+        loop {
+            std::thread::sleep(std::time::Duration::from_secs(1_000_000));
+        }
+    }
+
+    fn waitpid_all() {
+        use nix::sys::wait::WaitStatus;
+        loop {
+            match nix::sys::wait::waitpid(None, Some(nix::sys::wait::WaitPidFlag::WNOHANG)) {
+                Ok(status) => match status {
+                    WaitStatus::StillAlive => break,
+                    _ => {}
+                },
+                Err(_) => break,
+            }
+        }
+    }
+
 }
 
 /// Primary entrypoint
@@ -679,7 +679,7 @@ fn main() {
             let opts = InternalOpt::from_iter(args.iter());
             match opts {
                 InternalOpt::Exec => entrypoint::exec(),
-                InternalOpt::RunPid1 => run_pid1(opts),
+                InternalOpt::RunPid1 => entrypoint::run_pid1(),
             }
         } else {
             let opts = Opt::from_iter(args.iter());
