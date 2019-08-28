@@ -322,7 +322,28 @@ create_enter_command()
 
 
 create_environment_options()
-{
+(
+    columns=""
+    lines=""
+
+    if terminal_size=$(stty size 2>&3); then
+        columns=$(echo "$terminal_size" | cut --delimiter " " --fields 2 2>&3)
+        if ! is_integer "$columns"; then
+            echo "$base_toolbox_command: failed to parse the number of columns from the terminal size" >&3
+            columns=""
+        fi
+
+        lines=$(echo "$terminal_size" | cut --delimiter " " --fields 1 2>&3)
+        if ! is_integer "$lines"; then
+            echo "$base_toolbox_command: failed to parse the number of lines from the terminal size" >&3
+            lines=""
+        fi
+
+        environment_options="$environment_options --env=COLUMNS=$columns --env=LINES=$lines"
+    else
+        echo "$base_toolbox_command: failed to read terminal size" >&3
+    fi
+
     echo "$environment_variables" \
         | sed "s/ \+/\n/g" 2>&3 \
         | {
@@ -339,12 +360,20 @@ create_environment_options()
                   fi
               done
 
+              if [ "$columns" != "" ] 2>&3; then
+                  environment_options="$environment_options --env=COLUMNS=$columns"
+              fi
+
+              if [ "$lines" != "" ] 2>&3; then
+                  environment_options="$environment_options --env=LINES=$lines"
+              fi
+
               environment_options=${environment_options#" "}
               echo "$base_toolbox_command: created options for environment variables to forward" >&3
               echo "$environment_options" >&3
               echo "$environment_options"
           }
-}
+)
 
 
 create_toolbox_container_name()
