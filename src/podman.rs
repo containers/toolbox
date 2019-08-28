@@ -13,7 +13,7 @@ pub(crate) enum InspectType {
 #[derive(Deserialize, Clone, Debug)]
 pub(crate) struct ImageInspect {
     pub id: String,
-    pub names: Vec<String>,
+    pub names: Option<Vec<String>>,
 }
 
 pub(crate) fn cmd() -> Command {

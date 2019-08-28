@@ -136,7 +136,7 @@ fn get_toolbox_images() -> Fallible<Vec<podman::ImageInspect>> {
             )
         })?,
     );
-    Ok(ret)
+    Ok(ret.drain(..).filter(|p| { p.names.is_some() }).collect())
 }
 
 /// Pull a container image if not present
@@ -199,7 +199,7 @@ Image: ",
                 input
             }
         }
-        1 => toolboxes[0].names[0].clone(),
+        1 => toolboxes[0].names.as_ref().unwrap()[0].clone(),
         _ => bail!("Multiple toolbox images found, must specify via -I"),
     })
 }
@@ -391,7 +391,7 @@ fn list_toolbox_images() -> Fallible<()> {
         println!("No toolbox images found.")
     } else {
         for i in toolboxes {
-            println!("{}", i.names[0]);
+            println!("{}", i.names.unwrap()[0]);
         }
     }
     Ok(())
