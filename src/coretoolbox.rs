@@ -539,9 +539,10 @@ mod entrypoint {
             super::FORWARDED_DEVICES
                 .par_iter()
                 .try_for_each(|d| -> Fallible<()> {
-                    let hostd = format!("/host/dev/{}", d);
-                    if Path::new(&hostd).exists() {
-                        unix::fs::symlink(hostd, format!("/dev/{}", d))
+                    let devd = format!("/dev/{}", d);
+                    let hostd = format!("/host{}", devd);
+                    if !Path::new(&devd).exists() && Path::new(&hostd).exists() {
+                        unix::fs::symlink(&hostd, &devd)
                             .with_context(|e| format!("symlinking {}: {}", d, e))?;
                     }
                     Ok(())
