@@ -32,7 +32,7 @@ static MAX_UID_COUNT: u32 = 65536;
 
 /// Set of statically known paths to files/directories
 /// that we redirect inside the container to /host.
-static STATIC_HOST_FORWARDS: &[&str] = &["/run/dbus", "/run/libvirt", "/var/tmp"];
+static STATIC_HOST_FORWARDS: &[&str] = &["/run/dbus", "/run/libvirt", "/tmp", "/var/tmp"];
 /// Set of devices we forward (if they exist)
 static FORWARDED_DEVICES: &[&str] = &["bus", "dri", "kvm", "fuse"];
 
@@ -280,7 +280,6 @@ fn create(opts: &CreateOpts) -> Fallible<()> {
         "--privileged",
         "--security-opt=label=disable",
         "--tmpfs=/run:rw",
-        "--tmpfs=/tmp:rw",
     ]);
     podman.arg(format!("--label={}=true", TOOLBOX_LABEL));
     podman.arg(format!("--name={}", name));
