@@ -661,6 +661,7 @@ create()
     monitor_host=""
     no_hosts=""
     toolbox_profile_bind=""
+    run_media_bind=""
 
     # shellcheck disable=SC2153
     if [ "$DBUS_SYSTEM_BUS_ADDRESS" != "" ]; then
@@ -792,6 +793,10 @@ create()
         spinner_directory=""
     fi
 
+    if test -d /run/media; then
+        run_media_bind="--volume /run/media:/run/media:rslave"
+    fi
+
     # shellcheck disable=SC2086
     $prefix_sudo podman create \
             $dns_none \
@@ -821,7 +826,7 @@ create()
             --volume /dev:/dev:rslave \
             --volume /media:/media:rslave \
             --volume /mnt:/mnt:rslave \
-            --volume /run/media:/run/media:rslave \
+            $run_media_bind \
             "$base_toolbox_image_full" \
             toolbox --verbose init-container \
                     --home "$HOME" \
