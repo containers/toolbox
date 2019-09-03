@@ -1,0 +1,10 @@
+---
+- project:
+    name: debarshiray/toolbox
+    check:
+      jobs:
+        - noop
+    gate:
+      jobs:
+        - noop
+
