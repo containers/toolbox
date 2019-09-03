@@ -1,0 +1,45 @@
+- hosts: ci-node
+  tasks:
+    - name: Install requirements
+      become: yes
+      package:
+        name:
+          - golang-github-cpuguy83-go-md2man
+          - ninja-build
+          - meson
+          - podman
+          - flatpak-session-helper
+          - flatpak-xdg-utils
+
+    - name: Ensure /run/media exists
+      become: yes
+      file:
+        path: /run/media
+        state: directory
+
+    - name: Build
+      command: meson builddir
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+
+    - name: Test
+      command: ninja -C builddir test
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+
+    - name: Test command (ignored)
+      # Ignore first test as it seems to be affected by https://github.com/containers/libpod/issues/3790
+      ignore_errors: yes
+      command: ./toolbox -y -v list
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+
+    - name: Test create
+      command: ./toolbox -y -v create
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+
+    - name: Test list
+      command: ./toolbox -y -v list
+      args:
+        chdir: '{{ zuul.project.src_dir }}'

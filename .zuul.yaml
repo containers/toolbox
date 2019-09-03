@@ -1,0 +1,16 @@
+- job:
+    name: toolbox-test
+    description: Run toolbox test
+    nodeset:
+      nodes:
+        - name: ci-node
+          label: cloud-fedora-30
+    run: playbooks/toolbox-test.yaml
+
+- project:
+    check:
+      jobs:
+        - toolbox-test
+    gate:
+      jobs:
+        - toolbox-test
