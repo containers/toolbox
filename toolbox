@@ -751,10 +751,6 @@ create()
         toolbox_profile_bind="--volume /etc/profile.d/toolbox.sh:/etc/profile.d/toolbox.sh:ro"
     fi
 
-    max_uid_count=65536
-    max_minus_uid=$((max_uid_count - user_id_real))
-    uid_plus_one=$((user_id_real + 1))
-
     if ! home_canonical=$(readlink --canonicalize "$HOME" 2>&3); then
         echo "$base_toolbox_command: failed to canonicalize $HOME" >&2
         return 1
@@ -806,9 +802,7 @@ create()
             --pid host \
             --privileged \
             --security-opt label=disable \
-            --uidmap "$user_id_real":0:1 \
-            --uidmap 0:1:"$user_id_real" \
-            --uidmap "$uid_plus_one":"$uid_plus_one":"$max_minus_uid" \
+            --userns=keep-id \
             --user root:root \
             $kcm_socket_bind \
             $toolbox_path_bind \
