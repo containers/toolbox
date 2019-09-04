@@ -523,9 +523,6 @@ mod entrypoint {
             Ok(())
         })?;
 
-        // And forward the runtime dir
-        host_symlink(runtime_dir).with_context(|e| format!("Forwarding runtime dir: {}", e))?;
-
         // These symlinks into /host are our set of default forwarded APIs/state
         // directories.
         super::STATIC_HOST_FORWARDS
@@ -580,6 +577,16 @@ mod entrypoint {
 
         if initstamp.exists() {
             return Ok(());
+        }
+
+        // Forward the runtime dir
+        {
+            let runtime_dir = super::get_ensure_runtime_dir()?;
+            let runtime_dir_p = std::path::Path::new(&runtime_dir);
+            if !runtime_dir_p.exists() {
+                std::fs::create_dir_all(runtime_dir_p.parent().expect("runtime dir parent"))?;
+                host_symlink(runtime_dir).with_context(|e| format!("Forwarding runtime dir: {}", e))?;
+            }
         }
 
         // Podman unprivileged mode has a bug where it exposes the host
