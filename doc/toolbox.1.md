@@ -42,8 +42,7 @@ Print a synopsis of this manual and exit.
 
 **--verbose, -v**
 
-Print debug information. This includes messages coming from the standard error
-stream of internal commands.
+Print debug information including standard error stream of internal commands.
 
 ## COMMANDS
 
