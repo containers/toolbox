@@ -1172,9 +1172,10 @@ run()
             --interactive \
             --tty \
             --user "$USER" \
+            --workdir "$PWD" \
             $set_environment \
             "$toolbox_container" \
-            capsh --caps="" -- -c 'cd "$1"; shift; exec "$@"' /bin/sh "$PWD" "$program" "$@" 2>&3
+            capsh --caps="" -- -c 'exec "$@"' /bin/sh "$program" "$@" 2>&3
     ret_val="$?"
 
     $emit_escape_sequence && printf "\033]777;container;pop;;\033\\"
