@@ -1,3 +1,13 @@
+Overview of changes in 0.0.13
+=============================
+
+* Drop PackageKit-command-not-found from the images
+* Improve the help or usage output
+* Simplify code by taking advantage of 'podman create --userns=keep-id'
+* Simplify code by taking advantage of 'podman exec --workdir ...'
+* Tighten the Silverblue check for the welcome message
+
+
 Overview of changes in 0.0.12
 =============================
 
