@@ -338,8 +338,6 @@ create_environment_options()
             echo "$base_toolbox_command: failed to parse the number of lines from the terminal size" >&3
             lines=""
         fi
-
-        environment_options="$environment_options --env=COLUMNS=$columns --env=LINES=$lines"
     else
         echo "$base_toolbox_command: failed to read terminal size" >&3
     fi
