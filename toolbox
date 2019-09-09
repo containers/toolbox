@@ -29,11 +29,13 @@ container_name_regexp="[a-zA-Z0-9][a-zA-Z0-9_.-]*"
 
 environment=$(set)
 environment_variables="COLORTERM \
+        COLUMNS \
         DBUS_SESSION_BUS_ADDRESS \
         DBUS_SYSTEM_BUS_ADDRESS \
         DESKTOP_SESSION \
         DISPLAY \
         LANG \
+        LINES \
         SHELL \
         SSH_AUTH_SOCK \
         TERM \
@@ -358,11 +360,11 @@ create_environment_options()
                   fi
               done
 
-              if [ "$columns" != "" ] 2>&3; then
+              if ! (echo "$environment_options" | grep COLUMNS >/dev/null 2>&3) && [ "$columns" != "" ] 2>&3; then
                   environment_options="$environment_options --env=COLUMNS=$columns"
               fi
 
-              if [ "$lines" != "" ] 2>&3; then
+              if ! (echo "$environment_options" | grep LINES >/dev/null 2>&3) && [ "$lines" != "" ] 2>&3; then
                   environment_options="$environment_options --env=LINES=$lines"
               fi
 
