@@ -2034,8 +2034,14 @@ case $op in
             fi
         fi
 
-        $ls_images && [ "$images" != "" ] 2>&3 && echo "$images"
-        $ls_containers && [ "$containers" != "" ] 2>&3 && echo "$containers"
+        if $ls_images && [ "$images" != "" ] 2>&3; then
+            echo "$images"
+        fi
+
+        if $ls_containers && [ "$containers" != "" ] 2>&3; then
+            echo "$containers"
+        fi
+
         exit
         ;;
     rm | rmi )
