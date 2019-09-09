@@ -1950,8 +1950,14 @@ case $op in
             fi
         fi
 
-        $ls_images && [ "$images" != "" ] && echo "$images"
-        $ls_containers && [ "$containers" != "" ] && echo "$containers"
+        if $ls_images && [ "$images" != "" ]; then
+            echo "$images"
+        fi
+
+        if $ls_containers && [ "$containers" != "" ]; then
+            echo "$containers"
+        fi
+
         exit
         ;;
     rm | rmi )
