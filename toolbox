@@ -683,14 +683,11 @@ create()
     enter_command_skip="$1"
 
     dbus_system_bus_address="unix:path=/var/run/dbus/system_bus_socket"
-    dns_none=""
     home_link=""
     flatpak_system_directory_bind=""
     kcm_socket=""
     kcm_socket_bind=""
     libvirt_system_directory_bind=""
-    monitor_host=""
-    no_hosts=""
     run_media_path_bind=""
     toolbox_profile_bind=""
     ulimit_host=""
@@ -739,17 +736,6 @@ create()
 
     if [ -d /run/libvirt ] 2>&3; then
         libvirt_system_directory_bind="--volume /run/libvirt:/run/libvirt"
-    fi
-
-    echo "$base_toolbox_command: checking if 'podman create' supports --dns=none and --no-hosts" >&3
-
-    if $prefix_sudo podman create --help 2>&3 | grep "hosts" >/dev/null 2>&3; then
-        echo "$base_toolbox_command: 'podman create' supports --dns=none and --no-hosts" >&3
-
-        dns_none="--dns none"
-        no_hosts="--no-hosts"
-
-        monitor_host="--monitor-host"
     fi
 
     echo "$base_toolbox_command: checking if 'podman create' supports --ulimit host" >&3
@@ -840,7 +826,7 @@ create()
 
     # shellcheck disable=SC2086
     $prefix_sudo podman create \
-            $dns_none \
+            --dns none \
             --env TOOLBOX_PATH="$TOOLBOX_PATH" \
             --group-add "$group_for_sudo" \
             --hostname toolbox \
@@ -848,7 +834,7 @@ create()
             --label "com.github.debarshiray.toolbox=true" \
             --name $toolbox_container \
             --network host \
-            $no_hosts \
+            --no-hosts \
             --pid host \
             --privileged \
             --security-opt label=disable \
@@ -877,7 +863,7 @@ create()
             toolbox --verbose init-container \
                     --home "$HOME" \
                     $home_link \
-                    $monitor_host \
+                    --monitor-host \
                     --shell "$SHELL" \
                     --uid "$user_id_real" \
                     --user "$USER" >/dev/null 2>&3
