@@ -793,9 +793,6 @@ create()
         return 1
     fi
 
-    toolbox_path_bind="--volume $TOOLBOX_PATH:/usr/bin/toolbox:ro"
-    toolbox_path_set="--env TOOLBOX_PATH=$TOOLBOX_PATH"
-
     if [ -f /etc/profile.d/toolbox.sh ] 2>&3; then
         toolbox_profile_bind="--volume /etc/profile.d/toolbox.sh:/etc/profile.d/toolbox.sh:ro"
     fi
@@ -844,7 +841,7 @@ create()
     # shellcheck disable=SC2086
     $prefix_sudo podman create \
             $dns_none \
-            $toolbox_path_set \
+            --env TOOLBOX_PATH="$TOOLBOX_PATH" \
             --group-add "$group_for_sudo" \
             --hostname toolbox \
             --ipc host \
@@ -862,8 +859,8 @@ create()
             $kcm_socket_bind \
             $libvirt_system_directory_bind \
             $run_media_path_bind \
-            $toolbox_path_bind \
             $toolbox_profile_bind \
+            --volume "$TOOLBOX_PATH":/usr/bin/toolbox:ro \
             --volume "$XDG_RUNTIME_DIR":"$XDG_RUNTIME_DIR" \
             --volume "$XDG_RUNTIME_DIR"/.flatpak-helper/monitor:/run/host/monitor \
             --volume "$dbus_system_bus_path":"$dbus_system_bus_path" \
