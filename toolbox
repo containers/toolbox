@@ -688,6 +688,7 @@ create()
     flatpak_system_directory_bind=""
     kcm_socket=""
     kcm_socket_bind=""
+    libvirt_system_directory_bind=""
     monitor_host=""
     no_hosts=""
     toolbox_profile_bind=""
@@ -732,6 +733,10 @@ create()
     if [ "$kcm_socket_listen" != "" ] 2>&3; then
         kcm_socket=${kcm_socket_listen%" (Stream)"}
         kcm_socket_bind="--volume $kcm_socket:$kcm_socket"
+    fi
+
+    if [ -d /run/libvirt ] 2>&3; then
+        libvirt_system_directory_bind="--volume /run/libvirt:/run/libvirt"
     fi
 
     echo "$base_toolbox_command: checking if 'podman create' supports --dns=none and --no-hosts" >&3
@@ -840,6 +845,7 @@ create()
             --user root:root \
             $flatpak_system_directory_bind \
             $kcm_socket_bind \
+            $libvirt_system_directory_bind \
             $toolbox_path_bind \
             $toolbox_profile_bind \
             --volume "$XDG_RUNTIME_DIR":"$XDG_RUNTIME_DIR" \
