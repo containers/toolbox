@@ -989,6 +989,10 @@ create()
 
     if [ -f /etc/profile.d/toolbox.sh ] 2>&3; then
         toolbox_profile_bind="--volume /etc/profile.d/toolbox.sh:/etc/profile.d/toolbox.sh:ro"
+    elif [ -f /usr/share/profile.d/toolbox.sh ] 2>&3; then
+        toolbox_profile_bind="--volume /usr/share/profile.d/toolbox.sh:/etc/profile.d/toolbox.sh:ro"
+    else
+        echo "$base_toolbox_command: failed to bind mount toolbox.sh" >&3
     fi
 
     if [ -d /media ] 2>&3; then
