@@ -39,3 +39,37 @@ This will create a container called `fedora-toolbox-<version-id>`.
 [user@hostname ~]$ toolbox enter
 ⬢[user@toolbox ~]$
 ```
+
+## Install dependencies, build and install toolbox
+
+### Install dependencies:
+The following dependencies is required to build and install:
+- meson
+- go-md2man
+- shellcheck
+- bash-completion
+
+### Build and install `toolbox`:
+
+> **Warning:** These steps must be done in source directory
+
+1. Create build directory:
+```
+mkdir build
+```
+2. Enter in build directory:
+```
+cd build
+```
+3. Configure `toolbox` using `meson`:
+```
+meson ..
+```
+4. Build using `ninja`:
+```
+ninja
+```
+5. Install with `ninja install`:
+```
+sudo ninja install
+```
