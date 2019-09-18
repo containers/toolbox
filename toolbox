@@ -872,6 +872,10 @@ create()
             --volume /dev:/dev:rslave \
             --volume /media:/media:rslave \
             --volume /mnt:/mnt:rslave \
+            --volume /run:/run/host/run:rslave \
+            --volume /tmp:/run/host/tmp:rslave \
+            --volume /usr:/run/host/usr:rslave \
+            --volume /var:/run/host/var:rslave \
             "$base_toolbox_image_full" \
             toolbox --verbose init-container \
                     --home "$HOME" \
