@@ -1,3 +1,16 @@
+Overview of changes in 0.0.14
+=============================
+
+* Adjust the grep match pattern to be more specific
+* Don't exit with a non-zero code from 'toolbox list -i'
+* Expose a few more host locations inside the container under /run/host
+* Give access to the system Flatpak directory
+* Give access to the system libvirt instance
+* Mount /run/media only if it is available
+* Preserve the host's ulimits when creating toolbox containers
+* Work around 'podman exec' resetting the terminal size to 80x24
+
+
 Overview of changes in 0.0.13
 =============================
 
