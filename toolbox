@@ -462,6 +462,14 @@ get_host_id()
 )
 
 
+get_host_variant_id()
+(
+    # shellcheck disable=SC1091
+    . /usr/lib/os-release
+    echo "$VARIANT_ID"
+)
+
+
 get_host_version_id()
 (
     # shellcheck disable=SC1091
@@ -888,9 +896,18 @@ create()
 
 
 enter()
-{
-    run true true false "$SHELL" -l
-}
+(
+    emit_escape_sequence=false
+    host_id=$(get_host_id)
+    host_variant_id=$(get_host_variant_id)
+
+    if [ "$host_id" = "fedora" ] 2>&3 \
+       && { [ "$host_variant_id" = "silverblue" ] 2>&3 || [ "$host_variant_id" = "workstation" ] 2>&3; }; then
+        emit_escape_sequence=true
+    fi
+
+    run "$emit_escape_sequence" true false "$SHELL" -l
+)
 
 
 init_container()
