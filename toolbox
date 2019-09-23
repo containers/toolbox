@@ -457,7 +457,7 @@ get_group_for_sudo()
 get_host_id()
 (
     # shellcheck disable=SC1091
-    . /etc/os-release
+    . /usr/lib/os-release
     echo "$ID"
 )
 
@@ -465,7 +465,7 @@ get_host_id()
 get_host_version_id()
 (
     # shellcheck disable=SC1091
-    . /etc/os-release
+    . /usr/lib/os-release
     echo "$VERSION_ID"
 )
 
