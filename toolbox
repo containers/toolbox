@@ -1370,13 +1370,6 @@ migrate()
 
     migrate_lock="$toolbox_runtime_directory"/migrate.lock
 
-    echo "$base_toolbox_command: checking if 'podman system migrate' exists" >&3
-
-    if ! $prefix_sudo podman system --help 2>&3 | grep "Migrate containers" >/dev/null 2>&3; then
-        echo "$base_toolbox_command: migration not needed: 'podman system migrate' doesn't exist" >&3
-        return 0
-    fi
-
     if ! version=$($prefix_sudo podman version --format "{{.Version}}" 2>&3); then
         echo "$base_toolbox_command: unable to migrate containers: Podman version couldn't be read" >&2
         return 1
