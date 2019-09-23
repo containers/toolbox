@@ -1781,6 +1781,8 @@ while has_prefix "$1" -; do
     shift
 done
 
+echo "$base_toolbox_command: running as real user ID $user_id_real" >&3
+
 if ! toolbox_command_path=$(realpath "$0" 2>&3); then
     echo "$base_toolbox_command: failed to resolve absolute path to $0" >&2
     exit 1
