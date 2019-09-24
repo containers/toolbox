@@ -1,4 +1,17 @@
 [ "$BASH_VERSION" != "" ] || [ "$ZSH_VERSION" != "" ] || return 0
+if terminal_size=$(stty size); then
+    columns=$(echo "$terminal_size" | cut --delimiter " " --fields 2)
+    if [ "$columns" = "0" ] && [ -n "$COLUMNS" ]; then
+	stty cols $COLUMNS
+    fi
+    lines=$(echo "$terminal_size" | cut --delimiter " " --fields 1)
+    if [ "$lines" = "0" ] && [ -n "$LINES" ]; then
+	stty rows $LINES
+    fi
+fi
+unset terminal_size
+unset columns
+unset lines
 [ "$PS1" != "" ] || return 0
 
 toolbox_config="$HOME/.config/toolbox"
