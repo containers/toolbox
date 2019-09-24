@@ -3,7 +3,7 @@ bzip2
 diffutils
 dnf-plugins-core
 findutils
-flatpak-xdg-utils
+flatpak-spawn
 fpaste
 git
 gnupg
