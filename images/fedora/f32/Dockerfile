@@ -12,7 +12,6 @@ LABEL com.github.debarshiray.toolbox="true" \
 COPY README.md /
 
 RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf
-RUN dnf -y swap coreutils-single coreutils-full
 
 COPY missing-docs /
 RUN dnf -y reinstall $(<missing-docs)
