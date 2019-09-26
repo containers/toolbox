@@ -699,6 +699,7 @@ create()
     run_media_path_bind=""
     toolbox_profile_bind=""
     ulimit_host=""
+    usr_mount_destination_flags="ro"
 
     # shellcheck disable=SC2153
     if [ "$DBUS_SYSTEM_BUS_ADDRESS" != "" ]; then
@@ -795,6 +796,24 @@ create()
         run_media_path_bind="--volume /run/media:/run/media:rslave"
     fi
 
+    echo "$base_toolbox_command: checking if /usr is mounted read-only or read-write" >&3
+
+    if ! usr_mount_point=$(df --output=target /usr | tail --lines 1 2>&3); then
+        echo "$base_toolbox_command: failed to get the mount-point of /usr" >&2
+    else
+        echo "$base_toolbox_command: mount-point of /usr is $usr_mount_point" >&3
+
+        if ! usr_mount_source_flags=$(findmnt --noheadings --output OPTIONS "$usr_mount_point" 2>&3); then
+            echo "$base_toolbox_command: failed to get the mount options of $usr_mount_point" >&2
+        else
+            echo "$base_toolbox_command: mount flags of /usr on the host are $usr_mount_source_flags" >&3
+
+            if echo "$usr_mount_source_flags" | grep --invert-match "ro" >/dev/null 2>&3; then
+                usr_mount_destination_flags="rw"
+            fi
+        fi
+    fi
+
     if ! home_canonical=$(readlink --canonicalize "$HOME" 2>&3); then
         echo "$base_toolbox_command: failed to canonicalize $HOME" >&2
         return 1
@@ -865,7 +884,7 @@ create()
             --volume /mnt:/mnt:rslave \
             --volume /run:/run/host/run:rslave \
             --volume /tmp:/run/host/tmp:rslave \
-            --volume /usr:/run/host/usr:rslave \
+            --volume /usr:/run/host/usr:"$usr_mount_destination_flags",rslave \
             --volume /var:/run/host/var:rslave \
             "$base_toolbox_image_full" \
             toolbox --verbose init-container \
