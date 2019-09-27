@@ -254,13 +254,13 @@ copy_etc_profile_d_toolbox_to_container()
 
     # shellcheck disable=SC2174
     if ! mkdir --mode 700 --parents "$toolbox_runtime_directory" 2>&3; then
-        echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh: runtime directory not created" >&2
+        echo "$base_toolbox_command: unable to copy $toolbox_runtime_directory/toolbox.sh: runtime directory not created" >&2
         return 1
     fi
 
     exec 5>"$profile_d_lock"
     if ! flock 5 2>&3; then
-        echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh: copy lock not acquired" >&2
+        echo "$base_toolbox_command: unable to copy $toolbox_runtime_directory/toolbox.sh: copy lock not acquired" >&2
         return 1
     fi
 
@@ -269,13 +269,13 @@ copy_etc_profile_d_toolbox_to_container()
         return 0
     fi
 
-    echo "$base_toolbox_command: copying /etc/profile.d/toolbox.sh to container $container" >&3
+    echo "$base_toolbox_command: copying $toolbox_runtime_directory/toolbox.sh to container $container" >&3
 
     if ! $prefix_sudo podman exec \
                  --user root:root \
                  "$container" \
                  sh -c "cp $toolbox_runtime_directory/toolbox.sh /etc/profile.d" sh 2>&3; then
-        echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh to container $container" >&2
+        echo "$base_toolbox_command: unable to copy $toolbox_runtime_directory/toolbox.sh to container $container" >&2
         return 1
     fi
 
