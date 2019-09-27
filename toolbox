@@ -264,6 +264,11 @@ copy_etc_profile_d_toolbox_to_container()
         return 1
     fi
 
+    if ! [ -f "$toolbox_runtime_directory"/toolbox.sh ] 2>&3; then
+        echo "$base_toolbox_command: $toolbox_runtime_directory/toolbox.sh not found" >&2
+        return 0
+    fi
+
     echo "$base_toolbox_command: copying /etc/profile.d/toolbox.sh to container $container" >&3
 
     if ! $prefix_sudo podman exec \
@@ -283,6 +288,7 @@ copy_etc_profile_d_toolbox_to_runtime_directory()
     profile_d_lock="$toolbox_runtime_directory"/profile.d-toolbox.lock
 
     if ! [ -f /etc/profile.d/toolbox.sh ] 2>&3; then
+        echo "$base_toolbox_command: /etc/profile.d/toolbox.sh not found" >&2
         return 0
     fi
 
