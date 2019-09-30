@@ -74,7 +74,6 @@ verbose=false
 
 
 LGC='\033[1;32m' # Light Green Color
-LBC='\033[1;34m' # Light Blue Color
 NC='\033[0m' # No Color
 
 
@@ -1313,8 +1312,6 @@ list_images()
     fi
 
     if [ "$output" != "" ]; then
-        # shellcheck disable=SC2059
-        printf "${LBC}Images created by toolbox${NC}\n"
         echo "$output"
     fi
 
@@ -1365,8 +1362,6 @@ list_containers()
     fi
 
     if [ "$output" != "" ]; then
-        # shellcheck disable=SC2059
-        printf "${LBC}Containers created by toolbox${NC}\n"
         echo "$output" | head --lines 1 2>&3
 
         echo "$output" | tail --lines +2 2>&3 \
@@ -2037,6 +2032,7 @@ case $op in
         exit 1
         ;;
     list )
+        ls_add_empty_line=false
         ls_images=false
         ls_containers=false
         while has_prefix "$1" -; do
@@ -2077,9 +2073,11 @@ case $op in
 
         if $ls_images && [ "$images" != "" ] 2>&3; then
             echo "$images"
+            ls_add_empty_line=true
         fi
 
         if $ls_containers && [ "$containers" != "" ] 2>&3; then
+            $ls_add_empty_line && echo ""
             echo "$containers"
         fi
 
