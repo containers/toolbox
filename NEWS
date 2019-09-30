@@ -1,3 +1,17 @@
+Overview of changes in 0.0.15
+=============================
+
+* Be forgiving of a missing /etc/profile.d/toolbox.sh in 'run'
+* Don't sanity check /etc/subgid and /etc/subuid when running as root
+* Install only flatpak-spawn, not the rest of flatpak-xdg-utils, in the images
+* Let the terminal know the active container only on some Fedora variants
+* Rely on 'podman system migrate' always being present
+* Simplify code by dropping compatibility with 'podman create' < 1.4.0
+* Switch to using /usr/lib/os-release instead of /etc/os-release
+* Unbreak 'create' on Silverblue
+* Update default release to 30 when running on non-fedora hosts
+
+
 Overview of changes in 0.0.14
 =============================
 
