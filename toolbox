@@ -53,7 +53,6 @@ environment_variables="COLORTERM \
         XDG_VTNR"
 fgc=""
 
-prefix_sudo=""
 registry="registry.fedoraproject.org"
 registry_candidate="candidate-registry.fedoraproject.org"
 release=""
@@ -270,7 +269,7 @@ copy_etc_profile_d_toolbox_to_container()
 
     echo "$base_toolbox_command: copying $toolbox_runtime_directory/toolbox.sh to container $container" >&3
 
-    if ! $prefix_sudo podman exec \
+    if ! podman exec \
                  --user root:root \
                  "$container" \
                  sh -c "cp $toolbox_runtime_directory/toolbox.sh /etc/profile.d" sh 2>&3; then
@@ -406,7 +405,7 @@ create_toolbox_image_name()
     # https://github.com/containers/buildah/blob/master/util/util.go
 
     if image_reference_can_be_id "$base_toolbox_image"; then
-        if base_toolbox_image_id=$($prefix_sudo podman inspect \
+        if base_toolbox_image_id=$(podman inspect \
                                            --format "{{.Id}}" \
                                            --type image \
                                            "$base_toolbox_image" 2>&3); then
@@ -556,7 +555,7 @@ images_get_details()
     if ! echo "$images" | while read -r image; do
             [ "$image" = "" ] 2>&3 && continue
 
-            if ! $prefix_sudo podman images \
+            if ! podman images \
                          --format "{{.ID}} {{.Repository}}:{{.Tag}} {{.Created}}" \
                          --noheading \
                          "$image" 2>&3; then
@@ -576,7 +575,7 @@ is_etc_profile_d_toolbox_a_bind_mount()
 {
     container="$1"
 
-    $prefix_sudo podman inspect --format "[{{range .Mounts}}{{.Dst}} {{end}}]" --type container "$container" 2>&3 \
+    podman inspect --format "[{{range .Mounts}}{{.Dst}} {{end}}]" --type container "$container" 2>&3 \
     | grep /etc/profile.d/toolbox.sh >/dev/null 2>/dev/null 2>&3
 
     return "$?"
@@ -585,7 +584,7 @@ is_etc_profile_d_toolbox_a_bind_mount()
 
 list_container_names()
 (
-    if ! containers_old=$($prefix_sudo podman ps \
+    if ! containers_old=$(podman ps \
                                   --all \
                                   --filter "label=com.redhat.component=fedora-toolbox" \
                                   --format "{{.Names}}" 2>&3); then
@@ -593,7 +592,7 @@ list_container_names()
         return 1
     fi
 
-    if ! containers=$($prefix_sudo podman ps \
+    if ! containers=$(podman ps \
                               --all \
                               --filter "label=com.github.debarshiray.toolbox=true" \
                               --format "{{.Names}}" 2>&3); then
@@ -616,7 +615,7 @@ pull_base_toolbox_image()
     if image_reference_can_be_id "$base_toolbox_image"; then
         echo "$base_toolbox_command: looking for image $base_toolbox_image" >&3
 
-        if $prefix_sudo podman image exists "$base_toolbox_image" >/dev/null 2>&3; then
+        if podman image exists "$base_toolbox_image" >/dev/null 2>&3; then
             return 0
         fi
     fi
@@ -626,7 +625,7 @@ pull_base_toolbox_image()
     if ! $has_domain; then
         echo "$base_toolbox_command: looking for image localhost/$base_toolbox_image" >&3
 
-        if $prefix_sudo podman image exists localhost/$base_toolbox_image >/dev/null 2>&3; then
+        if podman image exists localhost/$base_toolbox_image >/dev/null 2>&3; then
             return 0
         fi
     fi
@@ -639,7 +638,7 @@ pull_base_toolbox_image()
 
     echo "$base_toolbox_command: looking for image $base_toolbox_image_full" >&3
 
-    if $prefix_sudo podman image exists "$base_toolbox_image_full" >/dev/null 2>&3; then
+    if podman image exists "$base_toolbox_image_full" >/dev/null 2>&3; then
         return 0
     fi
 
@@ -676,7 +675,7 @@ pull_base_toolbox_image()
         spinner_directory=""
     fi
 
-    $prefix_sudo podman pull $base_toolbox_image_full >/dev/null 2>&3
+    podman pull $base_toolbox_image_full >/dev/null 2>&3
     ret_val=$?
 
     if [ "$spinner_directory" != "" ]; then
@@ -767,7 +766,7 @@ create()
     if image_reference_has_domain "$base_toolbox_image"; then
         base_toolbox_image_full="$base_toolbox_image"
     else
-        if ! base_toolbox_image_full=$($prefix_sudo podman inspect \
+        if ! base_toolbox_image_full=$(podman inspect \
                                                --format "{{index .RepoTags 0}}" \
                                                --type image \
                                                "$base_toolbox_image" 2>&3); then
@@ -781,7 +780,7 @@ create()
     echo "$base_toolbox_command: checking if container $toolbox_container already exists" >&3
 
     enter_command=$(create_enter_command "$toolbox_container")
-    if $prefix_sudo podman container exists $toolbox_container >/dev/null 2>&3; then
+    if podman container exists $toolbox_container >/dev/null 2>&3; then
         echo "$base_toolbox_command: container $toolbox_container already exists" >&2
         echo "Enter with: $enter_command" >&2
         echo "Try '$base_toolbox_command --help' for more information." >&2
@@ -857,7 +856,7 @@ create()
     fi
 
     # shellcheck disable=SC2086
-    $prefix_sudo podman create \
+    podman create \
             --dns none \
             --env TOOLBOX_PATH="$TOOLBOX_PATH" \
             --group-add "$group_for_sudo" \
@@ -1104,15 +1103,15 @@ run()
 
     echo "$base_toolbox_command: checking if container $toolbox_container exists" >&3
 
-    if ! $prefix_sudo podman container exists "$toolbox_container" 2>&3; then
+    if ! podman container exists "$toolbox_container" 2>&3; then
         echo "$base_toolbox_command: container $toolbox_container not found" >&3
 
-        if $prefix_sudo podman container exists "$toolbox_container_old_v1" 2>&3; then
+        if podman container exists "$toolbox_container_old_v1" 2>&3; then
             echo "$base_toolbox_command: container $toolbox_container_old_v1 found" >&3
 
             # shellcheck disable=SC2030
             toolbox_container="$toolbox_container_old_v1"
-        elif $prefix_sudo podman container exists "$toolbox_container_old_v2" 2>&3; then
+        elif podman container exists "$toolbox_container_old_v2" 2>&3; then
             echo "$base_toolbox_command: container $toolbox_container_old_v2 found" >&3
 
             # shellcheck disable=SC2030
@@ -1197,7 +1196,7 @@ run()
     if is_etc_profile_d_toolbox_a_bind_mount "$toolbox_container"; then
         echo "$base_toolbox_command: /etc/profile.d/toolbox.sh already mounted in container $toolbox_container" >&3
 
-        if ! $prefix_sudo podman start "$toolbox_container" >/dev/null 2>&3; then
+        if ! podman start "$toolbox_container" >/dev/null 2>&3; then
             echo "$base_toolbox_command: failed to start container $toolbox_container" >&2
             exit 1
         fi
@@ -1208,7 +1207,7 @@ run()
             exit 1
         fi
 
-        if ! $prefix_sudo podman start "$toolbox_container" >/dev/null 2>&3; then
+        if ! podman start "$toolbox_container" >/dev/null 2>&3; then
             echo "$base_toolbox_command: failed to start container $toolbox_container" >&2
             exit 1
         fi
@@ -1218,7 +1217,7 @@ run()
         fi
     fi
 
-    if ! $prefix_sudo podman exec --user root:root "$toolbox_container" touch /run/.toolboxenv 2>&3; then
+    if ! podman exec --user root:root "$toolbox_container" touch /run/.toolboxenv 2>&3; then
         echo "$base_toolbox_command: failed to create /run/.toolboxenv in container $toolbox_container" >&2
         exit 1
     fi
@@ -1228,7 +1227,7 @@ run()
     echo "$base_toolbox_command: looking for $program in container $toolbox_container" >&3
 
     # shellcheck disable=SC2016
-    if ! $prefix_sudo podman exec \
+    if ! podman exec \
                  --user "$USER" \
                  "$toolbox_container" \
                  sh -c 'command -v "$1"' sh "$program" >/dev/null 2>&3; then
@@ -1252,7 +1251,7 @@ run()
     # shellcheck disable=SC2016
     # for the command passed to capsh
     # shellcheck disable=SC2086
-    $prefix_sudo podman exec \
+    podman exec \
             --interactive \
             --tty \
             --user "$USER" \
@@ -1284,14 +1283,14 @@ list_images()
 (
     output=""
 
-    if ! images_old=$($prefix_sudo podman images \
+    if ! images_old=$(podman images \
                               --filter "label=com.redhat.component=fedora-toolbox" \
                               --format "{{.Repository}}:{{.Tag}}" 2>&3); then
         echo "$base_toolbox_command: failed to list images with com.redhat.component=fedora-toolbox" >&2
         return 1
     fi
 
-    if ! images=$($prefix_sudo podman images \
+    if ! images=$(podman images \
                           --filter "label=com.github.debarshiray.toolbox=true" \
                           --format "{{.Repository}}:{{.Tag}}" 2>&3); then
         echo "$base_toolbox_command: failed to list images with com.github.debarshiray.toolbox=true" >&2
@@ -1326,7 +1325,7 @@ containers_get_details()
     if ! echo "$containers" | while read -r container; do
             [ "$container" = "" ] 2>&3 && continue
 
-            if ! $prefix_sudo podman ps --all \
+            if ! podman ps --all \
                          --filter "name=$container" \
                          --format "{{.ID}}  {{.Names}}  {{.Created}}  {{.Status}}  {{.Image}}" 2>&3; then
                 echo "$base_toolbox_command: failed to get details for container $container" >&2
@@ -1368,7 +1367,7 @@ list_containers()
             | (
                   while read -r container; do
                       id=$(echo "$container" | cut --delimiter " " --fields 1 2>&3)
-                      is_running=$($prefix_sudo podman inspect "$id" --format "{{.State.Running}}" 2>&3)
+                      is_running=$(podman inspect "$id" --format "{{.State.Running}}" 2>&3)
                       if $is_running; then
                           # shellcheck disable=SC2059
                           printf "${LGC}$container${NC}\n"
@@ -1390,7 +1389,7 @@ migrate()
 
     migrate_lock="$toolbox_runtime_directory"/migrate.lock
 
-    if ! version=$($prefix_sudo podman version --format "{{.Version}}" 2>&3); then
+    if ! version=$(podman version --format "{{.Version}}" 2>&3); then
         echo "$base_toolbox_command: unable to migrate containers: Podman version couldn't be read" >&2
         return 1
     fi
@@ -1432,7 +1431,7 @@ migrate()
         fi
     fi
 
-    if ! $prefix_sudo podman system migrate >/dev/null 2>&3; then
+    if ! podman system migrate >/dev/null 2>&3; then
         echo "$base_toolbox_command: unable to migrate containers" >&2
         return 1
     fi
@@ -1453,7 +1452,7 @@ remove_containers()
     $force && force_option="--force"
 
     if $all; then
-        if ! ids_old=$($prefix_sudo podman ps \
+        if ! ids_old=$(podman ps \
                                --all \
                                --filter "label=com.redhat.component=fedora-toolbox" \
                                --format "{{.ID}}" 2>&3); then
@@ -1461,7 +1460,7 @@ remove_containers()
             return 1
         fi
 
-        if ! ids=$($prefix_sudo podman ps \
+        if ! ids=$(podman ps \
                            --all \
                            --filter "label=com.github.debarshiray.toolbox=true" \
                            --format "{{.ID}}" 2>&3); then
@@ -1474,7 +1473,7 @@ remove_containers()
             ret_val=$(echo "$ids" \
                       | (
                             while read -r id; do
-                                if ! $prefix_sudo podman rm $force_option "$id" >/dev/null 2>&3; then
+                                if ! podman rm $force_option "$id" >/dev/null 2>&3; then
                                     echo "$base_toolbox_command: failed to remove container $id" >&2
                                     ret_val=1
                                 fi
@@ -1489,7 +1488,7 @@ remove_containers()
                   | sed "s/ \+/\n/g" 2>&3 \
                   | (
                         while read -r id; do
-                            if ! labels=$($prefix_sudo podman inspect \
+                            if ! labels=$(podman inspect \
                                                   --format "{{.Config.Labels}}" \
                                                   --type container \
                                                   "$id" 2>&3); then
@@ -1505,7 +1504,7 @@ remove_containers()
                                 continue
                             fi
 
-                            if ! $prefix_sudo podman rm $force_option "$id" >/dev/null 2>&3; then
+                            if ! podman rm $force_option "$id" >/dev/null 2>&3; then
                                 echo "$base_toolbox_command: failed to remove container $id" >&2
                                 ret_val=1
                             fi
@@ -1531,14 +1530,14 @@ remove_images()
     $force && force_option="--force"
 
     if $all; then
-        if ! ids_old=$($prefix_sudo podman images \
+        if ! ids_old=$(podman images \
                                --filter "label=com.redhat.component=fedora-toolbox" \
                                --format "{{.ID}}" 2>&3); then
             echo "$0: failed to list images with com.redhat.component=fedora-toolbox" >&2
             return 1
         fi
 
-        if ! ids=$($prefix_sudo podman images \
+        if ! ids=$(podman images \
                            --all \
                            --filter "label=com.github.debarshiray.toolbox=true" \
                            --format "{{.ID}}" 2>&3); then
@@ -1551,7 +1550,7 @@ remove_images()
             ret_val=$(echo "$ids" \
                       | (
                             while read -r id; do
-                                if ! $prefix_sudo podman rmi $force_option "$id" >/dev/null 2>&3; then
+                                if ! podman rmi $force_option "$id" >/dev/null 2>&3; then
                                     echo "$base_toolbox_command: failed to remove image $id" >&2
                                     ret_val=1
                                 fi
@@ -1566,7 +1565,7 @@ remove_images()
                   | sed "s/ \+/\n/g" 2>&3 \
                   | (
                         while read -r id; do
-                            if ! labels=$($prefix_sudo podman inspect \
+                            if ! labels=$(podman inspect \
                                                   --format "{{.Labels}}" \
                                                   --type image \
                                                   "$id" 2>&3); then
@@ -1582,7 +1581,7 @@ remove_images()
                                 continue
                             fi
 
-                            if ! $prefix_sudo podman rmi $force_option "$id" >/dev/null 2>&3; then
+                            if ! podman rmi $force_option "$id" >/dev/null 2>&3; then
                                 echo "$base_toolbox_command: failed to remove image $id" >&2
                                 ret_val=1
                             fi
@@ -1787,9 +1786,6 @@ while has_prefix "$1" -; do
 
             help "$2"
             exit
-            ;;
-        --sudo )
-            prefix_sudo="sudo"
             ;;
         -v | --verbose )
             exec 3>&2
