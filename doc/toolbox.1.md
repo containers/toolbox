@@ -43,6 +43,7 @@ Print a synopsis of this manual and exit.
 **--verbose, -v**
 
 Print debug information including standard error stream of internal commands.
+Use `-vv` for more detail.
 
 ## COMMANDS
 

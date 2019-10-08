@@ -28,12 +28,12 @@ __toolbox() {
   _init_completion -s || return
 
   if [ "${COMP_CWORD}" -eq 1 ]; then
-    mapfile -t COMPREPLY < <(compgen -W "--assumeyes --help --verbose $commands" -- "$2")
+    mapfile -t COMPREPLY < <(compgen -W "--assumeyes --help --verbose --very-verbose $commands" -- "$2")
     return 0
   fi
 
   case "$prev" in
-    --verbose | -v)
+    --verbose | -v | --very-verbose | -vv)
       mapfile -t COMPREPLY < <(compgen -W "$commands" -- "$2")
       return 0
       ;;
@@ -52,7 +52,7 @@ __toolbox() {
   esac
 
   local command
-  if [ "${COMP_WORDS[1]}" = --verbose ]; then
+  if [ "${COMP_WORDS[1]}" = --verbose ] || [ "${COMP_WORDS[1]}" = --very-verbose ]; then
     command=${COMP_WORDS[2]}
   else
     command=${COMP_WORDS[1]}
