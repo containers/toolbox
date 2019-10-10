@@ -958,7 +958,7 @@ init_container()
                 echo "$base_toolbox_command: redirecting /etc/host.conf to /run/host/etc/host.conf" >&3
 
                 if ! (cd /etc 2>&3 \
-                      && unlink host.conf 2>&3 \
+                      && rm --force host.conf 2>&3 \
                       && ln --symbolic /run/host/etc/host.conf host.conf 2>&3); then
                     echo "$base_toolbox_command: failed to redirect /etc/host.conf to /run/host/etc/host.conf" >&2
                     return 1
@@ -968,7 +968,9 @@ init_container()
             if ! readlink /etc/hosts >/dev/null 2>&3; then
                 echo "$base_toolbox_command: redirecting /etc/hosts to /run/host/etc/hosts" >&3
 
-                if ! (cd /etc 2>&3 && unlink hosts 2>&3 && ln --symbolic /run/host/etc/hosts hosts 2>&3); then
+                if ! (cd /etc 2>&3 \
+                      && rm --force hosts 2>&3 \
+                      && ln --symbolic /run/host/etc/hosts hosts 2>&3); then
                     echo "$base_toolbox_command: failed to redirect /etc/hosts to /run/host/etc/hosts" >&2
                     return 1
                 fi
@@ -978,7 +980,7 @@ init_container()
                 echo "$base_toolbox_command: redirecting /etc/resolv.conf to /run/host/etc/resolv.conf" >&3
 
                 if ! (cd /etc 2>&3 \
-                      && unlink resolv.conf 2>&3 \
+                      && rm --force resolv.conf 2>&3 \
                       && ln --symbolic /run/host/etc/resolv.conf resolv.conf 2>&3); then
                     echo "$base_toolbox_command: failed to redirect /etc/resolv.conf to /run/host/etc/resolv.conf" \
                             >&2
@@ -993,7 +995,7 @@ init_container()
                 echo "$base_toolbox_command: redirecting /etc/localtime to /run/host/monitor/localtime" >&3
 
                 if ! (cd /etc 2>&3 \
-                      && unlink localtime 2>&3 \
+                      && rm --force localtime 2>&3 \
                       && ln --symbolic /run/host/monitor/localtime localtime 2>&3); then
                     echo "$base_toolbox_command: failed to redirect /etc/localtime to /run/host/monitor/localtime" \
                             >&2
