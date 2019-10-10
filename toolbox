@@ -862,6 +862,7 @@ create()
             --group-add "$group_for_sudo" \
             --hostname toolbox \
             --ipc host \
+            --label "com.github.containers.toolbox=true" \
             --label "com.github.debarshiray.toolbox=true" \
             --name $toolbox_container \
             --network host \
