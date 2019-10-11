@@ -13,7 +13,7 @@ __toolbox() {
   local MIN_VERSION=29
   local RAWHIDE_VERSION=32
 
-  local commands="create enter help init-container list rm rmi run"
+  local commands="create enter help init-container list reset rm rmi run"
 
   declare -A options
   local options=([create]="--candidate-registry --container --image --release" \

@@ -690,6 +690,103 @@ pull_base_toolbox_image()
 )
 
 
+unshare_userns_rm()
+(
+    path="$1"
+
+    if ! unshare_directory=$(mktemp --directory --tmpdir "toolbox-unshare-userns-rm-XXXXXXXXXX" 2>&3); then
+        echo "$base_toolbox_command: failed to enter user namespace: directory couldn't be created" >&2
+        return 1
+    fi
+
+    if ! touch "$unshare_directory/map" 2>&3; then
+        echo "$base_toolbox_command: failed to enter user namespace: file couldn't be created" >&2
+        return 1
+    fi
+
+    exec 6>"$unshare_directory/map"
+    if ! flock 6 2>&3; then
+        echo "$base_toolbox_command: failed to enter user namespace: lock couldn't be acquired" >&2
+        return 1
+    fi
+
+    echo "$base_toolbox_command: parsing /etc/subgid" >&3
+
+    if ! subgid_entry=$(grep "^$USER:" /etc/subgid 2>&3); then
+        echo "$base_toolbox_command: failed to enter user namespace: no entry in /etc/subgid" >&2
+        return 1
+    fi
+
+    userns_gid_start=$(echo "$subgid_entry" | cut --delimiter ":" --fields 2 2>&3)
+    if ! is_integer "$userns_gid_start"; then
+        echo "$base_toolbox_command: failed to enter user namespace: cannot parse the first sub-GID" >&2
+        return 1
+    fi
+
+    userns_gid_len=$(echo "$subgid_entry" | cut --delimiter ":" --fields 3 2>&3)
+    if ! is_integer "$userns_gid_len"; then
+        echo "$base_toolbox_command: failed to enter user namespace: cannot parse the sub-GID count" >&2
+        return 1
+    fi
+
+    echo "$base_toolbox_command: parsing /etc/subuid" >&3
+
+    if ! subuid_entry=$(grep "^$USER:" /etc/subuid 2>&3); then
+        echo "$base_toolbox_command: failed to enter user namespace: no entry in /etc/subuid" >&2
+        return 1
+    fi
+
+    userns_uid_start=$(echo "$subuid_entry" | cut --delimiter ":" --fields 2 2>&3)
+    if ! is_integer "$userns_uid_start"; then
+        echo "$base_toolbox_command: failed to enter user namespace: cannot parse the first sub-UID" >&2
+        return 1
+    fi
+
+    userns_uid_len=$(echo "$subuid_entry" | cut --delimiter ":" --fields 3 2>&3)
+    if ! is_integer "$userns_uid_len"; then
+        echo "$base_toolbox_command: failed to enter user namespace: cannot parse the sub-UID count" >&2
+        return 1
+    fi
+
+    echo "$base_toolbox_command: unsharing user namespace" >&3
+
+    unshare --user sh -c "flock $unshare_directory/map rm --force --recursive $path" 2>&3 &
+    unshare_pid="$!"
+
+    echo "$base_toolbox_command: setting UID map of user namespace" >&3
+
+    if ! newgidmap "$unshare_pid" 0 "$user_id_real" 1 1 "$userns_gid_start" "$userns_gid_len" 2>&3; then
+        echo "$base_toolbox_command: failed to set GID mapping of user namespace" >&2
+        kill -9 "$unshare_pid" 2>&3
+        return 1
+    fi
+
+    if ! newuidmap "$unshare_pid" 0 "$user_id_real" 1 1 "$userns_uid_start" "$userns_uid_len" 2>&3; then
+        echo "$base_toolbox_command: failed to set UID mapping of user namespace" >&2
+        kill -9 "$unshare_pid" 2>&3
+        return 1
+    fi
+
+    echo "$base_toolbox_command: UID map of user namespace:" >&3
+    cat /proc/$unshare_pid/uid_map 1>&3 2>&3
+
+    if ! flock --unlock 6 2>&3; then
+        echo "$base_toolbox_command: failed to remove $path: lock couldn't be unlocked" >&2
+        kill -9 "$unshare_pid" 2>&3
+        return 1
+    fi
+
+    if ! wait "$unshare_pid" 2>&3; then
+        echo "$base_toolbox_command: failed to remove $path" >&2
+        return 1
+    fi
+
+    rm --force --recursive "$unshare_directory" 2>&3
+
+    return 0
+)
+
+
 create()
 (
     enter_command_skip="$1"
@@ -1599,6 +1696,87 @@ remove_images()
 )
 
 
+reset()
+(
+    do_reset=false
+    prompt_for_reset=true
+    ret_val=0
+
+    if [ "$user_id_real" -eq 0 ] 2>&3; then
+        if [ -d /run/containers ] 2>&3; then
+            echo "$base_toolbox_command: The 'reset' command cannot be used after other commands" >&2
+            echo "Reboot the system before using it again." >&2
+            echo "Try '$base_toolbox_command --help' for more information." >&2
+            return 1
+        fi
+    else
+        if [ -d "$XDG_RUNTIME_DIR"/overlay-containers ] 2>&3 \
+           || [ -d "$XDG_RUNTIME_DIR"/overlay-layers ] 2>&3 \
+           || [ -d "$XDG_RUNTIME_DIR"/overlay-locks ] 2>&3; then
+            echo "$base_toolbox_command: The 'reset' command cannot be used after other commands" >&2
+            echo "Reboot the system before using it again." >&2
+            echo "Try '$base_toolbox_command --help' for more information." >&2
+            return 1
+        fi
+    fi
+
+    if $assume_yes; then
+        do_reset=true
+        prompt_for_reset=false
+    fi
+
+    if $prompt_for_reset; then
+        echo "All existing podman (and toolbox) containers and images will be removed."
+
+        prompt=$(printf "Continue? [y/N]:")
+        if ask_for_confirmation "n" "$prompt"; then
+            do_reset=true
+        else
+            do_reset=false
+        fi
+    fi
+
+    if ! $do_reset; then
+        return 1
+    fi
+
+    echo "$base_toolbox_command: resetting local state" >&3
+
+    if [ "$user_id_real" -eq 0 ] 2>&3; then
+        if ! rm --force --recursive /var/lib/containers/cache >/dev/null 2>&3; then
+            echo "$base_toolbox_command: failed to remove /var/lib/containers/cache" >&2
+            ret_val=1
+        fi
+
+        if ! rm --force --recursive /var/lib/containers/sigstore/* >/dev/null 2>&3; then
+            echo "$base_toolbox_command: failed to remove the contents of /var/lib/containers/sigstore" >&2
+            ret_val=1
+        fi
+
+        if ! rm --force --recursive /var/lib/containers/storage >/dev/null 2>&3; then
+            echo "$base_toolbox_command: failed to remove /var/lib/containers/storage" >&2
+            ret_val=1
+        fi
+    else
+        if ! unshare_userns_rm "$HOME/.local/share/containers"; then
+            ret_val=1
+        fi
+
+        if ! rm --force --recursive "$HOME/.config/containers" >/dev/null 2>&3; then
+            echo "$base_toolbox_command: failed to remove $HOME/.config/containers" >&2
+            ret_val=1
+        fi
+    fi
+
+    if ! rm --force --recursive "$HOME/.config/toolbox" >/dev/null 2>&3; then
+        echo "$base_toolbox_command: failed to remove $HOME/.config/toolbox" >&2
+        ret_val=1
+    fi
+
+    return "$ret_val"
+)
+
+
 exit_if_extra_operand()
 {
     if [ "$1" != "" ]; then
@@ -1910,6 +2088,11 @@ if [ -f /run/.containerenv ] 2>&3; then
                     "$init_container_user"
             exit "$?"
             ;;
+        reset )
+            echo "$base_toolbox_command: The 'reset' command cannot be used inside containers" >&2
+            echo "Try '$base_toolbox_command --help' for more information." >&2
+            exit 1
+            ;;
         * )
            echo "$base_toolbox_command: unrecognized command '$op'" >&2
            echo "Try '$base_toolbox_command --help' for more information." >&2
@@ -1918,8 +2101,10 @@ if [ -f /run/.containerenv ] 2>&3; then
     esac
 fi
 
-if ! migrate; then
-    exit 1
+if [ "$op" != "reset" ] 2>&3; then
+    if ! migrate; then
+        exit 1
+    fi
 fi
 
 case $op in
@@ -2081,6 +2266,23 @@ case $op in
         fi
 
         exit
+        ;;
+    reset )
+        while has_prefix "$1" -; do
+            case $1 in
+                -h | --help )
+                    help "$op"
+                    exit
+                    ;;
+                * )
+                    exit_if_unrecognized_option "$1"
+            esac
+            shift
+        done
+        exit_if_extra_operand "$1"
+
+        reset
+        exit "$?"
         ;;
     rm | rmi )
         rm_all=false
