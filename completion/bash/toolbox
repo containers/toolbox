@@ -67,7 +67,7 @@ __toolbox() {
       extra_comps="$(__toolbox_images)"
       ;;&
     *)
-      mapfile -t COMPREPLY < <(compgen -W "${options[$command]} $extra_comps" -- "$2")
+      mapfile -t COMPREPLY < <(compgen -W "${options[$command]} --help $extra_comps" -- "$2")
       return 0;
       ;;
   esac
