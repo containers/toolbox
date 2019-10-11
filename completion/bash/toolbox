@@ -13,6 +13,7 @@ __toolbox() {
   local MIN_VERSION=29
   local RAWHIDE_VERSION=32
 
+  local global_options="--assumeyes --verbose"
   local commands="create enter help init-container list reset rm rmi run"
 
   declare -A options
@@ -37,6 +38,10 @@ __toolbox() {
       mapfile -t COMPREPLY < <(compgen -W "$commands" -- "$2")
       return 0
       ;;
+    --assumeyes | -y)
+      mapfile -t COMPREPLY < <(compgen -W "$commands" -- "$2")
+      return 0
+      ;;
     --container | -c)
       mapfile -t COMPREPLY < <(compgen -W "$(__toolbox_containers)" -- "$2")
       return 0
@@ -51,12 +56,12 @@ __toolbox() {
       ;;
   esac
 
-  local command
-  if [ "${COMP_WORDS[1]}" = --verbose ]; then
-    command=${COMP_WORDS[2]}
-  else
-    command=${COMP_WORDS[1]}
-  fi
+  local i
+  for i in $(seq 1 $COMP_CWORD); do
+    [[ "${global_options[@]}" =~ ${COMP_WORDS[$i]} ]] || break
+  done
+
+  local command=${COMP_WORDS[$i]}
 
   local extra_comps
   case "$command" in
