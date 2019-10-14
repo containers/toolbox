@@ -1,15 +1,16 @@
 <img src="data/logo/toolbox-logo-landscape.svg" alt="Toolbox logo landscape" width="800"/>
 
 [Toolbox](https://github.com/containers/toolbox) is a tool that offers a
-familiar RPM based environment for developing and debugging software that runs
-fully unprivileged using [Podman](https://podman.io/).
+familiar package based environment for developing and debugging software that
+runs fully unprivileged using [Podman](https://podman.io/).
 
 The toolbox container is a fully *mutable* container; when you see
 `yum install ansible` for example, that's something you can do inside your
 toolbox container, without affecting the base operating system.
 
 This is particularly useful on
-[OSTree](https://ostree.readthedocs.io/en/latest/) based Fedora systems like
+[OSTree](https://ostree.readthedocs.io/en/latest/) based operating systems like
+[CoreOS](https://coreos.fedoraproject.org/) and
 [Silverblue](https://silverblue.fedoraproject.org/).  The intention of these
 systems is to discourage installation of software on the host, and instead
 install software as (or in) containers.
