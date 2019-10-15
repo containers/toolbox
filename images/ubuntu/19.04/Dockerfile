@@ -1,9 +1,8 @@
 FROM docker.io/library/ubuntu:19.04
 
 ENV NAME=ubuntu-toolbox VERSION=19.04
-LABEL com.github.debarshiray.toolbox="true" \
-      com.redhat.component="$NAME" \
-      name="$FGC/$NAME" \
+LABEL com.github.containers.toolbox="true" \
+      name="$NAME" \
       version="$VERSION" \
       usage="This image is meant to be used with the toolbox command" \
       summary="Base image for creating Ubuntu 19.04 toolbox containers" \

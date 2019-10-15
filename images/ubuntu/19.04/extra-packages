@@ -6,7 +6,6 @@ lsof
 man-db
 mlocate
 mtr
-packagekit-command-not-found
 rsync
 sudo
 tcpdump
