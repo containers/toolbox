@@ -704,8 +704,8 @@ unshare_userns_rm()
         return 1
     fi
 
-    exec 6>"$unshare_directory/map"
-    if ! flock 6 2>&3; then
+    exec 4>"$unshare_directory/map"
+    if ! flock 4 2>&3; then
         echo "$base_toolbox_command: failed to enter user namespace: lock couldn't be acquired" >&2
         return 1
     fi
@@ -770,7 +770,7 @@ unshare_userns_rm()
     echo "$base_toolbox_command: UID map of user namespace:" >&3
     cat /proc/$unshare_pid/uid_map 1>&3 2>&3
 
-    if ! flock --unlock 6 2>&3; then
+    if ! flock --unlock 4 2>&3; then
         echo "$base_toolbox_command: failed to remove $path: lock couldn't be unlocked" >&2
         kill -9 "$unshare_pid" 2>&3
         return 1
