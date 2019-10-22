@@ -1043,6 +1043,17 @@ init_container()
     init_container_uid="$5"
     init_container_user="$6"
 
+    if [ "$XDG_RUNTIME_DIR" = "" ] 2>&3; then
+        echo "$base_toolbox_command: XDG_RUNTIME_DIR is unset" >&3
+
+        XDG_RUNTIME_DIR=/run/user/"$init_container_uid"
+        echo "$base_toolbox_command: XDG_RUNTIME_DIR set to $XDG_RUNTIME_DIR" >&3
+
+        toolbox_runtime_directory="$XDG_RUNTIME_DIR"/toolbox
+    fi
+
+    init_container_initialized_stamp="$toolbox_runtime_directory"/container-initialized-"$$"
+
     echo "$base_toolbox_command: creating /run/.toolboxenv" >&3
 
     if ! touch /run/.toolboxenv 2>&3; then
@@ -1187,6 +1198,13 @@ EOF
         fi
     fi
 
+    echo "$base_toolbox_command: finished initializing container" >&3
+
+    if ! touch "$init_container_initialized_stamp" 2>&3; then
+        echo "$base_toolbox_command: failed to create initialization stamp" >&2
+        return 1
+    fi
+
     echo "$base_toolbox_command: going to sleep" >&3
 
     exec sleep +Inf
@@ -1318,6 +1336,48 @@ run()
         if ! copy_etc_profile_d_toolbox_to_container "$toolbox_container"; then
             exit 1
         fi
+    fi
+
+    echo "$base_toolbox_command: inspecting entry point of container $toolbox_container" >&3
+
+    if ! entry_point=$(podman inspect --format "{{index .Config.Cmd 0}}" --type container "$toolbox_container" 2>&3); then
+        echo "$base_toolbox_command: failed to inspect entry point of container $toolbox_container" >&2
+        exit 1
+    fi
+
+    echo "$base_toolbox_command: entry point of container $toolbox_container is $entry_point" >&3
+
+    if [ "$entry_point" = "toolbox" ] 2>&3; then
+        echo "$base_toolbox_command: waiting for container $toolbox_container to finish initializing" >&3
+
+        if ! entry_point_pid=$(podman inspect --format "{{.State.Pid}}" --type container "$toolbox_container" 2>&3); then
+            echo "$base_toolbox_command: failed to inspect entry point PID of container $toolbox_container" >&2
+            exit 1
+        fi
+
+        if ! is_integer "$entry_point_pid"; then
+            echo "$base_toolbox_command: failed to parse entry point PID of container $toolbox_container" >&2
+            exit 1
+        fi
+
+        if [ "$entry_point_pid" -le 0 ] 2>&3; then
+            echo "$base_toolbox_command: invalid entry point PID of container $toolbox_container" >&2
+            exit 1
+        fi
+
+        container_initialized_stamp="$toolbox_runtime_directory/container-initialized-$entry_point_pid"
+        container_initialized_timeout=25 #s
+
+        i=0
+        while ! [ -f "$container_initialized_stamp" ] 2>&3; do
+            sleep 1 2>&3
+
+            i=$((i + 1))
+            if [ "$i" -eq "$container_initialized_timeout" ] 2>&3; then
+                echo "$base_toolbox_command: failed to initialize container $toolbox_container" >&2
+                exit 1
+            fi
+        done
     fi
 
     if ! podman exec --user root:root "$toolbox_container" touch /run/.toolboxenv 2>&3; then
