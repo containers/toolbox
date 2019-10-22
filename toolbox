@@ -92,7 +92,7 @@ has_prefix()
             ;;
     esac
 
-    return $ret_val
+    return "$ret_val"
 )
 
 
@@ -112,14 +112,14 @@ has_substring()
             ;;
     esac
 
-    return $ret_val
+    return "$ret_val"
 )
 
 
 is_integer()
 {
     [ "$1" != "" ] && [ "$1" -eq "$1" ] 2>&3
-    return $?
+    return "$?"
 }
 
 
@@ -240,7 +240,7 @@ container_name_is_valid()
     name="$1"
 
     echo "$name" | grep "^$container_name_regexp$" >/dev/null 2>&3
-    return $?
+    return "$?"
 )
 
 
@@ -487,7 +487,7 @@ image_reference_can_be_id()
     image="$1"
 
     echo "$image" | grep "^[a-f0-9]\{6,64\}$" >/dev/null 2>&3
-    return $?
+    return "$?"
 )
 
 
@@ -771,7 +771,7 @@ unshare_userns_rm()
     cat /proc/"$unshare_pid"/gid_map 1>&3 2>&3
 
     echo "$base_toolbox_command: UID map of user namespace:" >&3
-    cat /proc/$unshare_pid/uid_map 1>&3 2>&3
+    cat /proc/"$unshare_pid"/uid_map 1>&3 2>&3
 
     if ! flock --unlock 4 2>&3; then
         echo "$base_toolbox_command: failed to remove $path: lock couldn't be unlocked" >&2
