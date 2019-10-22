@@ -753,7 +753,7 @@ unshare_userns_rm()
     unshare --user sh -c "flock $unshare_directory/map rm --force --recursive $path" 2>&3 &
     unshare_pid="$!"
 
-    echo "$base_toolbox_command: setting UID map of user namespace" >&3
+    echo "$base_toolbox_command: setting GID and UID map of user namespace" >&3
 
     if ! newgidmap "$unshare_pid" 0 "$user_id_real" 1 1 "$userns_gid_start" "$userns_gid_len" 2>&3; then
         echo "$base_toolbox_command: failed to set GID mapping of user namespace" >&2
