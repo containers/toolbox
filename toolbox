@@ -22,6 +22,7 @@ arguments=""
 assume_yes=false
 base_toolbox_command=$(basename "$0" 2>&3)
 base_toolbox_image=""
+cgroups_version=""
 
 # Based on the nameRegex value in:
 # https://github.com/containers/libpod/blob/master/libpod/options.go
@@ -439,6 +440,24 @@ enter_print_container_not_found()
     echo "$base_toolbox_command: container $container not found" >&2
     echo "Use the 'create' command to create a toolbox." >&2
     echo "Try '$base_toolbox_command --help' for more information." >&2
+)
+
+
+get_cgroups_version()
+(
+    version=1
+
+    if ! mounts=$(mount 2>&3); then
+        echo "$base_toolbox_command: failed to detect cgroups version: couldn't list mount points" >&2
+        return 1
+    fi
+
+    if ! (echo "$mounts" | grep "^cgroup " >/dev/null 2>&3) && (echo "$mounts" | grep "^cgroup2 " >/dev/null 2>&3); then
+        version=2
+    fi
+
+    echo "$version"
+    return 0
 )
 
 
@@ -2163,6 +2182,12 @@ if [ -f /run/.containerenv ] 2>&3; then
            ;;
     esac
 fi
+
+if ! cgroups_version=$(get_cgroups_version); then
+    exit 1
+fi
+
+echo "$base_toolbox_command: running on a cgroups v$cgroups_version host" >&3
 
 if [ "$op" != "reset" ] 2>&3; then
     if ! migrate; then
