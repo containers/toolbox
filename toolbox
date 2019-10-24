@@ -1597,7 +1597,7 @@ migrate()
 
     if [ -f "$migrate_stamp" ] 2>&3; then
         if grep "$version" "$migrate_stamp" >/dev/null 2>&3; then
-            echo "$base_toolbox_command: migration not needed: $version is unchanged" >&3
+            echo "$base_toolbox_command: migration not needed: Podman version $version is unchanged" >&3
             return 0
         fi
 
@@ -1610,7 +1610,7 @@ migrate()
         fi
 
         if [ "$version" = "$version_old" ] 2>&3; then
-            echo "$base_toolbox_command: migration not needed: $version is old" >&3
+            echo "$base_toolbox_command: migration not needed: Podman version $version is old" >&3
             return 0
         fi
     fi
