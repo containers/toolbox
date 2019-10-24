@@ -1576,6 +1576,8 @@ migrate()
         return 1
     fi
 
+    echo "$base_toolbox_command: current Podman version is $version" >&3
+
     if ! mkdir --parents "$configuration_directory" 2>&3; then
         echo "$base_toolbox_command: unable to migrate containers: configuration directory not created" >&2
         return 1
