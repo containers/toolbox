@@ -249,9 +249,44 @@ container_start()
 (
     container="$1"
 
-    if ! podman start "$container" >/dev/null 2>&3; then
-        echo "$base_toolbox_command: failed to start container $container" >&2
-        return 1
+    error_message=$( (podman start "$container" >/dev/null) 2>&1)
+    ret_val="$?"
+    [ "$error_message" != "" ] 2>&3 && echo "$error_message" >&3
+
+    if [ "$ret_val" -ne 0 ] 2>&3; then
+        if echo "$error_message" | grep "use system migrate to mitigate" >/dev/null 2>&3; then
+            echo "$base_toolbox_command: checking if 'podman system migrate' supports --new-runtime" >&3
+
+            if ! (podman system migrate --help 2>&3 | grep "new-runtime" >/dev/null 2>&3); then
+                echo "$base_toolbox_command: container $container doesn't support cgroups v$cgroups_version" >&2
+                echo "Update Podman to version 1.6.2 or newer." >&2
+                return 1
+            else
+                echo "$base_toolbox_command: 'podman system migrate' supports --new-runtime" >&3
+
+                oci_runtime_required="runc"
+                [ "$cgroups_version" -eq 2 ] 2>&3 && oci_runtime_required="crun"
+
+                echo "$base_toolbox_command: migrating containers to OCI runtime $oci_runtime_required" >&3
+
+                if ! podman system migrate --new-runtime "$oci_runtime_required" >/dev/null 2>&3; then
+                    echo "$base_toolbox_command: failed to migrate containers to OCI runtime $oci_runtime_required" >&2
+                    echo "Factory reset with: toolbox reset" >&2
+                    echo "Try '$base_toolbox_command --help' for more information." >&2
+                    return 1
+                fi
+
+                if ! podman start "$container" >/dev/null 2>&3; then
+                    echo "$base_toolbox_command: container $container doesn't support cgroups v$cgroups_version" >&2
+                    echo "Factory reset with: toolbox reset" >&2
+                    echo "Try '$base_toolbox_command --help' for more information." >&2
+                    return 1
+                fi
+            fi
+        else
+            echo "$base_toolbox_command: failed to start container $container" >&2
+            return 1
+        fi
     fi
 
     return 0
