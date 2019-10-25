@@ -245,6 +245,19 @@ container_name_is_valid()
 )
 
 
+container_start()
+(
+    container="$1"
+
+    if ! podman start "$container" >/dev/null 2>&3; then
+        echo "$base_toolbox_command: failed to start container $container" >&2
+        return 1
+    fi
+
+    return 0
+)
+
+
 copy_etc_profile_d_toolbox_to_container()
 (
     container="$1"
@@ -1336,8 +1349,7 @@ run()
     if is_etc_profile_d_toolbox_a_bind_mount "$toolbox_container"; then
         echo "$base_toolbox_command: /etc/profile.d/toolbox.sh already mounted in container $toolbox_container" >&3
 
-        if ! podman start "$toolbox_container" >/dev/null 2>&3; then
-            echo "$base_toolbox_command: failed to start container $toolbox_container" >&2
+        if ! container_start "$toolbox_container"; then
             exit 1
         fi
     else
@@ -1347,8 +1359,7 @@ run()
             exit 1
         fi
 
-        if ! podman start "$toolbox_container" >/dev/null 2>&3; then
-            echo "$base_toolbox_command: failed to start container $toolbox_container" >&2
+        if ! container_start "$toolbox_container"; then
             exit 1
         fi
 
