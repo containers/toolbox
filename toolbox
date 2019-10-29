@@ -22,6 +22,7 @@ arguments=""
 assume_yes=false
 base_toolbox_command=$(basename "$0" 2>&3)
 base_toolbox_image=""
+cgroups_version=""
 
 # Based on the nameRegex value in:
 # https://github.com/containers/libpod/blob/master/libpod/options.go
@@ -92,7 +93,7 @@ has_prefix()
             ;;
     esac
 
-    return $ret_val
+    return "$ret_val"
 )
 
 
@@ -112,14 +113,14 @@ has_substring()
             ;;
     esac
 
-    return $ret_val
+    return "$ret_val"
 )
 
 
 is_integer()
 {
     [ "$1" != "" ] && [ "$1" -eq "$1" ] 2>&3
-    return $?
+    return "$?"
 }
 
 
@@ -240,7 +241,55 @@ container_name_is_valid()
     name="$1"
 
     echo "$name" | grep "^$container_name_regexp$" >/dev/null 2>&3
-    return $?
+    return "$?"
+)
+
+
+container_start()
+(
+    container="$1"
+
+    error_message=$( (podman start "$container" >/dev/null) 2>&1)
+    ret_val="$?"
+    [ "$error_message" != "" ] 2>&3 && echo "$error_message" >&3
+
+    if [ "$ret_val" -ne 0 ] 2>&3; then
+        if echo "$error_message" | grep "use system migrate to mitigate" >/dev/null 2>&3; then
+            echo "$base_toolbox_command: checking if 'podman system migrate' supports --new-runtime" >&3
+
+            if ! (podman system migrate --help 2>&3 | grep "new-runtime" >/dev/null 2>&3); then
+                echo "$base_toolbox_command: container $container doesn't support cgroups v$cgroups_version" >&2
+                echo "Update Podman to version 1.6.2 or newer." >&2
+                return 1
+            else
+                echo "$base_toolbox_command: 'podman system migrate' supports --new-runtime" >&3
+
+                oci_runtime_required="runc"
+                [ "$cgroups_version" -eq 2 ] 2>&3 && oci_runtime_required="crun"
+
+                echo "$base_toolbox_command: migrating containers to OCI runtime $oci_runtime_required" >&3
+
+                if ! podman system migrate --new-runtime "$oci_runtime_required" >/dev/null 2>&3; then
+                    echo "$base_toolbox_command: failed to migrate containers to OCI runtime $oci_runtime_required" >&2
+                    echo "Factory reset with: toolbox reset" >&2
+                    echo "Try '$base_toolbox_command --help' for more information." >&2
+                    return 1
+                fi
+
+                if ! podman start "$container" >/dev/null 2>&3; then
+                    echo "$base_toolbox_command: container $container doesn't support cgroups v$cgroups_version" >&2
+                    echo "Factory reset with: toolbox reset" >&2
+                    echo "Try '$base_toolbox_command --help' for more information." >&2
+                    return 1
+                fi
+            fi
+        else
+            echo "$base_toolbox_command: failed to start container $container" >&2
+            return 1
+        fi
+    fi
+
+    return 0
 )
 
 
@@ -442,6 +491,24 @@ enter_print_container_not_found()
 )
 
 
+get_cgroups_version()
+(
+    version=1
+
+    if ! mounts=$(mount 2>&3); then
+        echo "$base_toolbox_command: failed to detect cgroups version: couldn't list mount points" >&2
+        return 1
+    fi
+
+    if ! (echo "$mounts" | grep "^cgroup " >/dev/null 2>&3) && (echo "$mounts" | grep "^cgroup2 " >/dev/null 2>&3); then
+        version=2
+    fi
+
+    echo "$version"
+    return 0
+)
+
+
 get_group_for_sudo()
 (
     group=""
@@ -487,7 +554,7 @@ image_reference_can_be_id()
     image="$1"
 
     echo "$image" | grep "^[a-f0-9]\{6,64\}$" >/dev/null 2>&3
-    return $?
+    return "$?"
 )
 
 
@@ -690,6 +757,106 @@ pull_base_toolbox_image()
 )
 
 
+unshare_userns_rm()
+(
+    path="$1"
+
+    if ! unshare_directory=$(mktemp --directory --tmpdir "toolbox-unshare-userns-rm-XXXXXXXXXX" 2>&3); then
+        echo "$base_toolbox_command: failed to enter user namespace: directory couldn't be created" >&2
+        return 1
+    fi
+
+    if ! touch "$unshare_directory/map" 2>&3; then
+        echo "$base_toolbox_command: failed to enter user namespace: file couldn't be created" >&2
+        return 1
+    fi
+
+    exec 4>"$unshare_directory/map"
+    if ! flock 4 2>&3; then
+        echo "$base_toolbox_command: failed to enter user namespace: lock couldn't be acquired" >&2
+        return 1
+    fi
+
+    echo "$base_toolbox_command: parsing /etc/subgid" >&3
+
+    if ! subgid_entry=$(grep "^$USER:" /etc/subgid 2>&3); then
+        echo "$base_toolbox_command: failed to enter user namespace: no entry in /etc/subgid" >&2
+        return 1
+    fi
+
+    userns_gid_start=$(echo "$subgid_entry" | cut --delimiter ":" --fields 2 2>&3)
+    if ! is_integer "$userns_gid_start"; then
+        echo "$base_toolbox_command: failed to enter user namespace: cannot parse the first sub-GID" >&2
+        return 1
+    fi
+
+    userns_gid_len=$(echo "$subgid_entry" | cut --delimiter ":" --fields 3 2>&3)
+    if ! is_integer "$userns_gid_len"; then
+        echo "$base_toolbox_command: failed to enter user namespace: cannot parse the sub-GID count" >&2
+        return 1
+    fi
+
+    echo "$base_toolbox_command: parsing /etc/subuid" >&3
+
+    if ! subuid_entry=$(grep "^$USER:" /etc/subuid 2>&3); then
+        echo "$base_toolbox_command: failed to enter user namespace: no entry in /etc/subuid" >&2
+        return 1
+    fi
+
+    userns_uid_start=$(echo "$subuid_entry" | cut --delimiter ":" --fields 2 2>&3)
+    if ! is_integer "$userns_uid_start"; then
+        echo "$base_toolbox_command: failed to enter user namespace: cannot parse the first sub-UID" >&2
+        return 1
+    fi
+
+    userns_uid_len=$(echo "$subuid_entry" | cut --delimiter ":" --fields 3 2>&3)
+    if ! is_integer "$userns_uid_len"; then
+        echo "$base_toolbox_command: failed to enter user namespace: cannot parse the sub-UID count" >&2
+        return 1
+    fi
+
+    echo "$base_toolbox_command: unsharing user namespace" >&3
+
+    unshare --user sh -c "flock $unshare_directory/map rm --force --recursive $path" 2>&3 &
+    unshare_pid="$!"
+
+    echo "$base_toolbox_command: setting GID and UID map of user namespace" >&3
+
+    if ! newgidmap "$unshare_pid" 0 "$user_id_real" 1 1 "$userns_gid_start" "$userns_gid_len" 2>&3; then
+        echo "$base_toolbox_command: failed to set GID mapping of user namespace" >&2
+        kill -9 "$unshare_pid" 2>&3
+        return 1
+    fi
+
+    if ! newuidmap "$unshare_pid" 0 "$user_id_real" 1 1 "$userns_uid_start" "$userns_uid_len" 2>&3; then
+        echo "$base_toolbox_command: failed to set UID mapping of user namespace" >&2
+        kill -9 "$unshare_pid" 2>&3
+        return 1
+    fi
+
+    echo "$base_toolbox_command: GID map of user namespace:" >&3
+    cat /proc/"$unshare_pid"/gid_map 1>&3 2>&3
+
+    echo "$base_toolbox_command: UID map of user namespace:" >&3
+    cat /proc/"$unshare_pid"/uid_map 1>&3 2>&3
+
+    if ! flock --unlock 4 2>&3; then
+        echo "$base_toolbox_command: failed to remove $path: lock couldn't be unlocked" >&2
+        kill -9 "$unshare_pid" 2>&3
+        return 1
+    fi
+
+    if ! wait "$unshare_pid" 2>&3; then
+        echo "$base_toolbox_command: failed to remove $path" >&2
+        return 1
+    fi
+
+    rm --force --recursive "$unshare_directory" 2>&3
+
+    return 0
+)
+
+
 create()
 (
     enter_command_skip="$1"
@@ -862,6 +1029,7 @@ create()
             --group-add "$group_for_sudo" \
             --hostname toolbox \
             --ipc host \
+            --label "com.github.containers.toolbox=true" \
             --label "com.github.debarshiray.toolbox=true" \
             --name $toolbox_container \
             --network host \
@@ -942,6 +1110,17 @@ init_container()
     init_container_uid="$5"
     init_container_user="$6"
 
+    if [ "$XDG_RUNTIME_DIR" = "" ] 2>&3; then
+        echo "$base_toolbox_command: XDG_RUNTIME_DIR is unset" >&3
+
+        XDG_RUNTIME_DIR=/run/user/"$init_container_uid"
+        echo "$base_toolbox_command: XDG_RUNTIME_DIR set to $XDG_RUNTIME_DIR" >&3
+
+        toolbox_runtime_directory="$XDG_RUNTIME_DIR"/toolbox
+    fi
+
+    init_container_initialized_stamp="$toolbox_runtime_directory"/container-initialized-"$$"
+
     echo "$base_toolbox_command: creating /run/.toolboxenv" >&3
 
     if ! touch /run/.toolboxenv 2>&3; then
@@ -957,7 +1136,7 @@ init_container()
                 echo "$base_toolbox_command: redirecting /etc/host.conf to /run/host/etc/host.conf" >&3
 
                 if ! (cd /etc 2>&3 \
-                      && unlink host.conf 2>&3 \
+                      && rm --force host.conf 2>&3 \
                       && ln --symbolic /run/host/etc/host.conf host.conf 2>&3); then
                     echo "$base_toolbox_command: failed to redirect /etc/host.conf to /run/host/etc/host.conf" >&2
                     return 1
@@ -967,7 +1146,9 @@ init_container()
             if ! readlink /etc/hosts >/dev/null 2>&3; then
                 echo "$base_toolbox_command: redirecting /etc/hosts to /run/host/etc/hosts" >&3
 
-                if ! (cd /etc 2>&3 && unlink hosts 2>&3 && ln --symbolic /run/host/etc/hosts hosts 2>&3); then
+                if ! (cd /etc 2>&3 \
+                      && rm --force hosts 2>&3 \
+                      && ln --symbolic /run/host/etc/hosts hosts 2>&3); then
                     echo "$base_toolbox_command: failed to redirect /etc/hosts to /run/host/etc/hosts" >&2
                     return 1
                 fi
@@ -977,7 +1158,7 @@ init_container()
                 echo "$base_toolbox_command: redirecting /etc/resolv.conf to /run/host/etc/resolv.conf" >&3
 
                 if ! (cd /etc 2>&3 \
-                      && unlink resolv.conf 2>&3 \
+                      && rm --force resolv.conf 2>&3 \
                       && ln --symbolic /run/host/etc/resolv.conf resolv.conf 2>&3); then
                     echo "$base_toolbox_command: failed to redirect /etc/resolv.conf to /run/host/etc/resolv.conf" \
                             >&2
@@ -992,7 +1173,7 @@ init_container()
                 echo "$base_toolbox_command: redirecting /etc/localtime to /run/host/monitor/localtime" >&3
 
                 if ! (cd /etc 2>&3 \
-                      && unlink localtime 2>&3 \
+                      && rm --force localtime 2>&3 \
                       && ln --symbolic /run/host/monitor/localtime localtime 2>&3); then
                     echo "$base_toolbox_command: failed to redirect /etc/localtime to /run/host/monitor/localtime" \
                             >&2
@@ -1082,6 +1263,13 @@ EOF
             echo "$base_toolbox_command: failed to set KCM as the default Kerberos credential cache" >&2
             return 1
         fi
+    fi
+
+    echo "$base_toolbox_command: finished initializing container" >&3
+
+    if ! touch "$init_container_initialized_stamp" 2>&3; then
+        echo "$base_toolbox_command: failed to create initialization stamp" >&2
+        return 1
     fi
 
     echo "$base_toolbox_command: going to sleep" >&3
@@ -1196,8 +1384,7 @@ run()
     if is_etc_profile_d_toolbox_a_bind_mount "$toolbox_container"; then
         echo "$base_toolbox_command: /etc/profile.d/toolbox.sh already mounted in container $toolbox_container" >&3
 
-        if ! podman start "$toolbox_container" >/dev/null 2>&3; then
-            echo "$base_toolbox_command: failed to start container $toolbox_container" >&2
+        if ! container_start "$toolbox_container"; then
             exit 1
         fi
     else
@@ -1207,14 +1394,55 @@ run()
             exit 1
         fi
 
-        if ! podman start "$toolbox_container" >/dev/null 2>&3; then
-            echo "$base_toolbox_command: failed to start container $toolbox_container" >&2
+        if ! container_start "$toolbox_container"; then
             exit 1
         fi
 
         if ! copy_etc_profile_d_toolbox_to_container "$toolbox_container"; then
             exit 1
         fi
+    fi
+
+    echo "$base_toolbox_command: inspecting entry point of container $toolbox_container" >&3
+
+    if ! entry_point=$(podman inspect --format "{{index .Config.Cmd 0}}" --type container "$toolbox_container" 2>&3); then
+        echo "$base_toolbox_command: failed to inspect entry point of container $toolbox_container" >&2
+        exit 1
+    fi
+
+    echo "$base_toolbox_command: entry point of container $toolbox_container is $entry_point" >&3
+
+    if [ "$entry_point" = "toolbox" ] 2>&3; then
+        echo "$base_toolbox_command: waiting for container $toolbox_container to finish initializing" >&3
+
+        if ! entry_point_pid=$(podman inspect --format "{{.State.Pid}}" --type container "$toolbox_container" 2>&3); then
+            echo "$base_toolbox_command: failed to inspect entry point PID of container $toolbox_container" >&2
+            exit 1
+        fi
+
+        if ! is_integer "$entry_point_pid"; then
+            echo "$base_toolbox_command: failed to parse entry point PID of container $toolbox_container" >&2
+            exit 1
+        fi
+
+        if [ "$entry_point_pid" -le 0 ] 2>&3; then
+            echo "$base_toolbox_command: invalid entry point PID of container $toolbox_container" >&2
+            exit 1
+        fi
+
+        container_initialized_stamp="$toolbox_runtime_directory/container-initialized-$entry_point_pid"
+        container_initialized_timeout=25 #s
+
+        i=0
+        while ! [ -f "$container_initialized_stamp" ] 2>&3; do
+            sleep 1 2>&3
+
+            i=$((i + 1))
+            if [ "$i" -eq "$container_initialized_timeout" ] 2>&3; then
+                echo "$base_toolbox_command: failed to initialize container $toolbox_container" >&2
+                exit 1
+            fi
+        done
     fi
 
     if ! podman exec --user root:root "$toolbox_container" touch /run/.toolboxenv 2>&3; then
@@ -1394,6 +1622,8 @@ migrate()
         return 1
     fi
 
+    echo "$base_toolbox_command: current Podman version is $version" >&3
+
     if ! mkdir --parents "$configuration_directory" 2>&3; then
         echo "$base_toolbox_command: unable to migrate containers: configuration directory not created" >&2
         return 1
@@ -1413,7 +1643,7 @@ migrate()
 
     if [ -f "$migrate_stamp" ] 2>&3; then
         if grep "$version" "$migrate_stamp" >/dev/null 2>&3; then
-            echo "$base_toolbox_command: migration not needed: $version is unchanged" >&3
+            echo "$base_toolbox_command: migration not needed: Podman version $version is unchanged" >&3
             return 0
         fi
 
@@ -1426,7 +1656,7 @@ migrate()
         fi
 
         if [ "$version" = "$version_old" ] 2>&3; then
-            echo "$base_toolbox_command: migration not needed: $version is old" >&3
+            echo "$base_toolbox_command: migration not needed: Podman version $version is old" >&3
             return 0
         fi
     fi
@@ -1590,6 +1820,87 @@ remove_images()
                         echo "$ret_val"
                     )
                  )
+    fi
+
+    return "$ret_val"
+)
+
+
+reset()
+(
+    do_reset=false
+    prompt_for_reset=true
+    ret_val=0
+
+    if [ "$user_id_real" -eq 0 ] 2>&3; then
+        if [ -d /run/containers ] 2>&3; then
+            echo "$base_toolbox_command: The 'reset' command cannot be used after other commands" >&2
+            echo "Reboot the system before using it again." >&2
+            echo "Try '$base_toolbox_command --help' for more information." >&2
+            return 1
+        fi
+    else
+        if [ -d "$XDG_RUNTIME_DIR"/overlay-containers ] 2>&3 \
+           || [ -d "$XDG_RUNTIME_DIR"/overlay-layers ] 2>&3 \
+           || [ -d "$XDG_RUNTIME_DIR"/overlay-locks ] 2>&3; then
+            echo "$base_toolbox_command: The 'reset' command cannot be used after other commands" >&2
+            echo "Reboot the system before using it again." >&2
+            echo "Try '$base_toolbox_command --help' for more information." >&2
+            return 1
+        fi
+    fi
+
+    if $assume_yes; then
+        do_reset=true
+        prompt_for_reset=false
+    fi
+
+    if $prompt_for_reset; then
+        echo "All existing podman (and toolbox) containers and images will be removed."
+
+        prompt=$(printf "Continue? [y/N]:")
+        if ask_for_confirmation "n" "$prompt"; then
+            do_reset=true
+        else
+            do_reset=false
+        fi
+    fi
+
+    if ! $do_reset; then
+        return 1
+    fi
+
+    echo "$base_toolbox_command: resetting local state" >&3
+
+    if [ "$user_id_real" -eq 0 ] 2>&3; then
+        if ! rm --force --recursive /var/lib/containers/cache >/dev/null 2>&3; then
+            echo "$base_toolbox_command: failed to remove /var/lib/containers/cache" >&2
+            ret_val=1
+        fi
+
+        if ! rm --force --recursive /var/lib/containers/sigstore/* >/dev/null 2>&3; then
+            echo "$base_toolbox_command: failed to remove the contents of /var/lib/containers/sigstore" >&2
+            ret_val=1
+        fi
+
+        if ! rm --force --recursive /var/lib/containers/storage >/dev/null 2>&3; then
+            echo "$base_toolbox_command: failed to remove /var/lib/containers/storage" >&2
+            ret_val=1
+        fi
+    else
+        if ! unshare_userns_rm "$HOME/.local/share/containers"; then
+            ret_val=1
+        fi
+
+        if ! rm --force --recursive "$HOME/.config/containers" >/dev/null 2>&3; then
+            echo "$base_toolbox_command: failed to remove $HOME/.config/containers" >&2
+            ret_val=1
+        fi
+    fi
+
+    if ! rm --force --recursive "$HOME/.config/toolbox" >/dev/null 2>&3; then
+        echo "$base_toolbox_command: failed to remove $HOME/.config/toolbox" >&2
+        ret_val=1
     fi
 
     return "$ret_val"
@@ -1907,6 +2218,11 @@ if [ -f /run/.containerenv ] 2>&3; then
                     "$init_container_user"
             exit "$?"
             ;;
+        reset )
+            echo "$base_toolbox_command: The 'reset' command cannot be used inside containers" >&2
+            echo "Try '$base_toolbox_command --help' for more information." >&2
+            exit 1
+            ;;
         * )
            echo "$base_toolbox_command: unrecognized command '$op'" >&2
            echo "Try '$base_toolbox_command --help' for more information." >&2
@@ -1915,8 +2231,16 @@ if [ -f /run/.containerenv ] 2>&3; then
     esac
 fi
 
-if ! migrate; then
+if ! cgroups_version=$(get_cgroups_version); then
     exit 1
+fi
+
+echo "$base_toolbox_command: running on a cgroups v$cgroups_version host" >&3
+
+if [ "$op" != "reset" ] 2>&3; then
+    if ! migrate; then
+        exit 1
+    fi
 fi
 
 case $op in
@@ -2078,6 +2402,23 @@ case $op in
         fi
 
         exit
+        ;;
+    reset )
+        while has_prefix "$1" -; do
+            case $1 in
+                -h | --help )
+                    help "$op"
+                    exit
+                    ;;
+                * )
+                    exit_if_unrecognized_option "$1"
+            esac
+            shift
+        done
+        exit_if_extra_operand "$1"
+
+        reset
+        exit "$?"
         ;;
     rm | rmi )
         rm_all=false
