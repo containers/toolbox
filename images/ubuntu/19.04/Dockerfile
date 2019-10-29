@@ -2,6 +2,7 @@ FROM docker.io/library/ubuntu:19.04
 
 ENV NAME=ubuntu-toolbox VERSION=19.04
 LABEL com.github.containers.toolbox="true" \
+      com.github.debarshiray.toolbox="true" \
       name="$NAME" \
       version="$VERSION" \
       usage="This image is meant to be used with the toolbox command" \
