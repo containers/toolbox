@@ -1,7 +1,8 @@
 FROM docker.io/library/centos:8
 
 ENV NAME=centos-toolbox VERSION=8
-LABEL com.github.debarshiray.toolbox="true" \
+LABEL com.github.containers.toolbox="true" \
+      com.github.debarshiray.toolbox="true" \
       com.redhat.component="$NAME" \
       name="$FGC/$NAME" \
       version="$VERSION" \
