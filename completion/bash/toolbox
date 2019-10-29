@@ -11,10 +11,9 @@ __toolbox_images() {
 
 __toolbox() {
   local MIN_VERSION=29
-  local RAWHIDE_VERSION=31
+  local RAWHIDE_VERSION=32
 
-  local verbose_commands="create enter help init-container list run"
-  local commands="$verbose_commands rm rmi"
+  local commands="create enter help init-container list reset rm rmi run"
 
   declare -A options
   local options=([create]="--candidate-registry --container --image --release" \
@@ -34,19 +33,19 @@ __toolbox() {
   fi
 
   case "$prev" in
-    --verbose)
-      mapfile -t COMPREPLY < <(compgen -W "$verbose_commands" -- "$2")
+    --verbose | -v)
+      mapfile -t COMPREPLY < <(compgen -W "$commands" -- "$2")
       return 0
       ;;
-    --container)
+    --container | -c)
       mapfile -t COMPREPLY < <(compgen -W "$(__toolbox_containers)" -- "$2")
       return 0
       ;;
-    --image)
+    --image | -i)
       mapfile -t COMPREPLY < <(compgen -W "$(__toolbox_images)" -- "$2")
       return 0
       ;;
-    --release)
+    --release | -r)
       mapfile -t COMPREPLY < <(compgen -W "$(seq $MIN_VERSION $RAWHIDE_VERSION)" -- "$2")
       return 0
       ;;

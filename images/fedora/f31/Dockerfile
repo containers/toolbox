@@ -1,7 +1,8 @@
 FROM registry.fedoraproject.org/fedora:31
 
 ENV NAME=fedora-toolbox VERSION=31
-LABEL com.github.debarshiray.toolbox="true" \
+LABEL com.github.containers.toolbox="true" \
+      com.github.debarshiray.toolbox="true" \
       com.redhat.component="$NAME" \
       name="$FGC/$NAME" \
       version="$VERSION" \

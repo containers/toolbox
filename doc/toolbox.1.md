@@ -68,6 +68,10 @@ Initialize a running container.
 
 List existing toolbox containers and images.
 
+**toolbox-reset(1)**
+
+Remove all local podman (and toolbox) state.
+
 **toolbox-rm(1)**
 
 Remove one or more toolbox containers.
