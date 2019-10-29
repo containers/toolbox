@@ -17,7 +17,7 @@ __toolbox() {
   local commands="$verbose_commands rm rmi"
 
   declare -A options
-  local options=([create]="--candidate-registry --container --image --release" \
+  local options=([create]="--candidate-registry --container --hostname --image --release" \
                  [enter]="--container --release" \
                  [help]="$commands" \
                  [init-container]="--home --home-link --monitor-host --shell --uid --user" \

@@ -860,7 +860,7 @@ create()
             --dns none \
             --env TOOLBOX_PATH="$TOOLBOX_PATH" \
             --group-add "$group_for_sudo" \
-            --hostname toolbox \
+            --hostname $toolbox_hostname \
             --ipc host \
             --label "com.github.debarshiray.toolbox=true" \
             --name $toolbox_container \
@@ -1921,6 +1921,7 @@ fi
 
 case $op in
     create )
+        toolbox_hostname="toolbox"
         while has_prefix "$1" -; do
             case $1 in
                 --candidate-registry )
@@ -1953,6 +1954,10 @@ case $op in
                     arg=$(echo "$1" | sed "s/^F\|^f//" 2>&3)
                     exit_if_non_positive_argument --release "$arg"
                     release=$arg
+                    ;;
+                --hostname )
+                    shift
+                    toolbox_hostname=$1
                     ;;
                 * )
                     exit_if_unrecognized_option "$1"

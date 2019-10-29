@@ -46,6 +46,12 @@ customized containers from custom-built base images.
 Change the NAME of the base image used to create the toolbox container. This
 is useful for creating containers from custom-built base images.
 
+**--hostname** HOSTNAME
+
+Change the hostname of the toolbox container. This is the name displayed at the
+terminal prompt, so changing this can be useful to differentiate containers
+once they are open.
+
 **--release** RELEASE, **-r** RELEASE
 
 Create a toolbox container for a different operating system RELEASE than the
@@ -75,6 +81,11 @@ $ toolbox create --container foo --image bar
 
 ```
 $ toolbox create --candidate-registry
+```
+
+### Create a toolbox with the default container name but a hostname of devserver
+```
+$ toolbox create --hostname devserver
 ```
 
 ## SEE ALSO
