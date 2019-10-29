@@ -1,3 +1,16 @@
+Overview of changes in 0.0.16
+=============================
+
+* Add a reset command
+* Document requirements for distro support
+* Don't use a toolbox container until after it has been configured
+* Drop the coloured heading from 'list'
+* Miscellaneous fixes to Bash completion
+* Remove the hidden --sudo option and the /etc/sudoers.d snippet
+* Try to migrate to a supported OCI runtime if 'podman start' suggests so
+* Unbreak 'run' if container lacks files that are redirected to the host
+
+
 Overview of changes in 0.0.15
 =============================
 
