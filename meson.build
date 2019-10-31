@@ -35,3 +35,11 @@ endif
 subdir('data')
 subdir('doc')
 subdir('profile.d')
+
+#mytarget = custom_target('toolbox-rs',
+#  output : 'toolbox-rs/target/release/toolbox-rs',
+#  input : 'toolbox-rs/src/coretoolbox.rs',
+#  command : ['/bin/sh', '-c', 'cd toolbox-rs && cargo build --release && ln target/release'],
+#  install : true,
+#  install_dir : 'libexec/toolbox-rs')
+

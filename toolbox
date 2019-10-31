@@ -15,6 +15,19 @@
 # limitations under the License.
 #
 
+# Dispatch to a different opt-in implementation as we work on a rewrite
+if [ -z "${TOOLBOX_VARIANT:-}" ]; then
+	configf=$HOME/.config/toolbox/variant
+	if [ -f "${configf}" ]; then
+		TOOLBOX_VARIANT=$(cat ${configf})
+	fi
+fi
+
+case "${TOOLBOX_VARIANT:-shell}" in
+  rs) exec /usr/libexec/toolbox-rs "$@";;
+  shell) ;;
+  *) echo "Unknown TOOLBOX_VARIANT: ${TOOLBOX_VARIANT}" 1>&2; exit 1;;
+esac
 
 exec 3>/dev/null
 
