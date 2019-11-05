@@ -29,6 +29,9 @@ cgroups_version=""
 container_name_regexp="[a-zA-Z0-9][a-zA-Z0-9_.-]*"
 
 environment=$(set)
+if [ -z "$TOOLBOX_PROFILE_DIR" ]; then
+    TOOLBOX_PROFILE_DIR='/etc/profile.d'
+fi
 environment_variables="COLORTERM \
         COLUMNS \
         DBUS_SESSION_BUS_ADDRESS \
@@ -321,7 +324,7 @@ copy_etc_profile_d_toolbox_to_container()
     if ! podman exec \
                  --user root:root \
                  "$container" \
-                 sh -c "cp $toolbox_runtime_directory/toolbox.sh /etc/profile.d" sh 2>&3; then
+                 sh -c "cp $toolbox_runtime_directory/toolbox.sh $TOOLBOX_PROFILE_DIR" sh 2>&3; then
         echo "$base_toolbox_command: unable to copy $toolbox_runtime_directory/toolbox.sh to container $container" >&2
         return 1
     fi
@@ -334,27 +337,27 @@ copy_etc_profile_d_toolbox_to_runtime_directory()
 (
     profile_d_lock="$toolbox_runtime_directory"/profile.d-toolbox.lock
 
-    if ! [ -f /etc/profile.d/toolbox.sh ] 2>&3; then
-        echo "$base_toolbox_command: /etc/profile.d/toolbox.sh not found" >&2
+    if ! [ -f "$TOOLBOX_PROFILE_DIR/toolbox.sh" ] 2>&3; then
+        echo "$base_toolbox_command: $TOOLBOX_PROFILE_DIR/toolbox.sh not found" >&2
         return 0
     fi
 
     # shellcheck disable=SC2174
     if ! mkdir --mode 700 --parents "$toolbox_runtime_directory" 2>&3; then
-        echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh: runtime directory not created" >&2
+        echo "$base_toolbox_command: unable to copy $TOOLBOX_PROFILE_DIR/toolbox.sh: runtime directory not created" >&2
         return 1
     fi
 
     exec 5>"$profile_d_lock"
     if ! flock 5 2>&3; then
-        echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh: copy lock not acquired" >&2
+        echo "$base_toolbox_command: unable to copy $TOOLBOX_PROFILE_DIR/toolbox.sh: copy lock not acquired" >&2
         return 1
     fi
 
-    echo "$base_toolbox_command: copying /etc/profile.d/toolbox.sh to $toolbox_runtime_directory" >&3
+    echo "$base_toolbox_command: copying $TOOLBOX_PROFILE_DIR/toolbox.sh to $toolbox_runtime_directory" >&3
 
-    if ! cp /etc/profile.d/toolbox.sh "$toolbox_runtime_directory" 2>&3; then
-        echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh to $toolbox_runtime_directory" >&2
+    if ! cp "$TOOLBOX_PROFILE_DIR/toolbox.sh" "$toolbox_runtime_directory" 2>&3; then
+        echo "$base_toolbox_command: unable to copy $TOOLBOX_PROFILE_DIR/toolbox.sh to $toolbox_runtime_directory" >&2
         return 1
     fi
 
@@ -643,7 +646,7 @@ is_etc_profile_d_toolbox_a_bind_mount()
     container="$1"
 
     podman inspect --format "[{{range .Mounts}}{{.Dst}} {{end}}]" --type container "$container" 2>&3 \
-    | grep /etc/profile.d/toolbox.sh >/dev/null 2>/dev/null 2>&3
+    | grep "$TOOLBOX_PROFILE_DIR/toolbox.sh" >/dev/null 2>/dev/null 2>&3
 
     return "$?"
 }
@@ -959,8 +962,8 @@ create()
         return 1
     fi
 
-    if [ -f /etc/profile.d/toolbox.sh ] 2>&3; then
-        toolbox_profile_bind="--volume /etc/profile.d/toolbox.sh:/etc/profile.d/toolbox.sh:ro"
+    if [ -f "$TOOLBOX_PROFILE_DIR/toolbox.sh" ] 2>&3; then
+        toolbox_profile_bind="--volume $TOOLBOX_PROFILE_DIR/toolbox.sh:$TOOLBOX_PROFILE_DIR/toolbox.sh:ro"
     fi
 
     if [ -d /run/media ] 2>&3; then
@@ -1382,13 +1385,13 @@ run()
     echo "$base_toolbox_command: starting container $toolbox_container" >&3
 
     if is_etc_profile_d_toolbox_a_bind_mount "$toolbox_container"; then
-        echo "$base_toolbox_command: /etc/profile.d/toolbox.sh already mounted in container $toolbox_container" >&3
+        echo "$base_toolbox_command: $TOOLBOX_PROFILE_DIR/toolbox.sh already mounted in container $toolbox_container" >&3
 
         if ! container_start "$toolbox_container"; then
             exit 1
         fi
     else
-        echo "$base_toolbox_command: /etc/profile.d/toolbox.sh not mounted in container $toolbox_container" >&3
+        echo "$base_toolbox_command: $TOOLBOX_PROFILE_DIR/toolbox.sh not mounted in container $toolbox_container" >&3
 
         if ! copy_etc_profile_d_toolbox_to_runtime_directory; then
             exit 1
