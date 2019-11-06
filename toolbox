@@ -1187,6 +1187,11 @@ init_container()
                 fi
             fi
 
+
+            if ! mount_bind /run/host/etc/machine-id /etc/machine-id ro; then
+                return 1
+            fi
+
             if ! mount_bind /run/host/run/libvirt /run/libvirt; then
                 return 1
             fi
