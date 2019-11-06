@@ -1196,6 +1196,10 @@ init_container()
                 return 1
             fi
 
+            if ! mount_bind /run/host/run/systemd/journal /run/systemd/journal; then
+                return 1
+            fi
+
             if ! mount_bind /run/host/var/lib/flatpak /var/lib/flatpak ro; then
                 return 1
             fi
