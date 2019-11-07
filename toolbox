@@ -672,6 +672,39 @@ list_container_names()
 )
 
 
+mount_bind()
+(
+    source="$1"
+    target="$2"
+    mount_flags="$3"
+
+    mount_o=""
+
+    ! [ -d "$source" ] 2>&3 && ! [ -f "$source" ] 2>&3 && return 0
+
+    if [ -d "$source" ] 2>&3; then
+        echo "$base_toolbox_command: creating $target" >&3
+
+        if ! mkdir --parents "$target" 2>&3; then
+            echo "$base_toolbox_command: failed to create $target" >&2
+            return 1
+        fi
+    fi
+
+    echo "$base_toolbox_command: binding $target to $source" >&3
+
+    [ "$mount_flags" = "" ] 2>&3 || mount_o="-o $mount_flags"
+
+    # shellcheck disable=SC2086
+    if ! mount --bind $mount_o "$source" "$target" 2>&3; then
+        echo "$base_toolbox_command: failed to bind $target to $source" >&2
+        return 1
+    fi
+
+    return 0
+)
+
+
 pull_base_toolbox_image()
 (
     domain=""
