@@ -10,8 +10,6 @@ LABEL com.github.containers.toolbox="true" \
       summary="Base image for creating Arch toolbox containers" \
       maintainer="Erazem Kokot <contact at erazem dot eu>"
 
-COPY README.md /
-
 RUN pacman -Syu
 
 # Install packages from the extra-packages file
