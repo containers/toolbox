@@ -896,7 +896,6 @@ create()
 
     dbus_system_bus_address="unix:path=/var/run/dbus/system_bus_socket"
     home_link=""
-    flatpak_system_directory_bind=""
     kcm_socket=""
     kcm_socket_bind=""
     libvirt_system_directory_bind=""
@@ -911,10 +910,6 @@ create()
     fi
     dbus_system_bus_path=$(echo "$dbus_system_bus_address" | cut --delimiter = --fields 2 2>&3)
     dbus_system_bus_path=$(readlink --canonicalize "$dbus_system_bus_path" 2>&3)
-
-    if [ -d /var/lib/flatpak ] 2>&3; then
-        flatpak_system_directory_bind="--volume /var/lib/flatpak:/var/lib/flatpak:ro"
-    fi
 
     # Note that 'systemctl show ...' doesn't terminate with a non-zero exit
     # code when used with an unknown unit. eg.:
@@ -1073,7 +1068,6 @@ create()
             $ulimit_host \
             --userns=keep-id \
             --user root:root \
-            $flatpak_system_directory_bind \
             $kcm_socket_bind \
             $libvirt_system_directory_bind \
             $run_media_path_bind \
@@ -1197,6 +1191,10 @@ init_container()
                             >&2
                     return 1
                 fi
+            fi
+
+            if ! mount_bind /run/host/var/lib/flatpak /var/lib/flatpak ro; then
+                return 1
             fi
         fi
 
