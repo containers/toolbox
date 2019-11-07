@@ -898,7 +898,6 @@ create()
     home_link=""
     kcm_socket=""
     kcm_socket_bind=""
-    libvirt_system_directory_bind=""
     run_media_path_bind=""
     toolbox_profile_bind=""
     ulimit_host=""
@@ -940,10 +939,6 @@ create()
     if [ "$kcm_socket_listen" != "" ] 2>&3; then
         kcm_socket=${kcm_socket_listen%" (Stream)"}
         kcm_socket_bind="--volume $kcm_socket:$kcm_socket"
-    fi
-
-    if [ -d /run/libvirt ] 2>&3; then
-        libvirt_system_directory_bind="--volume /run/libvirt:/run/libvirt"
     fi
 
     echo "$base_toolbox_command: checking if 'podman create' supports --ulimit host" >&3
@@ -1069,7 +1064,6 @@ create()
             --userns=keep-id \
             --user root:root \
             $kcm_socket_bind \
-            $libvirt_system_directory_bind \
             $run_media_path_bind \
             $toolbox_profile_bind \
             --volume "$TOOLBOX_PATH":/usr/bin/toolbox:ro \
@@ -1191,6 +1185,10 @@ init_container()
                             >&2
                     return 1
                 fi
+            fi
+
+            if ! mount_bind /run/host/run/libvirt /run/libvirt; then
+                return 1
             fi
 
             if ! mount_bind /run/host/var/lib/flatpak /var/lib/flatpak ro; then
