@@ -18,6 +18,6 @@ RUN pacman -Sy --noconfirm $(<extra-packages)
 RUN rm /extra-packages
 
 # Clean up all local caches
-RUN pacman -Scc
+RUN pacman -Scc --noconfirm
 
 CMD /bin/sh
