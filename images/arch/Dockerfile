@@ -10,7 +10,7 @@ LABEL com.github.containers.toolbox="true" \
       summary="Base image for creating Arch toolbox containers" \
       maintainer="Erazem Kokot <contact at erazem dot eu>"
 
-RUN pacman -Syu
+RUN pacman -Syu --noconfirm
 
 # Install packages from the extra-packages file
 COPY extra-packages /
