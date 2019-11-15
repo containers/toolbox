@@ -2533,6 +2533,7 @@ case $op in
             esac
             shift
         done
+        exit_if_missing_argument "$op" "$1"
         if ! update_container_and_image_names; then
             exit 1
         fi
