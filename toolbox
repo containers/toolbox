@@ -1201,6 +1201,10 @@ init_container()
                 return 1
             fi
 
+            if ! mount_bind /usr/share/empty /sys/fs/selinux; then
+                return 1
+            fi
+
             if ! mount_bind /run/host/var/lib/flatpak /var/lib/flatpak ro; then
                 return 1
             fi
