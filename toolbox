@@ -1486,6 +1486,9 @@ run()
                 exit 1
             fi
         done
+    else
+        echo "$base_toolbox_command: container $toolbox_container uses deprecated features" >&2
+        echo "Consider recreating it with Toolbox version 0.0.17 or newer." >&2
     fi
 
     if ! $podman_command exec --user root:root "$toolbox_container" touch /run/.toolboxenv 2>&3; then
