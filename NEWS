@@ -1,3 +1,13 @@
+Overview of changes in 0.0.17
+=============================
+
+* Add a --very-verbose or -vv option
+* Deprecate all toolbox containers that don't use a reflexive entry point
+* Ensure that 'run' has at least one argument for the command
+* Give access to the host's systemd journal
+* Wipe out the container's /sys/fs/selinux to not advertise SELinux
+
+
 Overview of changes in 0.0.16
 =============================
 
