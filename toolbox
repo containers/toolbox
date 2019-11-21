@@ -899,6 +899,7 @@ create()
     home_link=""
     kcm_socket=""
     kcm_socket_bind=""
+    media_link=""
     media_path_bind=""
     run_media_path_bind=""
     toolbox_profile_bind=""
@@ -989,7 +990,14 @@ create()
     fi
 
     if [ -d /media ] 2>&3; then
-        media_path_bind="--volume /media:/media:rslave"
+        echo "$base_toolbox_command: checking if /media is a symbolic link to /run/media" >&3
+
+        if [ "$(readlink /media)" = run/media ] 2>&3; then
+            echo "$base_toolbox_command: /media is a symbolic link to /run/media" >&3
+            media_link="--media-link"
+        else
+            media_path_bind="--volume /media:/media:rslave"
+        fi
     fi
 
     if [ -d /run/media ] 2>&3; then
@@ -1089,6 +1097,7 @@ create()
             toolbox --verbose init-container \
                     --home "$HOME" \
                     $home_link \
+                    $media_link \
                     --monitor-host \
                     --shell "$SHELL" \
                     --uid "$user_id_real" \
@@ -1132,10 +1141,11 @@ init_container()
 {
     init_container_home="$1"
     init_container_home_link="$2"
-    init_container_monitor_host="$3"
-    init_container_shell="$4"
-    init_container_uid="$5"
-    init_container_user="$6"
+    init_container_media_link="$3"
+    init_container_monitor_host="$4"
+    init_container_shell="$5"
+    init_container_uid="$6"
+    init_container_user="$7"
 
     if [ "$XDG_RUNTIME_DIR" = "" ] 2>&3; then
         echo "$base_toolbox_command: XDG_RUNTIME_DIR is unset" >&3
@@ -1247,6 +1257,18 @@ init_container()
 
         if ! cd "$working_directory" 2>&3; then
             echo "$base_toolbox_command: failed to restore working directory" >&2
+        fi
+    fi
+
+    if $init_container_media_link && ! readlink /media >/dev/null 2>&3; then
+        echo "$base_toolbox_command: making /media a symbolic link to /run/media" >&3
+
+        # shellcheck disable=SC2174
+        if ! (rmdir /media 2>&3 \
+              && mkdir --mode 0755 --parents /run/media 2>&3 \
+              && ln --symbolic run/media /media 2>&3); then
+            echo "$base_toolbox_command: failed to make /media a symbolic link" >&2
+            return 1
         fi
     fi
 
@@ -2230,6 +2252,7 @@ if [ -f /run/.containerenv ] 2>&3; then
             ;;
         init-container )
             init_container_home_link=false
+            init_container_media_link=false
             init_container_monitor_host=false
             while has_prefix "$1" -; do
                 case $1 in
@@ -2245,6 +2268,9 @@ if [ -f /run/.containerenv ] 2>&3; then
                         ;;
                     --home-link )
                         init_container_home_link=true
+                        ;;
+                    --media-link )
+                        init_container_media_link=true
                         ;;
                     --monitor-host )
                         init_container_monitor_host=true
@@ -2272,6 +2298,7 @@ if [ -f /run/.containerenv ] 2>&3; then
             init_container \
                     "$init_container_home" \
                     "$init_container_home_link" \
+                    "$init_container_media_link" \
                     "$init_container_monitor_host" \
                     "$init_container_shell" \
                     "$init_container_uid" \
