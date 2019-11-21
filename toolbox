@@ -899,6 +899,7 @@ create()
     home_link=""
     kcm_socket=""
     kcm_socket_bind=""
+    media_path_bind=""
     run_media_path_bind=""
     toolbox_profile_bind=""
     ulimit_host=""
@@ -987,6 +988,10 @@ create()
         toolbox_profile_bind="--volume /etc/profile.d/toolbox.sh:/etc/profile.d/toolbox.sh:ro"
     fi
 
+    if [ -d /media ] 2>&3; then
+        media_path_bind="--volume /media:/media:rslave"
+    fi
+
     if [ -d /run/media ] 2>&3; then
         run_media_path_bind="--volume /run/media:/run/media:rslave"
     fi
@@ -1065,6 +1070,7 @@ create()
             --userns=keep-id \
             --user root:root \
             $kcm_socket_bind \
+            $media_path_bind \
             $run_media_path_bind \
             $toolbox_profile_bind \
             --volume "$TOOLBOX_PATH":/usr/bin/toolbox:ro \
@@ -1074,7 +1080,6 @@ create()
             --volume "$home_canonical":"$home_canonical":rslave \
             --volume /etc:/run/host/etc \
             --volume /dev:/dev:rslave \
-            --volume /media:/media:rslave \
             --volume /mnt:/mnt:rslave \
             --volume /run:/run/host/run:rslave \
             --volume /tmp:/run/host/tmp:rslave \
