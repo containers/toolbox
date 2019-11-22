@@ -1227,6 +1227,10 @@ init_container()
             if ! mount_bind /run/host/var/log/journal /var/log/journal ro; then
                 return 1
             fi
+
+            if ! mount_bind /run/host/var/mnt /var/mnt rslave; then
+                return 1
+            fi
         fi
 
         if [ -d /run/host/monitor ] 2>&3; then
