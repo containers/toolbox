@@ -697,7 +697,7 @@ mount_bind()
     [ "$mount_flags" = "" ] 2>&3 || mount_o="-o $mount_flags"
 
     # shellcheck disable=SC2086
-    if ! mount --bind $mount_o "$source" "$target" 2>&3; then
+    if ! mount --rbind $mount_o "$source" "$target" 2>&3; then
         echo "$base_toolbox_command: failed to bind $target to $source" >&2
         return 1
     fi
