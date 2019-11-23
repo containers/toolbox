@@ -1,0 +1,16 @@
+acl
+bash
+chkconfig
+curl
+dbus-daemon
+gawk
+grep
+gzip
+libcap
+p11-kit
+pam
+platform-python
+rpm
+sed
+systemd
+tar
