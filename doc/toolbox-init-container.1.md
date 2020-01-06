@@ -7,6 +7,7 @@ toolbox\-init\-container - Initialize a running container
 **toolbox init-container** *--home HOME*
                        *--home-link*
                        *--media-link*
+                       *--mnt-link*
                        *--monitor-host*
                        *--shell SHELL*
                        *--uid UID*
@@ -34,6 +35,10 @@ Make `/home` a symbolic link to `/var/home`.
 **--media-link**
 
 Make `/media` a symbolic link to `/run/media`.
+
+**--mnt-link**
+
+Make `/mnt` a symbolic link to `/var/mnt`.
 
 **--monitor-host**
 
