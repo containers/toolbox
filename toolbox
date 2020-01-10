@@ -1229,8 +1229,10 @@ init_container()
                 return 1
             fi
 
-            if ! mount_bind /usr/share/empty /sys/fs/selinux; then
-                return 1
+            if [ -d /sys/fs/selinux ] 2>&3; then
+                if ! mount_bind /usr/share/empty /sys/fs/selinux; then
+                    return 1
+                fi
             fi
 
             if ! mount_bind /run/host/var/lib/flatpak /var/lib/flatpak ro; then
