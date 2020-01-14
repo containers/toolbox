@@ -903,7 +903,6 @@ create()
     media_path_bind=""
     mnt_link=""
     mnt_path_bind=""
-    run_media_path_bind=""
     toolbox_profile_bind=""
     ulimit_host=""
     usr_mount_destination_flags="ro"
@@ -1015,10 +1014,6 @@ create()
         mnt_path_bind="--volume /mnt:/mnt:rslave"
     fi
 
-    if [ -d /run/media ] 2>&3; then
-        run_media_path_bind="--volume /run/media:/run/media:rslave"
-    fi
-
     echo "$base_toolbox_command: checking if /usr is mounted read-only or read-write" >&3
 
     if ! usr_mount_point=$(df --output=target /usr | tail --lines 1 2>&3); then
@@ -1095,7 +1090,6 @@ create()
             $kcm_socket_bind \
             $media_path_bind \
             $mnt_path_bind \
-            $run_media_path_bind \
             $toolbox_profile_bind \
             --volume "$TOOLBOX_PATH":/usr/bin/toolbox:ro \
             --volume "$XDG_RUNTIME_DIR":"$XDG_RUNTIME_DIR" \
@@ -1226,6 +1220,10 @@ init_container()
             fi
 
             if ! mount_bind /run/host/run/libvirt /run/libvirt; then
+                return 1
+            fi
+
+            if ! mount_bind /run/host/run/media /run/media rslave; then
                 return 1
             fi
 
