@@ -1,0 +1,6 @@
+- name: Load registry image in pre-phase and auto restart when registry is flaky
+  command: podman pull registry.fedoraproject.org/f31/fedora-toolbox:31
+  register: _podman
+  until: _podman.rc == 0
+  retries: 5
+  delay: 10
