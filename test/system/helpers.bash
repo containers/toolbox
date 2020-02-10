@@ -17,40 +17,6 @@ LGC='\033[1;32m' # Light Green Color
 LBC='\033[1;34m' # Light Blue Color
 NC='\033[0m' # No Color
 
-# Basic setup
-function basic_setup() {
-    echo "# [basic_setup]" >&2
-    # Make sure desired images are present
-    if [ -z "$found_needed_image" ]; then
-        run_podman pull "$TOOLBOX_DEFAULT_IMAGE"
-    fi
-}
-
-function setup_with_one_container() {
-    echo "# [setup_with_one_container]" >&2
-    # Clean up all images except for the default one
-    remove_all_images_but_default
-    # Create a new (default) container if no other are present
-    run_toolbox -y create
-}
-
-function basic_teardown() {
-    echo "# [basic_teardown]" >&2
-    # Clean up all containers
-    remove_all_containers
-    # Clean up all images except for the default one
-    remove_all_images_but_default
-}
-
-# Set the default setup function
-function setup() {
-    basic_setup
-}
-
-function teardown() {
-    basic_teardown
-}
-
 
 ################
 #  run_podman  #  Invoke $PODMAN, with timeout, using BATS 'run'
