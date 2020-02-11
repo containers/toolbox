@@ -1,0 +1,61 @@
+---
+- job:
+    name: shellcheck
+    description: Check toolbox with shellcheck
+    timeout: 300
+    nodeset:
+      nodes:
+        - name: ci-node-30
+          label: cloud-fedora-30-small
+    run: playbooks/shellcheck.yaml
+
+- job:
+    name: test-with-podman-stable-f30
+    description: Test toolbox with stable Podman in Fedora 30
+    timeout: 1200
+    nodeset:
+      nodes:
+        - name: ci-node-30
+          label: cloud-fedora-30-small
+    pre-run: playbooks/fedora-30/setup-rpm-env.yaml
+    run: playbooks/fedora-30/test-with-podman-stable.yaml
+
+- job:
+    name: test-with-podman-stable-f31
+    description: Test toolbox with stable Podman in Fedora 31
+    timeout: 1200
+    nodeset:
+      nodes:
+        - name: ci-node-31
+          label: cloud-fedora-31-small
+    pre-run: playbooks/fedora-31/setup-rpm-env.yaml
+    run: playbooks/fedora-31/test-with-podman-stable.yaml
+
+- job:
+    name: test-with-podman-rawhide
+    description: Test toolbox with latest Podman in Fedora Rawhide
+    timeout: 1200
+    nodeset:
+      nodes:
+        - name: ci-node-rawhide
+          label: cloud-fedora-rawhide-small
+    pre-run: playbooks/fedora-rawhide/setup-rpm-env.yaml
+    run: playbooks/fedora-rawhide/test-with-podman-stable.yaml
+
+- project:
+    periodic:
+      jobs:
+        - test-with-podman-rawhide
+        - test-with-podman-stable-f31
+        - test-with-podman-stable-f30
+    check:
+      jobs:
+        - shellcheck
+        - test-with-podman-stable-f30
+        - test-with-podman-stable-f31
+        - test-with-podman-rawhide
+    gate:
+      jobs:
+        - test-with-podman-stable-f30
+        - test-with-podman-stable-f31
+        - test-with-podman-rawhide

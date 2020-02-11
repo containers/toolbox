@@ -1,3 +1,12 @@
+Overview of changes in 0.0.18
+=============================
+
+* Check /usr/share/profile.d when bind mounting toolbox.sh
+* Mount /media only if it is available
+* Set up /media and /mnt to match the host
+* Unbreak 'enter' when SELinux is disabled
+
+
 Overview of changes in 0.0.17
 =============================
 

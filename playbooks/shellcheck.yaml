@@ -1,0 +1,21 @@
+---
+- hosts: all
+  tasks:
+    - name: Install requirements
+      become: yes
+      package:
+        name:
+          - golang-github-cpuguy83-go-md2man
+          - ninja-build
+          - meson
+          - ShellCheck
+
+    - name: Build
+      command: meson builddir
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+
+    - name: Test
+      command: ninja -C builddir test
+      args:
+        chdir: '{{ zuul.project.src_dir }}'

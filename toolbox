@@ -697,7 +697,7 @@ mount_bind()
     [ "$mount_flags" = "" ] 2>&3 || mount_o="-o $mount_flags"
 
     # shellcheck disable=SC2086
-    if ! mount --bind $mount_o "$source" "$target" 2>&3; then
+    if ! mount --rbind $mount_o "$source" "$target" 2>&3; then
         echo "$base_toolbox_command: failed to bind $target to $source" >&2
         return 1
     fi
@@ -901,6 +901,8 @@ create()
     kcm_socket_bind=""
     media_link=""
     media_path_bind=""
+    mnt_link=""
+    mnt_path_bind=""
     run_media_path_bind=""
     toolbox_profile_bind=""
     ulimit_host=""
@@ -987,6 +989,10 @@ create()
 
     if [ -f /etc/profile.d/toolbox.sh ] 2>&3; then
         toolbox_profile_bind="--volume /etc/profile.d/toolbox.sh:/etc/profile.d/toolbox.sh:ro"
+    elif [ -f /usr/share/profile.d/toolbox.sh ] 2>&3; then
+        toolbox_profile_bind="--volume /usr/share/profile.d/toolbox.sh:/etc/profile.d/toolbox.sh:ro"
+    else
+        echo "$base_toolbox_command: failed to bind mount toolbox.sh" >&3
     fi
 
     if [ -d /media ] 2>&3; then
@@ -998,6 +1004,15 @@ create()
         else
             media_path_bind="--volume /media:/media:rslave"
         fi
+    fi
+
+    echo "$base_toolbox_command: checking if /mnt is a symbolic link to /var/mnt" >&3
+
+    if [ "$(readlink /mnt)" = var/mnt ] 2>&3; then
+        echo "$base_toolbox_command: /mnt is a symbolic link to /var/mnt" >&3
+        mnt_link="--mnt-link"
+    else
+        mnt_path_bind="--volume /mnt:/mnt:rslave"
     fi
 
     if [ -d /run/media ] 2>&3; then
@@ -1079,6 +1094,7 @@ create()
             --user root:root \
             $kcm_socket_bind \
             $media_path_bind \
+            $mnt_path_bind \
             $run_media_path_bind \
             $toolbox_profile_bind \
             --volume "$TOOLBOX_PATH":/usr/bin/toolbox:ro \
@@ -1088,7 +1104,6 @@ create()
             --volume "$home_canonical":"$home_canonical":rslave \
             --volume /etc:/run/host/etc \
             --volume /dev:/dev:rslave \
-            --volume /mnt:/mnt:rslave \
             --volume /run:/run/host/run:rslave \
             --volume /tmp:/run/host/tmp:rslave \
             --volume /usr:/run/host/usr:"$usr_mount_destination_flags",rslave \
@@ -1098,6 +1113,7 @@ create()
                     --home "$HOME" \
                     $home_link \
                     $media_link \
+                    $mnt_link \
                     --monitor-host \
                     --shell "$SHELL" \
                     --uid "$user_id_real" \
@@ -1142,10 +1158,11 @@ init_container()
     init_container_home="$1"
     init_container_home_link="$2"
     init_container_media_link="$3"
-    init_container_monitor_host="$4"
-    init_container_shell="$5"
-    init_container_uid="$6"
-    init_container_user="$7"
+    init_container_mnt_link="$4"
+    init_container_monitor_host="$5"
+    init_container_shell="$6"
+    init_container_uid="$7"
+    init_container_user="$8"
 
     if [ "$XDG_RUNTIME_DIR" = "" ] 2>&3; then
         echo "$base_toolbox_command: XDG_RUNTIME_DIR is unset" >&3
@@ -1216,8 +1233,10 @@ init_container()
                 return 1
             fi
 
-            if ! mount_bind /usr/share/empty /sys/fs/selinux; then
-                return 1
+            if [ -d /sys/fs/selinux ] 2>&3; then
+                if ! mount_bind /usr/share/empty /sys/fs/selinux; then
+                    return 1
+                fi
             fi
 
             if ! mount_bind /run/host/var/lib/flatpak /var/lib/flatpak ro; then
@@ -1225,6 +1244,10 @@ init_container()
             fi
 
             if ! mount_bind /run/host/var/log/journal /var/log/journal ro; then
+                return 1
+            fi
+
+            if ! mount_bind /run/host/var/mnt /var/mnt rslave; then
                 return 1
             fi
         fi
@@ -1268,6 +1291,18 @@ init_container()
               && mkdir --mode 0755 --parents /run/media 2>&3 \
               && ln --symbolic run/media /media 2>&3); then
             echo "$base_toolbox_command: failed to make /media a symbolic link" >&2
+            return 1
+        fi
+    fi
+
+    if $init_container_mnt_link && ! readlink /mnt >/dev/null 2>&3; then
+        echo "$base_toolbox_command: making /mnt a symbolic link to /var/mnt" >&3
+
+        # shellcheck disable=SC2174
+        if ! (rmdir /mnt 2>&3 \
+              && mkdir --mode 0755 --parents /var/mnt 2>&3 \
+              && ln --symbolic var/mnt /mnt 2>&3); then
+            echo "$base_toolbox_command: failed to make /mnt a symbolic link" >&2
             return 1
         fi
     fi
@@ -2253,6 +2288,7 @@ if [ -f /run/.containerenv ] 2>&3; then
         init-container )
             init_container_home_link=false
             init_container_media_link=false
+            init_container_mnt_link=false
             init_container_monitor_host=false
             while has_prefix "$1" -; do
                 case $1 in
@@ -2271,6 +2307,9 @@ if [ -f /run/.containerenv ] 2>&3; then
                         ;;
                     --media-link )
                         init_container_media_link=true
+                        ;;
+                    --mnt-link )
+                        init_container_mnt_link=true
                         ;;
                     --monitor-host )
                         init_container_monitor_host=true
@@ -2299,6 +2338,7 @@ if [ -f /run/.containerenv ] 2>&3; then
                     "$init_container_home" \
                     "$init_container_home_link" \
                     "$init_container_media_link" \
+                    "$init_container_mnt_link" \
                     "$init_container_monitor_host" \
                     "$init_container_shell" \
                     "$init_container_uid" \
