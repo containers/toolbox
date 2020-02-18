@@ -1,9 +1,10 @@
 # System tests
 
 These tests are built with BATS (Bash Automated Testing System). They are
-strongly influenced by libpod project.
+strongly influenced by the [libpod](https://github.com/containers/libpod)
+project.
 
-The tests are meant to ensure that toolbox's functionality remains stable
+The tests are meant to ensure that Toolbox's functionality remains stable
 throughout updates of both Toolbox and Podman/libpod.
 
 ## Structure
