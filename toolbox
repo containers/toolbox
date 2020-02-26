@@ -1209,12 +1209,17 @@ init_container()
             fi
 
             if ! readlink /etc/resolv.conf >/dev/null 2>&3; then
-                echo "$base_toolbox_command: redirecting /etc/resolv.conf to /run/host/etc/resolv.conf" >&3
+                # /etc/resolv.conf on the host may itself be a symlink
+                resolv_conf_target="/run/host/etc/resolv.conf"
+                if T=$(readlink "$resolv_conf_target"); then
+                    resolv_conf_target="/run/host/$T"
+                fi
+                echo "$base_toolbox_command: redirecting /etc/resolv.conf to $resolv_conf_target" >&3
 
                 if ! (cd /etc 2>&3 \
                       && rm --force resolv.conf 2>&3 \
-                      && ln --symbolic /run/host/etc/resolv.conf resolv.conf 2>&3); then
-                    echo "$base_toolbox_command: failed to redirect /etc/resolv.conf to /run/host/etc/resolv.conf" \
+                      && ln --symbolic "$resolv_conf_target" resolv.conf 2>&3); then
+                    echo "$base_toolbox_command: failed to redirect /etc/resolv.conf to $resolv_conf_target" \
                             >&2
                     return 1
                 fi
