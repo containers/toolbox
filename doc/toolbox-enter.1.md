@@ -6,6 +6,7 @@ toolbox\-enter - Enter a toolbox container for interactive use
 ## SYNOPSIS
 **toolbox enter** [*--distro DISTRO* | *-d DISTRO*]
               [*--release RELEASE* | *-r RELEASE*]
+              [*--once* | *-o*]
               [*CONTAINER*]
 
 ## DESCRIPTION
@@ -39,6 +40,10 @@ host.
 
 Enter a toolbox container for a different operating system RELEASE than the
 host.
+
+**--once**, **-o**
+
+Do not track container in use, only enter the container once.
 
 ## EXAMPLES
 
