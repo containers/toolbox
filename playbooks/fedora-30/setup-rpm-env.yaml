@@ -20,3 +20,5 @@
 
     - name: Check versions of crucial packages
       command: rpm -q podman runc conmon fuse-overlayfs flatpak-session-helper
+
+    - include_tasks: ./pre-common.yaml
