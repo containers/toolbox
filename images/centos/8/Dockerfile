@@ -11,19 +11,15 @@ LABEL com.github.containers.toolbox="true" \
       maintainer="Debarshi Ray <rishi@fedoraproject.org>"
 
 COPY README.md /
+COPY missing-docs /
+COPY extra-packages /
 
 RUN sed -i '/tsflags=nodocs/d' /etc/yum.conf
-RUN yum -y swap coreutils-single coreutils
-
-COPY missing-docs /
-RUN yum -y reinstall $(<missing-docs)
-RUN rm /missing-docs
-
-COPY extra-packages /
-RUN yum -y install $(<extra-packages)
-RUN rm /extra-packages
-
-RUN yum clean all
+RUN yum -y swap coreutils-single coreutils && \
+    yum -y reinstall $(<missing-docs) && \
+    yum -y install $(<extra-packages) && \
+    yum clean all
+RUN rm /extra-packages /missing-docs
 
 RUN echo VARIANT_ID=container >> /etc/os-release
 RUN ln -s /etc/os-release /usr/lib/os-release
