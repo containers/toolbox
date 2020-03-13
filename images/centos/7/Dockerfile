@@ -13,18 +13,16 @@ LABEL com.github.containers.toolbox="true" \
 COPY README.md /
 
 RUN sed -i '/tsflags=nodocs/d' /etc/yum.conf
-#RUN yum -y swap coreutils coreutils-full
-RUN yum -y upgrade
 
 COPY missing-docs /
-RUN yum -y reinstall $(<missing-docs)
-RUN rm /missing-docs
-
 COPY extra-packages /
-RUN yum -y install $(<extra-packages)
+#RUN yum -y swap coreutils coreutils-full
+RUN yum -y upgrade && \
+    yum -y reinstall $(<missing-docs) && \
+    yum -y install $(<extra-packages) && \
+    yum clean all
+RUN rm /missing-docs
 RUN rm /extra-packages
-
-RUN yum clean all
 
 RUN echo VARIANT_ID=container >> /etc/os-release
 RUN ln -s /etc/os-release /usr/lib/os-release
