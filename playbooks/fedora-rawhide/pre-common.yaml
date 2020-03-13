@@ -1,5 +1,5 @@
-- name: Pull registry.fedoraproject.org/f32/fedora-toolbox:32
-  command: podman pull registry.fedoraproject.org/f32/fedora-toolbox:32
+- name: Pull registry.fedoraproject.org/f33/fedora-toolbox:33
+  command: podman pull registry.fedoraproject.org/f33/fedora-toolbox:33
   register: _podman
   until: _podman.rc == 0
   retries: 5
