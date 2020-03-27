@@ -269,17 +269,31 @@ func runCommand(container string,
 		}
 	}
 
+	logrus.Debug("Checking if 'podman exec' supports disabling the detach keys")
+
+	var detachKeys []string
+
+	if podman.CheckVersion("1.8.1") {
+		logrus.Debug("'podman exec' supports disabling the detach keys")
+		detachKeys = []string{"--detach-keys", ""}
+	}
+
 	envOptions := utils.GetEnvOptionsForPreservedVariables()
 	logLevelString := podman.LogLevel.String()
 
 	execArgs := []string{
 		"--log-level", logLevelString,
 		"exec",
+	}
+
+	execArgs = append(execArgs, detachKeys...)
+
+	execArgs = append(execArgs, []string{
 		"--interactive",
 		"--tty",
 		"--user", currentUser.Username,
 		"--workdir", workingDirectory,
-	}
+	}...)
 
 	execArgs = append(execArgs, envOptions...)
 
