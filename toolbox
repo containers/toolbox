@@ -904,6 +904,7 @@ create()
     mnt_link=""
     mnt_path_bind=""
     run_media_path_bind=""
+    dnf_cache_path_bind=""
     toolbox_profile_bind=""
     ulimit_host=""
     usr_mount_destination_flags="ro"
@@ -1019,6 +1020,10 @@ create()
         run_media_path_bind="--volume /run/media:/run/media:rslave"
     fi
 
+    if [ -d /var/cache/dnf ] 2>&3; then
+        dnf_cache_path_bind="--volume /var/cache/dnf:/var/cache/dnf:O"
+    fi
+
     echo "$base_toolbox_command: checking if /usr is mounted read-only or read-write" >&3
 
     if ! usr_mount_point=$(df --output=target /usr | tail --lines 1 2>&3); then
@@ -1096,6 +1101,7 @@ create()
             $media_path_bind \
             $mnt_path_bind \
             $run_media_path_bind \
+            $dnf_cache_path_bind \
             $toolbox_profile_bind \
             --volume "$TOOLBOX_PATH":/usr/bin/toolbox:ro \
             --volume "$XDG_RUNTIME_DIR":"$XDG_RUNTIME_DIR" \
