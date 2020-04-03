@@ -1,8 +1,6 @@
 acl
 bash
-chkconfig
 curl
-dbus-daemon
 gawk
 grep
 gzip
@@ -12,7 +10,6 @@ p11-kit
 pam
 python3
 rpm
-rpm-plugin-systemd-inhibit
 sed
 systemd
 tar
