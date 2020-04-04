@@ -54,6 +54,8 @@ environment_variables="COLORTERM \
         XDG_VTNR"
 fgc=""
 
+init_hook_command=""
+init_hook_label="com.github.containers.toolbox.init"
 podman_command="podman"
 registry="registry.fedoraproject.org"
 registry_candidate="candidate-registry.fedoraproject.org"
@@ -549,6 +551,15 @@ get_host_version_id()
     echo "$VERSION_ID"
 )
 
+get_init_hook_label()
+(
+    image="$1"
+
+    $podman_command inspect \
+                    --format "{{ index .Labels \"$init_hook_label\" }}" \
+                    --type image \
+                    "$image" 2>&3
+)
 
 image_reference_can_be_id()
 (
@@ -1062,6 +1073,25 @@ create()
         exit 1
     fi
 
+    # If no init_hook_command has been set from the command-line
+    # arguments, try to read one from the image label.
+    if [ -z "$init_hook_command" ] 2>&3; then
+        echo "$base_toolbox_command: reading init hook from label on $base_toolbox_image_full" >&3
+
+        if ! init_hook_command=$(get_init_hook_label "$base_toolbox_image_full"); then
+            echo "$base_toolbox_command: failed to read init-hook image label" >&2
+            exit 1
+        fi
+    fi
+
+    # If there's an init_hook_command, either from the command-line or
+    # the image label, overwrite $@ so we can safely pass the value to
+    # the `podman create` invokation below.
+    if [ -n "$init_hook_command" ] 2>&3; then
+        set -- --hook "$init_hook_command"
+        echo "$base_toolbox_command: init hook argument:" "$@" >&3
+    fi
+
     echo "$base_toolbox_command: creating container $toolbox_container" >&3
 
     if spinner_directory=$(mktemp --directory --tmpdir $spinner_template 2>&3); then
@@ -1117,7 +1147,8 @@ create()
                     --monitor-host \
                     --shell "$SHELL" \
                     --uid "$user_id_real" \
-                    --user "$USER" >/dev/null 2>&3
+                    --user "$USER" \
+                    "$@" >/dev/null 2>&3 # $@ is the --hook argument.
     ret_val=$?
 
     if [ "$spinner_directory" != "" ]; then
@@ -1163,6 +1194,7 @@ init_container()
     init_container_shell="$6"
     init_container_uid="$7"
     init_container_user="$8"
+    init_container_hook="$9"
 
     if [ "$XDG_RUNTIME_DIR" = "" ] 2>&3; then
         echo "$base_toolbox_command: XDG_RUNTIME_DIR is unset" >&3
@@ -1370,6 +1402,19 @@ EOF
 
         if [ "$ret_val" -ne 0 ] 2>&3; then
             echo "$base_toolbox_command: failed to set KCM as the default Kerberos credential cache" >&2
+            return 1
+        fi
+    fi
+
+    if [ -n "$init_container_hook" ]; then
+        echo "$base_toolbox_command: running init hook: $init_container_hook" >&3
+        env TOOLBOX_UID="$init_container_uid" TOOLBOX_USER="$init_container_user" \
+            /bin/sh -c "$init_container_hook" 2>&3
+
+        ret_val=$?
+
+        if [ "$ret_val" -ne 0 ] 2>&3; then
+            echo "$base_toolbox_command: init hook returned non-zero exit status: $ret_val" >&2
             return 1
         fi
     fi
@@ -2305,6 +2350,11 @@ if [ -f /run/.containerenv ] 2>&3; then
                     --home-link )
                         init_container_home_link=true
                         ;;
+                    --hook )
+                        shift
+                        exit_if_missing_argument --hook "$1"
+                        init_container_hook="$1"
+                        ;;
                     --media-link )
                         init_container_media_link=true
                         ;;
@@ -2342,7 +2392,8 @@ if [ -f /run/.containerenv ] 2>&3; then
                     "$init_container_monitor_host" \
                     "$init_container_shell" \
                     "$init_container_uid" \
-                    "$init_container_user"
+                    "$init_container_user" \
+                    "$init_container_hook"
             exit "$?"
             ;;
         reset )
@@ -2397,6 +2448,11 @@ case $op in
                     shift
                     exit_if_missing_argument --image "$1"
                     base_toolbox_image=$1
+                    ;;
+                -H | --init-hook )
+                    shift
+                    exit_if_missing_argument --init-hook "$1"
+                    init_hook_command=$1
                     ;;
                 -r | --release )
                     shift

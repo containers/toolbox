@@ -7,6 +7,7 @@ toolbox\-create - Create a new toolbox container
 **toolbox create** [*--candidate-registry*]
                [*--container NAME* | *-c NAME*]
                [*--image NAME* | *-i NAME*]
+               [*--init-hook COMMAND* | *-H COMMAND*]
                [*--release RELEASE* | *-r RELEASE*]
 
 ## DESCRIPTION
@@ -45,6 +46,13 @@ customized containers from custom-built base images.
 
 Change the NAME of the base image used to create the toolbox container. This
 is useful for creating containers from custom-built base images.
+
+**--init-hook** COMMAND, **-H** COMMAND
+
+Run the specified command, which must exist in the image, inside the container
+as the last step in the initialization process. If no command is given, the
+image will be inspected for a `com.github.containers.toolbox.init` label, and
+the value used as the hook command if found.
 
 **--release** RELEASE, **-r** RELEASE
 
