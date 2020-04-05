@@ -683,12 +683,22 @@ mount_bind()
 
     ! [ -d "$source" ] 2>&3 && ! [ -f "$source" ] 2>&3 && return 0
 
-    if [ -d "$source" ] 2>&3; then
-        echo "$base_toolbox_command: creating $target" >&3
+    if ! [ -e "$target" ] 2>&3; then
+        if [ -d "$source" ] 2>&3; then
+            echo "$base_toolbox_command: creating $target" >&3
 
-        if ! mkdir --parents "$target" 2>&3; then
-            echo "$base_toolbox_command: failed to create $target" >&2
-            return 1
+            if ! mkdir --parents "$target" 2>&3; then
+                echo "$base_toolbox_command: failed to create $target" >&2
+                return 1
+            fi
+        fi
+        if [ -f "$source" ] 2>&3; then
+            echo "$base_toolbox_command: creating $target" >&3
+
+            if ! touch "$target" 2>&3; then
+                echo "$base_toolbox_command: failed to create $target" >&2
+                return 1
+            fi
         fi
     fi
 
