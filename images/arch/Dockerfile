@@ -1,4 +1,4 @@
-FROM docker.io/archlinux/base:latest
+FROM docker.io/archlinux:latest
 MAINTAINER Erazem Kokot <contact at erazem dot eu>
 
 ENV NAME=arch-toolbox VERSION=rolling
