@@ -20,4 +20,7 @@ RUN rm /extra-packages
 # Clean up all local caches
 RUN pacman -Scc --noconfirm
 
+# Allow sudo for users in group "sudo"
+RUN groupadd -f sudo
+RUN echo '%sudo ALL=(ALL) ALL' >/etc/sudoers.d/group-sudo
 CMD /bin/sh
