@@ -1286,9 +1286,15 @@ init_container()
     if $init_container_media_link && ! readlink /media >/dev/null 2>&3; then
         echo "$base_toolbox_command: making /media a symbolic link to /run/media" >&3
 
+        if [ -e /media ] 2>&3; then
+            if ! (rmdir /media 2>&3); then
+                echo "$base_toolbox_command: failed to make /media a symbolic link" >&2
+                return 1
+            fi
+        fi
+
         # shellcheck disable=SC2174
-        if ! (rmdir /media 2>&3 \
-              && mkdir --mode 0755 --parents /run/media 2>&3 \
+        if ! (mkdir --mode 0755 --parents /run/media 2>&3 \
               && ln --symbolic run/media /media 2>&3); then
             echo "$base_toolbox_command: failed to make /media a symbolic link" >&2
             return 1
