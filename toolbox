@@ -982,11 +982,6 @@ create()
         return 1
     fi
 
-    if ! group_for_sudo=$(get_group_for_sudo); then
-        echo "$base_toolbox_command: failed to create container $toolbox_container: group for sudo not found" >&2
-        return 1
-    fi
-
     if [ -f /etc/profile.d/toolbox.sh ] 2>&3; then
         toolbox_profile_bind="--volume /etc/profile.d/toolbox.sh:/etc/profile.d/toolbox.sh:ro"
     elif [ -f /usr/share/profile.d/toolbox.sh ] 2>&3; then
@@ -1078,7 +1073,6 @@ create()
     $podman_command create \
             --dns none \
             --env TOOLBOX_PATH="$TOOLBOX_PATH" \
-            --group-add "$group_for_sudo" \
             --hostname toolbox \
             --ipc host \
             --label "com.github.containers.toolbox=true" \
