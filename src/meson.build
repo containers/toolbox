@@ -3,7 +3,16 @@ go_build_wrapper_program = find_program('go-build-wrapper')
 
 sources = files(
   'toolbox.go',
+  'cmd/create.go',
+  'cmd/enter.go',
+  'cmd/help.go',
+  'cmd/initContainer.go',
+  'cmd/list.go',
+  'cmd/reset.go',
+  'cmd/rm.go',
+  'cmd/rmi.go',
   'cmd/root.go',
+  'cmd/run.go',
   'pkg/podman/podman.go',
   'pkg/shell/shell.go',
   'pkg/utils/utils.go',
