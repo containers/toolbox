@@ -20,10 +20,12 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/utils"
@@ -139,6 +141,12 @@ func preRun(cmd *cobra.Command, args []string) error {
 	toolboxPath = os.Getenv("TOOLBOX_PATH")
 	logrus.Debugf("TOOLBOX_PATH is %s", toolboxPath)
 
+	if cmd.Use != "reset" {
+		if err := migrate(); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -190,6 +198,95 @@ func rootUsage(cmd *cobra.Command) error {
 	err := fmt.Errorf("Run '%s --help' for usage.", executableBase)
 	fmt.Fprintf(os.Stderr, "%s", err)
 	return err
+}
+
+func migrate() error {
+	if utils.IsInsideContainer() {
+		return nil
+	}
+
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return fmt.Errorf("failed to get the user config directory")
+	}
+
+	toolboxConfigDir := configDir + "/toolbox"
+	stampPath := toolboxConfigDir + "/podman-system-migrate"
+	logrus.Debugf("Toolbox config directory is %s", toolboxConfigDir)
+
+	podmanVersion, err := podman.GetVersion()
+	if err != nil {
+		return fmt.Errorf("failed to get the Podman version")
+	}
+
+	logrus.Debugf("Current Podman version is %s", podmanVersion)
+
+	err = os.MkdirAll(toolboxConfigDir, 0775)
+	if err != nil {
+		return fmt.Errorf("failed to create configuration directory")
+	}
+
+	runtimeDirectory := os.Getenv("XDG_RUNTIME_DIR")
+	toolboxRuntimeDirectory := runtimeDirectory + "/toolbox"
+	if err := os.MkdirAll(toolboxRuntimeDirectory, 0700); err != nil {
+		return fmt.Errorf("failed to create runtime directory %s", toolboxRuntimeDirectory)
+	}
+
+	lockFile := toolboxRuntimeDirectory + "/migrate.lock"
+
+	lockFD, err := syscall.Open(lockFile,
+		syscall.O_CREAT|syscall.O_WRONLY,
+		syscall.S_IRUSR|syscall.S_IWUSR|syscall.S_IRGRP|syscall.S_IWGRP|syscall.S_IROTH)
+	if err != nil {
+		return fmt.Errorf("failed to open migration lock file")
+	}
+
+	defer syscall.Close(lockFD)
+
+	err = syscall.Flock(lockFD, syscall.LOCK_EX)
+	if err != nil {
+		return fmt.Errorf("failed to acquire migration lock")
+	}
+
+	stampBytes, err := ioutil.ReadFile(stampPath)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return fmt.Errorf("failed to read migration stamp file")
+		}
+	} else {
+		stampString := string(stampBytes)
+		podmanVersionOld := strings.TrimSpace(stampString)
+		if podmanVersionOld != "" {
+			logrus.Debugf("Old Podman version is %s", podmanVersionOld)
+
+			if podmanVersion == podmanVersionOld {
+				logrus.Debugf("Migration not needed: Podman version %s is unchanged",
+					podmanVersion)
+
+				return nil
+			}
+
+			if !podman.CheckVersion(podmanVersionOld) {
+				logrus.Debugf("Migration not needed: Podman version %s is old", podmanVersion)
+				return nil
+			}
+		}
+	}
+
+	if err = podman.SystemMigrate(""); err != nil {
+		return fmt.Errorf("failed to migrate containers")
+	}
+
+	logrus.Debugf("Migration to Podman version %s was ok", podmanVersion)
+	logrus.Debugf("Updating Podman version in %s", stampPath)
+
+	podmanVersionBytes := []byte(podmanVersion + "\n")
+	err = ioutil.WriteFile(stampPath, podmanVersionBytes, 0664)
+	if err != nil {
+		return fmt.Errorf("failed to update Podman version in migration stamp file")
+	}
+
+	return nil
 }
 
 func newSubIDFileError() error {
