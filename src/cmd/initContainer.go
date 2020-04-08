@@ -17,10 +17,18 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"os/exec"
+	"os/user"
+	"strings"
+	"syscall"
 
+	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -34,6 +42,19 @@ var (
 		shell       string
 		uid         int
 		user        string
+	}
+
+	initContainerMounts = []struct {
+		containerPath string
+		source        string
+		flags         string
+	}{
+		{"/etc/machine-id", "/run/host/etc/machine-id", "ro"},
+		{"/run/libvirt", "/run/host/run/libvirt", ""},
+		{"/run/systemd/journal", "/run/host/run/systemd/journal", ""},
+		{"/var/lib/flatpak", "/run/host/var/lib/flatpak", "ro"},
+		{"/var/log/journal", "/run/host/var/log/journal", "ro"},
+		{"/var/mnt", "/run/host/var/mnt", "rslave"},
 	}
 )
 
@@ -93,6 +114,229 @@ func init() {
 }
 
 func initContainer(cmd *cobra.Command, args []string) error {
+	if !utils.IsInsideContainer() {
+		var builder strings.Builder
+		fmt.Fprintf(&builder, "the 'init-container' command can only be used inside containers\n")
+		fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+		errMsg := builder.String()
+		return errors.New(errMsg)
+	}
+
+	runtimeDirectory := os.Getenv("XDG_RUNTIME_DIR")
+	if runtimeDirectory == "" {
+		logrus.Debug("XDG_RUNTIME_DIR is unset")
+
+		runtimeDirectory = fmt.Sprintf("/run/user/%d", initContainerFlags.uid)
+		os.Setenv("XDG_RUNTIME_DIR", runtimeDirectory)
+
+		logrus.Debugf("XDG_RUNTIME_DIR set to %s", runtimeDirectory)
+	}
+
+	logrus.Debug("Creating /run/.toolboxenv")
+
+	toolboxEnvFile, err := os.Create("/run/.toolboxenv")
+	if err != nil {
+		return errors.New("failed to create /run/.toolboxenv")
+	}
+
+	defer toolboxEnvFile.Close()
+
+	if initContainerFlags.monitorHost {
+		logrus.Debug("Monitoring host")
+
+		if utils.PathExists("/run/host/etc") {
+			logrus.Debug("Path /run/host/etc exists")
+
+			if _, err := os.Readlink("/etc/host.conf"); err != nil {
+				if err := redirectPath("/etc/host.conf",
+					"/run/host/etc/host.conf",
+					false); err != nil {
+					return err
+				}
+			}
+
+			if _, err := os.Readlink("/etc/hosts"); err != nil {
+				if err := redirectPath("/etc/hosts",
+					"/run/host/etc/hosts",
+					false); err != nil {
+					return err
+				}
+			}
+
+			if _, err := os.Readlink("/etc/resolv.conf"); err != nil {
+				if err := redirectPath("/etc/resolv.conf",
+					"/run/host/etc/resolv.conf",
+					false); err != nil {
+					return err
+				}
+			}
+
+			for _, mount := range initContainerMounts {
+				if err := mountBind(mount.containerPath, mount.source, mount.flags); err != nil {
+					return err
+				}
+			}
+
+			if utils.PathExists("/sys/fs/selinux") {
+				if err := mountBind("/sys/fs/selinux", "/usr/share/empty", ""); err != nil {
+					return err
+				}
+			}
+		}
+
+		if utils.PathExists("/run/host/monitor") {
+			logrus.Debug("Path /run/host/monitor exists")
+
+			if localtimeTarget, err := os.Readlink("/etc/localtime"); err != nil ||
+				localtimeTarget != "/run/host/monitor/localtime" {
+				if err := redirectPath("/etc/localtime",
+					"/run/host/monitor/localtime", false); err != nil {
+					return err
+				}
+			}
+
+			if _, err := os.Readlink("/etc/timezone"); err != nil {
+				if err := redirectPath("/etc/timezone",
+					"/run/host/monitor/timezone",
+					false); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	if initContainerFlags.mediaLink {
+		if _, err := os.Readlink("/media"); err != nil {
+			if err = redirectPath("/media", "/run/media", true); err != nil {
+				return err
+			}
+		}
+	}
+
+	if initContainerFlags.mntLink {
+		if _, err := os.Readlink("/mnt"); err != nil {
+			if err := redirectPath("/mnt", "/var/mnt", true); err != nil {
+				return err
+			}
+		}
+	}
+
+	if _, err := user.Lookup(initContainerFlags.user); err != nil {
+		if initContainerFlags.homeLink {
+			if err := redirectPath("/home", "/var/home", true); err != nil {
+				return err
+			}
+		}
+
+		sudoGroup, err := utils.GetGroupForSudo()
+		if err != nil {
+			return fmt.Errorf("failed to add user %s: %s", initContainerFlags.user, err)
+		}
+
+		logrus.Debugf("Adding user %s with UID %d:", initContainerFlags.user, initContainerFlags.uid)
+
+		useraddArgs := []string{
+			"--home-dir", initContainerFlags.home,
+			"--no-create-home",
+			"--shell", initContainerFlags.shell,
+			"--uid", fmt.Sprint(initContainerFlags.uid),
+			"--groups", sudoGroup,
+			initContainerFlags.user,
+		}
+
+		logrus.Debug("useradd")
+		for _, arg := range useraddArgs {
+			logrus.Debugf("%s", arg)
+		}
+
+		if err := shell.Run("useradd", nil, nil, nil, useraddArgs...); err != nil {
+			return fmt.Errorf("failed to add user %s with UID %d",
+				initContainerFlags.user,
+				initContainerFlags.uid)
+		}
+
+		logrus.Debugf("Removing password for user %s", initContainerFlags.user)
+
+		if err := shell.Run("passwd", nil, nil, nil, "--delete", initContainerFlags.user); err != nil {
+			return fmt.Errorf("failed to remove password for user %s", initContainerFlags.user)
+		}
+
+		logrus.Debug("Removing password for user root")
+
+		if err := shell.Run("passwd", nil, nil, nil, "--delete", "root"); err != nil {
+			return errors.New("failed to remove password for root")
+		}
+	}
+
+	if utils.PathExists("/etc/krb5.conf.d") && !utils.PathExists("/etc/krb5.conf.d/kcm_default_ccache") {
+		logrus.Debug("Setting KCM as the default Kerberos credential cache")
+
+		kcmConfigString := `# Written by Toolbox
+# https://github.com/containers/toolbox
+#
+# # To disable the KCM credential cache, comment out the following lines.
+
+[libdefaults]
+    default_ccache_name = KCM:
+`
+
+		kcmConfigBytes := []byte(kcmConfigString)
+		if err := ioutil.WriteFile("/etc/krb5.conf.d/kcm_default_ccache",
+			kcmConfigBytes,
+			0644); err != nil {
+			return errors.New("failed to set KCM as the defult Kerberos credential cache")
+		}
+	}
+
+	logrus.Debug("Finished initializing container")
+
+	toolboxRuntimeDirectory := runtimeDirectory + "/toolbox"
+	logrus.Debugf("Creating runtime directory %s", toolboxRuntimeDirectory)
+
+	if err := os.MkdirAll(toolboxRuntimeDirectory, 0700); err != nil {
+		return fmt.Errorf("failed to create runtime directory %s", toolboxRuntimeDirectory)
+	}
+
+	if err := os.Chown(toolboxRuntimeDirectory, initContainerFlags.uid, initContainerFlags.uid); err != nil {
+		return fmt.Errorf("failed to change ownership of the runtime directory %s",
+			toolboxRuntimeDirectory)
+	}
+
+	pid := os.Getpid()
+	initializedStamp := fmt.Sprintf("%s/container-initialized-%d", toolboxRuntimeDirectory, pid)
+
+	logrus.Debugf("Creating initialization stamp %s", initializedStamp)
+
+	initializedStampFile, err := os.Create(initializedStamp)
+	if err != nil {
+		return errors.New("failed to create initialization stamp")
+	}
+
+	defer initializedStampFile.Close()
+
+	if err := initializedStampFile.Chown(initContainerFlags.uid, initContainerFlags.uid); err != nil {
+		return errors.New("failed to change ownership of initialization stamp")
+	}
+
+	logrus.Debug("Going to sleep")
+
+	sleepBinary, err := exec.LookPath("sleep")
+	if err != nil {
+		if errors.Is(err, exec.ErrNotFound) {
+			return errors.New("sleep(1) not found")
+		}
+
+		return errors.New("failed to lookup sleep(1)")
+	}
+
+	sleepArgs := []string{"sleep", "+Inf"}
+	env := os.Environ()
+
+	if err := syscall.Exec(sleepBinary, sleepArgs, env); err != nil {
+		return errors.New("failed to invoke sleep(1)")
+	}
+
 	return nil
 }
 
@@ -115,4 +359,61 @@ func initContainerHelp(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}
+}
+
+func mountBind(containerPath, source, flags string) error {
+	fi, err := os.Stat(source)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+
+		return fmt.Errorf("failed to stat %s", source)
+	}
+
+	if fi.IsDir() {
+		logrus.Debugf("Creating %s", containerPath)
+		if err := os.MkdirAll(containerPath, 0755); err != nil {
+			return fmt.Errorf("failed to create %s", containerPath)
+		}
+	}
+
+	logrus.Debugf("Binding %s to %s", containerPath, source)
+
+	args := []string{
+		"--rbind",
+	}
+
+	if flags != "" {
+		args = append(args, []string{"-o", flags}...)
+	}
+
+	args = append(args, []string{source, containerPath}...)
+
+	if err := shell.Run("mount", nil, nil, nil, args...); err != nil {
+		return fmt.Errorf("failed to bind %s to %s", containerPath, source)
+	}
+
+	return nil
+}
+
+func redirectPath(containerPath, target string, folder bool) error {
+	logrus.Debugf("Redirecting %s to %s", containerPath, target)
+
+	err := os.Remove(containerPath)
+	if folder {
+		if err != nil {
+			return fmt.Errorf("failed to redirect %s to %s", containerPath, target)
+		}
+
+		if err := os.MkdirAll(target, 0755); err != nil {
+			return fmt.Errorf("failed to redirect %s to %s", containerPath, target)
+		}
+	}
+
+	if err := os.Symlink(target, containerPath); err != nil {
+		return fmt.Errorf("failed to redirect %s to %s", containerPath, target)
+	}
+
+	return nil
 }
