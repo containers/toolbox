@@ -17,10 +17,15 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/containers/toolbox/pkg/podman"
+	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -53,6 +58,72 @@ func init() {
 }
 
 func rmi(cmd *cobra.Command, args []string) error {
+	if utils.IsInsideContainer() {
+		if !utils.IsInsideToolboxContainer() {
+			return errors.New("this is not a toolbox container")
+		}
+
+		if _, err := utils.ForwardToHost(); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	if rmiFlags.deleteAll {
+		logrus.Debug("Fetching images with label=com.redhat.component=fedora-toolbox")
+		args := []string{"--filter", "label=com.redhat.component=fedora-toolbox"}
+		images_old, err := podman.GetImages(args...)
+		if err != nil {
+			return errors.New("failed to list images with com.redhat.component=fedora-toolbox")
+		}
+
+		logrus.Debug("Fetching images with label=com.github.debarshiray.toolbox=true")
+		args = []string{"--filter", "label=com.github.debarshiray.toolbox=true"}
+		images_new, err := podman.GetImages(args...)
+		if err != nil {
+			return errors.New("failed to list images with com.github.debarshiray.toolbox=true")
+		}
+
+		var idKey string
+		if podman.CheckVersion("1.8.3") {
+			idKey = "ID"
+		} else {
+			idKey = "id"
+		}
+
+		images := utils.JoinJSON(idKey, images_old, images_new)
+
+		for _, image := range images {
+			imageID := image[idKey].(string)
+			if err := removeImage(imageID); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				continue
+			}
+		}
+	} else {
+		if len(args) == 0 {
+			var builder strings.Builder
+			fmt.Fprintf(&builder, "missing argument for \"rmi\"\n")
+			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+			errMsg := builder.String()
+			return errors.New(errMsg)
+		}
+
+		for _, image := range args {
+			if _, err := podman.IsToolboxImage(image); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				continue
+			}
+
+			if err := removeImage(image); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				continue
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -75,4 +146,37 @@ func rmiHelp(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}
+}
+
+func removeImage(image string) error {
+	logrus.Debugf("Removing image %s", image)
+
+	logLevelString := podman.LogLevel.String()
+	args := []string{"--log-level", logLevelString, "rmi"}
+
+	if rmiFlags.forceDelete {
+		args = append(args, "--force")
+	}
+
+	args = append(args, image)
+
+	exitCode, err := shell.RunWithExitCode("podman", nil, nil, nil, args...)
+	switch exitCode {
+	case 0:
+		if err != nil {
+			panic("unexpected error: 'podman rmi' finished successfully")
+		}
+	case 1:
+		err = fmt.Errorf("image %s does not exist", image)
+	case 2:
+		err = fmt.Errorf("image %s has dependent children", image)
+	default:
+		err = fmt.Errorf("failed to remove image %s", image)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
