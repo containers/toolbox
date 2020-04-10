@@ -17,10 +17,15 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/containers/toolbox/pkg/podman"
+	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -53,6 +58,65 @@ func init() {
 }
 
 func rm(cmd *cobra.Command, args []string) error {
+	if utils.IsInsideContainer() {
+		if !utils.IsInsideToolboxContainer() {
+			return errors.New("this is not a toolbox container")
+		}
+
+		if _, err := utils.ForwardToHost(); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	if rmFlags.deleteAll {
+		logrus.Debug("Fetching containers with label=com.redhat.component=fedora-toolbox")
+		args := []string{"--all", "--filter", "label=com.redhat.component=fedora-toolbox"}
+		containers_old, err := podman.GetContainers(args...)
+		if err != nil {
+			return errors.New("failed to list containers with com.redhat.component=fedora-toolbox")
+		}
+
+		logrus.Debug("Fetching containers with label=com.github.debarshiray.toolbox=true")
+		args = []string{"--all", "--filter", "label=com.github.debarshiray.toolbox=true"}
+		containers_new, err := podman.GetContainers(args...)
+		if err != nil {
+			return errors.New("failed to list containers with com.github.debarshiray.toolbox=true")
+		}
+
+		containers := utils.JoinJSON("ID", containers_old, containers_new)
+
+		for _, container := range containers {
+			containerID := container["ID"].(string)
+			if err := removeContainer(containerID); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				continue
+			}
+		}
+	} else {
+		if len(args) == 0 {
+			var builder strings.Builder
+			fmt.Fprintf(&builder, "missing argument for \"rm\"\n")
+			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+			errMsg := builder.String()
+			return errors.New(errMsg)
+		}
+
+		for _, container := range args {
+			if _, err := podman.IsToolboxContainer(container); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				continue
+			}
+
+			if err := removeContainer(container); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				continue
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -75,4 +139,37 @@ func rmHelp(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}
+}
+
+func removeContainer(container string) error {
+	logrus.Debugf("Removing container %s", container)
+
+	logLevelString := podman.LogLevel.String()
+	args := []string{"--log-level", logLevelString, "rm"}
+
+	if rmFlags.forceDelete {
+		args = append(args, "--force")
+	}
+
+	args = append(args, container)
+
+	exitCode, err := shell.RunWithExitCode("podman", nil, nil, nil, args...)
+	switch exitCode {
+	case 0:
+		if err != nil {
+			panic("unexpected error: 'podman rm' finished successfully")
+		}
+	case 1:
+		err = fmt.Errorf("container %s does not exist", container)
+	case 2:
+		err = fmt.Errorf("container %s is running", container)
+	default:
+		err = fmt.Errorf("failed to remove container %s", container)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
