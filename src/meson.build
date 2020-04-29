@@ -5,6 +5,7 @@ sources = files(
   'toolbox.go',
   'cmd/root.go',
   'pkg/shell/shell.go',
+  'pkg/utils/utils.go',
   'pkg/version/version.go',
 )
 
