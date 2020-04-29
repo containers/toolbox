@@ -22,6 +22,15 @@ import (
 	"syscall"
 )
 
+// PathExists wraps around os.Stat providing a nice interface for checking an existence of a path.
+func PathExists(path string) bool {
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		return true
+	}
+
+	return false
+}
+
 func ShowManual(manual string) error {
 	manBinary, err := exec.LookPath("man")
 	if err != nil {
