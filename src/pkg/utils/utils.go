@@ -27,6 +27,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/acobaugh/osrelease"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
@@ -182,6 +183,45 @@ func GetGroupForSudo() (string, error) {
 	}
 
 	return "", errors.New("group for sudo not found")
+}
+
+// GetHostID returns the ID from the os-release files
+//
+// Examples:
+// - host is Fedora, returned string is 'fedora'
+func GetHostID() (string, error) {
+	osRelease, err := osrelease.Read()
+	if err != nil {
+		return "", err
+	}
+
+	return osRelease["ID"], nil
+}
+
+// GetHostVariantID returns the VARIANT_ID from the os-release files
+//
+// Examples:
+// - host is Fedora Workstation, returned string is 'workstation'
+func GetHostVariantID() (string, error) {
+	osRelease, err := osrelease.Read()
+	if err != nil {
+		return "", err
+	}
+
+	return osRelease["VARIANT_ID"], nil
+}
+
+// GetHostVersionID returns the VERSION_ID from the os-release files
+//
+// Examples:
+// - host is Fedora 32, returned string is '32'
+func GetHostVersionID() (string, error) {
+	osRelease, err := osrelease.Read()
+	if err != nil {
+		return "", err
+	}
+
+	return osRelease["VERSION_ID"], nil
 }
 
 // GetMountPoint returns the mount point of a target.
