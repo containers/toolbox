@@ -17,8 +17,10 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/spf13/cobra"
@@ -57,6 +59,95 @@ func init() {
 }
 
 func enter(cmd *cobra.Command, args []string) error {
+	if utils.IsInsideContainer() {
+		if !utils.IsInsideToolboxContainer() {
+			return errors.New("this is not a toolbox container")
+		}
+
+		if _, err := utils.ForwardToHost(); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	var container string
+	var containerArg string
+	var nonDefaultContainer bool
+
+	if len(args) != 0 {
+		container = args[0]
+		containerArg = "CONTAINER"
+	} else if enterFlags.container != "" {
+		container = enterFlags.container
+		containerArg = "--container"
+	}
+
+	if container != "" {
+		nonDefaultContainer = true
+
+		if _, err := utils.IsContainerNameValid(container); err != nil {
+			var builder strings.Builder
+			fmt.Fprintf(&builder, "invalid argument for '%s'\n", containerArg)
+			fmt.Fprintf(&builder, "Container names must match '%s'\n", utils.ContainerNameRegexp)
+			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+			errMsg := builder.String()
+			return errors.New(errMsg)
+		}
+	}
+
+	var release string
+	if enterFlags.release != "" {
+		nonDefaultContainer = true
+
+		var err error
+		release, err = utils.ParseRelease(enterFlags.release)
+		if err != nil {
+			err := utils.CreateErrorInvalidRelease(executableBase)
+			return err
+		}
+	}
+
+	container, image, release, err := utils.ResolveContainerAndImageNames(container, "", release)
+	if err != nil {
+		return err
+	}
+
+	userShell := os.Getenv("SHELL")
+	if userShell == "" {
+		return errors.New("failed to get the current user's default shell")
+	}
+
+	command := []string{userShell, "-l"}
+
+	hostID, err := utils.GetHostID()
+	if err != nil {
+		return errors.New("failed to get the host ID")
+	}
+
+	hostVariantID, err := utils.GetHostVariantID()
+	if err != nil {
+		return errors.New("failed to get the host VARIANT_ID")
+	}
+
+	var emitEscapeSequence bool
+
+	if hostID == "fedora" && (hostVariantID == "silverblue" || hostVariantID == "workstation") {
+		emitEscapeSequence = true
+	}
+
+	if err := runCommand(container,
+		!nonDefaultContainer,
+		image,
+		release,
+		command,
+		emitEscapeSequence,
+		true,
+		false); err != nil {
+		return err
+	}
+
 	return nil
 }
 
