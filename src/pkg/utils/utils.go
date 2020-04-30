@@ -31,6 +31,14 @@ func PathExists(path string) bool {
 	return false
 }
 
+func IsInsideContainer() bool {
+	if PathExists("/run/.containerenv") {
+		return true
+	}
+
+	return false
+}
+
 func ShowManual(manual string) error {
 	manBinary, err := exec.LookPath("man")
 	if err != nil {
