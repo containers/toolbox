@@ -17,6 +17,7 @@
 package cmd
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"os"
@@ -110,6 +111,34 @@ func preRun(cmd *cobra.Command, args []string) error {
 		logrus.Debugf("Running on a cgroups v%d host", cgroupsVersion)
 	}
 
+	toolboxPath := os.Getenv("TOOLBOX_PATH")
+
+	if utils.IsInsideContainer() {
+		if toolboxPath == "" {
+			return errors.New("TOOLBOX_PATH not set")
+		}
+	} else {
+		if currentUser.Uid != "0" {
+			logrus.Debugf("Checking if /etc/subgid and /etc/subuid have entries for user %s",
+				currentUser.Username)
+
+			if _, err := validateSubIDFile("/etc/subuid"); err != nil {
+				return newSubIDFileError()
+			}
+
+			if _, err := validateSubIDFile("/etc/subgid"); err != nil {
+				return newSubIDFileError()
+			}
+		}
+
+		if toolboxPath == "" {
+			os.Setenv("TOOLBOX_PATH", executable)
+		}
+	}
+
+	toolboxPath = os.Getenv("TOOLBOX_PATH")
+	logrus.Debugf("TOOLBOX_PATH is %s", toolboxPath)
+
 	return nil
 }
 
@@ -161,6 +190,16 @@ func rootUsage(cmd *cobra.Command) error {
 	err := fmt.Errorf("Run '%s --help' for usage.", executableBase)
 	fmt.Fprintf(os.Stderr, "%s", err)
 	return err
+}
+
+func newSubIDFileError() error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "/etc/subgid and /etc/subuid don't have entries for user %s\n", currentUser.Username)
+	fmt.Fprintf(&builder, "See the podman(1), subgid(5), subuid(5) and usermod(8) manuals for more\n")
+	fmt.Fprintf(&builder, "information.")
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
 }
 
 func setUpGlobals() error {
@@ -224,4 +263,25 @@ func setUpLoggers() error {
 	}
 
 	return nil
+}
+
+func validateSubIDFile(path string) (bool, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return false, fmt.Errorf("failed to open %s", path)
+	}
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+
+	prefix := currentUser.Username + ":"
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, prefix) {
+			return true, nil
+		}
+	}
+
+	return false, fmt.Errorf("failed to find an entry for user %s in %p", currentUser.Username, path)
 }
