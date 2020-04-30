@@ -151,14 +151,14 @@ func rootRun(cmd *cobra.Command, args []string) error {
 	fmt.Fprintf(&builder, "enter     Enter an existing toolbox container\n")
 	fmt.Fprintf(&builder, "list      List all existing toolbox containers and images\n")
 	fmt.Fprintf(&builder, "\n")
-	fmt.Fprintf(&builder, "Run 'toolbox --help' for usage.")
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
 
 	errMsg := builder.String()
 	return errors.New(errMsg)
 }
 
 func rootUsage(cmd *cobra.Command) error {
-	err := errors.New("Run 'toolbox --help' for usage.")
+	err := fmt.Errorf("Run '%s --help' for usage.", executableBase)
 	fmt.Fprintf(os.Stderr, "%s", err)
 	return err
 }
