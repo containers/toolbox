@@ -26,6 +26,7 @@ import (
 	"syscall"
 
 	"github.com/containers/toolbox/pkg/shell"
+	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 )
@@ -59,6 +60,35 @@ var (
 		"XDG_VTNR",
 	}
 )
+
+func CallFlatpakSessionHelper() (string, error) {
+	logrus.Debug("Calling org.freedesktop.Flatpak.SessionHelper.RequestSession")
+
+	connection, err := dbus.SessionBus()
+	if err != nil {
+		return "", errors.New("failed to connect to the D-Bus session instance")
+	}
+
+	sessionHelper := connection.Object("org.freedesktop.Flatpak", "/org/freedesktop/Flatpak/SessionHelper")
+	call := sessionHelper.Call("org.freedesktop.Flatpak.SessionHelper.RequestSession", 0)
+
+	var result map[string]dbus.Variant
+	err = call.Store(&result)
+	if err != nil {
+		logrus.Debugf("Call to org.freedesktop.Flatpak.SessionHelper.RequestSession failed: %s", err)
+		return "", errors.New("failed to call org.freedesktop.Flatpak.SessionHelper.RequestSession")
+	}
+
+	pathVariant := result["path"]
+	pathVariantSignature := pathVariant.Signature().String()
+	if pathVariantSignature != "s" {
+		return "", errors.New("unknown reply from org.freedesktop.Flatpak.SessionHelper.RequestSession")
+	}
+
+	pathValue := pathVariant.Value()
+	path := pathValue.(string)
+	return path, nil
+}
 
 func ForwardToHost() (int, error) {
 	envOptions := GetEnvOptionsForPreservedVariables()
