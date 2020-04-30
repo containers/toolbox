@@ -20,6 +20,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/user"
+	"path/filepath"
 	"strings"
 
 	"github.com/containers/toolbox/pkg/podman"
@@ -30,6 +32,14 @@ import (
 )
 
 var (
+	cgroupsVersion int
+
+	currentUser *user.User
+
+	executable string
+
+	executableBase string
+
 	rootCmd = &cobra.Command{
 		Use:               "toolbox",
 		Short:             "Unprivileged development environment",
@@ -44,9 +54,16 @@ var (
 		logPodman bool
 		verbose   int
 	}
+
+	workingDirectory string
 )
 
 func Execute() {
+	if err := setUpGlobals(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+		os.Exit(1)
+	}
+
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
@@ -84,6 +101,13 @@ func preRun(cmd *cobra.Command, args []string) error {
 
 	if err := setUpLoggers(); err != nil {
 		return err
+	}
+
+	logrus.Debugf("Running as real user ID %s", currentUser.Uid)
+	logrus.Debugf("Resolved absolute path to the executable as %s", executable)
+
+	if !utils.IsInsideContainer() {
+		logrus.Debugf("Running on a cgroups v%d host", cgroupsVersion)
 	}
 
 	return nil
@@ -137,6 +161,41 @@ func rootUsage(cmd *cobra.Command) error {
 	err := errors.New("Run 'toolbox --help' for usage.")
 	fmt.Fprintf(os.Stderr, "%s", err)
 	return err
+}
+
+func setUpGlobals() error {
+	var err error
+
+	if !utils.IsInsideContainer() {
+		cgroupsVersion, err = utils.GetCgroupsVersion()
+		if err != nil {
+			return errors.New("failed to get the cgroups version")
+		}
+	}
+
+	currentUser, err = user.Current()
+	if err != nil {
+		return errors.New("failed to get the current user")
+	}
+
+	executable, err = os.Executable()
+	if err != nil {
+		return errors.New("failed to get the path to the executable")
+	}
+
+	executable, err = filepath.EvalSymlinks(executable)
+	if err != nil {
+		return errors.New("failed to resolve absolute path to the executable")
+	}
+
+	executableBase = filepath.Base(executable)
+
+	workingDirectory, err = os.Getwd()
+	if err != nil {
+		return errors.New("failed to get the working directory")
+	}
+
+	return nil
 }
 
 func setUpLoggers() error {
