@@ -17,10 +17,56 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"syscall"
 )
+
+var (
+	preservedEnvironmentVariables = []string{
+		"COLORTERM",
+		"DBUS_SESSION_BUS_ADDRESS",
+		"DBUS_SYSTEM_BUS_ADDRESS",
+		"DESKTOP_SESSION",
+		"DISPLAY",
+		"LANG",
+		"SHELL",
+		"SSH_AUTH_SOCK",
+		"TERM",
+		"TOOLBOX_PATH",
+		"VTE_VERSION",
+		"WAYLAND_DISPLAY",
+		"XDG_CURRENT_DESKTOP",
+		"XDG_DATA_DIRS",
+		"XDG_MENU_PREFIX",
+		"XDG_RUNTIME_DIR",
+		"XDG_SEAT",
+		"XDG_SESSION_DESKTOP",
+		"XDG_SESSION_ID",
+		"XDG_SESSION_TYPE",
+		"XDG_VTNR",
+	}
+)
+
+func GetEnvOptionsForPreservedVariables() []string {
+	logrus.Debug("Creating list of environment variables to forward")
+
+	var envOptions []string
+
+	for _, variable := range preservedEnvironmentVariables {
+		value, found := os.LookupEnv(variable)
+		if !found {
+			logrus.Debugf("%s is unset", variable)
+			continue
+		}
+
+		logrus.Debugf("%s=%s", variable, value)
+		envOptions = append(envOptions, fmt.Sprintf("--env=%s=%s", variable, value))
+	}
+
+	return envOptions
+}
 
 // PathExists wraps around os.Stat providing a nice interface for checking an existence of a path.
 func PathExists(path string) bool {
