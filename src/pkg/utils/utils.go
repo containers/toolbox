@@ -39,6 +39,14 @@ func IsInsideContainer() bool {
 	return false
 }
 
+func IsInsideToolboxContainer() bool {
+	if PathExists("/run/.toolboxenv") {
+		return true
+	}
+
+	return false
+}
+
 func ShowManual(manual string) error {
 	manBinary, err := exec.LookPath("man")
 	if err != nil {
