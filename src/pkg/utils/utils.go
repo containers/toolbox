@@ -17,10 +17,14 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"syscall"
+
+	"github.com/containers/toolbox/pkg/shell"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -48,6 +52,36 @@ var (
 		"XDG_VTNR",
 	}
 )
+
+func ForwardToHost() (int, error) {
+	envOptions := GetEnvOptionsForPreservedVariables()
+	toolboxPath := os.Getenv("TOOLBOX_PATH")
+	commandLineArgs := os.Args[1:]
+
+	var flatpakSpawnArgs []string
+
+	flatpakSpawnArgs = append(flatpakSpawnArgs, envOptions...)
+
+	flatpakSpawnArgs = append(flatpakSpawnArgs, []string{
+		"--host",
+		toolboxPath,
+	}...)
+
+	flatpakSpawnArgs = append(flatpakSpawnArgs, commandLineArgs...)
+
+	logrus.Debug("Forwarding to host:")
+	logrus.Debugf("%s", toolboxPath)
+	for _, arg := range commandLineArgs {
+		logrus.Debugf("%s", arg)
+	}
+
+	exitCode, err := shell.RunWithExitCode("flatpak-spawn", os.Stdin, os.Stdout, nil, flatpakSpawnArgs...)
+	if err != nil {
+		return exitCode, err
+	}
+
+	return exitCode, nil
+}
 
 func GetEnvOptionsForPreservedVariables() []string {
 	logrus.Debug("Creating list of environment variables to forward")
