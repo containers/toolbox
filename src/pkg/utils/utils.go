@@ -25,6 +25,7 @@ import (
 
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sys/unix"
 )
 
 var (
@@ -81,6 +82,25 @@ func ForwardToHost() (int, error) {
 	}
 
 	return exitCode, nil
+}
+
+// GetCgroupsVersion returns the cgroups version of the host
+//
+// Based on the IsCgroup2UnifiedMode function in:
+// https://github.com/containers/libpod/tree/master/pkg/cgroups
+func GetCgroupsVersion() (int, error) {
+	var st syscall.Statfs_t
+
+	if err := syscall.Statfs("/sys/fs/cgroup", &st); err != nil {
+		return -1, err
+	}
+
+	version := 1
+	if st.Type == unix.CGROUP2_SUPER_MAGIC {
+		version = 2
+	}
+
+	return version, nil
 }
 
 func GetEnvOptionsForPreservedVariables() []string {
