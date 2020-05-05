@@ -4,6 +4,7 @@ go_build_wrapper_program = find_program('go-build-wrapper')
 sources = files(
   'toolbox.go',
   'cmd/root.go',
+  'pkg/podman/podman.go',
   'pkg/shell/shell.go',
   'pkg/utils/utils.go',
   'pkg/version/version.go',
