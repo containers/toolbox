@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 
 	"github.com/HarryMichal/go-version"
 	"github.com/containers/toolbox/pkg/shell"
@@ -234,6 +235,17 @@ func Pull(imageName string) error {
 
 func SetLogLevel(logLevel logrus.Level) {
 	LogLevel = logLevel
+}
+
+func Start(container string, stderr io.Writer) error {
+	logLevelString := LogLevel.String()
+	args := []string{"--log-level", logLevelString, "start", container}
+
+	if err := shell.Run("podman", nil, nil, stderr, args...); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func SystemMigrate(ociRuntimeRequired string) error {
