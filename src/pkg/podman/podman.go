@@ -17,12 +17,44 @@
 package podman
 
 import (
+	"bytes"
+	"encoding/json"
+
+	"github.com/containers/toolbox/pkg/shell"
 	"github.com/sirupsen/logrus"
 )
 
 var (
 	LogLevel = logrus.ErrorLevel
 )
+
+// GetVersion returns version of Podman in a string
+func GetVersion() (string, error) {
+	var stdout bytes.Buffer
+
+	logLevelString := LogLevel.String()
+	args := []string{"--log-level", logLevelString, "version", "--format", "json"}
+
+	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
+		return "", err
+	}
+
+	output := stdout.Bytes()
+	var jsonoutput map[string]interface{}
+	if err := json.Unmarshal(output, &jsonoutput); err != nil {
+		return "", err
+	}
+
+	var podmanVersion string
+	podmanClientInfoInterface := jsonoutput["Client"]
+	switch podmanClientInfo := podmanClientInfoInterface.(type) {
+	case nil:
+		podmanVersion = jsonoutput["Version"].(string)
+	case map[string]interface{}:
+		podmanVersion = podmanClientInfo["Version"].(string)
+	}
+	return podmanVersion, nil
+}
 
 func SetLogLevel(logLevel logrus.Level) {
 	LogLevel = logLevel
