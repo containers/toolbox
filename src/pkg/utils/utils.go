@@ -28,6 +28,10 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+const (
+	idTruncLength = 12
+)
+
 var (
 	preservedEnvironmentVariables = []string{
 		"COLORTERM",
@@ -120,6 +124,14 @@ func GetEnvOptionsForPreservedVariables() []string {
 	}
 
 	return envOptions
+}
+
+// ShortID shortens provided id to first 12 characters.
+func ShortID(id string) string {
+	if len(id) > idTruncLength {
+		return id[:idTruncLength]
+	}
+	return id
 }
 
 // PathExists wraps around os.Stat providing a nice interface for checking an existence of a path.
