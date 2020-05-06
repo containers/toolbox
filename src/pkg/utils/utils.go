@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"sort"
 	"syscall"
 
 	"github.com/containers/toolbox/pkg/shell"
@@ -207,4 +208,15 @@ func ShowManual(manual string) error {
 	}
 
 	return nil
+}
+
+func SortJSON(json []map[string]interface{}, key string, hasInterface bool) []map[string]interface{} {
+	sort.Slice(json, func(i, j int) bool {
+		if hasInterface {
+			return json[i][key].([]interface{})[0].(string) < json[j][key].([]interface{})[0].(string)
+		}
+		return json[i][key].(string) < json[j][key].(string)
+	})
+
+	return json
 }
