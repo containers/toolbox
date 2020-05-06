@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"encoding/json"
 
+	"github.com/HarryMichal/go-version"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/sirupsen/logrus"
 )
@@ -27,6 +28,20 @@ import (
 var (
 	LogLevel = logrus.ErrorLevel
 )
+
+// CheckVersion compares provided version with the version of Podman.
+//
+// Takes in one string parameter that should be in the format that is used for versioning (eg. 1.0.0, 2.5.1-dev).
+//
+// Returns true if the Podman version is equal to or higher than the required version.
+func CheckVersion(requiredVersion string) bool {
+	podmanVersion, _ := GetVersion()
+
+	podmanVersion = version.Normalize(podmanVersion)
+	requiredVersion = version.Normalize(requiredVersion)
+
+	return version.CompareSimple(podmanVersion, requiredVersion) >= 0
+}
 
 // GetVersion returns version of Podman in a string
 func GetVersion() (string, error) {
