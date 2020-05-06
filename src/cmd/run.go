@@ -20,7 +20,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/utils"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -80,4 +82,36 @@ func runHelp(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}
+}
+
+func getEntryPointAndPID(container string) (string, int, error) {
+	logrus.Debugf("Inspecting entry point of container %s", container)
+
+	info, err := podman.Inspect("container", container)
+	if err != nil {
+		return "", 0, fmt.Errorf("failed to inspect entry point of container %s", container)
+	}
+
+	config := info["Config"].(map[string]interface{})
+	entryPoint := config["Cmd"].([]interface{})[0].(string)
+
+	state := info["State"].(map[string]interface{})
+	entryPointPID := state["Pid"]
+	logrus.Debugf("Entry point PID is a %T", entryPointPID)
+
+	var entryPointPIDInt int
+
+	switch entryPointPID.(type) {
+	case float64:
+		entryPointPIDFloat := entryPointPID.(float64)
+		entryPointPIDInt = int(entryPointPIDFloat)
+	case int:
+		entryPointPIDInt = entryPointPID.(int)
+	default:
+		return "", 0, fmt.Errorf("failed to inspect entry point PID of container %s", container)
+	}
+
+	logrus.Debugf("Entry point of container %s is %s (PID=%d)", container, entryPoint, entryPointPIDInt)
+
+	return entryPoint, entryPointPIDInt, nil
 }
