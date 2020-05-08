@@ -74,3 +74,17 @@ func GetVersion() (string, error) {
 func SetLogLevel(logLevel logrus.Level) {
 	LogLevel = logLevel
 }
+
+func SystemMigrate(ociRuntimeRequired string) error {
+	logLevelString := LogLevel.String()
+	args := []string{"--log-level", logLevelString, "system", "migrate"}
+	if ociRuntimeRequired != "" {
+		args = append(args, []string{"--new-runtime", ociRuntimeRequired}...)
+	}
+
+	if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
+		return err
+	}
+
+	return nil
+}
