@@ -5,6 +5,7 @@ project(
   meson_version: '>= 0.40.0',
 )
 
+go = find_program('go', required: false)
 go_md2man = find_program('go-md2man')
 shellcheck = find_program('shellcheck', required: false)
 
@@ -35,3 +36,4 @@ endif
 subdir('data')
 subdir('doc')
 subdir('profile.d')
+subdir('src')
