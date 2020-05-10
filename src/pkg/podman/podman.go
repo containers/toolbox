@@ -124,6 +124,29 @@ func GetVersion() (string, error) {
 	return podmanVersion, nil
 }
 
+// Inspect is a wrapper around 'podman inspect' command
+//
+// Parameter 'typearg' takes in values 'container' or 'image' that is passed to the --type flag
+func Inspect(typearg string, target string) (map[string]interface{}, error) {
+	var stdout bytes.Buffer
+
+	logLevelString := LogLevel.String()
+	args := []string{"--log-level", logLevelString, "inspect", "--format", "json", "--type", typearg, target}
+
+	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
+		return nil, err
+	}
+
+	output := stdout.Bytes()
+	var info []map[string]interface{}
+
+	if err := json.Unmarshal(output, &info); err != nil {
+		return nil, err
+	}
+
+	return info[0], nil
+}
+
 func SetLogLevel(logLevel logrus.Level) {
 	LogLevel = logLevel
 }
