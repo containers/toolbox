@@ -22,6 +22,7 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"regexp"
 	"sort"
 	"syscall"
 
@@ -33,6 +34,12 @@ import (
 
 const (
 	idTruncLength = 12
+)
+
+const (
+	// Based on the nameRegex value in:
+	// https://github.com/containers/libpod/blob/master/libpod/options.go
+	ContainerNameRegexp = "[a-zA-Z0-9][a-zA-Z0-9_.-]*"
 )
 
 var (
@@ -191,6 +198,13 @@ func PathExists(path string) bool {
 	}
 
 	return false
+}
+
+// IsContainerNameValid checks if the name of a container matches the right pattern
+func IsContainerNameValid(containerName string) (bool, error) {
+	pattern := "^" + ContainerNameRegexp + "$"
+	matched, err := regexp.MatchString(pattern, containerName)
+	return matched, err
 }
 
 func IsInsideContainer() bool {
