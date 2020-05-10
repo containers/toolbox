@@ -19,6 +19,7 @@ package podman
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 
 	"github.com/HarryMichal/go-version"
 	"github.com/containers/toolbox/pkg/shell"
@@ -145,6 +146,40 @@ func Inspect(typearg string, target string) (map[string]interface{}, error) {
 	}
 
 	return info[0], nil
+}
+
+func IsToolboxContainer(container string) (bool, error) {
+	info, err := Inspect("container", container)
+	if err != nil {
+		return false, fmt.Errorf("failed to inspect container %s", container)
+	}
+
+	labels, _ := info["Config"].(map[string]interface{})["Labels"].(map[string]interface{})
+	if labels["com.redhat.component"] != "fedora-toolbox" &&
+		labels["com.github.debarshiray.toolbox"] != "true" {
+		return false, fmt.Errorf("%s is not a toolbox container", container)
+	}
+
+	return true, nil
+}
+
+func IsToolboxImage(image string) (bool, error) {
+	info, err := Inspect("image", image)
+	if err != nil {
+		return false, fmt.Errorf("failed to inspect image %s", image)
+	}
+
+	if info["Labels"] == nil {
+		return false, fmt.Errorf("%s is not a toolbox image", image)
+	}
+
+	labels := info["Labels"].(map[string]interface{})
+	if labels["com.redhat.component"] != "fedora-toolbox" &&
+		labels["com.github.debarshiray.toolbox"] != "true" {
+		return false, fmt.Errorf("%s is not a toolbox image", image)
+	}
+
+	return true, nil
 }
 
 func SetLogLevel(logLevel logrus.Level) {
