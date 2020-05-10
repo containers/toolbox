@@ -43,6 +43,59 @@ func CheckVersion(requiredVersion string) bool {
 	return version.CompareSimple(podmanVersion, requiredVersion) >= 0
 }
 
+// GetContainers is a wrapper function around `podman ps --format json` command.
+//
+// Parameter args accepts an array of strings to be passed to the wrapped command (eg. ["-a", "--filter", "123"]).
+//
+// Returned value is a slice of dynamically unmarshalled json, so it needs to be treated properly.
+//
+// If a problem happens during execution, first argument is nil and second argument holds the error message.
+func GetContainers(args ...string) ([]map[string]interface{}, error) {
+	var stdout bytes.Buffer
+
+	logLevelString := LogLevel.String()
+	args = append([]string{"--log-level", logLevelString, "ps", "--format", "json"}, args...)
+
+	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
+		return nil, err
+	}
+
+	output := stdout.Bytes()
+	var containers []map[string]interface{}
+
+	if err := json.Unmarshal(output, &containers); err != nil {
+		return nil, err
+	}
+
+	return containers, nil
+}
+
+// GetImages is a wrapper function around `podman images --format json` command.
+//
+// Parameter args accepts an array of strings to be passed to the wrapped command (eg. ["-a", "--filter", "123"]).
+//
+// Returned value is a slice of dynamically unmarshalled json, so it needs to be treated properly.
+//
+// If a problem happens during execution, first argument is nil and second argument holds the error message.
+func GetImages(args ...string) ([]map[string]interface{}, error) {
+	var stdout bytes.Buffer
+
+	logLevelString := LogLevel.String()
+	args = append([]string{"--log-level", logLevelString, "images", "--format", "json"}, args...)
+	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
+		return nil, err
+	}
+
+	output := stdout.Bytes()
+	var images []map[string]interface{}
+
+	if err := json.Unmarshal(output, &images); err != nil {
+		return nil, err
+	}
+
+	return images, nil
+}
+
 // GetVersion returns version of Podman in a string
 func GetVersion() (string, error) {
 	var stdout bytes.Buffer
