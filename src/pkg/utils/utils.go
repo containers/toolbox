@@ -24,6 +24,7 @@ import (
 	"os/user"
 	"regexp"
 	"sort"
+	"strings"
 	"syscall"
 
 	"github.com/containers/toolbox/pkg/shell"
@@ -181,6 +182,43 @@ func GetGroupForSudo() (string, error) {
 	}
 
 	return "", errors.New("group for sudo not found")
+}
+
+// GetMountPoint returns the mount point of a target.
+func GetMountPoint(target string) (string, error) {
+	var stdout strings.Builder
+
+	if err := shell.Run("df", nil, &stdout, nil, "--output=target", target); err != nil {
+		return "", err
+	}
+
+	output := stdout.String()
+	options := strings.Split(output, "\n")
+	if len(options) != 3 {
+		return "", errors.New("unexpected output from df(1)")
+	}
+
+	mountPoint := strings.TrimSpace(options[1])
+	return mountPoint, nil
+}
+
+// GetMountOptions returns the mount options of a target.
+func GetMountOptions(target string) (string, error) {
+	var stdout strings.Builder
+	findMntArgs := []string{"--noheadings", "--output", "OPTIONS", target}
+
+	if err := shell.Run("findmnt", nil, &stdout, nil, findMntArgs...); err != nil {
+		return "", err
+	}
+
+	output := stdout.String()
+	options := strings.Split(output, "\n")
+	if len(options) != 2 {
+		return "", errors.New("unexpected output from findmnt(1)")
+	}
+
+	mountOptions := strings.TrimSpace(options[0])
+	return mountOptions, nil
 }
 
 // ShortID shortens provided id to first 12 characters.
