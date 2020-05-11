@@ -100,6 +100,15 @@ func CallFlatpakSessionHelper() (string, error) {
 	return path, nil
 }
 
+func CreateErrorInvalidRelease(executableBase string) error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "invalid argument for '--release'\n")
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
 func ForwardToHost() (int, error) {
 	envOptions := GetEnvOptionsForPreservedVariables()
 	toolboxPath := os.Getenv("TOOLBOX_PATH")
