@@ -220,6 +220,18 @@ func IsToolboxImage(image string) (bool, error) {
 	return true, nil
 }
 
+// Pull pulls an image
+func Pull(imageName string) error {
+	logLevelString := LogLevel.String()
+	args := []string{"--log-level", logLevelString, "pull", imageName}
+
+	if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func SetLogLevel(logLevel logrus.Level) {
 	LogLevel = logLevel
 }
