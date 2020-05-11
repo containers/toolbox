@@ -42,6 +42,8 @@ const (
 )
 
 const (
+	ContainerNamePrefixDefault = "fedora-toolbox"
+
 	// Based on the nameRegex value in:
 	// https://github.com/containers/libpod/blob/master/libpod/options.go
 	ContainerNameRegexp = "[a-zA-Z0-9][a-zA-Z0-9_.-]*"
@@ -75,6 +77,10 @@ var (
 	releaseDefault string
 )
 
+var (
+	ContainerNameDefault string
+)
+
 func init() {
 	releaseDefault = releaseDefaultFallback
 
@@ -87,6 +93,8 @@ func init() {
 			}
 		}
 	}
+
+	ContainerNameDefault = ContainerNamePrefixDefault + "-" + releaseDefault
 }
 
 func CallFlatpakSessionHelper() (string, error) {
