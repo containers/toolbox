@@ -22,6 +22,7 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -275,6 +276,68 @@ func GetMountOptions(target string) (string, error) {
 func ImageReferenceCanBeID(image string) (bool, error) {
 	matched, err := regexp.MatchString("^[a-f0-9]\\{6,64\\}$", image)
 	return matched, err
+}
+
+func ImageReferenceGetBasename(image string) string {
+	var i int
+
+	if ImageReferenceHasDomain(image) {
+		i = strings.IndexRune(image, '/')
+	}
+
+	remainder := image[i:]
+	j := strings.IndexRune(remainder, ':')
+	if j == -1 {
+		j = len(remainder)
+	}
+
+	path := remainder[:j]
+	basename := filepath.Base(path)
+	return basename
+}
+
+func ImageReferenceGetDomain(image string) string {
+	if !ImageReferenceHasDomain(image) {
+		return ""
+	}
+
+	i := strings.IndexRune(image, '/')
+	domain := image[:i]
+	return domain
+}
+
+func ImageReferenceGetTag(image string) string {
+	var i int
+
+	if ImageReferenceHasDomain(image) {
+		i = strings.IndexRune(image, '/')
+	}
+
+	remainder := image[i:]
+	j := strings.IndexRune(remainder, ':')
+	if j == -1 {
+		return ""
+	}
+
+	tag := remainder[j+1:]
+	return tag
+}
+
+// ImageReferenceHasDomain checks if the provided image has a domain definition in it.
+func ImageReferenceHasDomain(image string) bool {
+	i := strings.IndexRune(image, '/')
+	if i == -1 {
+		return false
+	}
+
+	prefix := image[:i]
+
+	// A domain should contain a top level domain name. An exception is 'localhost'
+	if !strings.ContainsAny(prefix, ".:") && prefix != "localhost" {
+		return false
+	}
+
+	return true
 }
 
 // ShortID shortens provided id to first 12 characters.
