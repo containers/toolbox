@@ -271,6 +271,12 @@ func GetMountOptions(target string) (string, error) {
 	return mountOptions, nil
 }
 
+// ImageReferenceCanBeID checks if 'image' might be the ID of an image
+func ImageReferenceCanBeID(image string) (bool, error) {
+	matched, err := regexp.MatchString("^[a-f0-9]\\{6,64\\}$", image)
+	return matched, err
+}
+
 // ShortID shortens provided id to first 12 characters.
 func ShortID(id string) string {
 	if len(id) > idTruncLength {
