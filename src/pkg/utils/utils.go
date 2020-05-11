@@ -97,6 +97,32 @@ func init() {
 	ContainerNameDefault = ContainerNamePrefixDefault + "-" + releaseDefault
 }
 
+func AskForConfirmation(prompt string) bool {
+	var retVal bool
+
+	for {
+		fmt.Printf("%s ", prompt)
+
+		var response string
+
+		fmt.Scanf("%s", &response)
+		if response == "" {
+			response = "n"
+		} else {
+			response = strings.ToLower(response)
+		}
+
+		if response == "no" || response == "n" {
+			break
+		} else if response == "yes" || response == "y" {
+			retVal = true
+			break
+		}
+	}
+
+	return retVal
+}
+
 func CallFlatpakSessionHelper() (string, error) {
 	logrus.Debug("Calling org.freedesktop.Flatpak.SessionHelper.RequestSession")
 
