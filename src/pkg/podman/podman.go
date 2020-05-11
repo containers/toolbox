@@ -44,6 +44,25 @@ func CheckVersion(requiredVersion string) bool {
 	return version.CompareSimple(podmanVersion, requiredVersion) >= 0
 }
 
+// ContainerExists checks using Podman if a container with given ID/name exists.
+//
+// Parameter container is a name or an id of a container.
+func ContainerExists(container string) (bool, error) {
+	logLevelString := LogLevel.String()
+	args := []string{"--log-level", logLevelString, "container", "exists", container}
+
+	exitCode, err := shell.RunWithExitCode("podman", nil, nil, nil, args...)
+	if exitCode != 0 && err == nil {
+		err = fmt.Errorf("failed to find container %s", container)
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 // GetContainers is a wrapper function around `podman ps --format json` command.
 //
 // Parameter args accepts an array of strings to be passed to the wrapped command (eg. ["-a", "--filter", "123"]).
@@ -123,6 +142,25 @@ func GetVersion() (string, error) {
 		podmanVersion = podmanClientInfo["Version"].(string)
 	}
 	return podmanVersion, nil
+}
+
+// ImageExists checks using Podman if an image with given ID/name exists.
+//
+// Parameter image is a name or an id of an image.
+func ImageExists(image string) (bool, error) {
+	logLevelString := LogLevel.String()
+	args := []string{"--log-level", logLevelString, "image", "exists", image}
+
+	exitCode, err := shell.RunWithExitCode("podman", nil, nil, nil, args...)
+	if exitCode != 0 && err == nil {
+		err = fmt.Errorf("failed to find image %s", image)
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 // Inspect is a wrapper around 'podman inspect' command
