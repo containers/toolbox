@@ -37,7 +37,8 @@ import (
 )
 
 const (
-	idTruncLength = 12
+	idTruncLength          = 12
+	releaseDefaultFallback = "30"
 )
 
 const (
@@ -70,7 +71,23 @@ var (
 		"XDG_SESSION_TYPE",
 		"XDG_VTNR",
 	}
+
+	releaseDefault string
 )
+
+func init() {
+	releaseDefault = releaseDefaultFallback
+
+	hostID, err := GetHostID()
+	if err == nil {
+		if hostID == "fedora" {
+			release, err := GetHostVersionID()
+			if err == nil {
+				releaseDefault = release
+			}
+		}
+	}
+}
 
 func CallFlatpakSessionHelper() (string, error) {
 	logrus.Debug("Calling org.freedesktop.Flatpak.SessionHelper.RequestSession")
