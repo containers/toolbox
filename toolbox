@@ -1359,7 +1359,7 @@ init_container()
 
         cat <<EOF >/etc/krb5.conf.d/kcm_default_ccache 2>&3
 # Written by Toolbox
-# https://github.com/debarshiray/toolbox
+# https://github.com/containers/toolbox
 #
 # # To disable the KCM credential cache, comment out the following lines.
 
