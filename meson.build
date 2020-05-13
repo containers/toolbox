@@ -5,7 +5,7 @@ project(
   meson_version: '>= 0.40.0',
 )
 
-go = find_program('go', required: false)
+go = find_program('go')
 go_md2man = find_program('go-md2man')
 shellcheck = find_program('shellcheck', required: false)
 
@@ -19,11 +19,6 @@ toolbox = files('toolbox')
 if shellcheck.found()
   test('shellcheck', shellcheck, args: [toolbox])
 endif
-
-install_data(
-  toolbox,
-  install_dir: get_option('bindir'),
-)
 
 bash_completion = dependency('bash-completion', required: false)
 if bash_completion.found()

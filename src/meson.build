@@ -19,15 +19,15 @@ sources = files(
   'pkg/version/version.go',
 )
 
-if go.found()
-  custom_target(
-    'toolbox-go',
-    build_by_default: true,
-    command: [go_build_wrapper_program, meson.current_source_dir(), meson.current_build_dir()],
-    input: sources,
-    output: 'toolbox',
-  )
-endif
+custom_target(
+  'toolbox',
+  build_by_default: true,
+  command: [go_build_wrapper_program, meson.current_source_dir(), meson.current_build_dir()],
+  input: sources,
+  install: true,
+  install_dir: get_option('bindir'),
+  output: 'toolbox',
+)
 
 if shellcheck.found()
   test('shellcheck go-build-wrapper', shellcheck, args: [go_build_wrapper_file])
