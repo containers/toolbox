@@ -9,6 +9,6 @@ require (
 	github.com/coreos/go-systemd/v22 v22.0.0
 	github.com/godbus/dbus/v5 v5.0.3
 	github.com/sirupsen/logrus v1.4.2
-	github.com/spf13/cobra v0.0.6
+	github.com/spf13/cobra v0.0.5
 	golang.org/x/sys v0.0.0-20190422165155-953cdadca894
 )
