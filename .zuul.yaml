@@ -5,8 +5,8 @@
     timeout: 300
     nodeset:
       nodes:
-        - name: ci-node-30
-          label: cloud-fedora-30-small
+        - name: ci-node-32
+          label: cloud-fedora-32-small
     run: playbooks/shellcheck.yaml
 
 - job:

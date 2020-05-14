@@ -6,7 +6,7 @@
       package:
         name:
           - golang
-          - golang-github-cpuguy83-go-md2man
+          - golang-github-cpuguy83-md2man
           - ninja-build
           - meson
           - ShellCheck
