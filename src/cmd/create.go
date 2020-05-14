@@ -28,9 +28,15 @@ import (
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
-	systemd "github.com/coreos/go-systemd/v22/dbus"
+	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+)
+
+const (
+	alpha    = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`
+	num      = `0123456789`
+	alphanum = alpha + num
 )
 
 var (
@@ -496,24 +502,34 @@ func getFullyQualifiedImageName(image string) (string, error) {
 func getKCMSocket() (string, error) {
 	logrus.Debug("Resolving path to the KCM socket")
 
-	connection, err := systemd.NewSystemConnection()
+	connection, err := dbus.SystemBus()
 	if err != nil {
 		return "", errors.New("failed to connect to the D-Bus system instance")
 	}
 
-	defer connection.Close()
+	kcmUnitNameEscaped := systemdPathBusEscape("sssd-kcm.socket")
+	kcmUnitPath := dbus.ObjectPath("/org/freedesktop/systemd1/unit/" + kcmUnitNameEscaped)
+	kcmUnit := connection.Object("org.freedesktop.systemd1", kcmUnitPath)
+	call := kcmUnit.Call("org.freedesktop.DBus.Properties.GetAll", 0, "")
 
-	properties, err := connection.GetAllProperties("sssd-kcm.socket")
+	var result map[string]dbus.Variant
+	err = call.Store(&result)
 	if err != nil {
 		return "", errors.New("failed to get the properties of sssd-kcm.socket")
 	}
 
-	value := properties["Listen"]
-	if value == nil {
+	listenVariant, listenFound := result["Listen"]
+	if !listenFound {
 		return "", errors.New("failed to find the Listen property of sssd-kcm.socket")
 	}
 
-	sockets := value.([][]interface{})
+	listenVariantSignature := listenVariant.Signature().String()
+	if listenVariantSignature != "aav" {
+		return "", errors.New("unknown reply from org.freedesktop.DBus.Properties.GetAll")
+	}
+
+	listenValue := listenVariant.Value()
+	sockets := listenValue.([][]interface{})
 	for _, socket := range sockets {
 		if socket[0] == "Stream" {
 			path := socket[1].(string)
@@ -631,4 +647,32 @@ func pullImage(image, release string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// systemdNeedsEscape checks whether a byte in a potential dbus ObjectPath needs to be escaped
+func systemdNeedsEscape(i int, b byte) bool {
+	// Escape everything that is not a-z-A-Z-0-9
+	// Also escape 0-9 if it's the first character
+	return strings.IndexByte(alphanum, b) == -1 ||
+		(i == 0 && strings.IndexByte(num, b) != -1)
+}
+
+// systemdPathBusEscape sanitizes a constituent string of a dbus ObjectPath using the
+// rules that systemd uses for serializing special characters.
+func systemdPathBusEscape(path string) string {
+	// Special case the empty string
+	if len(path) == 0 {
+		return "_"
+	}
+	n := []byte{}
+	for i := 0; i < len(path); i++ {
+		c := path[i]
+		if systemdNeedsEscape(i, c) {
+			e := fmt.Sprintf("_%x", c)
+			n = append(n, []byte(e)...)
+		} else {
+			n = append(n, c)
+		}
+	}
+	return string(n)
 }
