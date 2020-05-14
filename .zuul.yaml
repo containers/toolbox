@@ -21,6 +21,17 @@
     run: playbooks/fedora-31/test-with-podman-stable.yaml
 
 - job:
+    name: test-with-podman-stable-f32
+    description: Test toolbox with stable Podman in Fedora 32
+    timeout: 1200
+    nodeset:
+      nodes:
+        - name: ci-node-32
+          label: cloud-fedora-32-small
+    pre-run: playbooks/fedora-32/setup-rpm-env.yaml
+    run: playbooks/fedora-32/test-with-podman-stable.yaml
+
+- job:
     name: test-with-podman-rawhide
     description: Test toolbox with latest Podman in Fedora Rawhide
     timeout: 1200
@@ -35,13 +46,16 @@
     periodic:
       jobs:
         - test-with-podman-stable-f31
+        - test-with-podman-stable-f32
         - test-with-podman-rawhide
     check:
       jobs:
         - shellcheck
         - test-with-podman-stable-f31
+        - test-with-podman-stable-f32
         - test-with-podman-rawhide
     gate:
       jobs:
         - test-with-podman-stable-f31
+        - test-with-podman-stable-f32
         - test-with-podman-rawhide
