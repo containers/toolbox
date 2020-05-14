@@ -16,6 +16,6 @@
       command: bats ./test/system
       environment:
         PODMAN: '/usr/bin/podman'
-        TOOLBOX: './toolbox'
+        TOOLBOX: '/usr/local/bin/toolbox'
       args:
         chdir: '{{ zuul.project.src_dir }}'
