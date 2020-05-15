@@ -121,13 +121,6 @@ func enter(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	userShell := os.Getenv("SHELL")
-	if userShell == "" {
-		return errors.New("failed to get the current user's default shell")
-	}
-
-	command := []string{userShell, "-l"}
-
 	hostID, err := utils.GetHostID()
 	if err != nil {
 		return fmt.Errorf("failed to get the host ID: %w", err)
@@ -144,18 +137,13 @@ func enter(cmd *cobra.Command, args []string) error {
 		emitEscapeSequence = true
 	}
 
-	if err := runCommand(container,
+	return runCommand(container,
 		!nonDefaultContainer,
 		image,
 		release,
-		command,
+		nil,
 		emitEscapeSequence,
-		true,
-		false); err != nil {
-		return err
-	}
-
-	return nil
+		false)
 }
 
 func enterHelp(cmd *cobra.Command, args []string) {

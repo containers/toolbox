@@ -46,6 +46,7 @@ var (
 		distro    string
 		image     string
 		release   string
+		shell     string
 	}
 
 	createToolboxShMounts = []struct {
@@ -89,6 +90,12 @@ func init() {
 		"r",
 		"",
 		"Create a toolbox container for a different operating system release than the host")
+
+	flags.StringVarP(&createFlags.shell,
+		"shell",
+		"s",
+		"",
+		"Specify the shell to use in the toolbox.")
 
 	createCmd.SetHelpFunc(createHelp)
 	rootCmd.AddCommand(createCmd)
@@ -156,14 +163,23 @@ func create(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := createContainer(container, image, release, true); err != nil {
+	var userShell string
+	if createFlags.shell != "" {
+		userShell = createFlags.shell
+		if !filepath.IsAbs(userShell) {
+			return fmt.Errorf("Invalid shell '%s': must be an absolute path", userShell)
+		}
+		userShell = filepath.Clean(userShell)
+	}
+
+	if err := createContainer(container, image, release, userShell, true); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createContainer(container, image, release string, showCommandToEnter bool) error {
+func createContainer(container, image, release string, userShell string, showCommandToEnter bool) error {
 	if container == "" {
 		panic("container not specified")
 	}
@@ -371,9 +387,11 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 
 	logLevelString := podman.LogLevel.String()
 
-	userShell := os.Getenv("SHELL")
 	if userShell == "" {
-		return errors.New("failed to get the current user's default shell")
+		userShell = os.Getenv("SHELL")
+		if userShell == "" {
+			return errors.New("failed to get the current user's default shell")
+		}
 	}
 
 	entryPoint := []string{

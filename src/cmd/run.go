@@ -127,25 +127,20 @@ func run(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := runCommand(container,
+	return runCommand(container,
 		!nonDefaultContainer,
 		image,
 		release,
 		command,
 		false,
-		false,
-		true); err != nil {
-		return err
-	}
-
-	return nil
+		true)
 }
 
 func runCommand(container string,
 	defaultContainer bool,
 	image, release string,
 	command []string,
-	emitEscapeSequence, fallbackToBash, pedantic bool) error {
+	emitEscapeSequence, pedantic bool) error {
 	if !pedantic {
 		if image == "" {
 			panic("image not specified")
@@ -195,7 +190,7 @@ func runCommand(container string,
 				return nil
 			}
 
-			if err := createContainer(container, image, release, false); err != nil {
+			if err := createContainer(container, image, release, "", false); err != nil {
 				return err
 			}
 		} else if containersCount == 1 && defaultContainer {
@@ -265,18 +260,15 @@ func runCommand(container string,
 
 	logrus.Debugf("Container %s is initialized", container)
 
-	if _, err := isCommandPresent(container, command[0]); err != nil {
-		if fallbackToBash {
-			fmt.Fprintf(os.Stderr,
-				"Error: command %s not found in container %s\n",
-				command[0],
-				container)
-			fmt.Fprintf(os.Stderr, "Using /bin/bash instead.\n")
+	commandLauncher := "export SHELL=\"$(getent passwd \"$(whoami)\" | cut -d : -f 7)\"; "
 
-			command = []string{"/bin/bash", "-l"}
-		} else {
+	if command != nil {
+		if _, err := isCommandPresent(container, command[0]); err != nil {
 			return fmt.Errorf("command %s not found in container %s", command[0], container)
 		}
+		commandLauncher += "exec \"$@\""
+	} else {
+		commandLauncher += "exec -l \"$SHELL\""
 	}
 
 	if pathPresent, _ := isPathPresent(container, workingDirectory); !pathPresent {
@@ -318,10 +310,14 @@ func runCommand(container string,
 
 	execArgs = append(execArgs, []string{
 		container,
-		"capsh", "--caps=", "--", "-c", "exec \"$@\"", "/bin/sh",
+		"capsh", "--caps=", "--", "-c", commandLauncher, "toolbox",
 	}...)
 
-	execArgs = append(execArgs, command...)
+	if command != nil {
+		execArgs = append(execArgs, command...)
+	} else {
+		command = []string{"\"$SHELL\""}
+	}
 
 	if emitEscapeSequence {
 		fmt.Printf("\033]777;container;push;%s;toolbox;%s\033\\", container, currentUser.Uid)
@@ -358,11 +354,7 @@ func runCommand(container string,
 		err = nil
 	}
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func runHelp(cmd *cobra.Command, args []string) {

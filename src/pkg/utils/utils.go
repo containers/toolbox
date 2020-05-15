@@ -71,7 +71,6 @@ var (
 		"DESKTOP_SESSION",
 		"DISPLAY",
 		"LANG",
-		"SHELL",
 		"SSH_AUTH_SOCK",
 		"TERM",
 		"TOOLBOX_PATH",
