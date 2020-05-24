@@ -267,6 +267,15 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		if err := shell.Run("passwd", nil, nil, nil, "--delete", "root"); err != nil {
 			return errors.New("failed to remove password for root")
 		}
+
+		logrus.Debug("Configuring sudo for password-less authentication")
+		passwordlessSudoConfigString := fmt.Sprintf("%%%s ALL = (root) NOPASSWD:ALL\n", sudoGroup)
+		passwordlessSudoConfigBytes := []byte(passwordlessSudoConfigString)
+		if err := ioutil.WriteFile("/etc/sudoers.d/passwordless",
+			passwordlessSudoConfigBytes,
+			440); err != nil {
+			return errors.New("failed to create password-less sudo config")
+		}
 	}
 
 	if utils.PathExists("/etc/krb5.conf.d") && !utils.PathExists("/etc/krb5.conf.d/kcm_default_ccache") {
