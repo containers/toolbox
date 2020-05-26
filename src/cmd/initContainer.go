@@ -148,30 +148,6 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		if utils.PathExists("/run/host/etc") {
 			logrus.Debug("Path /run/host/etc exists")
 
-			if _, err := os.Readlink("/etc/host.conf"); err != nil {
-				if err := redirectPath("/etc/host.conf",
-					"/run/host/etc/host.conf",
-					false); err != nil {
-					return err
-				}
-			}
-
-			if _, err := os.Readlink("/etc/hosts"); err != nil {
-				if err := redirectPath("/etc/hosts",
-					"/run/host/etc/hosts",
-					false); err != nil {
-					return err
-				}
-			}
-
-			if _, err := os.Readlink("/etc/resolv.conf"); err != nil {
-				if err := redirectPath("/etc/resolv.conf",
-					"/run/host/etc/resolv.conf",
-					false); err != nil {
-					return err
-				}
-			}
-
 			for _, mount := range initContainerMounts {
 				if err := mountBind(mount.containerPath, mount.source, mount.flags); err != nil {
 					return err
@@ -187,6 +163,30 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 		if utils.PathExists("/run/host/monitor") {
 			logrus.Debug("Path /run/host/monitor exists")
+
+			if _, err := os.Readlink("/etc/host.conf"); err != nil {
+				if err := redirectPath("/etc/host.conf",
+					"/run/host/monitor/host.conf",
+					false); err != nil {
+					return err
+				}
+			}
+
+			if _, err := os.Readlink("/etc/hosts"); err != nil {
+				if err := redirectPath("/etc/hosts",
+					"/run/host/monitor/hosts",
+					false); err != nil {
+					return err
+				}
+			}
+
+			if _, err := os.Readlink("/etc/resolv.conf"); err != nil {
+				if err := redirectPath("/etc/resolv.conf",
+					"/run/host/monitor/resolv.conf",
+					false); err != nil {
+					return err
+				}
+			}
 
 			if localtimeTarget, err := os.Readlink("/etc/localtime"); err != nil ||
 				localtimeTarget != "/run/host/monitor/localtime" {
