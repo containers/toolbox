@@ -23,6 +23,7 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"path/filepath"
 	"strings"
 	"syscall"
 
@@ -407,8 +408,47 @@ func mountBind(containerPath, source, flags string) error {
 	return nil
 }
 
+// redirectPath serves for creating symbolic links for crucial system
+// configuration files to their counterparts on the host's filesystem.
+//
+// containerPath and target must be absolute paths
+//
+// If the target itself is a symbolic link, redirectPath will evaluate the
+// link. If it's valid then redirectPath will link containerPath to target.
+// If it's not, then redirectPath will still proceed with the linking in two
+// different ways depending whether target is an absolute or a relative link:
+//
+//   * absolute - target's destination will be prepended with /run/host, and
+//                containerPath will be linked to the resulting path. This is
+//                an attempt to unbreak things, but if it doesn't work then
+//                it's the user's responsibility to fix it up.
+//
+//                This is meant to address the common case where
+//                /etc/resolv.conf on the host (ie., /run/host/etc/resolv.conf
+//                inside the container) is an absolute symbolic link to
+//                something like /run/systemd/resolve/stub-resolv.conf. The
+//                container's /etc/resolv.conf will then get linked to
+//                /run/host/run/systemd/resolved/resolv-stub.conf.
+//
+//                This is why properly configured hosts should use relative
+//                symbolic links, because they don't need to be adjusted in
+//                such scenarios.
+//
+//   * relative - containerPath will be linked to the invalid target, and it's
+//                the user's responsibility to fix it up.
+//
+// folder signifies if the target is a folder
 func redirectPath(containerPath, target string, folder bool) error {
-	logrus.Debugf("Redirecting %s to %s", containerPath, target)
+	if !filepath.IsAbs(containerPath) {
+		panic("containerPath must be an absolute path")
+	}
+
+	if !filepath.IsAbs(target) {
+		panic("target must be an absolute path")
+	}
+
+	logrus.Debugf("Preparing to redirect %s to %s", containerPath, target)
+	targetSanitized := sanitizeRedirectionTarget(target)
 
 	err := os.Remove(containerPath)
 	if folder {
@@ -421,9 +461,59 @@ func redirectPath(containerPath, target string, folder bool) error {
 		}
 	}
 
-	if err := os.Symlink(target, containerPath); err != nil {
+	logrus.Debugf("Redirecting %s to %s", containerPath, targetSanitized)
+
+	if err := os.Symlink(targetSanitized, containerPath); err != nil {
 		return fmt.Errorf("failed to redirect %s to %s: %w", containerPath, target, err)
 	}
 
 	return nil
+}
+
+func sanitizeRedirectionTarget(target string) string {
+	if !filepath.IsAbs(target) {
+		panic("target must be an absolute path")
+	}
+
+	fileInfo, err := os.Lstat(target)
+	if err != nil {
+		if os.IsNotExist(err) {
+			logrus.Warnf("%s not found", target)
+		} else {
+			logrus.Warnf("Failed to lstat %s: %v", target, err)
+		}
+
+		return target
+	}
+
+	fileMode := fileInfo.Mode()
+	if fileMode&os.ModeSymlink == 0 {
+		logrus.Debugf("%s isn't a symbolic link", target)
+		return target
+	}
+
+	logrus.Debugf("%s is a symbolic link", target)
+
+	_, err = filepath.EvalSymlinks(target)
+	if err == nil {
+		return target
+	}
+
+	logrus.Warnf("Failed to resolve %s: %v", target, err)
+
+	targetDestination, err := os.Readlink(target)
+	if err != nil {
+		logrus.Warnf("Failed to get the destination of %s: %v", target, err)
+		return target
+	}
+
+	logrus.Debugf("%s points to %s", target, targetDestination)
+
+	if filepath.IsAbs(targetDestination) {
+		logrus.Debugf("Prepending /run/host to %s", targetDestination)
+		targetGuess := filepath.Join("/run/host", targetDestination)
+		return targetGuess
+	}
+
+	return target
 }
