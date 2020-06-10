@@ -8,6 +8,7 @@ fpaste
 git
 gnupg
 gnupg2-smime
+gvfs-client
 hostname
 iputils
 jwhois
