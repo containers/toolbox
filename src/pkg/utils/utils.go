@@ -636,9 +636,9 @@ func parseReleaseRHEL(str string) (string, error) {
 	return str, nil
 }
 
-// PathExists wraps around os.Stat providing a nice interface for checking an existence of a path.
+// PathExists wraps around os.Lstat providing a nice interface for checking an existence of a path.
 func PathExists(path string) bool {
-	if _, err := os.Stat(path); !os.IsNotExist(err) {
+	if _, err := os.Lstat(path); !os.IsNotExist(err) {
 		return true
 	}
 

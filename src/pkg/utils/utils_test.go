@@ -17,6 +17,8 @@
 package utils
 
 import (
+	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -69,6 +71,95 @@ func TestImageReferenceCanBeID(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ok := ImageReferenceCanBeID(tc.ref)
 			assert.Equal(t, tc.ok, ok)
+		})
+	}
+}
+
+func TestPathExists(t *testing.T) {
+	testCases := []struct {
+		name                string
+		targetExists        bool
+		targetIsSymlink     bool
+		targetIsDir         bool
+		symlinkTargetExists bool
+		ok                  bool
+	}{
+		{
+			name:         "Target does not exist",
+			targetExists: false,
+			ok:           false,
+		},
+		{
+			name:         "Target exists and is not a symlink",
+			targetExists: true,
+			ok:           true,
+		},
+		{
+			name:                "Target exists and is a symlink; symlink target does exist",
+			targetExists:        true,
+			targetIsSymlink:     true,
+			symlinkTargetExists: true,
+			ok:                  true,
+		},
+		{
+			name:                "Target exists and is a symlink; symlink target does not exist",
+			targetExists:        true,
+			targetIsSymlink:     true,
+			symlinkTargetExists: false,
+			ok:                  true,
+		},
+		{
+			name:         "Target exists and is a directory",
+			targetExists: true,
+			targetIsDir:  true,
+			ok:           true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var targetName string
+
+			targetName = "nonexistent-name"
+
+			if tc.targetIsDir && tc.targetIsSymlink {
+				t.Fatal("Target can't be a symlink and a directory at the same time")
+			}
+
+			if tc.targetExists {
+				if !tc.targetIsSymlink && !tc.targetIsDir {
+					f, err := ioutil.TempFile("", "")
+					assert.NoError(t, err)
+					targetName = f.Name()
+					defer f.Close()
+					defer os.Remove(targetName)
+				}
+
+				if tc.targetIsSymlink || tc.targetIsDir {
+					dir, err := ioutil.TempDir("", "")
+					assert.NoError(t, err)
+					targetName = dir
+					defer os.Remove(targetName)
+
+					if tc.targetIsSymlink {
+						target, err := ioutil.TempFile(dir, "")
+						assert.NoError(t, err)
+						defer target.Close()
+						defer os.Remove(target.Name())
+
+						targetName += "/symlink"
+						err = os.Symlink(target.Name(), targetName)
+						assert.NoError(t, err)
+
+						if !tc.symlinkTargetExists {
+							target.Close()
+							os.Remove(target.Name())
+						}
+					}
+				}
+			}
+
+			assert.Equal(t, tc.ok, PathExists(targetName))
 		})
 	}
 }
