@@ -46,7 +46,8 @@ func CheckVersion(requiredVersion string) bool {
 	currentVersion = version.Normalize(currentVersion)
 	requiredVersion = version.Normalize(requiredVersion)
 
-	return version.CompareSimple(currentVersion, requiredVersion) >= 0
+	constraint := version.NewConstrainGroupFromString(fmt.Sprintf(">=%s~", requiredVersion))
+	return constraint.Match(currentVersion)
 }
 
 // ContainerExists checks using Podman if a container with given ID/name exists.
