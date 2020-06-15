@@ -380,5 +380,5 @@ func validateSubIDFile(path string) (bool, error) {
 		}
 	}
 
-	return false, fmt.Errorf("failed to find an entry for user %s in %p", currentUser.Username, path)
+	return false, fmt.Errorf("failed to find an entry for user %s in %s", currentUser.Username, path)
 }
