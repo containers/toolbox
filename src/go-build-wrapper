@@ -27,5 +27,5 @@ if ! cd "$1"; then
     exit 1
 fi
 
-go build -o "$2"
+go build -ldflags "-B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \n')" -o "$2/toolbox"
 exit "$?"
