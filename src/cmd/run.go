@@ -314,7 +314,11 @@ func runCommand(container string,
 	case 126:
 		err = fmt.Errorf("failed to invoke command %s in container %s", command[0], container)
 	case 127:
-		err = fmt.Errorf("command %s not found in container %s", command[0], container)
+		if pathPresent, _ := isPathPresent(container, workingDirectory); !pathPresent {
+			err = fmt.Errorf("directory %s not found in container %s", workingDirectory, container)
+		} else {
+			err = fmt.Errorf("command %s not found in container %s", command[0], container)
+		}
 	default:
 		err = nil
 	}
@@ -389,6 +393,25 @@ func isCommandPresent(container, command string) (bool, error) {
 		"--user", currentUser.Username,
 		container,
 		"sh", "-c", "command -v \"$1\"", "sh", command,
+	}
+
+	if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func isPathPresent(container, path string) (bool, error) {
+	logrus.Debugf("Looking for path %s in container %s", path, container)
+
+	logLevelString := podman.LogLevel.String()
+	args := []string{
+		"--log-level", logLevelString,
+		"exec",
+		"--user", currentUser.Username,
+		container,
+		"sh", "-c", "test -d \"$1\"", "sh", path,
 	}
 
 	if err := shell.Run("podman", nil, nil, nil, args...); err != nil {

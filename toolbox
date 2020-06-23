@@ -1603,6 +1603,16 @@ run()
 
     $emit_escape_sequence && printf "\033]777;container;pop;;\033\\"
 
+    if [ "$ret_val" -eq 127 ] 2>&3; then
+        # shellcheck disable=SC2016
+        if ! $podman_command exec \
+                     --user "$USER" \
+                     "$toolbox_container" \
+                     sh -c 'test -d "$1"' sh "$PWD" >/dev/null 2>&3; then
+            echo "$base_toolbox_command: directory '$PWD' not found in container $toolbox_container" >&2
+        fi
+    fi
+
     exit "$ret_val"
 )
 
