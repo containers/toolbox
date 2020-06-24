@@ -212,7 +212,7 @@ func listOutput(images, containers []map[string]interface{}) {
 			"IMAGE NAME")
 
 		for _, container := range containers {
-			id := container["ID"].(string)[:12]
+			id := utils.ShortID(container["ID"].(string))
 			name := container["Names"].(string)
 			created := container["Created"].(string)
 			status := container["Status"].(string)
