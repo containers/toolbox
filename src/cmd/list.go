@@ -161,7 +161,10 @@ func listImages() ([]map[string]interface{}, error) {
 	}
 
 	var images []map[string]interface{}
-	if podman.CheckVersion("1.8.3") {
+	if podman.CheckVersion("2.0.0") {
+		images = utils.JoinJSON("Id", images_old, images_new)
+		images = utils.SortJSON(images, "Names", true)
+	} else if podman.CheckVersion("1.8.3") {
 		images = utils.JoinJSON("ID", images_old, images_new)
 		images = utils.SortJSON(images, "Names", true)
 	} else {
@@ -178,7 +181,11 @@ func listOutput(images, containers []map[string]interface{}) {
 		fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
 
 		var idKey, nameKey, createdKey string
-		if podman.CheckVersion("1.8.3") {
+		if podman.CheckVersion("2.0.0") {
+			idKey = "Id"
+			nameKey = "Names"
+			createdKey = "Created"
+		} else if podman.CheckVersion("1.8.3") {
 			idKey = "ID"
 			nameKey = "Names"
 			createdKey = "Created"

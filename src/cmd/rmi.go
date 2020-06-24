@@ -86,7 +86,9 @@ func rmi(cmd *cobra.Command, args []string) error {
 		}
 
 		var idKey string
-		if podman.CheckVersion("1.8.3") {
+		if podman.CheckVersion("2.0.0") {
+			idKey = "Id"
+		} else if podman.CheckVersion("1.8.3") {
 			idKey = "ID"
 		} else {
 			idKey = "id"
