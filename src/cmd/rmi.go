@@ -23,7 +23,6 @@ import (
 	"strings"
 
 	"github.com/containers/toolbox/pkg/podman"
-	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -98,7 +97,7 @@ func rmi(cmd *cobra.Command, args []string) error {
 
 		for _, image := range images {
 			imageID := image[idKey].(string)
-			if err := removeImage(imageID); err != nil {
+			if err := podman.RemoveImage(imageID, rmiFlags.forceDelete); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 				continue
 			}
@@ -119,7 +118,7 @@ func rmi(cmd *cobra.Command, args []string) error {
 				continue
 			}
 
-			if err := removeImage(image); err != nil {
+			if err := podman.RemoveImage(image, rmiFlags.forceDelete); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 				continue
 			}
@@ -148,37 +147,4 @@ func rmiHelp(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}
-}
-
-func removeImage(image string) error {
-	logrus.Debugf("Removing image %s", image)
-
-	logLevelString := podman.LogLevel.String()
-	args := []string{"--log-level", logLevelString, "rmi"}
-
-	if rmiFlags.forceDelete {
-		args = append(args, "--force")
-	}
-
-	args = append(args, image)
-
-	exitCode, err := shell.RunWithExitCode("podman", nil, nil, nil, args...)
-	switch exitCode {
-	case 0:
-		if err != nil {
-			panic("unexpected error: 'podman rmi' finished successfully")
-		}
-	case 1:
-		err = fmt.Errorf("image %s does not exist", image)
-	case 2:
-		err = fmt.Errorf("image %s has dependent children", image)
-	default:
-		err = fmt.Errorf("failed to remove image %s", image)
-	}
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
