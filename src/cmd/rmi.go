@@ -113,8 +113,21 @@ func rmi(cmd *cobra.Command, args []string) error {
 		}
 
 		for _, image := range args {
+			if exists, err := podman.ImageExists(image); !exists {
+				if errors.Is(err, podman.ErrImageNotExist) {
+					fmt.Fprintf(os.Stderr, "Error: image %s does not exist\n", image)
+				} else {
+					fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				}
+				continue
+			}
+
 			if _, err := podman.IsToolboxImage(image); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				if errors.Is(err, podman.ErrImageNotToolbox) {
+					fmt.Fprintf(os.Stderr, "Error: image %s is not a toolbox image\n", image)
+				} else {
+					fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				}
 				continue
 			}
 

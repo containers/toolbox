@@ -19,6 +19,7 @@ package podman
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 
@@ -33,6 +34,33 @@ var (
 
 var (
 	LogLevel = logrus.ErrorLevel
+
+	// ErrContainerIsRunning means a running container cannot be removed
+	ErrContainerIsRunning = errors.New("can't remove a running container")
+	// ErrGetContainers means 'podman ps' failed to get all containers
+	ErrGetContainers = errors.New("failed to get containers")
+	// ErrGetImages means 'podman images' failed to get all images
+	ErrGetImages = errors.New("failed to get images")
+	// ErrGetVersion means 'podman version' failed to get version of Podman
+	ErrGetVersion = errors.New("failed to get version of Podman")
+	// ErrImageHasChildren means an image with dependent children cannot be removed
+	ErrImageHasChildren = errors.New("can't remove an image with dependent children")
+	// ErrInspect means 'podman inspect' failed to inspect a container/image
+	ErrInspect = errors.New("failed to inspect container/image")
+	// ErrNotExist means a container/image does not exist
+	ErrNotExist = errors.New("failed to find container/image")
+	// ErrNotToolbox means the selected container/image is not a toolbox container/image
+	ErrNotToolbox = errors.New("container/image is not a toolbox container/image")
+	// ErrPullImage means 'podman pull' failed to pull an image
+	ErrPullImage = errors.New("failed to pull an image")
+	// ErrRemoveContainer means 'podman rm' failed to remove a container
+	ErrRemoveContainer = errors.New("failed to remove container")
+	// ErrRemoveImage means 'podman rmi' failed to remove an image
+	ErrRemoveImage = errors.New("failed to remove image")
+	// ErrStartContainer means a container failed to start when started with 'podman start'
+	ErrStartContainer = errors.New("failed to start a container")
+	// ErrSystemMigrate means 'podman system migrate' failed
+	ErrSystemMigrate = errors.New("system migration failed")
 )
 
 // CheckVersion compares provided version with the version of Podman.
@@ -58,7 +86,7 @@ func ContainerExists(container string) (bool, error) {
 
 	exitCode, err := shell.RunWithExitCode("podman", nil, nil, nil, args...)
 	if exitCode != 0 && err == nil {
-		err = fmt.Errorf("failed to find container %s", container)
+		err = ErrNotExist
 	}
 
 	if err != nil {
@@ -82,14 +110,14 @@ func GetContainers(args ...string) ([]map[string]interface{}, error) {
 	args = append([]string{"--log-level", logLevelString, "ps", "--format", "json"}, args...)
 
 	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", ErrGetContainers, err)
 	}
 
 	output := stdout.Bytes()
 	var containers []map[string]interface{}
 
 	if err := json.Unmarshal(output, &containers); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", ErrGetContainers, err)
 	}
 
 	return containers, nil
@@ -108,14 +136,14 @@ func GetImages(args ...string) ([]map[string]interface{}, error) {
 	logLevelString := LogLevel.String()
 	args = append([]string{"--log-level", logLevelString, "images", "--format", "json"}, args...)
 	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", ErrGetImages, err)
 	}
 
 	output := stdout.Bytes()
 	var images []map[string]interface{}
 
 	if err := json.Unmarshal(output, &images); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", ErrGetImages, err)
 	}
 
 	return images, nil
@@ -133,13 +161,13 @@ func GetVersion() (string, error) {
 	args := []string{"--log-level", logLevelString, "version", "--format", "json"}
 
 	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
-		return "", err
+		return "", fmt.Errorf("%s: %w", ErrGetVersion, err)
 	}
 
 	output := stdout.Bytes()
 	var jsonoutput map[string]interface{}
 	if err := json.Unmarshal(output, &jsonoutput); err != nil {
-		return "", err
+		return "", fmt.Errorf("%s: %w", ErrGetVersion, err)
 	}
 
 	podmanClientInfoInterface := jsonoutput["Client"]
@@ -161,7 +189,7 @@ func ImageExists(image string) (bool, error) {
 
 	exitCode, err := shell.RunWithExitCode("podman", nil, nil, nil, args...)
 	if exitCode != 0 && err == nil {
-		err = fmt.Errorf("failed to find image %s", image)
+		err = ErrNotExist
 	}
 
 	if err != nil {
@@ -181,14 +209,14 @@ func Inspect(typearg string, target string) (map[string]interface{}, error) {
 	args := []string{"--log-level", logLevelString, "inspect", "--format", "json", "--type", typearg, target}
 
 	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", ErrInspect, err)
 	}
 
 	output := stdout.Bytes()
 	var info []map[string]interface{}
 
 	if err := json.Unmarshal(output, &info); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", ErrInspect, err)
 	}
 
 	return info[0], nil
@@ -197,13 +225,13 @@ func Inspect(typearg string, target string) (map[string]interface{}, error) {
 func IsToolboxContainer(container string) (bool, error) {
 	info, err := Inspect("container", container)
 	if err != nil {
-		return false, fmt.Errorf("failed to inspect container %s", container)
+		return false, err
 	}
 
 	labels, _ := info["Config"].(map[string]interface{})["Labels"].(map[string]interface{})
 	if labels["com.redhat.component"] != "fedora-toolbox" &&
 		labels["com.github.debarshiray.toolbox"] != "true" {
-		return false, fmt.Errorf("%s is not a toolbox container", container)
+		return false, ErrNotToolbox
 	}
 
 	return true, nil
@@ -212,17 +240,17 @@ func IsToolboxContainer(container string) (bool, error) {
 func IsToolboxImage(image string) (bool, error) {
 	info, err := Inspect("image", image)
 	if err != nil {
-		return false, fmt.Errorf("failed to inspect image %s", image)
+		return false, fmt.Errorf("failed to inspect image %s: %w", image, err)
 	}
 
 	if info["Labels"] == nil {
-		return false, fmt.Errorf("%s is not a toolbox image", image)
+		return false, ErrNotToolbox
 	}
 
 	labels := info["Labels"].(map[string]interface{})
 	if labels["com.redhat.component"] != "fedora-toolbox" &&
 		labels["com.github.debarshiray.toolbox"] != "true" {
-		return false, fmt.Errorf("%s is not a toolbox image", image)
+		return false, ErrNotToolbox
 	}
 
 	return true, nil
@@ -234,7 +262,7 @@ func Pull(imageName string) error {
 	args := []string{"--log-level", logLevelString, "pull", imageName}
 
 	if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
-		return err
+		return fmt.Errorf("%s: %w", ErrPullImage, err)
 	}
 
 	return nil
@@ -259,11 +287,11 @@ func RemoveContainer(container string, forceDelete bool) error {
 			panic("unexpected error: 'podman rm' finished successfully")
 		}
 	case 1:
-		err = fmt.Errorf("container %s does not exist", container)
+		err = ErrNotExist
 	case 2:
-		err = fmt.Errorf("container %s is running", container)
+		err = ErrContainerIsRunning
 	default:
-		err = fmt.Errorf("failed to remove container %s", container)
+		err = ErrRemoveContainer
 	}
 
 	if err != nil {
@@ -292,11 +320,11 @@ func RemoveImage(image string, forceDelete bool) error {
 			panic("unexpected error: 'podman rmi' finished successfully")
 		}
 	case 1:
-		err = fmt.Errorf("image %s does not exist", image)
+		err = ErrNotExist
 	case 2:
-		err = fmt.Errorf("image %s has dependent children", image)
+		err = ErrImageHasChildren
 	default:
-		err = fmt.Errorf("failed to remove image %s", image)
+		err = ErrRemoveImage
 	}
 
 	if err != nil {
@@ -315,7 +343,7 @@ func Start(container string, stderr io.Writer) error {
 	args := []string{"--log-level", logLevelString, "start", container}
 
 	if err := shell.Run("podman", nil, nil, stderr, args...); err != nil {
-		return err
+		return fmt.Errorf("%s: %w", ErrStartContainer, err)
 	}
 
 	return nil
@@ -329,7 +357,7 @@ func SystemMigrate(ociRuntimeRequired string) error {
 	}
 
 	if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
-		return err
+		return fmt.Errorf("%s: %w", ErrSystemMigrate, err)
 	}
 
 	return nil

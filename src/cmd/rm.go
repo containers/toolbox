@@ -111,8 +111,21 @@ func rm(cmd *cobra.Command, args []string) error {
 		}
 
 		for _, container := range args {
+			if exists, err := podman.ContainerExists(container); !exists {
+				if errors.Is(err, podman.ErrContainerNotExist) {
+					fmt.Fprintf(os.Stderr, "Error: container %s does not exist\n", container)
+				} else {
+					fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				}
+				continue
+			}
+
 			if _, err := podman.IsToolboxContainer(container); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				if errors.Is(err, podman.ErrContainerNotToolbox) {
+					fmt.Fprintf(os.Stderr, "Error: container %s is not a toolbox container\n", container)
+				} else {
+					fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				}
 				continue
 			}
 

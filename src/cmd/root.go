@@ -216,7 +216,7 @@ func migrate() error {
 
 	podmanVersion, err := podman.GetVersion()
 	if err != nil {
-		return fmt.Errorf("failed to get the Podman version")
+		return fmt.Errorf("failed to get the Podman version: %w", err)
 	}
 
 	logrus.Debugf("Current Podman version is %s", podmanVersion)
@@ -274,7 +274,7 @@ func migrate() error {
 	}
 
 	if err = podman.SystemMigrate(""); err != nil {
-		return fmt.Errorf("failed to migrate containers")
+		return fmt.Errorf("failed to migrate containers: %w", err)
 	}
 
 	logrus.Debugf("Migration to Podman version %s was ok", podmanVersion)
