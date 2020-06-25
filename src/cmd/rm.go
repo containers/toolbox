@@ -85,10 +85,17 @@ func rm(cmd *cobra.Command, args []string) error {
 			return errors.New("failed to list containers with com.github.debarshiray.toolbox=true")
 		}
 
-		containers := utils.JoinJSON("ID", containers_old, containers_new)
+		var idKey string
+		if podman.CheckVersion("2.0.0") {
+			idKey = "Id"
+		} else {
+			idKey = "ID"
+		}
+
+		containers := utils.JoinJSON(idKey, containers_old, containers_new)
 
 		for _, container := range containers {
-			containerID := container["ID"].(string)
+			containerID := container[idKey].(string)
 			if err := removeContainer(containerID); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 				continue

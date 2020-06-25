@@ -119,8 +119,15 @@ func listContainers() ([]map[string]interface{}, error) {
 		return nil, errors.New("failed to list containers with label=com.github.debarshiray.toolbox=true")
 	}
 
-	containers := utils.JoinJSON("ID", containers_old, containers_new)
-	containers = utils.SortJSON(containers, "Names", false)
+	var containers []map[string]interface{}
+	if podman.CheckVersion("2.0.0") {
+		containers = utils.JoinJSON("Id", containers_old, containers_new)
+		containers = utils.SortJSON(containers, "Names", true)
+	} else {
+		containers = utils.JoinJSON("ID", containers_old, containers_new)
+		containers = utils.SortJSON(containers, "Names", false)
+	}
+
 	return containers, nil
 }
 
@@ -194,6 +201,7 @@ func listOutput(images, containers []map[string]interface{}) {
 			nameKey = "names"
 			createdKey = "created"
 		}
+
 		for _, image := range images {
 			id := utils.ShortID(image[idKey].(string))
 			name := image[nameKey].([]interface{})[0].(string)
@@ -218,13 +226,33 @@ func listOutput(images, containers []map[string]interface{}) {
 			"STATUS",
 			"IMAGE NAME")
 
+		var idKey, createdKey, statusKey string
+		if podman.CheckVersion("2.0.0") {
+			idKey = "Id"
+			createdKey = "CreatedAt"
+			statusKey = "State"
+		} else {
+			idKey = "ID"
+			createdKey = "Created"
+			statusKey = "Status"
+		}
+
 		for _, container := range containers {
-			id := utils.ShortID(container["ID"].(string))
-			name := container["Names"].(string)
-			created := container["Created"].(string)
-			status := container["Status"].(string)
+			id := utils.ShortID(container[idKey].(string))
+
+			var nameString string
+			switch name := container["Names"].(type) {
+			case string:
+				nameString = name
+			case []interface{}:
+				nameString = name[0].(string)
+			}
+
+			created := container[createdKey].(string)
+			status := container[statusKey].(string)
 			imageName := container["Image"].(string)
-			fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s\n", id, name, created, status, imageName)
+
+			fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s\n", id, nameString, created, status, imageName)
 		}
 
 		writer.Flush()
