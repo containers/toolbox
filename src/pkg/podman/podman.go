@@ -28,6 +28,10 @@ import (
 )
 
 var (
+	podmanVersion string
+)
+
+var (
 	LogLevel = logrus.ErrorLevel
 )
 
@@ -119,6 +123,10 @@ func GetImages(args ...string) ([]map[string]interface{}, error) {
 
 // GetVersion returns version of Podman in a string
 func GetVersion() (string, error) {
+	if podmanVersion != "" {
+		return podmanVersion, nil
+	}
+
 	var stdout bytes.Buffer
 
 	logLevelString := LogLevel.String()
@@ -134,7 +142,6 @@ func GetVersion() (string, error) {
 		return "", err
 	}
 
-	var podmanVersion string
 	podmanClientInfoInterface := jsonoutput["Client"]
 	switch podmanClientInfo := podmanClientInfoInterface.(type) {
 	case nil:
