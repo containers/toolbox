@@ -23,7 +23,6 @@ import (
 	"strings"
 
 	"github.com/containers/toolbox/pkg/podman"
-	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -96,7 +95,7 @@ func rm(cmd *cobra.Command, args []string) error {
 
 		for _, container := range containers {
 			containerID := container[idKey].(string)
-			if err := removeContainer(containerID); err != nil {
+			if err := podman.RemoveContainer(containerID, rmFlags.forceDelete); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 				continue
 			}
@@ -117,7 +116,7 @@ func rm(cmd *cobra.Command, args []string) error {
 				continue
 			}
 
-			if err := removeContainer(container); err != nil {
+			if err := podman.RemoveContainer(container, rmFlags.forceDelete); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 				continue
 			}
@@ -146,37 +145,4 @@ func rmHelp(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}
-}
-
-func removeContainer(container string) error {
-	logrus.Debugf("Removing container %s", container)
-
-	logLevelString := podman.LogLevel.String()
-	args := []string{"--log-level", logLevelString, "rm"}
-
-	if rmFlags.forceDelete {
-		args = append(args, "--force")
-	}
-
-	args = append(args, container)
-
-	exitCode, err := shell.RunWithExitCode("podman", nil, nil, nil, args...)
-	switch exitCode {
-	case 0:
-		if err != nil {
-			panic("unexpected error: 'podman rm' finished successfully")
-		}
-	case 1:
-		err = fmt.Errorf("container %s does not exist", container)
-	case 2:
-		err = fmt.Errorf("container %s is running", container)
-	default:
-		err = fmt.Errorf("failed to remove container %s", container)
-	}
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
