@@ -223,13 +223,13 @@ func migrate() error {
 
 	err = os.MkdirAll(toolboxConfigDir, 0775)
 	if err != nil {
-		return fmt.Errorf("failed to create configuration directory")
+		return fmt.Errorf("failed to create configuration directory: %w", err)
 	}
 
 	runtimeDirectory := os.Getenv("XDG_RUNTIME_DIR")
 	toolboxRuntimeDirectory := runtimeDirectory + "/toolbox"
 	if err := os.MkdirAll(toolboxRuntimeDirectory, 0700); err != nil {
-		return fmt.Errorf("failed to create runtime directory %s", toolboxRuntimeDirectory)
+		return fmt.Errorf("failed to create runtime directory %s: %w", toolboxRuntimeDirectory, err)
 	}
 
 	lockFile := toolboxRuntimeDirectory + "/migrate.lock"
@@ -238,20 +238,20 @@ func migrate() error {
 		syscall.O_CREAT|syscall.O_WRONLY,
 		syscall.S_IRUSR|syscall.S_IWUSR|syscall.S_IRGRP|syscall.S_IWGRP|syscall.S_IROTH)
 	if err != nil {
-		return fmt.Errorf("failed to open migration lock file")
+		return fmt.Errorf("failed to open migration lock file: %w", err)
 	}
 
 	defer syscall.Close(lockFD)
 
 	err = syscall.Flock(lockFD, syscall.LOCK_EX)
 	if err != nil {
-		return fmt.Errorf("failed to acquire migration lock")
+		return fmt.Errorf("failed to acquire migration lock: %w", err)
 	}
 
 	stampBytes, err := ioutil.ReadFile(stampPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			return fmt.Errorf("failed to read migration stamp file")
+			return fmt.Errorf("failed to read migration stamp file: %w", err)
 		}
 	} else {
 		stampString := string(stampBytes)
@@ -283,7 +283,7 @@ func migrate() error {
 	podmanVersionBytes := []byte(podmanVersion + "\n")
 	err = ioutil.WriteFile(stampPath, podmanVersionBytes, 0664)
 	if err != nil {
-		return fmt.Errorf("failed to update Podman version in migration stamp file")
+		return fmt.Errorf("failed to update Podman version in migration stamp file: %w", err)
 	}
 
 	return nil
@@ -305,30 +305,30 @@ func setUpGlobals() error {
 	if !utils.IsInsideContainer() {
 		cgroupsVersion, err = utils.GetCgroupsVersion()
 		if err != nil {
-			return errors.New("failed to get the cgroups version")
+			return fmt.Errorf("failed to get the cgroups version: %w", err)
 		}
 	}
 
 	currentUser, err = user.Current()
 	if err != nil {
-		return errors.New("failed to get the current user")
+		return fmt.Errorf("failed to get the current user: %w", err)
 	}
 
 	executable, err = os.Executable()
 	if err != nil {
-		return errors.New("failed to get the path to the executable")
+		return fmt.Errorf("failed to get the path to the executable: %w", err)
 	}
 
 	executable, err = filepath.EvalSymlinks(executable)
 	if err != nil {
-		return errors.New("failed to resolve absolute path to the executable")
+		return fmt.Errorf("failed to resolve absolute path to the executable: %w", err)
 	}
 
 	executableBase = filepath.Base(executable)
 
 	workingDirectory, err = os.Getwd()
 	if err != nil {
-		return errors.New("failed to get the working directory")
+		return fmt.Errorf("failed to get the working directory: %w", err)
 	}
 
 	return nil
@@ -346,7 +346,7 @@ func setUpLoggers() error {
 
 	logLevel, err := logrus.ParseLevel(rootFlags.logLevel)
 	if err != nil {
-		return errors.New("failed to parse log-level")
+		return fmt.Errorf("failed to parse log-level: %w", err)
 	}
 
 	logrus.SetLevel(logLevel)
@@ -365,7 +365,7 @@ func setUpLoggers() error {
 func validateSubIDFile(path string) (bool, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return false, fmt.Errorf("failed to open %s", path)
+		return false, fmt.Errorf("failed to open %s: %w", path, err)
 	}
 
 	scanner := bufio.NewScanner(file)

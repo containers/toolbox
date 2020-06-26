@@ -130,7 +130,7 @@ func CallFlatpakSessionHelper() (string, error) {
 
 	connection, err := dbus.SessionBus()
 	if err != nil {
-		return "", errors.New("failed to connect to the D-Bus session instance")
+		return "", fmt.Errorf("failed to connect to the D-Bus session instance: %w", err)
 	}
 
 	sessionHelper := connection.Object("org.freedesktop.Flatpak", "/org/freedesktop/Flatpak/SessionHelper")
@@ -146,7 +146,7 @@ func CallFlatpakSessionHelper() (string, error) {
 	pathVariant := result["path"]
 	pathVariantSignature := pathVariant.Signature().String()
 	if pathVariantSignature != "s" {
-		return "", errors.New("unknown reply from org.freedesktop.Flatpak.SessionHelper.RequestSession")
+		return "", fmt.Errorf("unknown reply from org.freedesktop.Flatpak.SessionHelper.RequestSession: %w", err)
 	}
 
 	pathValue := pathVariant.Value()
@@ -559,11 +559,11 @@ func ShowManual(manual string) error {
 	stdoutFd := os.Stdout.Fd()
 	stdoutFdInt := int(stdoutFd)
 	if err := syscall.Dup3(stdoutFdInt, stderrFdInt, 0); err != nil {
-		return errors.New("failed to redirect standard error to standard output")
+		return fmt.Errorf("failed to redirect standard error to standard output: %w", err)
 	}
 
 	if err := syscall.Exec(manBinary, manualArgs, env); err != nil {
-		return errors.New("failed to invoke man(1)")
+		return fmt.Errorf("failed to invoke man(1): %w", err)
 	}
 
 	return nil

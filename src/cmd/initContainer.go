@@ -137,7 +137,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 	toolboxEnvFile, err := os.Create("/run/.toolboxenv")
 	if err != nil {
-		return errors.New("failed to create /run/.toolboxenv")
+		return fmt.Errorf("failed to create /run/.toolboxenv: %w", err)
 	}
 
 	defer toolboxEnvFile.Close()
@@ -241,7 +241,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 		sudoGroup, err := utils.GetGroupForSudo()
 		if err != nil {
-			return fmt.Errorf("failed to add user %s: %s", initContainerFlags.user, err)
+			return fmt.Errorf("failed to add user %s: %w", initContainerFlags.user, err)
 		}
 
 		logrus.Debugf("Adding user %s with UID %d:", initContainerFlags.user, initContainerFlags.uid)
@@ -269,13 +269,13 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		logrus.Debugf("Removing password for user %s", initContainerFlags.user)
 
 		if err := shell.Run("passwd", nil, nil, nil, "--delete", initContainerFlags.user); err != nil {
-			return fmt.Errorf("failed to remove password for user %s", initContainerFlags.user)
+			return fmt.Errorf("failed to remove password for user %s: %w", initContainerFlags.user, err)
 		}
 
 		logrus.Debug("Removing password for user root")
 
 		if err := shell.Run("passwd", nil, nil, nil, "--delete", "root"); err != nil {
-			return errors.New("failed to remove password for root")
+			return fmt.Errorf("failed to remove password for root: %w", err)
 		}
 	}
 
@@ -295,7 +295,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		if err := ioutil.WriteFile("/etc/krb5.conf.d/kcm_default_ccache",
 			kcmConfigBytes,
 			0644); err != nil {
-			return errors.New("failed to set KCM as the defult Kerberos credential cache")
+			return fmt.Errorf("failed to set KCM as the defult Kerberos credential cache: %w", err)
 		}
 	}
 
@@ -305,12 +305,12 @@ func initContainer(cmd *cobra.Command, args []string) error {
 	logrus.Debugf("Creating runtime directory %s", toolboxRuntimeDirectory)
 
 	if err := os.MkdirAll(toolboxRuntimeDirectory, 0700); err != nil {
-		return fmt.Errorf("failed to create runtime directory %s", toolboxRuntimeDirectory)
+		return fmt.Errorf("failed to create runtime directory %s: %w", toolboxRuntimeDirectory, err)
 	}
 
 	if err := os.Chown(toolboxRuntimeDirectory, initContainerFlags.uid, initContainerFlags.uid); err != nil {
-		return fmt.Errorf("failed to change ownership of the runtime directory %s",
-			toolboxRuntimeDirectory)
+		return fmt.Errorf("failed to change ownership of the runtime directory %s: %w",
+			toolboxRuntimeDirectory, err)
 	}
 
 	pid := os.Getpid()
@@ -320,13 +320,13 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 	initializedStampFile, err := os.Create(initializedStamp)
 	if err != nil {
-		return errors.New("failed to create initialization stamp")
+		return fmt.Errorf("failed to create initialization stamp: %w", err)
 	}
 
 	defer initializedStampFile.Close()
 
 	if err := initializedStampFile.Chown(initContainerFlags.uid, initContainerFlags.uid); err != nil {
-		return errors.New("failed to change ownership of initialization stamp")
+		return fmt.Errorf("failed to change ownership of initialization stamp: %w", err)
 	}
 
 	logrus.Debug("Going to sleep")
@@ -337,14 +337,14 @@ func initContainer(cmd *cobra.Command, args []string) error {
 			return errors.New("sleep(1) not found")
 		}
 
-		return errors.New("failed to lookup sleep(1)")
+		return fmt.Errorf("failed to lookup sleep(1): %w", err)
 	}
 
 	sleepArgs := []string{"sleep", "+Inf"}
 	env := os.Environ()
 
 	if err := syscall.Exec(sleepBinary, sleepArgs, env); err != nil {
-		return errors.New("failed to invoke sleep(1)")
+		return fmt.Errorf("failed to invoke sleep(1): %w", err)
 	}
 
 	return nil
@@ -378,13 +378,13 @@ func mountBind(containerPath, source, flags string) error {
 			return nil
 		}
 
-		return fmt.Errorf("failed to stat %s", source)
+		return fmt.Errorf("failed to stat %s: %w", source, err)
 	}
 
 	if fi.IsDir() {
 		logrus.Debugf("Creating %s", containerPath)
 		if err := os.MkdirAll(containerPath, 0755); err != nil {
-			return fmt.Errorf("failed to create %s", containerPath)
+			return fmt.Errorf("failed to create %s: %w", containerPath, err)
 		}
 	}
 
@@ -401,7 +401,7 @@ func mountBind(containerPath, source, flags string) error {
 	args = append(args, []string{source, containerPath}...)
 
 	if err := shell.Run("mount", nil, nil, nil, args...); err != nil {
-		return fmt.Errorf("failed to bind %s to %s", containerPath, source)
+		return fmt.Errorf("failed to bind %s to %s: %w", containerPath, source, err)
 	}
 
 	return nil
