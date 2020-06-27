@@ -28,7 +28,7 @@ import (
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
-	"github.com/godbus/dbus/v5"
+	"github.com/godbus/dbus"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

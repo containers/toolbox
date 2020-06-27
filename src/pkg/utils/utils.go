@@ -31,7 +31,7 @@ import (
 
 	"github.com/acobaugh/osrelease"
 	"github.com/containers/toolbox/pkg/shell"
-	"github.com/godbus/dbus/v5"
+	"github.com/godbus/dbus"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 )
