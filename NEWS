@@ -1,5 +1,15 @@
+Overview of changes in 0.0.91
+=============================
+
+* Add gvfs-client to the fedora-toolbox images
+* Adjust for changes in JSON output from 'podman ps' and 'podman images' in
+  Podman 2.0
+* Lower the Go build requirements to make it easier to build on Fedora
+* Show an error if $PWD is missing inside the container
+
+
 Overview of changes in 0.0.90
-============================
+=============================
 
 * Rewrite Toolbox in Go
 * Remove support for toolbox containers created by Toolbox 0.0.9 and older
