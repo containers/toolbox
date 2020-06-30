@@ -548,7 +548,7 @@ func ShowManual(manual string) error {
 	stderrFdInt := int(stderrFd)
 	stdoutFd := os.Stdout.Fd()
 	stdoutFdInt := int(stdoutFd)
-	if err := syscall.Dup2(stdoutFdInt, stderrFdInt); err != nil {
+	if err := syscall.Dup3(stdoutFdInt, stderrFdInt, 0); err != nil {
 		return errors.New("failed to redirect standard error to standard output")
 	}
 
