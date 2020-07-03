@@ -25,8 +25,8 @@ type Version struct {
 	Micro int
 }
 
-// CurrentVersion holds the information about current build version
-var CurrentVersion = Version{
+// currentVersion holds the information about current build version
+var currentVersion = Version{
 	Major: 0,
 	Minor: 0,
 	Micro: 90,
@@ -34,5 +34,5 @@ var CurrentVersion = Version{
 
 // GetVersion returns string with the version of Toolbox
 func GetVersion() string {
-	return fmt.Sprintf("%d.%d.%d", CurrentVersion.Major, CurrentVersion.Minor, CurrentVersion.Micro)
+	return fmt.Sprintf("%d.%d.%d", currentVersion.Major, currentVersion.Minor, currentVersion.Micro)
 }
