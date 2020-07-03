@@ -35,14 +35,14 @@ var (
 //
 // Takes in one string parameter that should be in the format that is used for versioning (eg. 1.0.0, 2.5.1-dev).
 //
-// Returns true if the Podman version is equal to or higher than the required version.
+// Returns true if the current version is equal to or higher than the required version.
 func CheckVersion(requiredVersion string) bool {
-	podmanVersion, _ := GetVersion()
+	currentVersion, _ := GetVersion()
 
-	podmanVersion = version.Normalize(podmanVersion)
+	currentVersion = version.Normalize(currentVersion)
 	requiredVersion = version.Normalize(requiredVersion)
 
-	return version.CompareSimple(podmanVersion, requiredVersion) >= 0
+	return version.CompareSimple(currentVersion, requiredVersion) >= 0
 }
 
 // ContainerExists checks using Podman if a container with given ID/name exists.
