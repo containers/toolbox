@@ -1,3 +1,10 @@
+Overview of changes in 0.0.92
+=============================
+
+* Embed the version from Meson into the binary
+* Make it build on aarch64
+
+
 Overview of changes in 0.0.91
 =============================
 
