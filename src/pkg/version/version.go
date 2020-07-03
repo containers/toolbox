@@ -18,7 +18,7 @@ package version
 
 // currentVersion holds the information about current build version
 var (
-	currentVersion = "0.0.90"
+	currentVersion string
 )
 
 // GetVersion returns string with the version of Toolbox

@@ -22,7 +22,12 @@ sources = files(
 custom_target(
   'toolbox',
   build_by_default: true,
-  command: [go_build_wrapper_program, meson.current_source_dir(), meson.current_build_dir()],
+  command: [
+    go_build_wrapper_program,
+    meson.current_source_dir(),
+    meson.current_build_dir(),
+    meson.project_version(),
+  ],
   input: sources,
   install: true,
   install_dir: get_option('bindir'),
