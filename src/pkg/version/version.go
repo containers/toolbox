@@ -16,23 +16,12 @@
 
 package version
 
-import "fmt"
-
-// Version is the version of Toolbox
-type Version struct {
-	Major int
-	Minor int
-	Micro int
-}
-
 // currentVersion holds the information about current build version
-var currentVersion = Version{
-	Major: 0,
-	Minor: 0,
-	Micro: 90,
-}
+var (
+	currentVersion = "0.0.90"
+)
 
 // GetVersion returns string with the version of Toolbox
 func GetVersion() string {
-	return fmt.Sprintf("%d.%d.%d", currentVersion.Major, currentVersion.Minor, currentVersion.Micro)
+	return currentVersion
 }
