@@ -466,7 +466,7 @@ func getEnterCommand(container, release string) string {
 	case containerNamePrefixDefaultWithRelease:
 		enterCommand = fmt.Sprintf("%s enter --release %s", executableBase, release)
 	default:
-		enterCommand = fmt.Sprintf("%s enter --container %s", executableBase, container)
+		enterCommand = fmt.Sprintf("%s enter %s", executableBase, container)
 	}
 
 	return enterCommand
