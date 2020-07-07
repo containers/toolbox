@@ -53,6 +53,7 @@ var (
 		{"/etc/machine-id", "/run/host/etc/machine-id", "ro"},
 		{"/run/libvirt", "/run/host/run/libvirt", ""},
 		{"/run/systemd/journal", "/run/host/run/systemd/journal", ""},
+		{"/run/udev/data", "/run/host/run/udev/data", ""},
 		{"/var/lib/flatpak", "/run/host/var/lib/flatpak", "ro"},
 		{"/var/log/journal", "/run/host/var/log/journal", "ro"},
 		{"/var/mnt", "/run/host/var/mnt", "rslave"},
