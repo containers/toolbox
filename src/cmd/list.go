@@ -217,14 +217,20 @@ func listOutput(images, containers []map[string]interface{}) {
 	}
 
 	if len(containers) != 0 {
+		const boldGreenColor = "\033[1;32m"
+		const defaultColor = "\033[0;00m" // identical to resetColor, but same length as boldGreenColor
+		const resetColor = "\033[0m"
+
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		fmt.Fprintf(writer,
-			"%s\t%s\t%s\t%s\t%s\n",
+			"%s%s\t%s\t%s\t%s\t%s%s\n",
+			defaultColor,
 			"CONTAINER ID",
 			"CONTAINER NAME",
 			"CREATED",
 			"STATUS",
-			"IMAGE NAME")
+			"IMAGE NAME",
+			resetColor)
 
 		var idKey, createdKey, statusKey string
 		if podman.CheckVersion("2.0.0") {
@@ -252,7 +258,27 @@ func listOutput(images, containers []map[string]interface{}) {
 			status := container[statusKey].(string)
 			imageName := container["Image"].(string)
 
-			fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s\n", id, nameString, created, status, imageName)
+			isRunning := false
+			if podman.CheckVersion("2.0.0") {
+				isRunning = status == "running"
+			}
+
+			var color string
+			if isRunning {
+				color = boldGreenColor
+			} else {
+				color = defaultColor
+			}
+
+			fmt.Fprintf(writer,
+				"%s%s\t%s\t%s\t%s\t%s%s\n",
+				color,
+				id,
+				nameString,
+				created,
+				status,
+				imageName,
+				resetColor)
 		}
 
 		writer.Flush()
