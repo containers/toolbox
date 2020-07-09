@@ -34,8 +34,8 @@
 - project:
     periodic:
       jobs:
-        - test-with-podman-rawhide
         - test-with-podman-stable-f31
+        - test-with-podman-rawhide
     check:
       jobs:
         - shellcheck
