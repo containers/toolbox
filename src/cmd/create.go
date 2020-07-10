@@ -642,6 +642,7 @@ func pullImage(image, release string) (bool, error) {
 	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel && terminal.IsTerminal(stdoutFdInt) {
 		s := spinner.New(spinner.CharSets[9], 500*time.Millisecond)
 		s.Prefix = fmt.Sprintf("Pulling %s: ", imageFull)
+		s.Writer = os.Stdout
 		s.Start()
 		defer s.Stop()
 	}
