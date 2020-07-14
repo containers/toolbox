@@ -17,6 +17,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -27,6 +28,20 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
+
+type toolboxImage struct {
+	ID      string
+	Names   []string
+	Created string
+}
+
+type toolboxContainer struct {
+	ID      string
+	Names   []string
+	Status  string
+	Created string
+	Image   string
+}
 
 var (
 	listFlags struct {
@@ -82,8 +97,8 @@ func list(cmd *cobra.Command, args []string) error {
 		lsImages = false
 	}
 
-	var images []map[string]interface{}
-	var containers []map[string]interface{}
+	var images []toolboxImage
+	var containers []toolboxContainer
 	var err error
 
 	if lsImages {
@@ -104,7 +119,7 @@ func list(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func listContainers() ([]map[string]interface{}, error) {
+func listContainers() ([]toolboxContainer, error) {
 	logrus.Debug("Fetching containers with label=com.redhat.component=fedora-toolbox")
 	args := []string{"--all", "--filter", "label=com.redhat.component=fedora-toolbox"}
 	containers_old, err := podman.GetContainers(args...)
@@ -128,7 +143,27 @@ func listContainers() ([]map[string]interface{}, error) {
 		containers = utils.SortJSON(containers, "Names", false)
 	}
 
-	return containers, nil
+	// This section is a temporary solution that is here to prevent a major
+	// redesign of the way how toolbox containers are fetched.
+	// Remove this in Toolbox v0.2.0
+	var toolboxContainers []toolboxContainer
+	for _, container := range containers {
+		var c toolboxContainer
+		containerJSON, err := json.Marshal(container)
+		if err != nil {
+			logrus.Errorf("failed to marshal container: %v", err)
+			continue
+		}
+
+		err = c.UnmarshalJSON(containerJSON)
+		if err != nil {
+			logrus.Errorf("failed to unmarshal container: %v", err)
+			continue
+		}
+		toolboxContainers = append(toolboxContainers, c)
+	}
+
+	return toolboxContainers, nil
 }
 
 func listHelp(cmd *cobra.Command, args []string) {
@@ -152,7 +187,7 @@ func listHelp(cmd *cobra.Command, args []string) {
 	}
 }
 
-func listImages() ([]map[string]interface{}, error) {
+func listImages() ([]toolboxImage, error) {
 	logrus.Debug("Fetching images with label=com.redhat.component=fedora-toolbox")
 	args := []string{"--filter", "label=com.redhat.component=fedora-toolbox"}
 	images_old, err := podman.GetImages(args...)
@@ -179,34 +214,39 @@ func listImages() ([]map[string]interface{}, error) {
 		images = utils.SortJSON(images, "names", true)
 	}
 
-	return images, nil
+	// This section is a temporary solution that is here to prevent a major
+	// redesign of the way how toolbox images are fetched.
+	// Remove this in Toolbox v0.2.0
+	var toolboxImages []toolboxImage
+	for _, image := range images {
+		var i toolboxImage
+		imageJSON, err := json.Marshal(image)
+		if err != nil {
+			logrus.Errorf("failed to marshal toolbox image: %v", err)
+			continue
+		}
+
+		err = i.UnmarshalJSON(imageJSON)
+		if err != nil {
+			logrus.Errorf("failed to unmarshal toolbox image: %v", err)
+			continue
+		}
+		toolboxImages = append(toolboxImages, i)
+	}
+
+	return toolboxImages, nil
 }
 
-func listOutput(images, containers []map[string]interface{}) {
+func listOutput(images []toolboxImage, containers []toolboxContainer) {
 	if len(images) != 0 {
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
 
-		var idKey, nameKey, createdKey string
-		if podman.CheckVersion("2.0.0") {
-			idKey = "Id"
-			nameKey = "Names"
-			createdKey = "Created"
-		} else if podman.CheckVersion("1.8.3") {
-			idKey = "ID"
-			nameKey = "Names"
-			createdKey = "Created"
-		} else {
-			idKey = "id"
-			nameKey = "names"
-			createdKey = "created"
-		}
-
 		for _, image := range images {
-			id := utils.ShortID(image[idKey].(string))
-			name := image[nameKey].([]interface{})[0].(string)
-			created := image[createdKey].(string)
-			fmt.Fprintf(writer, "%s\t%s\t%s\n", id, name, created)
+			fmt.Fprintf(writer, "%s\t%s\t%s\n",
+				utils.ShortID(image.ID),
+				image.Names[0],
+				image.Created)
 		}
 
 		writer.Flush()
@@ -232,35 +272,10 @@ func listOutput(images, containers []map[string]interface{}) {
 			"IMAGE NAME",
 			resetColor)
 
-		var idKey, createdKey, statusKey string
-		if podman.CheckVersion("2.0.0") {
-			idKey = "Id"
-			createdKey = "CreatedAt"
-			statusKey = "State"
-		} else {
-			idKey = "ID"
-			createdKey = "Created"
-			statusKey = "Status"
-		}
-
 		for _, container := range containers {
-			id := utils.ShortID(container[idKey].(string))
-
-			var nameString string
-			switch name := container["Names"].(type) {
-			case string:
-				nameString = name
-			case []interface{}:
-				nameString = name[0].(string)
-			}
-
-			created := container[createdKey].(string)
-			status := container[statusKey].(string)
-			imageName := container["Image"].(string)
-
 			isRunning := false
 			if podman.CheckVersion("2.0.0") {
-				isRunning = status == "running"
+				isRunning = container.Status == "running"
 			}
 
 			var color string
@@ -270,17 +285,88 @@ func listOutput(images, containers []map[string]interface{}) {
 				color = defaultColor
 			}
 
-			fmt.Fprintf(writer,
-				"%s%s\t%s\t%s\t%s\t%s%s\n",
+			fmt.Fprintf(writer, "%s%s\t%s\t%s\t%s\t%s%s\n",
 				color,
-				id,
-				nameString,
-				created,
-				status,
-				imageName,
+				utils.ShortID(container.ID),
+				container.Names[0],
+				container.Created,
+				container.Status,
+				container.Image,
 				resetColor)
 		}
 
 		writer.Flush()
 	}
+}
+
+func (i *toolboxImage) UnmarshalJSON(data []byte) error {
+	var raw struct {
+		ID      string
+		Names   []string
+		Created string
+	}
+
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	i.ID = raw.ID
+	i.Names = raw.Names
+	i.Created = raw.Created
+
+	return nil
+}
+
+func (c *toolboxContainer) UnmarshalJSON(data []byte) error {
+	var raw struct {
+		ID      string
+		Names   interface{}
+		Status  string
+		State   interface{}
+		Created interface{}
+		Image   string
+	}
+
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	c.ID = raw.ID
+	// In Podman V1 the field 'Names' held a single string but since Podman V2 the
+	// field holds an array of strings
+	switch value := raw.Names.(type) {
+	case string:
+		c.Names = append(c.Names, value)
+	case []interface{}:
+		for _, v := range value {
+			c.Names = append(c.Names, v.(string))
+		}
+	}
+
+	// In Podman V1 the field holding a string about the container's state was
+	// called 'Status' and field 'State' held a number representing the state. In
+	// Podman V2 the string was moved to 'State' and field 'Status' was dropped.
+	switch value := raw.State.(type) {
+	case string:
+		c.Status = value
+	case float64:
+		c.Status = raw.Status
+	}
+
+	// In Podman V1 the field 'Created' held a human-readable string in format
+	// "5 minutes ago". Since Podman V2 the field holds an integer with Unix time.
+	// After a discussion in https://github.com/containers/podman/issues/6594 the
+	// previous value was moved to field 'CreatedAt'. Since we're already using
+	// the 'github.com/docker/go-units' library, we'll stop using the provided
+	// human-readable string and assemble it ourselves. Go interprets numbers in
+	// JSON as float64.
+	switch value := raw.Created.(type) {
+	case string:
+		c.Created = value
+	case float64:
+		c.Created = utils.HumanDuration(int64(value))
+	}
+	c.Image = raw.Image
+
+	return nil
 }
