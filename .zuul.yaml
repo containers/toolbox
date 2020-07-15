@@ -1,7 +1,7 @@
 ---
 - job:
     name: shellcheck
-    description: Check toolbox with shellcheck
+    description: Check validity of shell scripts with shellcheck
     timeout: 300
     nodeset:
       nodes:
@@ -10,52 +10,52 @@
     run: playbooks/shellcheck.yaml
 
 - job:
-    name: test-with-podman-stable-f31
-    description: Test toolbox with stable Podman in Fedora 31
+    name: system-test-fedora-31
+    description: Run Toolbox's system tests in Fedora 31
     timeout: 1200
     nodeset:
       nodes:
         - name: ci-node-31
           label: cloud-fedora-31-small
-    pre-run: playbooks/fedora-31/setup-rpm-env.yaml
-    run: playbooks/fedora-31/test-with-podman-stable.yaml
+    pre-run: playbooks/fedora-31/setup-env.yaml
+    run: playbooks/fedora-31/system-test-fedora-31.yaml
 
 - job:
-    name: test-with-podman-stable-f32
-    description: Test toolbox with stable Podman in Fedora 32
+    name: system-test-fedora-32
+    description: Run Toolbox's system tests in Fedora 32
     timeout: 1200
     nodeset:
       nodes:
         - name: ci-node-32
           label: cloud-fedora-32-small
-    pre-run: playbooks/fedora-32/setup-rpm-env.yaml
-    run: playbooks/fedora-32/test-with-podman-stable.yaml
+    pre-run: playbooks/fedora-32/setup-env.yaml
+    run: playbooks/fedora-32/system-test-fedora-32.yaml
 
 - job:
-    name: test-with-podman-rawhide
-    description: Test toolbox with latest Podman in Fedora Rawhide
+    name: system-test-fedora-rawhide
+    description: Run Toolbox's system tests in Fedora Rawhide
     timeout: 1200
     nodeset:
       nodes:
         - name: ci-node-rawhide
           label: cloud-fedora-rawhide-small
-    pre-run: playbooks/fedora-rawhide/setup-rpm-env.yaml
-    run: playbooks/fedora-rawhide/test-with-podman-stable.yaml
+    pre-run: playbooks/fedora-rawhide/setup-env.yaml
+    run: playbooks/fedora-rawhide/system-test-fedora-rawhide.yaml
 
 - project:
     periodic:
       jobs:
-        - test-with-podman-stable-f31
-        - test-with-podman-stable-f32
-        - test-with-podman-rawhide
+        - system-test-fedora-31
+        - system-test-fedora-32
+        - system-test-fedora-rawhide
     check:
       jobs:
         - shellcheck
-        - test-with-podman-stable-f31
-        - test-with-podman-stable-f32
-        - test-with-podman-rawhide
+        - system-test-fedora-31
+        - system-test-fedora-32
+        - system-test-fedora-rawhide
     gate:
       jobs:
-        - test-with-podman-stable-f31
-        - test-with-podman-stable-f32
-        - test-with-podman-rawhide
+        - system-test-fedora-31
+        - system-test-fedora-32
+        - system-test-fedora-rawhide
