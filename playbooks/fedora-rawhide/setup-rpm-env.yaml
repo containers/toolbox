@@ -6,6 +6,7 @@
       package:
         use: dnf
         name:
+          - golang
           - golang-github-cpuguy83-md2man
           - ninja-build
           - meson
@@ -20,6 +21,6 @@
       command: sudo systemd-tmpfiles --create
 
     - name: Check versions of crucial packages
-      command: rpm -q podman crun conmon fuse-overlayfs flatpak-session-helper
+      command: rpm -q golang podman crun conmon fuse-overlayfs flatpak-session-helper
 
     - include_tasks: ./pre-common.yaml
