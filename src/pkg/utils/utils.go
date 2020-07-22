@@ -28,9 +28,11 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/acobaugh/osrelease"
 	"github.com/containers/toolbox/pkg/shell"
+	"github.com/docker/go-units"
 	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -331,6 +333,14 @@ func GetMountOptions(target string) (string, error) {
 
 	mountOptions := strings.TrimSpace(options[0])
 	return mountOptions, nil
+}
+
+// HumanDuration accepts a Unix time value and converts it into a human readable
+// string.
+//
+// Examples: "5 minutes ago", "2 hours ago", "3 days ago"
+func HumanDuration(duration int64) string {
+	return units.HumanDuration(time.Since(time.Unix(duration, 0))) + " ago"
 }
 
 // ImageReferenceCanBeID checks if 'image' might be the ID of an image
