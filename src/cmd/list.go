@@ -303,7 +303,7 @@ func (i *toolboxImage) UnmarshalJSON(data []byte) error {
 	var raw struct {
 		ID      string
 		Names   []string
-		Created string
+		Created interface{}
 	}
 
 	if err := json.Unmarshal(data, &raw); err != nil {
@@ -312,7 +312,15 @@ func (i *toolboxImage) UnmarshalJSON(data []byte) error {
 
 	i.ID = raw.ID
 	i.Names = raw.Names
-	i.Created = raw.Created
+	// Until Podman 2.0.x the field 'Created' held a human-readable string in
+	// format "5 minutes ago". Since Podman 2.1 the field holds an integer with
+	// Unix time. Go interprets numbers in JSON as float64.
+	switch value := raw.Created.(type) {
+	case string:
+		i.Created = value
+	case float64:
+		i.Created = utils.HumanDuration(int64(value))
+	}
 
 	return nil
 }
