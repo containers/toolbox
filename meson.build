@@ -28,6 +28,11 @@ if bash_completion.found()
   )
 endif
 
+install_subdir(
+  'test',
+  install_dir: join_paths(get_option('datadir'), meson.project_name())
+)
+
 subdir('data')
 subdir('doc')
 subdir('profile.d')
