@@ -395,7 +395,6 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		"--hostname", "toolbox",
 		"--ipc", "host",
 		"--label", "com.github.containers.toolbox=true",
-		"--label", "com.github.debarshiray.toolbox=true",
 	}...)
 
 	createArgs = append(createArgs, devPtsMount...)
