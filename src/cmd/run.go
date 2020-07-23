@@ -194,7 +194,13 @@ func runCommand(container string,
 		} else if containersCount == 1 && defaultContainer {
 			fmt.Fprintf(os.Stderr, "Error: container %s not found\n", container)
 
-			container = containers[0]["Names"].(string)
+			switch value := containers[0]["Names"].(type) {
+			case string:
+				container = value
+			case []interface{}:
+				container = value[0].(string)
+			}
+
 			fmt.Fprintf(os.Stderr, "Entering container %s instead.\n", container)
 			fmt.Fprintf(os.Stderr, "Use the 'create' command to create a different toolbox.\n")
 			fmt.Fprintf(os.Stderr, "Run '%s --help' for usage.\n", executableBase)
