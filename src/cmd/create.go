@@ -350,6 +350,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		"--pid", "host",
 		"--privileged",
 		"--security-opt", "label=disable",
+		"--shm-size", "0",
 	}
 
 	createArgs = append(createArgs, ulimitHost...)
