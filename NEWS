@@ -1,3 +1,18 @@
+Overview of changes in 0.0.93
+=============================
+
+* Ensure reproducible builds by using the -trimpath build flag
+* Fix the test suite to work with the Go implementation
+* Make listing of containers and images more robust against changes in the JSON
+  returned by Podman
+* List out dependencies and installation instructions
+* Re-enable highlighting of running containers
+* Show the spinner only when connected to a terminal
+* Speed things up by caching the Podman version at runtime
+* Update hint after creating a container to use the new syntax
+* Use the correct verb format for string
+
+
 Overview of changes in 0.0.92
 =============================
 
