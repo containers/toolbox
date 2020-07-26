@@ -40,6 +40,8 @@ environment_variables="COLORTERM \
         SHELL \
         SSH_AUTH_SOCK \
         TERM \
+        TERMINFO \
+        TERMINFO_DIRS \
         TOOLBOX_PATH \
         VTE_VERSION \
         WAYLAND_DISPLAY \
@@ -356,6 +358,69 @@ copy_etc_profile_d_toolbox_to_runtime_directory()
 
     if ! cp /etc/profile.d/toolbox.sh "$toolbox_runtime_directory" 2>&3; then
         echo "$base_toolbox_command: unable to copy /etc/profile.d/toolbox.sh to $toolbox_runtime_directory" >&2
+        return 1
+    fi
+
+    return 0
+)
+
+
+copy_terminfo_entry_to_container()
+(
+    container="$1"
+    host_fs_prefix="/run/host"
+    terminfo_dirs=()
+    terminfo_entry=""
+
+    if [ -n "$TERMINFO" ]; then
+        terminfo_dirs=("$TERMINFO")
+    else
+        terminfo_dirs=("$HOME/.terminfo")
+
+        if [ -n "$TERMINFO_DIRS" ]; then
+            oIFS="$IFS"
+            IFS=":"
+            for dir in "$TERMINFO_DIRS"; do
+                if [ -n "$dir" ]; then
+                    terminfo_dirs=("${terminfo_dirs[@]}" "$dir")
+                fi
+            done
+            IFS="$oIFS"
+        fi
+
+        terminfo_dirs=("${terminfo_dirs[@]}" "/usr/share/terminfo")
+    fi
+
+    regexp="/$TERM$"
+    for dir in "${terminfo_dirs[@]}"; do
+        if [ -d "$dir" ]; then
+            terminfo_entry="$(find "$dir" -name "$TERM" 2>/dev/null | grep "$regexp")"
+            if [ -f "$terminfo_entry" ]; then
+                break
+            fi
+        fi
+    done
+
+    entry_target="/usr/share/terminfo/${TERM:0:1}"
+
+    if [ -z "$terminfo_entry" ] && \
+           ! $podman_command exec "$container" \
+                             sh -c "[ -f \"$entry_target/$TERM\" ]" 2>&3; then
+        echo "$base_toolbox_command: unable to copy host terminfo entry to container $container: missing entry" >&2
+        return 1
+    fi
+
+    if ! $podman_command exec --user root:root "$container" \
+                         sh -c "mkdir --mode 755 --parents \"$entry_target\"" 2>&3; then
+        echo "$base_toolbox_command: unable to copy host '$terminfo_entry' to container $container: container '$entry_target' not created" >&2
+        return 1
+    fi
+
+    echo "$base_toolbox_command: copying host '$terminfo_entry' to container $container" >&3
+
+    if ! $podman_command exec --user root:root "$container" \
+                         sh -c "cp -u \"$host_fs_prefix$terminfo_entry\" --target-directory=\"$entry_target\"" 2>&3; then
+        echo "$base_toolbox_command: unable to copy host '$terminfo_entry' to container $container" >&2
         return 1
     fi
 
@@ -1510,6 +1575,12 @@ run()
         if ! copy_etc_profile_d_toolbox_to_container "$toolbox_container"; then
             exit 1
         fi
+    fi
+
+    echo "$base_toolbox_command: copying terminfo entry to $toolbox_container" >&3
+
+    if ! copy_terminfo_entry_to_container "$toolbox_container"; then
+        exit 1
     fi
 
     echo "$base_toolbox_command: inspecting entry point of container $toolbox_container" >&3
