@@ -58,7 +58,7 @@ It can be built and installed as any other typical Meson-based project:
 ```
 [user@hostname toolbox]$ meson -Dprofile_dir=/etc/profile.d builddir
 [user@hostname toolbox]$ ninja -C builddir
-[user@hostname toolbox]$ sudo ninja -C install
+[user@hostname toolbox]$ sudo ninja -C builddir install
 ```
 
 Toolbox is written in Go. Consult the
