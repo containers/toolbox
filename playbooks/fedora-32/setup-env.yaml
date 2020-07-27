@@ -17,6 +17,18 @@
           - udisks2
           - podman
 
+    - name: Install bats-support library
+      git:
+        repo: https://github.com/bats-core/bats-support
+        dest: '{{ zuul.project.src_dir }}/test/system/libs/bats-support'
+        depth: 1
+
+    - name: Install bats-assert library
+      git:
+        repo: https://github.com/bats-core/bats-assert
+        dest: '{{ zuul.project.src_dir }}/test/system/libs/bats-assert'
+        depth: 1
+
     - name: Setup environment
       become: yes
       command:

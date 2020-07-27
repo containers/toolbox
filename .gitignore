@@ -1,1 +1,3 @@
 src/toolbox
+test/system/libs/bats-assert
+test/system/libs/bats-support
