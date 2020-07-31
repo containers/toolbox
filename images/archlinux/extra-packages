@@ -1,12 +1,8 @@
 base
 base-devel
 bash-completion
-curl
 diffutils
-findutils
 git
-keyutils
-less
 linux
 linux-firmware
 lsof
