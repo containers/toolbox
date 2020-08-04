@@ -257,9 +257,11 @@ func runCommand(container string,
 
 	if _, err := isCommandPresent(container, command[0]); err != nil {
 		if fallbackToBash {
-			logrus.Debugf("command %s not found in container %s; using /bin/bash instead",
+			fmt.Fprintf(os.Stderr,
+				"Error: command %s not found in container %s\n",
 				command[0],
 				container)
+			fmt.Fprintf(os.Stderr, "Using /bin/bash instead.\n")
 
 			command = []string{"/bin/bash"}
 		} else {
