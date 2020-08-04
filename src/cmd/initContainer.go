@@ -142,6 +142,16 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 	defer toolboxEnvFile.Close()
 
+	logrus.Debug("Mounting tmpfs at /tmp")
+
+	if err := syscall.Mount("tmpfs",
+		"/tmp",
+		"tmpfs",
+		syscall.MS_NODEV|syscall.MS_STRICTATIME|syscall.MS_NOSUID,
+		"mode=1777"); err != nil {
+		return fmt.Errorf("failed to mount tmpfs at /tmp: %s", err)
+	}
+
 	if initContainerFlags.monitorHost {
 		logrus.Debug("Monitoring host")
 
