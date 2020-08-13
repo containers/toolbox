@@ -286,6 +286,26 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		runMediaMount = []string{"--volume", "/run/media:/run/media:rslave"}
 	}
 
+	logrus.Debug("Creating the dnf cache")
+	var dnfCacheMount []string
+
+	cacheDir, err := os.UserCacheDir()
+	if err != nil {
+		return fmt.Errorf("failed to get the user cache directory")
+	}
+
+	dnfCacheDir := cacheDir + "/toolbox/" + release
+	logrus.Debugf("Toolbox cache directory is %s", dnfCacheDir)
+
+	if !utils.PathExists(dnfCacheDir) {
+		err = os.MkdirAll(dnfCacheDir, 0775)
+		if err != nil {
+			return fmt.Errorf("failed to create cache directory")
+		}
+	}
+
+	dnfCacheMount = []string{"--volume", dnfCacheDir + ":/var/cache/dnf/:rslave"}
+
 	logrus.Debug("Looking for toolbox.sh")
 
 	var toolboxShMount []string
@@ -375,6 +395,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	createArgs = append(createArgs, mntMount...)
 	createArgs = append(createArgs, runMediaMount...)
 	createArgs = append(createArgs, toolboxShMount...)
+	createArgs = append(createArgs, dnfCacheMount...)
 
 	createArgs = append(createArgs, []string{
 		imageFull,
