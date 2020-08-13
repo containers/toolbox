@@ -24,4 +24,6 @@ RUN rm /extra-packages
 
 RUN dnf clean all
 
+RUN echo 'keepcache=True' >> /etc/dnf/dnf.conf
+
 CMD /bin/sh
