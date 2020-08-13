@@ -413,16 +413,16 @@ func redirectPath(containerPath, target string, folder bool) error {
 	err := os.Remove(containerPath)
 	if folder {
 		if err != nil {
-			return fmt.Errorf("failed to redirect %s to %s", containerPath, target)
+			return fmt.Errorf("failed to redirect %s to %s: %w", containerPath, target, err)
 		}
 
 		if err := os.MkdirAll(target, 0755); err != nil {
-			return fmt.Errorf("failed to redirect %s to %s", containerPath, target)
+			return fmt.Errorf("failed to redirect %s to %s: %w", containerPath, target, err)
 		}
 	}
 
 	if err := os.Symlink(target, containerPath); err != nil {
-		return fmt.Errorf("failed to redirect %s to %s", containerPath, target)
+		return fmt.Errorf("failed to redirect %s to %s: %w", containerPath, target, err)
 	}
 
 	return nil
