@@ -1,9 +1,14 @@
 project(
   'toolbox',
+  'c',
   version: '0.0.93',
   license: 'ASL 2.0',
   meson_version: '>= 0.40.0',
 )
+
+cc = meson.get_compiler('c')
+add_project_arguments('-pthread', language: 'c')
+add_project_link_arguments('-pthread', language: 'c')
 
 go = find_program('go')
 go_md2man = find_program('go-md2man')
