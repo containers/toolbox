@@ -170,11 +170,18 @@ Paths:
 * `/etc/resolv.conf`: optional, if present not a bind mount
 * `/etc/timezone`: optional, if present not a bind mount
 
-The image should have `sudo(8)` enabled for users belonging to either the
-`sudo` or `wheel` groups, and the group itself should exist. File an
-[issue](https://github.com/containers/toolbox/issues/new) if you really need
-support for a different group. However, it's preferable to keep this list as
-short as possible.
+Toolbox enables `sudo(8)` access inside containers. The following is necessary
+for that to work:
+
+* The image should have `sudo(8)` enabled for users belonging to either the
+  `sudo` or `wheel` groups, and the group itself should exist. File an
+  [issue](https://github.com/containers/toolbox/issues/new) if you really need
+  support for a different group. However, it's preferable to keep this list as
+  short as possible.
+
+* The image should allow empty passwords for `sudo(8)`. This can be achieved
+  by either adding the `nullok` option to the `PAM(8)` configuration, or by
+  add the `NOPASSWD` tag to the `sudoers(5)` configuration.
 
 Since Toolbox only works with OCI images that fulfill certain requirements,
 it will refuse images that aren't tagged with
