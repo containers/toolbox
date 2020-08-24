@@ -24,7 +24,7 @@ __asm__(".symver pthread_sigmask,pthread_sigmask@GLIBC_2.17");
 __asm__(".symver pthread_sigmask,pthread_sigmask@GLIBC_2.4");
 #elif defined __i386__
 __asm__(".symver pthread_sigmask,pthread_sigmask@GLIBC_2.0");
-#elif defined __powerpc64__
+#elif defined __powerpc64__ && _CALL_ELF == 2 /* ppc64le */
 __asm__(".symver pthread_sigmask,pthread_sigmask@GLIBC_2.17");
 #elif defined __s390x__
 __asm__(".symver pthread_sigmask,pthread_sigmask@GLIBC_2.2");
