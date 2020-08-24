@@ -726,7 +726,7 @@ pull_base_toolbox_image()
     if ! $has_domain; then
         echo "$base_toolbox_command: looking for image localhost/$base_toolbox_image" >&3
 
-        if $podman_command image exists localhost/$base_toolbox_image >/dev/null 2>&3; then
+        if $podman_command image exists "localhost/$base_toolbox_image" >/dev/null 2>&3; then
             return 0
         fi
     fi
@@ -975,7 +975,7 @@ create()
     echo "$base_toolbox_command: checking if container $toolbox_container already exists" >&3
 
     enter_command=$(create_enter_command "$toolbox_container")
-    if $podman_command container exists $toolbox_container >/dev/null 2>&3; then
+    if $podman_command container exists "$toolbox_container" >/dev/null 2>&3; then
         echo "$base_toolbox_command: container $toolbox_container already exists" >&2
         echo "Enter with: $enter_command" >&2
         echo "Try '$base_toolbox_command --help' for more information." >&2
