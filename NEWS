@@ -1,3 +1,18 @@
+Overview of changes in 0.0.94
+=============================
+
+* Add contribution guidelines
+* Add fedora-toolbox image definition for Fedora 34
+* Add more information to errors from creating symbolic links when setting up
+  the toolbox container in the entry point
+* Ensure binaries built on Fedora 33 run on Fedoras 32 & 31
+* Install the tests
+* Make it more obvious when falling back to /bin/bash
+* Document that sudo(8) should work without a password
+* Mount a tmpfs at /tmp to match the host
+* Update issue templates
+
+
 Overview of changes in 0.0.93
 =============================
 
