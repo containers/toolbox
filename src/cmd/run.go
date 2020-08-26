@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/containers/toolbox/pkg/podman"
@@ -213,8 +214,28 @@ func runCommand(container string,
 		return err
 	}
 
-	if err := startContainerAndInitialize(container); err != nil {
-		return err
+	for i := 0; i < 2; i++ {
+		initializedStamp, err := startContainerAndInitialize(container)
+		if err != nil {
+			return err
+		}
+
+		initializedStampFile, err := os.Open(initializedStamp)
+		if err != nil {
+			return errors.New("failed to read initialization stamp file")
+		}
+
+		defer initializedStampFile.Close()
+
+		initializedStampFD := initializedStampFile.Fd()
+		initializedStampFDInt := int(initializedStampFD)
+		if err := syscall.Flock(initializedStampFDInt, syscall.LOCK_SH); err != nil {
+			return fmt.Errorf("failed to acquire shared initialization lock")
+		}
+
+		if utils.PathExists(initializedStamp) {
+			break
+		}
 	}
 
 	if _, err := isCommandPresent(container, command[0]); err != nil {
@@ -442,15 +463,15 @@ func startContainer(container string) error {
 	return nil
 }
 
-func startContainerAndInitialize(container string) error {
+func startContainerAndInitialize(container string) (string, error) {
 	logrus.Debugf("Starting container %s", container)
 	if err := startContainer(container); err != nil {
-		return err
+		return "", err
 	}
 
 	entryPoint, entryPointPID, err := getEntryPointAndPID(container)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if entryPoint != "toolbox" {
@@ -459,11 +480,11 @@ func startContainerAndInitialize(container string) error {
 		fmt.Fprintf(&builder, "Recreate it with Toolbox version 0.0.17 or newer.\n")
 
 		errMsg := builder.String()
-		return errors.New(errMsg)
+		return "", errors.New(errMsg)
 	}
 
 	if entryPointPID <= 0 {
-		return fmt.Errorf("invalid entry point PID of container %s", container)
+		return "", fmt.Errorf("invalid entry point PID of container %s", container)
 	}
 
 	logrus.Debugf("Waiting for container %s to finish initializing", container)
@@ -477,12 +498,12 @@ func startContainerAndInitialize(container string) error {
 	initializedTimeout := 25 // seconds
 	for i := 0; !utils.PathExists(initializedStamp); i++ {
 		if i == initializedTimeout {
-			return fmt.Errorf("failed to initialize container %s", container)
+			return "", fmt.Errorf("failed to initialize container %s", container)
 		}
 
 		time.Sleep(time.Second)
 	}
 
 	logrus.Debugf("Container %s is initialized", container)
-	return nil
+	return initializedStamp, nil
 }

@@ -21,10 +21,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"os/user"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
@@ -329,22 +329,23 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		return errors.New("failed to change ownership of initialization stamp")
 	}
 
-	logrus.Debug("Going to sleep")
+	logrus.Debug("Waiting for a session to start")
 
-	sleepBinary, err := exec.LookPath("sleep")
-	if err != nil {
-		if errors.Is(err, exec.ErrNotFound) {
-			return errors.New("sleep(1) not found")
-		}
+	inactivityTimeout := 25 * time.Second
+	time.Sleep(inactivityTimeout)
 
-		return errors.New("failed to lookup sleep(1)")
+	logrus.Debug("Waiting for all active sessions to terminate")
+
+	initializedStampFD := initializedStampFile.Fd()
+	initializedStampFDInt := int(initializedStampFD)
+	if err := syscall.Flock(initializedStampFDInt, syscall.LOCK_EX); err != nil {
+		return fmt.Errorf("failed to acquire exclusive initialization lock")
 	}
 
-	sleepArgs := []string{"sleep", "+Inf"}
-	env := os.Environ()
+	logrus.Debug("All active sessions terminated")
 
-	if err := syscall.Exec(sleepBinary, sleepArgs, env); err != nil {
-		return errors.New("failed to invoke sleep(1)")
+	if err := os.Remove(initializedStamp); err != nil {
+		return errors.New("failed to remove initialization stamp file")
 	}
 
 	return nil
