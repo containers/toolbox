@@ -213,47 +213,9 @@ func runCommand(container string,
 		return err
 	}
 
-	logrus.Debugf("Starting container %s", container)
-	if err := startContainer(container); err != nil {
+	if err := startContainerAndInitialize(container); err != nil {
 		return err
 	}
-
-	entryPoint, entryPointPID, err := getEntryPointAndPID(container)
-	if err != nil {
-		return err
-	}
-
-	if entryPoint != "toolbox" {
-		var builder strings.Builder
-		fmt.Fprintf(&builder, "container %s is too old and no longer supported \n", container)
-		fmt.Fprintf(&builder, "Recreate it with Toolbox version 0.0.17 or newer.\n")
-
-		errMsg := builder.String()
-		return errors.New(errMsg)
-	}
-
-	if entryPointPID <= 0 {
-		return fmt.Errorf("invalid entry point PID of container %s", container)
-	}
-
-	logrus.Debugf("Waiting for container %s to finish initializing", container)
-
-	runtimeDirectory := os.Getenv("XDG_RUNTIME_DIR")
-	toolboxRuntimeDirectory := runtimeDirectory + "/toolbox"
-	initializedStamp := fmt.Sprintf("%s/container-initialized-%d", toolboxRuntimeDirectory, entryPointPID)
-
-	logrus.Debugf("Checking if initialization stamp %s exists", initializedStamp)
-
-	initializedTimeout := 25 // seconds
-	for i := 0; !utils.PathExists(initializedStamp); i++ {
-		if i == initializedTimeout {
-			return fmt.Errorf("failed to initialize container %s", container)
-		}
-
-		time.Sleep(time.Second)
-	}
-
-	logrus.Debugf("Container %s is initialized", container)
 
 	if _, err := isCommandPresent(container, command[0]); err != nil {
 		if fallbackToBash {
@@ -477,5 +439,50 @@ func startContainer(container string) error {
 		return errors.New(errMsg)
 	}
 
+	return nil
+}
+
+func startContainerAndInitialize(container string) error {
+	logrus.Debugf("Starting container %s", container)
+	if err := startContainer(container); err != nil {
+		return err
+	}
+
+	entryPoint, entryPointPID, err := getEntryPointAndPID(container)
+	if err != nil {
+		return err
+	}
+
+	if entryPoint != "toolbox" {
+		var builder strings.Builder
+		fmt.Fprintf(&builder, "container %s is too old and no longer supported \n", container)
+		fmt.Fprintf(&builder, "Recreate it with Toolbox version 0.0.17 or newer.\n")
+
+		errMsg := builder.String()
+		return errors.New(errMsg)
+	}
+
+	if entryPointPID <= 0 {
+		return fmt.Errorf("invalid entry point PID of container %s", container)
+	}
+
+	logrus.Debugf("Waiting for container %s to finish initializing", container)
+
+	runtimeDirectory := os.Getenv("XDG_RUNTIME_DIR")
+	toolboxRuntimeDirectory := runtimeDirectory + "/toolbox"
+	initializedStamp := fmt.Sprintf("%s/container-initialized-%d", toolboxRuntimeDirectory, entryPointPID)
+
+	logrus.Debugf("Checking if initialization stamp %s exists", initializedStamp)
+
+	initializedTimeout := 25 // seconds
+	for i := 0; !utils.PathExists(initializedStamp); i++ {
+		if i == initializedTimeout {
+			return fmt.Errorf("failed to initialize container %s", container)
+		}
+
+		time.Sleep(time.Second)
+	}
+
+	logrus.Debugf("Container %s is initialized", container)
 	return nil
 }
