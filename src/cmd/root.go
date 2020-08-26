@@ -243,9 +243,7 @@ func migrate() error {
 
 	migrateLockFD := migrateLockFile.Fd()
 	migrateLockFDInt := int(migrateLockFD)
-
-	err = syscall.Flock(migrateLockFDInt, syscall.LOCK_EX)
-	if err != nil {
+	if err := syscall.Flock(migrateLockFDInt, syscall.LOCK_EX); err != nil {
 		return fmt.Errorf("failed to acquire migration lock")
 	}
 
