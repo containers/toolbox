@@ -232,9 +232,9 @@ func migrate() error {
 		return fmt.Errorf("failed to create runtime directory %s", toolboxRuntimeDirectory)
 	}
 
-	lockFile := toolboxRuntimeDirectory + "/migrate.lock"
+	migrateLock := toolboxRuntimeDirectory + "/migrate.lock"
 
-	lockFD, err := syscall.Open(lockFile,
+	lockFD, err := syscall.Open(migrateLock,
 		syscall.O_CREAT|syscall.O_WRONLY,
 		syscall.S_IRUSR|syscall.S_IWUSR|syscall.S_IRGRP|syscall.S_IWGRP|syscall.S_IROTH)
 	if err != nil {
