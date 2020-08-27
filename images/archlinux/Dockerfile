@@ -9,10 +9,8 @@ LABEL com.github.containers.toolbox="true" \
       summary="Base image for creating Arch Linux toolbox containers" \
       maintainer="Erazem Kokot <contact@erazem.eu>"
 
-RUN pacman -Syu --noconfirm
-
 COPY extra-packages /
-RUN pacman -Sy --noconfirm $(<extra-packages)
+RUN pacman -Syu --noconfirm $(<extra-packages)
 RUN rm /extra-packages
 
 # Clean up all local caches

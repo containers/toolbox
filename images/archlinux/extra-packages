@@ -3,8 +3,6 @@ base-devel
 bash-completion
 diffutils
 git
-linux
-linux-firmware
 lsof
 man-db
 man-pages
@@ -12,7 +10,6 @@ mlocate
 mtr
 openssh
 rsync
-sudo
 tcpdump
 time
 traceroute
