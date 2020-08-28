@@ -48,6 +48,22 @@ if [ -f /run/.containerenv ] \
         mkdir -p "$toolbox_config"
         touch "$toolbox_welcome_stub"
     fi
+
+    if [ "$TERM" != "" ]; then
+        error_message="Error: terminfo entry not found for $TERM"
+        term_without_first_character="${TERM#?}"
+        term_just_first_character="${TERM%$term_without_first_character}"
+        terminfo_sub_directory="$term_just_first_character/$TERM"
+
+        if [ "$TERMINFO" = "" ]; then
+          ! [ -e "/usr/share/terminfo/$terminfo_sub_directory" ] \
+            && ! [ -e "$HOME/.terminfo/$terminfo_sub_directory" ] \
+            && echo "$error_message" >&2
+        else
+          ! [ -e "$TERMINFO/$terminfo_sub_directory" ] \
+            && echo "$error_message" >&2
+        fi
+    fi
 fi
 
 unset toolbox_config
