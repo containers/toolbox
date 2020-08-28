@@ -242,7 +242,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 		sudoGroup, err := utils.GetGroupForSudo()
 		if err != nil {
-			return fmt.Errorf("failed to add user %s: %s", initContainerFlags.user, err)
+			return fmt.Errorf("failed to get group for sudo: %w", err)
 		}
 
 		logrus.Debugf("Adding user %s with UID %d:", initContainerFlags.user, initContainerFlags.uid)
