@@ -263,7 +263,7 @@ func runCommand(container string,
 				container)
 			fmt.Fprintf(os.Stderr, "Using /bin/bash instead.\n")
 
-			command = []string{"/bin/bash"}
+			command = []string{"/bin/bash", "-l"}
 		} else {
 			return fmt.Errorf("command %s not found in container %s", command[0], container)
 		}
