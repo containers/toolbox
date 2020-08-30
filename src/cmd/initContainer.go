@@ -238,7 +238,17 @@ func initContainer(cmd *cobra.Command, args []string) error {
 			initContainerFlags.user,
 			initContainerFlags.home,
 			initContainerFlags.shell,
-			initContainerFlags.homeLink); err != nil {
+			initContainerFlags.homeLink,
+			false); err != nil {
+			return err
+		}
+	} else {
+		if err := configureUsers(initContainerFlags.uid,
+			initContainerFlags.user,
+			initContainerFlags.home,
+			initContainerFlags.shell,
+			initContainerFlags.homeLink,
+			true); err != nil {
 			return err
 		}
 	}
@@ -337,7 +347,7 @@ func initContainerHelp(cmd *cobra.Command, args []string) {
 
 func configureUsers(targetUserUid int,
 	targetUser, targetUserHome, targetUserShell string,
-	homeLink bool) error {
+	homeLink, targetUserExists bool) error {
 	if homeLink {
 		if err := redirectPath("/home", "/var/home", true); err != nil {
 			return err
@@ -349,24 +359,46 @@ func configureUsers(targetUserUid int,
 		return fmt.Errorf("failed to get group for sudo: %w", err)
 	}
 
-	logrus.Debugf("Adding user %s with UID %d:", targetUser, targetUserUid)
+	if targetUserExists {
+		logrus.Debugf("Modifying user %s with UID %d:", targetUser, targetUserUid)
 
-	useraddArgs := []string{
-		"--groups", sudoGroup,
-		"--home-dir", targetUserHome,
-		"--no-create-home",
-		"--shell", targetUserShell,
-		"--uid", fmt.Sprint(targetUserUid),
-		targetUser,
-	}
+		usermodArgs := []string{
+			"--append",
+			"--groups", sudoGroup,
+			"--home", targetUserHome,
+			"--shell", targetUserShell,
+			"--uid", fmt.Sprint(targetUserUid),
+			targetUser,
+		}
 
-	logrus.Debug("useradd")
-	for _, arg := range useraddArgs {
-		logrus.Debugf("%s", arg)
-	}
+		logrus.Debug("usermod")
+		for _, arg := range usermodArgs {
+			logrus.Debugf("%s", arg)
+		}
 
-	if err := shell.Run("useradd", nil, nil, nil, useraddArgs...); err != nil {
-		return fmt.Errorf("failed to add user %s with UID %d", targetUser, targetUserUid)
+		if err := shell.Run("usermod", nil, nil, nil, usermodArgs...); err != nil {
+			return fmt.Errorf("failed to modify user %s with UID %d", targetUser, targetUserUid)
+		}
+	} else {
+		logrus.Debugf("Adding user %s with UID %d:", targetUser, targetUserUid)
+
+		useraddArgs := []string{
+			"--groups", sudoGroup,
+			"--home-dir", targetUserHome,
+			"--no-create-home",
+			"--shell", targetUserShell,
+			"--uid", fmt.Sprint(targetUserUid),
+			targetUser,
+		}
+
+		logrus.Debug("useradd")
+		for _, arg := range useraddArgs {
+			logrus.Debugf("%s", arg)
+		}
+
+		if err := shell.Run("useradd", nil, nil, nil, useraddArgs...); err != nil {
+			return fmt.Errorf("failed to add user %s with UID %d", targetUser, targetUserUid)
+		}
 	}
 
 	logrus.Debugf("Removing password for user %s", targetUser)
