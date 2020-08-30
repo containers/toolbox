@@ -161,6 +161,7 @@ Tools:
 * `touch(1)`
 * `unlink(1)`
 * `useradd(8)`
+* `usermod(8)`
 
 Paths:
 * `/etc/host.conf`: optional, if present not a bind mount
