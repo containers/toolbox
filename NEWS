@@ -1,3 +1,13 @@
+Overview of changes in 0.0.95
+=============================
+
+* Try to handle configuration files that're absolute symlinks when the entry
+  point sets up the container
+* Unbreak 'enter' on Fedora CoreOS
+* Unbreak 'sudo' inside toolbox containers with Podman 2.0.5
+* Warn if $TERM has no terminfo entry in the container
+
+
 Overview of changes in 0.0.94
 =============================
 
