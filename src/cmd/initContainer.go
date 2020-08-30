@@ -234,49 +234,12 @@ func initContainer(cmd *cobra.Command, args []string) error {
 	}
 
 	if _, err := user.Lookup(initContainerFlags.user); err != nil {
-		if initContainerFlags.homeLink {
-			if err := redirectPath("/home", "/var/home", true); err != nil {
-				return err
-			}
-		}
-
-		sudoGroup, err := utils.GetGroupForSudo()
-		if err != nil {
-			return fmt.Errorf("failed to get group for sudo: %w", err)
-		}
-
-		logrus.Debugf("Adding user %s with UID %d:", initContainerFlags.user, initContainerFlags.uid)
-
-		useraddArgs := []string{
-			"--home-dir", initContainerFlags.home,
-			"--no-create-home",
-			"--shell", initContainerFlags.shell,
-			"--uid", fmt.Sprint(initContainerFlags.uid),
-			"--groups", sudoGroup,
+		if err := configureUsers(initContainerFlags.uid,
 			initContainerFlags.user,
-		}
-
-		logrus.Debug("useradd")
-		for _, arg := range useraddArgs {
-			logrus.Debugf("%s", arg)
-		}
-
-		if err := shell.Run("useradd", nil, nil, nil, useraddArgs...); err != nil {
-			return fmt.Errorf("failed to add user %s with UID %d",
-				initContainerFlags.user,
-				initContainerFlags.uid)
-		}
-
-		logrus.Debugf("Removing password for user %s", initContainerFlags.user)
-
-		if err := shell.Run("passwd", nil, nil, nil, "--delete", initContainerFlags.user); err != nil {
-			return fmt.Errorf("failed to remove password for user %s", initContainerFlags.user)
-		}
-
-		logrus.Debug("Removing password for user root")
-
-		if err := shell.Run("passwd", nil, nil, nil, "--delete", "root"); err != nil {
-			return errors.New("failed to remove password for root")
+			initContainerFlags.home,
+			initContainerFlags.shell,
+			initContainerFlags.homeLink); err != nil {
+			return err
 		}
 	}
 
@@ -370,6 +333,55 @@ func initContainerHelp(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}
+}
+
+func configureUsers(targetUserUid int,
+	targetUser, targetUserHome, targetUserShell string,
+	homeLink bool) error {
+	if homeLink {
+		if err := redirectPath("/home", "/var/home", true); err != nil {
+			return err
+		}
+	}
+
+	sudoGroup, err := utils.GetGroupForSudo()
+	if err != nil {
+		return fmt.Errorf("failed to get group for sudo: %w", err)
+	}
+
+	logrus.Debugf("Adding user %s with UID %d:", targetUser, targetUserUid)
+
+	useraddArgs := []string{
+		"--groups", sudoGroup,
+		"--home-dir", targetUserHome,
+		"--no-create-home",
+		"--shell", targetUserShell,
+		"--uid", fmt.Sprint(targetUserUid),
+		targetUser,
+	}
+
+	logrus.Debug("useradd")
+	for _, arg := range useraddArgs {
+		logrus.Debugf("%s", arg)
+	}
+
+	if err := shell.Run("useradd", nil, nil, nil, useraddArgs...); err != nil {
+		return fmt.Errorf("failed to add user %s with UID %d", targetUser, targetUserUid)
+	}
+
+	logrus.Debugf("Removing password for user %s", targetUser)
+
+	if err := shell.Run("passwd", nil, nil, nil, "--delete", targetUser); err != nil {
+		return fmt.Errorf("failed to remove password for user %s", targetUser)
+	}
+
+	logrus.Debug("Removing password for user root")
+
+	if err := shell.Run("passwd", nil, nil, nil, "--delete", "root"); err != nil {
+		return errors.New("failed to remove password for root")
+	}
+
+	return nil
 }
 
 func mountBind(containerPath, source, flags string) error {
