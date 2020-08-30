@@ -56,6 +56,7 @@ var (
 		{"/run/udev/data", "/run/host/run/udev/data", ""},
 		{"/tmp", "/run/host/tmp", "rslave"},
 		{"/var/lib/flatpak", "/run/host/var/lib/flatpak", "ro"},
+		{"/var/lib/libvirt", "/run/host/var/lib/libvirt", ""},
 		{"/var/log/journal", "/run/host/var/log/journal", "ro"},
 		{"/var/mnt", "/run/host/var/mnt", "rslave"},
 	}
