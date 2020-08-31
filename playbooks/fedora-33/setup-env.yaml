@@ -1,0 +1,26 @@
+---
+- hosts: all
+  tasks:
+    - name: Install requirements
+      become: yes
+      package:
+        use: dnf
+        name:
+          - golang
+          - golang-github-cpuguy83-md2man
+          - ninja-build
+          - meson
+          - flatpak-session-helper
+          - systemd
+          - bats
+          - bash-completion
+          - udisks2
+          - podman
+
+    - name: Setup environment (create missing /run/media)
+      command: sudo systemd-tmpfiles --create
+
+    - name: Check versions of crucial packages
+      command: rpm -q golang podman crun conmon fuse-overlayfs flatpak-session-helper
+
+    - include_tasks: ./pre-common.yaml
