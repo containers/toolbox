@@ -447,9 +447,6 @@ func GetMountOptions(target string) (string, error) {
 
 	output := stdout.String()
 	options := strings.Split(output, "\n")
-	if len(options) != 2 {
-		return "", errors.New("unexpected output from findmnt(1)")
-	}
 
 	mountOptions := strings.TrimSpace(options[0])
 	return mountOptions, nil
