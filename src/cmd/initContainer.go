@@ -496,7 +496,7 @@ func redirectPath(containerPath, target string, folder bool) error {
 
 	err := os.Remove(containerPath)
 	if folder {
-		if err != nil {
+		if err != nil && !os.IsNotExist(err) {
 			return fmt.Errorf("failed to redirect %s to %s: %w", containerPath, target, err)
 		}
 
