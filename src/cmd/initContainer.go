@@ -38,6 +38,7 @@ var (
 	initContainerFlags struct {
 		gid         int
 		home        string
+		boxhome     string
 		homeLink    bool
 		mediaLink   bool
 		mntLink     bool
@@ -86,6 +87,12 @@ func init() {
 		"",
 		"Create a user inside the toolbox container whose login directory is HOME")
 	initContainerCmd.MarkFlagRequired("home")
+
+	fmt.Println(initContainerFlags.boxhome)
+	flags.StringVar(&initContainerFlags.boxhome,
+		"boxhome",
+		"",
+		"Create a user inside the toolbox container whose login directory is not HOME.")
 
 	flags.BoolVar(&initContainerFlags.homeLink,
 		"home-link",
@@ -228,7 +235,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 	if _, err := user.Lookup(initContainerFlags.user); err != nil {
 		if err := configureUsers(initContainerFlags.uid,
 			initContainerFlags.user,
-			initContainerFlags.home,
+			initContainerFlags.home+"/"+initContainerFlags.boxhome,
 			initContainerFlags.shell,
 			initContainerFlags.homeLink,
 			false); err != nil {
@@ -237,7 +244,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 	} else {
 		if err := configureUsers(initContainerFlags.uid,
 			initContainerFlags.user,
-			initContainerFlags.home,
+			initContainerFlags.home+"/"+initContainerFlags.boxhome,
 			initContainerFlags.shell,
 			initContainerFlags.homeLink,
 			true); err != nil {

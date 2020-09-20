@@ -46,6 +46,7 @@ var (
 		distro    string
 		image     string
 		release   string
+		boxhome   string
 	}
 
 	createToolboxShMounts = []struct {
@@ -89,6 +90,12 @@ func init() {
 		"r",
 		"",
 		"Create a toolbox container for a different operating system release than the host")
+
+	flags.StringVarP(&createFlags.boxhome,
+		"boxhome",
+		"b",
+		"",
+		"Create a toolbox container with a different home path than the host.")
 
 	createCmd.SetHelpFunc(createHelp)
 	rootCmd.AddCommand(createCmd)
@@ -381,6 +388,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		"init-container",
 		"--gid", currentUser.Gid,
 		"--home", currentUser.HomeDir,
+		"--boxhome", createFlags.boxhome,
 		"--shell", userShell,
 		"--uid", currentUser.Uid,
 		"--user", currentUser.Username,
