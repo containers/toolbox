@@ -33,6 +33,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type initContainerMount struct {
+	containerPath string
+	source        string
+	flags         string
+}
+
+type initContainerSymlink struct {
+	containerPath string
+	source        string
+	folder        bool
+}
+
 var (
 	initContainerFlags struct {
 		home        string
@@ -45,11 +57,7 @@ var (
 		user        string
 	}
 
-	initContainerMounts = []struct {
-		containerPath string
-		source        string
-		flags         string
-	}{
+	initContainerMounts = []initContainerMount{
 		{"/etc/machine-id", "/run/host/etc/machine-id", "ro"},
 		{"/run/libvirt", "/run/host/run/libvirt", ""},
 		{"/run/systemd/journal", "/run/host/run/systemd/journal", ""},
