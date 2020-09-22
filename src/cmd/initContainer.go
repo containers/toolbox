@@ -65,6 +65,14 @@ var (
 		{"/var/log/journal", "/run/host/var/log/journal", "ro"},
 		{"/var/mnt", "/run/host/var/mnt", "rslave"},
 	}
+
+	initContainerX11Symlinks = []initContainerSymlink{
+		{"/tmp/.X11-unix", "/run/host/tmp/.X11-unix", true},
+		{"/tmp/.ICE-unix", "/run/host/tmp/.ICE-unix", true},
+		{"/tmp/.font-unix", "/run/host/tmp/.font-unix", true},
+		{"/tmp/.Test-unix", "/run/host/tmp/.Test-unix", true},
+		{"/tmp/.XIM-unix", "/run/host/tmp/.XIM-unix", true},
+	}
 )
 
 var initContainerCmd = &cobra.Command{
@@ -159,6 +167,12 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		syscall.MS_NODEV|syscall.MS_STRICTATIME|syscall.MS_NOSUID,
 		"mode=1777"); err != nil {
 		return fmt.Errorf("failed to mount tmpfs at /tmp: %s", err)
+	}
+
+	if utils.PathExists("/run/host/tmp") {
+		if err := setupX11(); err != nil {
+			return fmt.Errorf("Failed to set up hosts X environment: %w", err)
+		}
 	}
 
 	if initContainerFlags.monitorHost {
@@ -421,6 +435,36 @@ func configureUsers(targetUserUid int,
 		return errors.New("failed to remove password for root")
 	}
 
+	return nil
+}
+
+func setupX11() error {
+	var err error
+
+	logrus.Info("Setting up the host's X environment")
+
+	hostX11LockFiles, err := filepath.Glob("/run/host/tmp/.X*-lock")
+	if err != nil {
+		return err
+	}
+
+	for _, hostX11Lockfile := range hostX11LockFiles {
+		containerX11Lockfile := filepath.Join("/", "tmp", filepath.Base(hostX11Lockfile))
+		initContainerX11Symlinks = append(initContainerX11Symlinks, initContainerSymlink{
+			containerX11Lockfile,
+			hostX11Lockfile,
+			false})
+	}
+
+	for _, symlink := range initContainerX11Symlinks {
+		if _, err = os.Readlink(symlink.containerPath); err != nil {
+			if err = redirectPath(symlink.containerPath,
+				symlink.source,
+				symlink.folder); err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 
