@@ -348,6 +348,8 @@ func initContainerHelp(cmd *cobra.Command, args []string) {
 func configureUsers(targetUserUid int,
 	targetUser, targetUserHome, targetUserShell string,
 	homeLink, targetUserExists bool) error {
+	var stdout strings.Builder
+
 	if homeLink {
 		if err := redirectPath("/home", "/var/home", true); err != nil {
 			return err
@@ -401,16 +403,29 @@ func configureUsers(targetUserUid int,
 		}
 	}
 
-	logrus.Debugf("Removing password for user %s", targetUser)
-
-	if err := shell.Run("passwd", nil, nil, nil, "--delete", targetUser); err != nil {
-		return fmt.Errorf("failed to remove password for user %s", targetUser)
+	if err := shell.Run("passwd", nil, &stdout, nil, "--status", initContainerFlags.user); err != nil {
+		return fmt.Errorf("failed to check password status of user %s: %w", initContainerFlags.user, err)
 	}
+	userPasswordStatus := strings.Split(stdout.String(), " ")[1]
+	if userPasswordStatus != "NP" {
+		logrus.Debugf("Removing password for user %s", initContainerFlags.user)
 
-	logrus.Debug("Removing password for user root")
+		if err := shell.Run("passwd", nil, nil, nil, "--delete", initContainerFlags.user); err != nil {
+			return fmt.Errorf("failed to remove password for user %s", initContainerFlags.user)
+		}
+	}
+	stdout.Reset()
 
-	if err := shell.Run("passwd", nil, nil, nil, "--delete", "root"); err != nil {
-		return errors.New("failed to remove password for root")
+	if err := shell.Run("passwd", nil, &stdout, nil, "--status", "root"); err != nil {
+		return fmt.Errorf("failed to check password status of root: %w", err)
+	}
+	rootPasswordStatus := strings.Split(stdout.String(), " ")[1]
+	if rootPasswordStatus != "NP" {
+		logrus.Debug("Removing password for user root")
+
+		if err := shell.Run("passwd", nil, nil, nil, "--delete", "root"); err != nil {
+			return errors.New("failed to remove password for root")
+		}
 	}
 
 	return nil
