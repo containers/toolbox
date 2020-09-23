@@ -279,6 +279,15 @@ func runCommand(container string,
 		}
 	}
 
+	if pathPresent, _ := isPathPresent(container, workingDirectory); !pathPresent {
+		fmt.Fprintf(os.Stderr, "Error: path %s not found in container %s\n",
+			workingDirectory, container)
+		fmt.Fprintf(os.Stderr, "Using %s instead.\n",
+			currentUser.HomeDir)
+
+		workingDirectory = currentUser.HomeDir
+	}
+
 	logrus.Debug("Checking if 'podman exec' supports disabling the detach keys")
 
 	var detachKeys []string
