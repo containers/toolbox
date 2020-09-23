@@ -58,15 +58,18 @@
       jobs:
         - system-test-fedora-31
         - system-test-fedora-32
+        - system-test-fedora-33
         - system-test-fedora-rawhide
     check:
       jobs:
         - shellcheck
         - system-test-fedora-31
         - system-test-fedora-32
+        - system-test-fedora-33
         - system-test-fedora-rawhide
     gate:
       jobs:
         - system-test-fedora-31
         - system-test-fedora-32
+        - system-test-fedora-33
         - system-test-fedora-rawhide
