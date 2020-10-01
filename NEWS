@@ -1,3 +1,14 @@
+Overview of changes in 0.0.96
+=============================
+
+* Don't break GNU Readline's ctrl-p shortcut
+* Enable system tests on Fedora 33
+* Fix containers with missing /media possibly due to a failed RPM transaction
+* Give access to the udev database
+* Unbreak X11 applications with GNOME 3.38
+* Update default release to 31 for non-Fedora hosts
+
+
 Overview of changes in 0.0.95
 =============================
 
