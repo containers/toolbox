@@ -57,6 +57,7 @@ if [ -f /run/.containerenv ] \
 
         if [ "$TERMINFO" = "" ]; then
           ! [ -e "/usr/share/terminfo/$terminfo_sub_directory" ] \
+            && ! [ -e "/lib/terminfo/$terminfo_sub_directory" ] \
             && ! [ -e "$HOME/.terminfo/$terminfo_sub_directory" ] \
             && echo "$error_message" >&2
         else
