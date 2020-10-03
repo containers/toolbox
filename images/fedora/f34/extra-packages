@@ -36,5 +36,6 @@ vte-profile
 wget
 which
 words
+xorg-x11-xauth
 xz
 zip

@@ -43,6 +43,7 @@ environment_variables="COLORTERM \
         TOOLBOX_PATH \
         VTE_VERSION \
         WAYLAND_DISPLAY \
+        XAUTHORITY \
         XDG_CURRENT_DESKTOP \
         XDG_DATA_DIRS \
         XDG_MENU_PREFIX \
