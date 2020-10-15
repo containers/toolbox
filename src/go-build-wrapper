@@ -27,5 +27,5 @@ if ! cd "$1"; then
     exit 1
 fi
 
-go build -trimpath -ldflags "-extldflags '-Wl,--wrap,pthread_sigmask $4' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3" -o "$2"
-exit "$?"
+# shellcheck disable=SC2086
+eval go build -o "$2" -trimpath -ldflags \"-extldflags \'-Wl,--wrap,pthread_sigmask $4\' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3\" ${GOBUILDFLAGS:-}
