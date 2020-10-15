@@ -27,5 +27,5 @@ if ! cd "$1"; then
     exit 1
 fi
 
-go build -trimpath -ldflags "-extldflags '-Wl,--wrap,pthread_sigmask $4' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3" -o "$2"
+go build -trimpath -ldflags "-extldflags '-Wl,--wrap,pthread_sigmask $4' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3" -o "$2/toolbox"
 exit "$?"
