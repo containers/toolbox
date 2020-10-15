@@ -10,7 +10,7 @@ toolbox container, without affecting the base operating system.
 
 This is particularly useful on
 [OSTree](https://ostree.readthedocs.io/en/latest/) based operating systems like
-[CoreOS](https://coreos.fedoraproject.org/) and
+[Fedora CoreOS](https://coreos.fedoraproject.org/) and
 [Silverblue](https://silverblue.fedoraproject.org/).  The intention of these
 systems is to discourage installation of software on the host, and instead
 install software as (or in) containers.
