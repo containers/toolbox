@@ -168,6 +168,15 @@ func initContainer(cmd *cobra.Command, args []string) error {
 				}
 			}
 
+			if localtimeTarget, err := os.Readlink("/etc/localtime"); err != nil ||
+				localtimeTarget != "/run/host/etc/localtime" {
+				if err := redirectPath("/etc/localtime",
+					"/run/host/etc/localtime",
+					false); err != nil {
+					return err
+				}
+			}
+
 			if _, err := os.Readlink("/etc/resolv.conf"); err != nil {
 				if err := redirectPath("/etc/resolv.conf",
 					"/run/host/etc/resolv.conf",
@@ -191,14 +200,6 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 		if utils.PathExists("/run/host/monitor") {
 			logrus.Debug("Path /run/host/monitor exists")
-
-			if localtimeTarget, err := os.Readlink("/etc/localtime"); err != nil ||
-				localtimeTarget != "/run/host/monitor/localtime" {
-				if err := redirectPath("/etc/localtime",
-					"/run/host/monitor/localtime", false); err != nil {
-					return err
-				}
-			}
 
 			if _, err := os.Readlink("/etc/timezone"); err != nil {
 				if err := redirectPath("/etc/timezone",
