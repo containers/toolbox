@@ -47,6 +47,12 @@ This will create a container called `fedora-toolbox-<version-id>`.
 ⬢[user@toolbox ~]$
 ```
 
+### Remove a toolbox container:
+```
+[user@hostname ~]$ toolbox rm fedora-toolbox-30
+[user@hostname ~]$
+```
+
 ## Dependencies and Installation
 
 Toolbox requires at least Podman 1.4.0 to work, and uses the Meson build
