@@ -1,5 +1,11 @@
 <img src="data/logo/toolbox-logo-landscape.svg" alt="Toolbox logo landscape" width="800"/>
 
+[![Zuul](https://zuul-ci.org/gated.svg)](https://softwarefactory-project.io/zuul/t/local/builds?project=containers/toolbox)
+[![Daily Pipeline](https://img.shields.io/badge/zuul-periodic-informational)](https://softwarefactory-project.io/zuul/t/local/builds?project=containers%2Ftoolbox&pipeline=periodic)
+
+[![Arch Linux package](https://img.shields.io/archlinux/v/community/x86_64/toolbox)](https://www.archlinux.org/packages/community/x86_64/toolbox/)
+[![Fedora package](https://img.shields.io/fedora/v/toolbox/rawhide)](https://src.fedoraproject.org/rpms/toolbox/)
+
 [Toolbox](https://github.com/containers/toolbox) is a tool that offers a
 familiar package based environment for developing and debugging software that
 runs fully unprivileged using [Podman](https://podman.io/).
