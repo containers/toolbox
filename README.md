@@ -35,7 +35,7 @@ operating system.
 ### Create your toolbox container:
 ```
 [user@hostname ~]$ toolbox create
-Created container: fedora-toolbox-30
+Created container: fedora-toolbox-33
 Enter with: toolbox enter
 [user@hostname ~]$
 ```
@@ -49,7 +49,7 @@ This will create a container called `fedora-toolbox-<version-id>`.
 
 ### Remove a toolbox container:
 ```
-[user@hostname ~]$ toolbox rm fedora-toolbox-30
+[user@hostname ~]$ toolbox rm fedora-toolbox-33
 [user@hostname ~]$
 ```
 
@@ -146,8 +146,8 @@ or any such peculiarities.
 By default, Toolbox creates the container using an
 [OCI](https://www.opencontainers.org/) image called
 `<ID>-toolbox:<VERSION-ID>`, where `<ID>` and `<VERSION-ID>` are taken from the
-host's `/usr/lib/os-release`. For example, the default image on a Fedora 30
-host would be `fedora-toolbox:30`.
+host's `/usr/lib/os-release`. For example, the default image on a Fedora 33
+host would be `fedora-toolbox:33`.
 
 This default can be overridden by the `--image` option in `toolbox create`,
 but operating system distributors should provide an adequately configured
