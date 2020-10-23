@@ -216,13 +216,6 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 
 	dbusSystemSocketMountArg := dbusSystemSocket + ":" + dbusSystemSocket
 
-	flatpakHelperMonitorPath, err := utils.CallFlatpakSessionHelper()
-	if err != nil {
-		return err
-	}
-
-	flatpakHelperMonitorMountArg := flatpakHelperMonitorPath + ":/run/host/monitor"
-
 	homeDirEvaled, err := filepath.EvalSymlinks(currentUser.HomeDir)
 	if err != nil {
 		return fmt.Errorf("failed to canonicalize %s", currentUser.HomeDir)
@@ -371,7 +364,6 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		"--volume", "/tmp:/run/host/tmp:rslave",
 		"--volume", "/var:/run/host/var:rslave",
 		"--volume", dbusSystemSocketMountArg,
-		"--volume", flatpakHelperMonitorMountArg,
 		"--volume", homeDirMountArg,
 		"--volume", toolboxPathMountArg,
 		"--volume", usrMountArg,
