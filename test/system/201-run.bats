@@ -2,13 +2,10 @@
 
 load helpers
 
-@test "Start the 'running' container" {
+@test "Start the 'running' container and check it started alright" {
   run_podman --log-level debug start running
-}
 
-@test "Logs of container 'running' look alright" {
-  run_podman logs running
-  is "${lines[${#lines[@]} - 1]}" "level=debug msg=\"Going to sleep\"" "The last line of the logs should say the entry-point went to sleep"
+  is_toolbox_ready running
 }
 
 @test "Echo 'Hello World' inside of the default container" {
