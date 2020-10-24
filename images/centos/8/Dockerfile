@@ -22,6 +22,5 @@ RUN yum -y swap coreutils-single coreutils && \
 RUN rm /extra-packages /missing-docs
 
 RUN echo VARIANT_ID=container >> /etc/os-release
-RUN ln -s /etc/os-release /usr/lib/os-release
 
 CMD /bin/sh
