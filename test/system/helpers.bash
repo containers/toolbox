@@ -109,6 +109,32 @@ function run_toolbox() {
     fi
 }
 
+# Toolbox helper functions
+
+function is_toolbox_ready() {
+    toolbox_container="$1"
+    expected_string="Going to sleep"
+    num_of_tries=5
+    timeout=2
+
+    run_podman logs $toolbox_container
+
+    for ((i = 0; i < $num_of_tries; i++)); do
+        if [[ "$output" =~ .*"$expected_string".* ]]; then
+            return
+        fi
+
+        sleep $timeout
+        run_podman logs $toolbox_container
+    done
+
+    echo "Output of 'podman logs $toolbox_container':"
+    echo "$output"
+    echo ""
+
+    die "container $toolbox_container was not ready in time"
+}
+
 # Functions to prepare environment
 
 
