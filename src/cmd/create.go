@@ -191,6 +191,10 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	toolboxPathEnvArg := "TOOLBOX_PATH=" + toolboxPath
 	toolboxPathMountArg := toolboxPath + ":/usr/bin/toolbox:ro"
 
+	xdgRuntimeDir := os.Getenv("XDG_RUNTIME_DIR")
+	xdgRuntimeDirEnvArg := "XDG_RUNTIME_DIR=" + xdgRuntimeDir
+	xdgRuntimeDirMountArg := xdgRuntimeDir + ":" + xdgRuntimeDir
+
 	logrus.Debug("Checking if 'podman create' supports '--mount type=devpts'")
 
 	var devPtsMount []string
@@ -234,9 +238,6 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	}
 
 	usrMountArg := "/usr:/run/host/usr:" + usrMountFlags + ",rslave"
-
-	xdgRuntimeDir := os.Getenv("XDG_RUNTIME_DIR")
-	xdgRuntimeDirMountArg := xdgRuntimeDir + ":" + xdgRuntimeDir
 
 	var kcmSocketMount []string
 
@@ -336,6 +337,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		"create",
 		"--dns", "none",
 		"--env", toolboxPathEnvArg,
+		"--env", xdgRuntimeDirEnvArg,
 		"--hostname", "toolbox",
 		"--ipc", "host",
 		"--label", "com.github.containers.toolbox=true",
