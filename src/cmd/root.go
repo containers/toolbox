@@ -226,10 +226,9 @@ func migrate() error {
 		return fmt.Errorf("failed to create configuration directory")
 	}
 
-	runtimeDirectory := os.Getenv("XDG_RUNTIME_DIR")
-	toolboxRuntimeDirectory := runtimeDirectory + "/toolbox"
-	if err := os.MkdirAll(toolboxRuntimeDirectory, 0700); err != nil {
-		return fmt.Errorf("failed to create runtime directory %s", toolboxRuntimeDirectory)
+	toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(currentUser)
+	if err != nil {
+		return err
 	}
 
 	migrateLock := toolboxRuntimeDirectory + "/migrate.lock"

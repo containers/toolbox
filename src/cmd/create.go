@@ -191,9 +191,23 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	toolboxPathEnvArg := "TOOLBOX_PATH=" + toolboxPath
 	toolboxPathMountArg := toolboxPath + ":/usr/bin/toolbox:ro"
 
-	xdgRuntimeDir := os.Getenv("XDG_RUNTIME_DIR")
-	xdgRuntimeDirEnvArg := "XDG_RUNTIME_DIR=" + xdgRuntimeDir
-	xdgRuntimeDirMountArg := xdgRuntimeDir + ":" + xdgRuntimeDir
+	var runtimeDirectory string
+	var xdgRuntimeDirEnv []string
+
+	if currentUser.Uid == "0" {
+		runtimeDirectory, err = utils.GetRuntimeDirectory(currentUser)
+		if err != nil {
+			return err
+		}
+	} else {
+		xdgRuntimeDir := os.Getenv("XDG_RUNTIME_DIR")
+		xdgRuntimeDirEnvArg := "XDG_RUNTIME_DIR=" + xdgRuntimeDir
+		xdgRuntimeDirEnv = []string{"--env", xdgRuntimeDirEnvArg}
+
+		runtimeDirectory = xdgRuntimeDir
+	}
+
+	runtimeDirectoryMountArg := runtimeDirectory + ":" + runtimeDirectory
 
 	logrus.Debug("Checking if 'podman create' supports '--mount type=devpts'")
 
@@ -337,12 +351,16 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		"create",
 		"--dns", "none",
 		"--env", toolboxPathEnvArg,
-		"--env", xdgRuntimeDirEnvArg,
+	}
+
+	createArgs = append(createArgs, xdgRuntimeDirEnv...)
+
+	createArgs = append(createArgs, []string{
 		"--hostname", "toolbox",
 		"--ipc", "host",
 		"--label", "com.github.containers.toolbox=true",
 		"--label", "com.github.debarshiray.toolbox=true",
-	}
+	}...)
 
 	createArgs = append(createArgs, devPtsMount...)
 
@@ -370,7 +388,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		"--volume", homeDirMountArg,
 		"--volume", toolboxPathMountArg,
 		"--volume", usrMountArg,
-		"--volume", xdgRuntimeDirMountArg,
+		"--volume", runtimeDirectoryMountArg,
 	}...)
 
 	createArgs = append(createArgs, kcmSocketMount...)

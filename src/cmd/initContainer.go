@@ -23,6 +23,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -127,15 +128,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		return errors.New(errMsg)
 	}
 
-	runtimeDirectory := os.Getenv("XDG_RUNTIME_DIR")
-	if runtimeDirectory == "" {
-		logrus.Debug("XDG_RUNTIME_DIR is unset")
-
-		runtimeDirectory = fmt.Sprintf("/run/user/%d", initContainerFlags.uid)
-		os.Setenv("XDG_RUNTIME_DIR", runtimeDirectory)
-
-		logrus.Debugf("XDG_RUNTIME_DIR set to %s", runtimeDirectory)
-	}
+	utils.EnsureXdgRuntimeDirIsSet(initContainerFlags.uid)
 
 	logrus.Debug("Creating /run/.toolboxenv")
 
@@ -285,16 +278,15 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 	logrus.Debug("Finished initializing container")
 
-	toolboxRuntimeDirectory := runtimeDirectory + "/toolbox"
-	logrus.Debugf("Creating runtime directory %s", toolboxRuntimeDirectory)
-
-	if err := os.MkdirAll(toolboxRuntimeDirectory, 0700); err != nil {
-		return fmt.Errorf("failed to create runtime directory %s", toolboxRuntimeDirectory)
+	uidString := strconv.Itoa(initContainerFlags.uid)
+	targetUser, err := user.LookupId(uidString)
+	if err != nil {
+		return fmt.Errorf("failed to lookup user ID %s: %w", uidString, err)
 	}
 
-	if err := os.Chown(toolboxRuntimeDirectory, initContainerFlags.uid, initContainerFlags.uid); err != nil {
-		return fmt.Errorf("failed to change ownership of the runtime directory %s",
-			toolboxRuntimeDirectory)
+	toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(targetUser)
+	if err != nil {
+		return err
 	}
 
 	pid := os.Getpid()

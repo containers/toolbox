@@ -238,8 +238,11 @@ func runCommand(container string,
 
 	logrus.Debugf("Waiting for container %s to finish initializing", container)
 
-	runtimeDirectory := os.Getenv("XDG_RUNTIME_DIR")
-	toolboxRuntimeDirectory := runtimeDirectory + "/toolbox"
+	toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(currentUser)
+	if err != nil {
+		return err
+	}
+
 	initializedStamp := fmt.Sprintf("%s/container-initialized-%d", toolboxRuntimeDirectory, entryPointPID)
 
 	logrus.Debugf("Checking if initialization stamp %s exists", initializedStamp)
