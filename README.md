@@ -33,7 +33,7 @@ operating system.
 ## Usage
 
 ### Create your toolbox container:
-```
+```console
 [user@hostname ~]$ toolbox create
 Created container: fedora-toolbox-33
 Enter with: toolbox enter
@@ -42,13 +42,13 @@ Enter with: toolbox enter
 This will create a container called `fedora-toolbox-<version-id>`.
 
 ### Enter the toolbox:
-```
+```console
 [user@hostname ~]$ toolbox enter
 ⬢[user@toolbox ~]$
 ```
 
 ### Remove a toolbox container:
-```
+```console
 [user@hostname ~]$ toolbox rm fedora-toolbox-33
 [user@hostname ~]$
 ```
@@ -67,7 +67,7 @@ The following dependencies enable various optional features:
 - bash-completion
 
 It can be built and installed as any other typical Meson-based project:
-```
+```console
 [user@hostname toolbox]$ meson -Dprofile_dir=/etc/profile.d builddir
 [user@hostname toolbox]$ ninja -C builddir
 [user@hostname toolbox]$ sudo ninja -C builddir install
@@ -203,7 +203,7 @@ it will refuse images that aren't tagged with
 used by the maintainer of the image to indicate that they have read this
 document and tested that the image works with Toolbox. You can use the
 following snippet in a Dockerfile for this:
-```
+```Dockerfile
 LABEL com.github.containers.toolbox="true" \
       com.github.debarshiray.toolbox="true"
 ```
