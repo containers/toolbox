@@ -358,6 +358,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	createArgs = append(createArgs, []string{
 		"--userns=keep-id",
 		"--user", "root:root",
+		"--volume", "/boot:/run/host/boot:rslave",
 		"--volume", "/etc:/run/host/etc",
 		"--volume", "/dev:/dev:rslave",
 		"--volume", "/run:/run/host/run:rslave",
