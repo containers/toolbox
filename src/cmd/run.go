@@ -317,7 +317,7 @@ func runCommand(container string,
 	exitCode, err := shell.RunWithExitCode("podman", os.Stdin, os.Stdout, nil, execArgs...)
 
 	if emitEscapeSequence {
-		fmt.Print("\033]777;container;pop;;\033\\")
+		fmt.Print("\033]777;container;pop;%s;toolbox\033\\", container)
 	}
 
 	switch exitCode {
