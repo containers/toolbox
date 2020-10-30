@@ -24,6 +24,7 @@ import (
 	"os/user"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
@@ -258,6 +259,17 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	logrus.Debug("Setting up daily ticker")
+
+	daily, err := time.ParseDuration("24h")
+	if err != nil {
+		panicMsg := fmt.Sprintf("failed to parse duration: %v", err)
+		panic(panicMsg)
+	}
+
+	tickerDaily := time.NewTicker(daily)
+	defer tickerDaily.Stop()
+
 	logrus.Debug("Setting up watches for file system events")
 
 	watcherForHost, err := fsnotify.NewWatcher()
@@ -301,10 +313,14 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		return errors.New("failed to change ownership of initialization stamp")
 	}
 
-	logrus.Debug("Listening to file system events")
+	logrus.Debug("Listening to file system and ticker events")
+
+	go runUpdateDb()
 
 	for {
 		select {
+		case event := <-tickerDaily.C:
+			handleDailyTick(event)
 		case event := <-watcherForHost.Events:
 			handleFileSystemEvent(event)
 		case err := <-watcherForHost.Errors:
@@ -405,6 +421,13 @@ func configureUsers(targetUserUid int,
 	}
 
 	return nil
+}
+
+func handleDailyTick(event time.Time) {
+	eventString := event.String()
+	logrus.Debugf("Handling daily tick %s", eventString)
+
+	runUpdateDb()
 }
 
 func handleFileSystemEvent(event fsnotify.Event) {
@@ -514,6 +537,12 @@ func redirectPath(containerPath, target string, folder bool) error {
 	}
 
 	return nil
+}
+
+func runUpdateDb() {
+	if err := shell.Run("updatedb", nil, nil, nil); err != nil {
+		logrus.Warnf("Failed to run updatedb(8): %v", err)
+	}
 }
 
 func sanitizeRedirectionTarget(target string) string {

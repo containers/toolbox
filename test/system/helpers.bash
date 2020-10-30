@@ -113,7 +113,7 @@ function run_toolbox() {
 
 function is_toolbox_ready() {
     toolbox_container="$1"
-    expected_string="Listening to file system events"
+    expected_string="Listening to file system and ticker events"
     num_of_tries=5
     timeout=2
 
