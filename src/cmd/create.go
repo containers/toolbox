@@ -43,8 +43,10 @@ const (
 var (
 	createFlags struct {
 		container string
+		gidmap    string
 		image     string
 		release   string
+		uidmap    string
 	}
 
 	createToolboxShMounts = []struct {
@@ -71,6 +73,11 @@ func init() {
 		"",
 		"Assign a different name to the toolbox container.")
 
+	flags.StringVar(&createFlags.gidmap,
+		"gidmap",
+		"",
+		"The --gidmap option passed to podman when creating the container.")
+
 	flags.StringVarP(&createFlags.image,
 		"image",
 		"i",
@@ -82,6 +89,11 @@ func init() {
 		"r",
 		"",
 		"Create a toolbox container for a different operating system release than the host.")
+
+	flags.StringVar(&createFlags.uidmap,
+		"uidmap",
+		"",
+		"The --uidmap option passed to podman when creating the container.")
 
 	createCmd.SetHelpFunc(createHelp)
 	rootCmd.AddCommand(createCmd)
@@ -355,8 +367,19 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 
 	createArgs = append(createArgs, ulimitHost...)
 
+	var usernsArgs []string
+	if createFlags.uidmap != "" {
+		usernsArgs = append(usernsArgs, "--uidmap", createFlags.uidmap)
+	}
+	if createFlags.gidmap != "" {
+		usernsArgs = append(usernsArgs, "--gidmap", createFlags.gidmap)
+	}
+	if len(usernsArgs) == 0 {
+		usernsArgs = append(usernsArgs, "--userns=keep-id")
+	}
+	createArgs = append(createArgs, usernsArgs...)
+
 	createArgs = append(createArgs, []string{
-		"--userns=keep-id",
 		"--user", "root:root",
 		"--volume", "/etc:/run/host/etc",
 		"--volume", "/dev:/dev:rslave",

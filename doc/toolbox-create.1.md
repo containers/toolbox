@@ -8,6 +8,7 @@ toolbox\-create - Create a new toolbox container
                [*--container NAME* | *-c NAME*]
                [*--image NAME* | *-i NAME*]
                [*--release RELEASE* | *-r RELEASE*]
+               [*--uidmap UIDMAP*] [*--gidmap GIDMAP*]
 
 ## DESCRIPTION
 
@@ -50,6 +51,11 @@ is useful for creating containers from custom-built base images.
 
 Create a toolbox container for a different operating system RELEASE than the
 host.
+
+**--uidmap** UIDMAP, **--gidmap** GIDMAP
+
+The `--uidmap` and `--gidmap` options passed to `podman` when creating the
+container; if both are omit, `--userns=keep-id` will be used.
 
 ## EXAMPLES
 

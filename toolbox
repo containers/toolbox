@@ -69,8 +69,10 @@ toolbox_container_default=""
 toolbox_container_old_v1=""
 toolbox_container_old_v2=""
 toolbox_container_prefix_default=""
+toolbox_gidmap=
 toolbox_image=""
 toolbox_runtime_directory="$XDG_RUNTIME_DIR"/toolbox
+toolbox_uidmap=
 user_id_real=$(id -ru 2>&3)
 verbose=false
 
@@ -907,6 +909,7 @@ create()
     run_media_path_bind=""
     toolbox_profile_bind=""
     ulimit_host=""
+    userns_args=()
     usr_mount_destination_flags="ro"
 
     # shellcheck disable=SC2153
@@ -1070,6 +1073,16 @@ create()
         spinner_directory=""
     fi
 
+    if [ "${toolbox_uidmap}" != "" ]; then
+        userns_args+=(--uidmap "${toolbox_uidmap}")
+    fi
+    if [ "${toolbox_gidmap}" != "" ]; then
+        userns_args+=(--gidmap "${toolbox_gidmap}")
+    fi
+    if [ ${#userns_args[@]} -eq 0 ]; then
+        userns_args+=(--userns=keep-id)
+    fi
+
     # shellcheck disable=SC2086
     $podman_command create \
             --dns none \
@@ -1085,7 +1098,7 @@ create()
             --privileged \
             --security-opt label=disable \
             $ulimit_host \
-            --userns=keep-id \
+            "${userns_args[@]}" \
             --user root:root \
             $kcm_socket_bind \
             $media_path_bind \
@@ -2398,6 +2411,11 @@ case $op in
                     help "$op"
                     exit
                     ;;
+                --gidmap )
+                    shift
+                    exit_if_missing_argument --gidmap "$1"
+                    toolbox_gidmap=$1
+                    ;;
                 -i | --image )
                     shift
                     exit_if_missing_argument --image "$1"
@@ -2409,6 +2427,11 @@ case $op in
                     arg=$(echo "$1" | sed "s/^F\|^f//" 2>&3)
                     exit_if_non_positive_argument --release "$arg"
                     release=$arg
+                    ;;
+                --uidmap )
+                    shift
+                    exit_if_missing_argument --uidmap "$1"
+                    toolbox_uidmap=$1
                     ;;
                 * )
                     exit_if_unrecognized_option "$1"
