@@ -64,6 +64,7 @@ var (
 		"SSH_AUTH_SOCK",
 		"TERM",
 		"TOOLBOX_PATH",
+		"USER",
 		"VTE_VERSION",
 		"WAYLAND_DISPLAY",
 		"XAUTHORITY",
