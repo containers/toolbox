@@ -44,6 +44,7 @@ var (
 	createFlags struct {
 		container string
 		distro    string
+		hostname  string
 		image     string
 		release   string
 	}
@@ -77,6 +78,11 @@ func init() {
 		"d",
 		"",
 		"Create a toolbox container for a different operating system distribution than the host")
+
+	flags.StringVar(&createFlags.hostname,
+		"hostname",
+		"toolbox",
+		"Create the toolbox container using the specified hostname (default: toolbox).")
 
 	flags.StringVarP(&createFlags.image,
 		"image",
@@ -390,7 +396,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	createArgs = append(createArgs, xdgRuntimeDirEnv...)
 
 	createArgs = append(createArgs, []string{
-		"--hostname", "toolbox",
+		"--hostname", createFlags.hostname,
 		"--ipc", "host",
 		"--label", "com.github.containers.toolbox=true",
 		"--label", "com.github.debarshiray.toolbox=true",

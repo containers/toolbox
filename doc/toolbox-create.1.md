@@ -6,6 +6,7 @@ toolbox\-create - Create a new toolbox container
 ## SYNOPSIS
 **toolbox create** [*--container NAME* | *-c NAME*]
                [*--distro DISTRO* | *-d DISTRO*]
+               [*--hostname HOSTNAME*]
                [*--image NAME* | *-i NAME*]
                [*--release RELEASE* | *-r RELEASE*]
 
@@ -40,6 +41,10 @@ customized containers from custom-built base images.
 
 Create a toolbox container for a different operating system DISTRO than the
 host. Cannot be used with `--image`.
+
+**--hostname** HOSTNAME
+
+Create the toolbox container using the specified hostname (default: toolbox).
 
 **--image** NAME, **-i** NAME
 

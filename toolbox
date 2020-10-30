@@ -70,6 +70,7 @@ toolbox_container_default=""
 toolbox_container_old_v1=""
 toolbox_container_old_v2=""
 toolbox_container_prefix_default=""
+toolbox_hostname=toolbox
 toolbox_image=""
 toolbox_runtime_directory="$XDG_RUNTIME_DIR"/toolbox
 user_id_real=$(id -ru 2>&3)
@@ -1075,7 +1076,7 @@ create()
     $podman_command create \
             --dns none \
             --env TOOLBOX_PATH="$TOOLBOX_PATH" \
-            --hostname toolbox \
+            --hostname "${toolbox_hostname}" \
             --ipc host \
             --label "com.github.containers.toolbox=true" \
             --label "com.github.debarshiray.toolbox=true" \
@@ -2398,6 +2399,11 @@ case $op in
                 -h | --help )
                     help "$op"
                     exit
+                    ;;
+                --hostname )
+                    shift
+                    exit_if_missing_argument --hostname "$1"
+                    toolbox_hostname=$1
                     ;;
                 -i | --image )
                     shift
