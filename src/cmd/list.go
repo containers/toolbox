@@ -25,6 +25,7 @@ import (
 
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/utils"
+	"github.com/mattn/go-isatty"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -261,16 +262,26 @@ func listOutput(images []toolboxImage, containers []toolboxContainer) {
 		const defaultColor = "\033[0;00m" // identical to resetColor, but same length as boldGreenColor
 		const resetColor = "\033[0m"
 
+		stdoutFd := os.Stdout.Fd()
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+
+		if isatty.IsTerminal(stdoutFd) {
+			fmt.Fprintf(writer, "%s", defaultColor)
+		}
+
 		fmt.Fprintf(writer,
-			"%s%s\t%s\t%s\t%s\t%s%s\n",
-			defaultColor,
+			"%s\t%s\t%s\t%s\t%s",
 			"CONTAINER ID",
 			"CONTAINER NAME",
 			"CREATED",
 			"STATUS",
-			"IMAGE NAME",
-			resetColor)
+			"IMAGE NAME")
+
+		if isatty.IsTerminal(stdoutFd) {
+			fmt.Fprintf(writer, "%s", resetColor)
+		}
+
+		fmt.Fprintf(writer, "\n")
 
 		for _, container := range containers {
 			isRunning := false
@@ -278,21 +289,29 @@ func listOutput(images []toolboxImage, containers []toolboxContainer) {
 				isRunning = container.Status == "running"
 			}
 
-			var color string
-			if isRunning {
-				color = boldGreenColor
-			} else {
-				color = defaultColor
+			if isatty.IsTerminal(stdoutFd) {
+				var color string
+				if isRunning {
+					color = boldGreenColor
+				} else {
+					color = defaultColor
+				}
+
+				fmt.Fprintf(writer, "%s", color)
 			}
 
-			fmt.Fprintf(writer, "%s%s\t%s\t%s\t%s\t%s%s\n",
-				color,
+			fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s",
 				utils.ShortID(container.ID),
 				container.Names[0],
 				container.Created,
 				container.Status,
-				container.Image,
-				resetColor)
+				container.Image)
+
+			if isatty.IsTerminal(stdoutFd) {
+				fmt.Fprintf(writer, "%s", resetColor)
+			}
+
+			fmt.Fprintf(writer, "\n")
 		}
 
 		writer.Flush()
