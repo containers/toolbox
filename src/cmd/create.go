@@ -227,6 +227,13 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		ulimitHost = []string{"--ulimit", "host"}
 	}
 
+	var usernsArg string
+	if currentUser.Uid == "0" {
+		usernsArg = "host"
+	} else {
+		usernsArg = "keep-id"
+	}
+
 	dbusSystemSocket, err := getDBusSystemSocket()
 	if err != nil {
 		return err
@@ -376,7 +383,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	createArgs = append(createArgs, ulimitHost...)
 
 	createArgs = append(createArgs, []string{
-		"--userns=keep-id",
+		"--userns", usernsArg,
 		"--user", "root:root",
 		"--volume", "/boot:/run/host/boot:rslave",
 		"--volume", "/etc:/run/host/etc",
