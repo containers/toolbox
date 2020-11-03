@@ -1,3 +1,18 @@
+Overview of changes in 0.0.97
+=============================
+
+* Allow X11 clients to run as root
+* Color the output only when displaying on a terminal
+* Don't rely on user D-Bus to track time zone configuration
+* Enable running minikube on Silverblue
+* Expose the host's /boot inside the container at /run/host
+* Fix missing terminfo warning for Ubuntu containers
+* Make locate(1) work inside toolbox containers
+* Make pseudo-terminal devices be owned by the 'tty' group
+* Rework test to check if a toolbox container started successfully
+* Run a login shell when falling back to Bash during 'enter'
+
+
 Overview of changes in 0.0.96
 =============================
 
