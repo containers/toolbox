@@ -386,7 +386,6 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		"--shell", userShell,
 		"--uid", currentUser.Uid,
 		"--user", currentUser.Username,
-		"--monitor-host",
 	}
 
 	entryPoint = append(entryPoint, slashHomeLink...)

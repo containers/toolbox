@@ -9,7 +9,6 @@ toolbox\-init\-container - Initialize a running container
                        *--home-link*
                        *--media-link*
                        *--mnt-link*
-                       *--monitor-host*
                        *--shell SHELL*
                        *--uid UID*
                        *--user USER*
@@ -76,31 +75,12 @@ Make `/mnt` a symbolic link to `/var/mnt`.
 
 **--monitor-host**
 
-Ensures that certain configuration files inside the toolbox container are kept
-synchronized with their counterparts on the host, and bind mounts some paths
-from the host's file system into the container.
+Deprecated, does nothing.
 
-The synchronized files are:
-
-- `/etc/host.conf`
-- `/etc/hosts`
-- `/etc/localtime`
-- `/etc/resolv.conf`
-- `/etc/timezone`
-
-The bind mounted paths are:
-
-- `/etc/machine-id`
-- `/run/libvirt`
-- `/run/systemd/journal`
-- `/run/systemd/resolve`
-- `/run/udev/data`
-- `/tmp`
-- `/var/lib/flatpak`
-- `/var/lib/libvirt`
-- `/var/lib/systemd/coredump`
-- `/var/log/journal`
-- `/var/mnt`
+Crucial configuration files inside the toolbox container are always kept
+synchronized with their counterparts on the host, and various subsets of the
+host's file system hierarchy are always bind mounted to their corresponding
+locations inside the toolbox container.
 
 **--shell** SHELL
 

@@ -107,8 +107,12 @@ func init() {
 
 	flags.BoolVar(&initContainerFlags.monitorHost,
 		"monitor-host",
-		false,
-		"Ensure that certain configuration files inside the toolbox container are in sync with the host")
+		true,
+		"Deprecated, does nothing")
+	if err := flags.MarkDeprecated("monitor-host", "it does nothing"); err != nil {
+		panicMsg := fmt.Sprintf("cannot mark --monitor-host as deprecated: %s", err)
+		panic(panicMsg)
+	}
 
 	flags.StringVar(&initContainerFlags.shell,
 		"shell",
@@ -163,59 +167,55 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 	defer toolboxEnvFile.Close()
 
-	if initContainerFlags.monitorHost {
-		logrus.Debug("Monitoring host")
+	if utils.PathExists("/run/host/etc") {
+		logrus.Debug("Path /run/host/etc exists")
 
-		if utils.PathExists("/run/host/etc") {
-			logrus.Debug("Path /run/host/etc exists")
-
-			if _, err := os.Readlink("/etc/host.conf"); err != nil {
-				if err := redirectPath("/etc/host.conf",
-					"/run/host/etc/host.conf",
-					false); err != nil {
-					return err
-				}
-			}
-
-			if _, err := os.Readlink("/etc/hosts"); err != nil {
-				if err := redirectPath("/etc/hosts",
-					"/run/host/etc/hosts",
-					false); err != nil {
-					return err
-				}
-			}
-
-			if localtimeTarget, err := os.Readlink("/etc/localtime"); err != nil ||
-				localtimeTarget != "/run/host/etc/localtime" {
-				if err := redirectPath("/etc/localtime",
-					"/run/host/etc/localtime",
-					false); err != nil {
-					return err
-				}
-			}
-
-			if err := updateTimeZoneFromLocalTime(); err != nil {
+		if _, err := os.Readlink("/etc/host.conf"); err != nil {
+			if err := redirectPath("/etc/host.conf",
+				"/run/host/etc/host.conf",
+				false); err != nil {
 				return err
 			}
+		}
 
-			if _, err := os.Readlink("/etc/resolv.conf"); err != nil {
-				if err := redirectPath("/etc/resolv.conf",
-					"/run/host/etc/resolv.conf",
-					false); err != nil {
-					return err
-				}
+		if _, err := os.Readlink("/etc/hosts"); err != nil {
+			if err := redirectPath("/etc/hosts",
+				"/run/host/etc/hosts",
+				false); err != nil {
+				return err
 			}
+		}
 
-			for _, mount := range initContainerMounts {
-				if err := mountBind(mount.containerPath, mount.source, mount.flags); err != nil {
-					return err
-				}
+		if localtimeTarget, err := os.Readlink("/etc/localtime"); err != nil ||
+			localtimeTarget != "/run/host/etc/localtime" {
+			if err := redirectPath("/etc/localtime",
+				"/run/host/etc/localtime",
+				false); err != nil {
+				return err
 			}
+		}
 
-			if utils.PathExists("/sys/fs/selinux") {
-				if err := mountBind("/sys/fs/selinux", "/usr/share/empty", ""); err != nil {
-					return err
-				}
+		if err := updateTimeZoneFromLocalTime(); err != nil {
+			return err
+		}
+
+		if _, err := os.Readlink("/etc/resolv.conf"); err != nil {
+			if err := redirectPath("/etc/resolv.conf",
+				"/run/host/etc/resolv.conf",
+				false); err != nil {
+				return err
+			}
+		}
+
+		for _, mount := range initContainerMounts {
+			if err := mountBind(mount.containerPath, mount.source, mount.flags); err != nil {
+				return err
+			}
+		}
+
+		if utils.PathExists("/sys/fs/selinux") {
+			if err := mountBind("/sys/fs/selinux", "/usr/share/empty", ""); err != nil {
+				return err
 			}
 		}
 	}
