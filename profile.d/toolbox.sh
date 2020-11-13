@@ -5,8 +5,14 @@ toolbox_config="$HOME/.config/toolbox"
 host_welcome_stub="$toolbox_config/host-welcome-shown"
 toolbox_welcome_stub="$toolbox_config/toolbox-welcome-shown"
 
-# shellcheck disable=SC1091
-. /usr/lib/os-release
+# shellcheck disable=2046
+eval $(
+          # shellcheck disable=SC1091
+          . /usr/lib/os-release
+
+          echo ID="$ID"
+          echo VARIANT_ID="$VARIANT_ID"
+      )
 
 if [ -f /run/ostree-booted ] \
    && ! [ -f "$host_welcome_stub" ] \
