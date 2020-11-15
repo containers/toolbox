@@ -260,9 +260,20 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 
 	usrMountArg := "/usr:/run/host/usr:" + usrMountFlags + ",rslave"
 
+	var avahiSocketMount []string
+
+	avahiSocket, err := getServiceSocket("Avahi", "avahi-daemon.socket")
+	if err != nil {
+		logrus.Debug(err)
+	}
+	if avahiSocket != "" {
+		avahiSocketMountArg := avahiSocket + ":" + avahiSocket
+		avahiSocketMount = []string{"--volume", avahiSocketMountArg}
+	}
+
 	var kcmSocketMount []string
 
-	kcmSocket, err := getKCMSocket()
+	kcmSocket, err := getServiceSocket("KCM", "sssd-kcm.socket")
 	if err != nil {
 		logrus.Debug(err)
 	}
@@ -398,6 +409,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		"--volume", runtimeDirectoryMountArg,
 	}...)
 
+	createArgs = append(createArgs, avahiSocketMount...)
 	createArgs = append(createArgs, kcmSocketMount...)
 	createArgs = append(createArgs, mediaMount...)
 	createArgs = append(createArgs, mntMount...)
@@ -530,28 +542,30 @@ func getFullyQualifiedImageName(image string) (string, error) {
 	return imageFull, nil
 }
 
-func getKCMSocket() (string, error) {
-	logrus.Debug("Resolving path to the KCM socket")
+func getServiceSocket(serviceName string, unitName string) (string, error) {
+	logrus.Debugf("Resolving path to the %s socket", serviceName)
 
 	connection, err := dbus.SystemBus()
 	if err != nil {
 		return "", errors.New("failed to connect to the D-Bus system instance")
 	}
 
-	kcmUnitNameEscaped := systemdPathBusEscape("sssd-kcm.socket")
-	kcmUnitPath := dbus.ObjectPath("/org/freedesktop/systemd1/unit/" + kcmUnitNameEscaped)
-	kcmUnit := connection.Object("org.freedesktop.systemd1", kcmUnitPath)
-	call := kcmUnit.Call("org.freedesktop.DBus.Properties.GetAll", 0, "")
+	unitNameEscaped := systemdPathBusEscape(unitName)
+	unitPath := dbus.ObjectPath("/org/freedesktop/systemd1/unit/" + unitNameEscaped)
+	unit := connection.Object("org.freedesktop.systemd1", unitPath)
+	call := unit.Call("org.freedesktop.DBus.Properties.GetAll", 0, "")
 
 	var result map[string]dbus.Variant
 	err = call.Store(&result)
 	if err != nil {
-		return "", errors.New("failed to get the properties of sssd-kcm.socket")
+		errMsg := fmt.Sprintf("failed to get the properties of %s", unitName)
+		return "", errors.New(errMsg)
 	}
 
 	listenVariant, listenFound := result["Listen"]
 	if !listenFound {
-		return "", errors.New("failed to find the Listen property of sssd-kcm.socket")
+		errMsg := fmt.Sprintf("failed to find the Listen property of %s", unitName)
+		return "", errors.New(errMsg)
 	}
 
 	listenVariantSignature := listenVariant.Signature().String()
@@ -577,7 +591,8 @@ func getKCMSocket() (string, error) {
 		}
 	}
 
-	return "", errors.New("failed to find a SOCK_STREAM socket for sssd-kcm.socket")
+	errMsg := fmt.Sprintf("failed to find a SOCK_STREAM socket for %s", unitName)
+	return "", errors.New(errMsg)
 }
 
 func isUsrReadWrite() (bool, error) {
