@@ -19,6 +19,7 @@ man-db
 man-pages
 mlocate
 mtr
+nss-mdns
 openssh-clients
 passwd
 pigz

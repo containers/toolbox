@@ -18,6 +18,7 @@ man-db
 man-pages
 mlocate
 mtr
+nss-mdns
 openssh-clients
 PackageKit-command-not-found
 passwd
