@@ -8,6 +8,7 @@ toolbox\-create - Create a new toolbox container
                [*--distro DISTRO* | *-d DISTRO*]
                [*--image NAME* | *-i NAME*]
                [*--release RELEASE* | *-r RELEASE*]
+               [*--volume BINDMOUNT*]...
 
 ## DESCRIPTION
 
@@ -51,6 +52,11 @@ used with `--release`.
 
 Create a toolbox container for a different operating system RELEASE than the
 host. Cannot be used with `--image`.
+
+**--volume** BINDMOUNT
+
+Create the toolbox container with additional bind mounts. Use the same format as
+--volume of podman. Can be specified multiple times.
 
 ## EXAMPLES
 

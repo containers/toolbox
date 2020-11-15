@@ -64,6 +64,7 @@ release_default=""
 spinner_animation="[>----] [=>---] [==>--] [===>-] [====>] [----<] [---<=] [--<==] [-<===] [<====]"
 spinner_template="toolbox-spinner-XXXXXXXXXX"
 tab="$(printf '\t')"
+toolbox_additional_binds=()
 toolbox_command_path=""
 toolbox_container=""
 toolbox_container_default=""
@@ -1104,6 +1105,7 @@ create()
             --volume /tmp:/run/host/tmp:rslave \
             --volume /usr:/run/host/usr:"$usr_mount_destination_flags",rslave \
             --volume /var:/run/host/var:rslave \
+            "${toolbox_additional_binds[@]}"
             "$base_toolbox_image_full" \
             toolbox --verbose init-container \
                     --home "$HOME" \
@@ -2411,6 +2413,11 @@ case $op in
                     exit_if_non_positive_argument --release "$arg"
                     release=$arg
                     ;;
+                --volume )
+                    shift
+                    exit_if_missing_argument --volume "$1"
+                    toolbox_additional_binds+=(--volume "$1")
+		    ;;
                 * )
                     exit_if_unrecognized_option "$1"
             esac
