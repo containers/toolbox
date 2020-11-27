@@ -586,6 +586,28 @@ func sanitizeRedirectionTarget(target string) string {
 	return target
 }
 
+func extractTimeZoneFromLocalTimeSymLink(path string) (string, error) {
+	zoneInfoRoots := []string{
+		"/run/host/usr/share/zoneinfo",
+		"/usr/share/zoneinfo",
+	}
+
+	for _, root := range zoneInfoRoots {
+		if !strings.HasPrefix(path, root) {
+			continue
+		}
+
+		timeZone, err := filepath.Rel(root, path)
+		if err != nil {
+			return "", fmt.Errorf("failed to extract time zone: %w", err)
+		}
+
+		return timeZone, nil
+	}
+
+	return "", errors.New("/etc/localtime points to unknown location")
+}
+
 func updateTimeZoneFromLocalTime() error {
 	localTimeEvaled, err := filepath.EvalSymlinks("/etc/localtime")
 	if err != nil {
@@ -602,15 +624,9 @@ func updateTimeZoneFromLocalTime() error {
 
 	logrus.Debugf("Resolved /etc/localtime to %s", localTimeEvaled)
 
-	const zoneInfoRoot = "/run/host/usr/share/zoneinfo"
-
-	if !strings.HasPrefix(localTimeEvaled, zoneInfoRoot) {
-		return errors.New("/etc/localtime points to unknown location")
-	}
-
-	timeZone, err := filepath.Rel(zoneInfoRoot, localTimeEvaled)
+	timeZone, err := extractTimeZoneFromLocalTimeSymLink(localTimeEvaled)
 	if err != nil {
-		return fmt.Errorf("failed to extract time zone: %w", err)
+		return err
 	}
 
 	if err := writeTimeZone(timeZone); err != nil {
