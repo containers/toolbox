@@ -397,6 +397,23 @@ func ImageReferenceCanBeID(image string) (bool, error) {
 }
 
 func ImageReferenceGetBasename(image string) string {
+	repository := ImageReferenceGetRepository(image)
+
+	basename := filepath.Base(repository)
+	return basename
+}
+
+func ImageReferenceGetDomain(image string) string {
+	if !ImageReferenceHasDomain(image) {
+		return ""
+	}
+
+	i := strings.IndexRune(image, '/')
+	domain := image[:i]
+	return domain
+}
+
+func ImageReferenceGetRepository(image string) string {
 	var i int
 
 	if ImageReferenceHasDomain(image) {
@@ -410,18 +427,7 @@ func ImageReferenceGetBasename(image string) string {
 	}
 
 	path := remainder[:j]
-	basename := filepath.Base(path)
-	return basename
-}
-
-func ImageReferenceGetDomain(image string) string {
-	if !ImageReferenceHasDomain(image) {
-		return ""
-	}
-
-	i := strings.IndexRune(image, '/')
-	domain := image[:i]
-	return domain
+	return path
 }
 
 func ImageReferenceGetTag(image string) string {
