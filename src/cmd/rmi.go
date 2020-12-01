@@ -44,13 +44,13 @@ var rmiCmd = &cobra.Command{
 func init() {
 	flags := rmiCmd.Flags()
 
-	flags.BoolVarP(&rmiFlags.deleteAll, "all", "a", false, "Remove all toolbox containers.")
+	flags.BoolVarP(&rmiFlags.deleteAll, "all", "a", false, "Remove all toolbox containers")
 
 	flags.BoolVarP(&rmiFlags.forceDelete,
 		"force",
 		"f",
 		false,
-		"Force the removal of running and paused toolbox containers.")
+		"Force the removal of running and paused toolbox containers")
 
 	rmiCmd.SetHelpFunc(rmiHelp)
 	rootCmd.AddCommand(rmiCmd)

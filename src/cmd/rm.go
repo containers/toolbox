@@ -44,13 +44,13 @@ var rmCmd = &cobra.Command{
 func init() {
 	flags := rmCmd.Flags()
 
-	flags.BoolVarP(&rmFlags.deleteAll, "all", "a", false, "Remove all toolbox containers.")
+	flags.BoolVarP(&rmFlags.deleteAll, "all", "a", false, "Remove all toolbox containers")
 
 	flags.BoolVarP(&rmFlags.forceDelete,
 		"force",
 		"f",
 		false,
-		"Force the removal of running and paused toolbox containers.")
+		"Force the removal of running and paused toolbox containers")
 
 	rmCmd.SetHelpFunc(rmHelp)
 	rootCmd.AddCommand(rmCmd)

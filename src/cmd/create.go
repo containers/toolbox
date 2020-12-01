@@ -69,19 +69,19 @@ func init() {
 		"container",
 		"c",
 		"",
-		"Assign a different name to the toolbox container.")
+		"Assign a different name to the toolbox container")
 
 	flags.StringVarP(&createFlags.image,
 		"image",
 		"i",
 		"",
-		"Change the name of the base image used to create the toolbox container.")
+		"Change the name of the base image used to create the toolbox container")
 
 	flags.StringVarP(&createFlags.release,
 		"release",
 		"r",
 		"",
-		"Create a toolbox container for a different operating system release than the host.")
+		"Create a toolbox container for a different operating system release than the host")
 
 	createCmd.SetHelpFunc(createHelp)
 	rootCmd.AddCommand(createCmd)

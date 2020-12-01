@@ -51,13 +51,13 @@ func init() {
 		"container",
 		"c",
 		"",
-		"Run command inside a toolbox container with the given name.")
+		"Run command inside a toolbox container with the given name")
 
 	flags.StringVarP(&runFlags.release,
 		"release",
 		"r",
 		"",
-		"Run command inside a toolbox container for a different operating system release than the host.")
+		"Run command inside a toolbox container for a different operating system release than the host")
 
 	runCmd.SetHelpFunc(runHelp)
 	rootCmd.AddCommand(runCmd)

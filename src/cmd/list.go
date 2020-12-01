@@ -64,13 +64,13 @@ func init() {
 		"containers",
 		"c",
 		false,
-		"List only toolbox containers, not images.")
+		"List only toolbox containers, not images")
 
 	flags.BoolVarP(&listFlags.onlyImages,
 		"images",
 		"i",
 		false,
-		"List only toolbox images, not containers.")
+		"List only toolbox images, not containers")
 
 	listCmd.SetHelpFunc(listHelp)
 	rootCmd.AddCommand(listCmd)

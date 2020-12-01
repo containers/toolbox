@@ -77,42 +77,42 @@ func init() {
 	flags.StringVar(&initContainerFlags.home,
 		"home",
 		"",
-		"Create a user inside the toolbox container whose login directory is HOME.")
+		"Create a user inside the toolbox container whose login directory is HOME")
 	initContainerCmd.MarkFlagRequired("home")
 
 	flags.BoolVar(&initContainerFlags.homeLink,
 		"home-link",
 		false,
-		"Make /home a symbolic link to /var/home.")
+		"Make /home a symbolic link to /var/home")
 
 	flags.BoolVar(&initContainerFlags.mediaLink,
 		"media-link",
 		false,
-		"Make /media a symbolic link to /run/media.")
+		"Make /media a symbolic link to /run/media")
 
-	flags.BoolVar(&initContainerFlags.mntLink, "mnt-link", false, "Make /mnt a symbolic link to /var/mnt.")
+	flags.BoolVar(&initContainerFlags.mntLink, "mnt-link", false, "Make /mnt a symbolic link to /var/mnt")
 
 	flags.BoolVar(&initContainerFlags.monitorHost,
 		"monitor-host",
 		false,
-		"Ensure that certain configuration files inside the toolbox container are in sync with the host.")
+		"Ensure that certain configuration files inside the toolbox container are in sync with the host")
 
 	flags.StringVar(&initContainerFlags.shell,
 		"shell",
 		"",
-		"Create a user inside the toolbox container whose login shell is SHELL.")
+		"Create a user inside the toolbox container whose login shell is SHELL")
 	initContainerCmd.MarkFlagRequired("shell")
 
 	flags.IntVar(&initContainerFlags.uid,
 		"uid",
 		0,
-		"Create a user inside the toolbox container whose numerical user ID is UID.")
+		"Create a user inside the toolbox container whose numerical user ID is UID")
 	initContainerCmd.MarkFlagRequired("uid")
 
 	flags.StringVar(&initContainerFlags.user,
 		"user",
 		"",
-		"Create a user inside the toolbox container whose login name is USER.")
+		"Create a user inside the toolbox container whose login name is USER")
 	initContainerCmd.MarkFlagRequired("user")
 
 	initContainerCmd.SetHelpFunc(initContainerHelp)

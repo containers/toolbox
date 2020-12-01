@@ -46,13 +46,13 @@ func init() {
 		"container",
 		"c",
 		"",
-		"Enter a toolbox container with the given name.")
+		"Enter a toolbox container with the given name")
 
 	flags.StringVarP(&enterFlags.release,
 		"release",
 		"r",
 		"",
-		"Enter a toolbox container for a different operating system release than the host.")
+		"Enter a toolbox container for a different operating system release than the host")
 
 	enterCmd.SetHelpFunc(enterHelp)
 	rootCmd.AddCommand(enterCmd)
