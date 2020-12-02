@@ -17,12 +17,33 @@ var (
 			"fedora-toolbox",
 			"latest",
 		},
+		"ubi7": {
+			"registry.access.redhat.com",
+			"ubi7",
+			"latest",
+		},
+		"ubi7-2": {
+			"registry.access.redhat.com",
+			"ubi7/ubi",
+			"latest",
+		},
+		"ubi8": {
+			"registry.access.redhat.com",
+			"ubi8",
+			"latest",
+		},
+		"ubi8-2": {
+			"registry.access.redhat.com",
+			"ubi8/ubi",
+			"latest",
+		},
 	}
 
 	// supportedSystems holds ids of known systems. IDs are taken from the ID
 	// entry of 'os-release'. Every id has a toolbox image attached.
 	supportedSystems = map[string]Image{
 		"fedora": knownImages["fedora-toolbox"],
+		"rhel":   knownImages["ubi8"],
 	}
 )
 

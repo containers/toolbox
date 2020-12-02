@@ -472,27 +472,6 @@ func ShortID(id string) string {
 	return id
 }
 
-func ParseRelease(str string) (string, error) {
-	var release string
-
-	if strings.HasPrefix(str, "F") || strings.HasPrefix(str, "f") {
-		release = str[1:]
-	} else {
-		release = str
-	}
-
-	releaseN, err := strconv.Atoi(release)
-	if err != nil {
-		return "", err
-	}
-
-	if releaseN <= 0 {
-		return "", errors.New("release must be a positive integer")
-	}
-
-	return release, nil
-}
-
 // PathExists wraps around os.Stat providing a nice interface for checking an existence of a path.
 func PathExists(path string) bool {
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
