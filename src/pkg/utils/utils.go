@@ -497,10 +497,15 @@ func PathExists(path string) bool {
 }
 
 // IsContainerNameValid checks if the name of a container matches the right pattern
-func IsContainerNameValid(containerName string) (bool, error) {
+func IsContainerNameValid(containerName string) bool {
 	pattern := "^" + ContainerNameRegexp + "$"
 	matched, err := regexp.MatchString(pattern, containerName)
-	return matched, err
+	if err != nil {
+		panicMsg := fmt.Sprintf("failed to parse regular expression for container name: %v", err)
+		panic(panicMsg)
+	}
+
+	return matched
 }
 
 func IsInsideContainer() bool {

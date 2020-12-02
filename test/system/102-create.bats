@@ -16,5 +16,5 @@ load helpers
 
 @test "Try to create a container with invalid custom name" {
   run_toolbox 1 -y create "ßpeci@l.Nam€"
-  is "${lines[0]}" "Error: failed to create container ßpeci@l.Nam€" "Toolbox should fail to create a container with such name"
+  is "${lines[0]}" "Error: invalid argument for 'CONTAINER'" "Toolbox should fail to create a container with such name"
 }
