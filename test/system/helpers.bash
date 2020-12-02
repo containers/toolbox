@@ -8,7 +8,7 @@ TOOLBOX=${TOOLBOX:-toolbox}
 LATEST_FEDORA_VERSION=${LATEST_FEDORA_VERSION:-"32"}
 DEFAULT_FEDORA_VERSION=${DEFAULT_FEDORA_VERSION:-"f31"}
 REGISTRY_URL=${REGISTRY_URL:-"registry.fedoraproject.org"}
-TOOLBOX_DEFAULT_IMAGE=${TOOLBOX_DEFAULT_IMAGE:-"registry.fedoraproject.org/f31/fedora-toolbox:31"}
+TOOLBOX_DEFAULT_IMAGE=${TOOLBOX_DEFAULT_IMAGE:-"registry.fedoraproject.org/fedora-toolbox:31"}
 TOOLBOX_TIMEOUT=${TOOLBOX_TIMEOUT:-100}
 PODMAN_TIMEOUT=${PODMAN_TIMEOUT:-100}
 
@@ -175,7 +175,7 @@ function get_images() {
 
     for i in $(seq $numberof); do
         local version=$[$LATEST_FEDORA_VERSION-$i]
-        image="$REGISTRY_URL/f$version/fedora-toolbox:$version"
+        image="$REGISTRY_URL/fedora-toolbox:$version"
         run_podman pull "$image" || echo "Podman couldn't pull the image."
     done
 }
@@ -221,7 +221,7 @@ function get_image_name() {
 
     case "$type" in
         fedora)
-            echo "$REGISTRY_URL/f$version/fedora-toolbox:$version"
+            echo "$REGISTRY_URL/fedora-toolbox:$version"
             ;;
     esac
 }

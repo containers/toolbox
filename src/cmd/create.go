@@ -644,7 +644,7 @@ func pullImage(image, release string) (bool, error) {
 	if hasDomain {
 		imageFull = image
 	} else {
-		imageFull = fmt.Sprintf("registry.fedoraproject.org/f%s/%s", release, image)
+		imageFull = fmt.Sprintf("registry.fedoraproject.org/%s", image)
 	}
 
 	logrus.Debugf("Looking for image %s", imageFull)
