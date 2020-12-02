@@ -25,6 +25,7 @@ import (
 
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
+	"github.com/containers/toolbox/pkg/toolbox"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -33,6 +34,7 @@ import (
 var (
 	runFlags struct {
 		container string
+		distro    string
 		release   string
 	}
 )
@@ -53,6 +55,12 @@ func init() {
 		"",
 		"Run command inside a toolbox container with the given name.")
 
+	flags.StringVarP(&runFlags.distro,
+		"distro",
+		"d",
+		"",
+		"Run command inside a toolbox container based on a different operating system")
+
 	flags.StringVarP(&runFlags.release,
 		"release",
 		"r",
@@ -64,6 +72,9 @@ func init() {
 }
 
 func run(cmd *cobra.Command, args []string) error {
+	var image toolbox.Image
+	var container string
+
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
 			return errors.New("this is not a toolbox container")
@@ -92,16 +103,51 @@ func run(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	var release string
-	if runFlags.release != "" {
+	// Either the specified distro (and therefore check if it is supported),
+	// use the an image matching the host system (only if the host system has
+	// has an image associated with it), or fallback to default Toolbox image.
+	//
+	// An image will always be defined.
+	if cmd.Flag("distro").Changed {
 		nonDefaultContainer = true
 
-		var err error
+		if !toolbox.IsSystemSupported(runFlags.distro) {
+			var builder strings.Builder
+			fmt.Fprintf(&builder, "Toolbox does not support using distribution %s for toolboxes\n", runFlags.distro)
+			fmt.Fprintf(&builder, "Run '%s create --help' to see a list of supported distributions.", executableBase)
+
+			errMsg := builder.String()
+			return errors.New(errMsg)
+		}
+
+		image, _ = toolbox.GetImageForSystem(runFlags.distro)
+	} else {
+		if toolbox.IsHostSystemSupported() {
+			hostID, err := utils.GetHostID()
+			if err != nil {
+				return fmt.Errorf("There was an error while getting host's ID: %v", err)
+			}
+
+			image, _ = toolbox.GetImageForSystem(hostID)
+		} else {
+			image = toolbox.GetFallbackImage()
+		}
+	}
+
+	if cmd.Flag("release").Changed {
+		nonDefaultContainer = true
+
+		/*var err error
 		release, err = utils.ParseRelease(runFlags.release)
 		if err != nil {
 			err := utils.CreateErrorInvalidRelease(executableBase)
 			return err
-		}
+		}*/
+		image.Tag = runFlags.release
+	}
+
+	if container == "" {
+		container = image.CreateContainerName()
 	}
 
 	if len(args) == 0 {
@@ -115,15 +161,14 @@ func run(cmd *cobra.Command, args []string) error {
 
 	command := args
 
-	container, image, release, err := utils.ResolveContainerAndImageNames(runFlags.container, "", release)
+	/* container, image, release, err := utils.ResolveContainerAndImageNames(runFlags.container, "", release)
 	if err != nil {
 		return err
-	}
+	} */
 
 	if err := runCommand(container,
 		!nonDefaultContainer,
 		image,
-		release,
 		command,
 		false,
 		false,
@@ -136,19 +181,9 @@ func run(cmd *cobra.Command, args []string) error {
 
 func runCommand(container string,
 	defaultContainer bool,
-	image, release string,
+	image toolbox.Image,
 	command []string,
 	emitEscapeSequence, fallbackToBash, pedantic bool) error {
-	if !pedantic {
-		if image == "" {
-			panic("image not specified")
-		}
-
-		if release == "" {
-			panic("release not specified")
-		}
-	}
-
 	logrus.Debugf("Checking if container %s exists", container)
 
 	if _, err := podman.ContainerExists(container); err != nil {
@@ -188,7 +223,7 @@ func runCommand(container string,
 				return nil
 			}
 
-			if err := createContainer(container, image, release, false); err != nil {
+			if err := createContainer(container, image, false); err != nil {
 				return err
 			}
 		} else if containersCount == 1 && defaultContainer {

@@ -22,6 +22,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/containers/toolbox/pkg/toolbox"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -29,6 +30,7 @@ import (
 var (
 	enterFlags struct {
 		container string
+		distro    string
 		release   string
 	}
 )
@@ -48,6 +50,12 @@ func init() {
 		"",
 		"Enter a toolbox container with the given name.")
 
+	flags.StringVarP(&enterFlags.distro,
+		"distro",
+		"d",
+		"",
+		"Enter a toolbox container based on a different operating system")
+
 	flags.StringVarP(&enterFlags.release,
 		"release",
 		"r",
@@ -59,6 +67,9 @@ func init() {
 }
 
 func enter(cmd *cobra.Command, args []string) error {
+	var image toolbox.Image
+	var err error
+
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
 			return errors.New("this is not a toolbox container")
@@ -86,7 +97,7 @@ func enter(cmd *cobra.Command, args []string) error {
 	if container != "" {
 		nonDefaultContainer = true
 
-		if _, err := utils.IsContainerNameValid(container); err != nil {
+		if _, err = utils.IsContainerNameValid(container); err != nil {
 			var builder strings.Builder
 			fmt.Fprintf(&builder, "invalid argument for '%s'\n", containerArg)
 			fmt.Fprintf(&builder, "Container names must match '%s'\n", utils.ContainerNameRegexp)
@@ -97,22 +108,53 @@ func enter(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	var release string
-	if enterFlags.release != "" {
+	// Either the specified distro (and therefore check if it is supported),
+	// use the an image matching the host system (only if the host system has
+	// has an image associated with it), or fallback to default Toolbox image.
+	//
+	// An image will always be defined.
+	if cmd.Flag("distro").Changed {
 		nonDefaultContainer = true
 
-		var err error
-		release, err = utils.ParseRelease(enterFlags.release)
-		if err != nil {
-			err := utils.CreateErrorInvalidRelease(executableBase)
-			return err
+		if !toolbox.IsSystemSupported(enterFlags.distro) {
+			var builder strings.Builder
+			fmt.Fprintf(&builder, "Toolbox does not support using distribution %s for toolboxes\n", enterFlags.distro)
+			fmt.Fprintf(&builder, "Run '%s create --help' to see a list of supported distributions.", executableBase)
+
+			errMsg := builder.String()
+			return errors.New(errMsg)
+		}
+
+		image, _ = toolbox.GetImageForSystem(enterFlags.distro)
+	} else {
+		if toolbox.IsHostSystemSupported() {
+			hostID, err := utils.GetHostID()
+			if err != nil {
+				return fmt.Errorf("There was an error while getting host's ID: %v", err)
+			}
+
+			image, _ = toolbox.GetImageForSystem(hostID)
+		} else {
+			image = toolbox.GetFallbackImage()
 		}
 	}
 
-	container, image, release, err := utils.ResolveContainerAndImageNames(container, "", release)
-	if err != nil {
-		return err
+	if cmd.Flag("release").Changed {
+		nonDefaultContainer = true
+
+		image.Tag = enterFlags.release
 	}
+
+	if container == "" {
+		container = image.CreateContainerName()
+	}
+
+	/*
+		container, image, release, err := utils.ResolveContainerAndImageNames(container, "", release)
+		if err != nil {
+			return err
+		}
+	*/
 
 	userShell := os.Getenv("SHELL")
 	if userShell == "" {
@@ -140,7 +182,6 @@ func enter(cmd *cobra.Command, args []string) error {
 	if err := runCommand(container,
 		!nonDefaultContainer,
 		image,
-		release,
 		command,
 		emitEscapeSequence,
 		true,

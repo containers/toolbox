@@ -547,53 +547,6 @@ func JoinJSON(joinkey string, maps ...[]map[string]interface{}) []map[string]int
 	return json
 }
 
-// ResolveContainerAndImageNames takes care of standardizing names of containers and images.
-//
-// If no image name is specified then the base image will reflect the platform of the host (even the version).
-// If no container name is specified then the name of the image will be used.
-//
-// If the host system is unknown then the base image will be 'fedora-toolbox' with a default version
-func ResolveContainerAndImageNames(container, image, release string) (string, string, string, error) {
-	logrus.Debug("Resolving container and image names")
-	logrus.Debugf("Container: '%s'", container)
-	logrus.Debugf("Image: '%s'", image)
-	logrus.Debugf("Release: '%s'", release)
-
-	if release == "" {
-		release = releaseDefault
-	}
-
-	if image == "" {
-		image = "fedora-toolbox:" + release
-	} else {
-		release = ImageReferenceGetTag(image)
-		if release == "" {
-			release = releaseDefault
-		}
-	}
-
-	if container == "" {
-		basename := ImageReferenceGetBasename(image)
-		if basename == "" {
-			return "", "", "", fmt.Errorf("failed to get the basename of image %s", image)
-		}
-
-		container = basename
-
-		tag := ImageReferenceGetTag(image)
-		if tag != "" {
-			container = container + "-" + tag
-		}
-	}
-
-	logrus.Debug("Resolved container and image names")
-	logrus.Debugf("Container: '%s'", container)
-	logrus.Debugf("Image: '%s'", image)
-	logrus.Debugf("Release: '%s'", release)
-
-	return container, image, release, nil
-}
-
 func ShowManual(manual string) error {
 	manBinary, err := exec.LookPath("man")
 	if err != nil {

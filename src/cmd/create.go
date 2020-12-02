@@ -27,6 +27,7 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
+	"github.com/containers/toolbox/pkg/toolbox"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
@@ -43,6 +44,7 @@ const (
 var (
 	createFlags struct {
 		container string
+		distro    string
 		image     string
 		release   string
 	}
@@ -54,6 +56,8 @@ var (
 		{"/etc/profile.d/toolbox.sh", "/etc/profile.d/toolbox.sh"},
 		{"/etc/profile.d/toolbox.sh", "/usr/share/profile.d/toolbox.sh"},
 	}
+
+	enterCommand string
 )
 
 var createCmd = &cobra.Command{
@@ -70,6 +74,12 @@ func init() {
 		"c",
 		"",
 		"Assign a different name to the toolbox container.")
+
+	flags.StringVarP(&createFlags.distro,
+		"distro",
+		"d",
+		"",
+		"Use different distribution for the toolbox")
 
 	flags.StringVarP(&createFlags.image,
 		"image",
@@ -88,20 +98,26 @@ func init() {
 }
 
 func create(cmd *cobra.Command, args []string) error {
+	var image toolbox.Image
+	var container, containerArg string
+	var err error
+
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
 			return errors.New("this is not a toolbox container")
 		}
 
-		if _, err := utils.ForwardToHost(); err != nil {
+		if _, err = utils.ForwardToHost(); err != nil {
 			return err
 		}
 
 		return nil
 	}
 
-	var container string
-	var containerArg string
+	if cmd.Flag("distro").Changed && cmd.Flag("image").Changed {
+		fmt.Fprintf(os.Stderr, "Options --distro and --image cannot be used together\n")
+		return err
+	}
 
 	if len(args) != 0 {
 		container = args[0]
@@ -112,7 +128,7 @@ func create(cmd *cobra.Command, args []string) error {
 	}
 
 	if container != "" {
-		if _, err := utils.IsContainerNameValid(container); err != nil {
+		if _, err = utils.IsContainerNameValid(container); err != nil {
 			var builder strings.Builder
 			fmt.Fprintf(&builder, "invalid argument for '%s'\n", containerArg)
 			fmt.Fprintf(&builder, "Container names must match '%s'\n", utils.ContainerNameRegexp)
@@ -123,44 +139,60 @@ func create(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	var release string
-	if createFlags.release != "" {
-		var err error
-		release, err = utils.ParseRelease(createFlags.release)
-		if err != nil {
-			err := utils.CreateErrorInvalidRelease(executableBase)
-			return err
+	if cmd.Flag("distro").Changed {
+		if !toolbox.IsSystemSupported(createFlags.distro) {
+			var builder strings.Builder
+			fmt.Fprintf(&builder, "Toolbox does not support using distribution %s for toolboxes\n", createFlags.distro)
+			fmt.Fprintf(&builder, "Run '%s create --help' to see a list of supported distributions.", executableBase)
+
+			errMsg := builder.String()
+			return errors.New(errMsg)
+		}
+
+		image, _ = toolbox.GetImageForSystem(createFlags.distro)
+	} else {
+		if toolbox.IsHostSystemSupported() {
+			hostID, err := utils.GetHostID()
+			if err != nil {
+				return fmt.Errorf("There was an error while getting host's ID: %v", err)
+			}
+
+			image, _ = toolbox.GetImageForSystem(hostID)
+		} else {
+			image = toolbox.GetFallbackImage()
 		}
 	}
 
-	container, image, release, err := utils.ResolveContainerAndImageNames(container,
-		createFlags.image,
-		release)
-	if err != nil {
-		return err
+	if cmd.Flag("release").Changed {
+		image.Tag = createFlags.release
 	}
 
-	if err := createContainer(container, image, release, true); err != nil {
+	if cmd.Flag("image").Changed {
+		image.SetImageURI(createFlags.image)
+	}
+
+	if container == "" {
+		container = image.CreateContainerName()
+	}
+
+	// Convenience warning in case the used image is "non-standard".
+	if !image.IsImageKnown() {
+		fmt.Fprintf(os.Stderr, "Used image is not officially supported. It might not work correctly.")
+	}
+
+	enterCommand = getEnterCommand(cmd, container)
+
+	if err = createContainer(container, image, true); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createContainer(container, image, release string, showCommandToEnter bool) error {
+func createContainer(container string, image toolbox.Image, showCommandToEnter bool) error {
 	if container == "" {
 		panic("container not specified")
 	}
-
-	if image == "" {
-		panic("image not specified")
-	}
-
-	if release == "" {
-		panic("release not specified")
-	}
-
-	enterCommand := getEnterCommand(container, release)
 
 	logrus.Debugf("Checking if container %s already exists", container)
 
@@ -174,7 +206,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		return errors.New(errMsg)
 	}
 
-	pulled, err := pullImage(image, release)
+	pulled, err := pullImage(image)
 	if err != nil {
 		return err
 	}
@@ -319,7 +351,6 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	logrus.Debug("Looking for toolbox.sh")
 
 	var toolboxShMount []string
-
 	for _, mount := range createToolboxShMounts {
 		if utils.PathExists(mount.source) {
 			logrus.Debugf("Found %s", mount.source)
@@ -496,26 +527,25 @@ func getDBusSystemSocket() (string, error) {
 	return pathEvaled, nil
 }
 
-func getEnterCommand(container, release string) string {
+func getEnterCommand(cmd *cobra.Command, container string) string {
 	var enterCommand string
-	containerNamePrefixDefaultWithRelease := utils.ContainerNamePrefixDefault + "-" + release
 
-	switch container {
-	case utils.ContainerNameDefault:
+	if container == utils.ContainerNameDefault {
 		enterCommand = fmt.Sprintf("%s enter", executableBase)
-	case containerNamePrefixDefaultWithRelease:
-		enterCommand = fmt.Sprintf("%s enter --release %s", executableBase, release)
-	default:
+	} else if cmd.Flag("release").Changed {
+		enterCommand = fmt.Sprintf("%s enter --release %s", executableBase, createFlags.release)
+	} else {
 		enterCommand = fmt.Sprintf("%s enter %s", executableBase, container)
 	}
 
 	return enterCommand
 }
 
-func getFullyQualifiedImageName(image string) (string, error) {
-	logrus.Debugf("Resolving fully qualified name for image %s", image)
-
+func getFullyQualifiedImageName(img toolbox.Image) (string, error) {
+	var image string = img.GetImageURI()
 	var imageFull string
+
+	logrus.Debugf("Resolving fully qualified name for image %s", image)
 
 	if utils.ImageReferenceHasDomain(image) {
 		imageFull = image
@@ -619,50 +649,50 @@ func isUsrReadWrite() (bool, error) {
 	return false, nil
 }
 
-func pullImage(image, release string) (bool, error) {
-	if _, err := utils.ImageReferenceCanBeID(image); err == nil {
-		logrus.Debugf("Looking for image %s", image)
+func pullImage(image toolbox.Image) (bool, error) {
+	var registries []string = []string{"localhost", "registry.fedoraproject.org"}
+	var imageURI string = image.GetImageURI()
+	var err error
 
-		if _, err := podman.ImageExists(image); err == nil {
+	if _, err := utils.ImageReferenceCanBeID(imageURI); err == nil {
+		logrus.Debugf("Looking for image %s", imageURI)
+
+		if _, err := podman.ImageExists(imageURI); err == nil {
 			return true, nil
 		}
 	}
 
-	hasDomain := utils.ImageReferenceHasDomain(image)
+	if !utils.ImageReferenceHasDomain(imageURI) {
+		imageFound := false
 
-	if !hasDomain {
-		imageLocal := "localhost/" + image
-		logrus.Debugf("Looking for image %s", imageLocal)
+		oldRegistry := image.Registry
+		for _, registry := range registries {
+			image.Registry = registry
+			imageURI = image.GetImageURI()
+			logrus.Debugf("Looking for image %s", imageURI)
 
-		if _, err := podman.ImageExists(imageLocal); err == nil {
-			return true, nil
+			if _, err = podman.ImageExists(imageURI); err == nil {
+				imageFound = true
+				break
+			}
+		}
+
+		if !imageFound {
+			image.Registry = oldRegistry
+			return false, fmt.Errorf("image %s does not exist", image.GetImageURI())
 		}
 	}
 
-	var imageFull string
-
-	if hasDomain {
-		imageFull = image
-	} else {
-		imageFull = fmt.Sprintf("registry.fedoraproject.org/f%s/%s", release, image)
-	}
-
-	logrus.Debugf("Looking for image %s", imageFull)
-
-	if _, err := podman.ImageExists(imageFull); err == nil {
-		return true, nil
-	}
-
-	domain := utils.ImageReferenceGetDomain(imageFull)
-	if domain == "" {
-		panicMsg := fmt.Sprintf("failed to get domain from %s", imageFull)
+	registry := image.Registry
+	if registry == "" {
+		panicMsg := fmt.Sprintf("failed to get domain from %s", imageURI)
 		panic(panicMsg)
 	}
 
 	promptForDownload := true
 	var shouldPullImage bool
 
-	if rootFlags.assumeYes || domain == "localhost" {
+	if rootFlags.assumeYes || registry == "localhost" {
 		promptForDownload = false
 		shouldPullImage = true
 	}
@@ -670,7 +700,7 @@ func pullImage(image, release string) (bool, error) {
 	if promptForDownload {
 		fmt.Println("Image required to create toolbox container.")
 
-		prompt := fmt.Sprintf("Download %s (500MB)? [y/N]:", imageFull)
+		prompt := fmt.Sprintf("Download %s (500MB)? [y/N]:", imageURI)
 		shouldPullImage = utils.AskForConfirmation(prompt)
 	}
 
@@ -678,20 +708,20 @@ func pullImage(image, release string) (bool, error) {
 		return false, nil
 	}
 
-	logrus.Debugf("Pulling image %s", imageFull)
+	logrus.Debugf("Pulling image %s", imageURI)
 
 	stdoutFd := os.Stdout.Fd()
 	stdoutFdInt := int(stdoutFd)
 	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel && terminal.IsTerminal(stdoutFdInt) {
 		s := spinner.New(spinner.CharSets[9], 500*time.Millisecond)
-		s.Prefix = fmt.Sprintf("Pulling %s: ", imageFull)
+		s.Prefix = fmt.Sprintf("Pulling %s: ", imageURI)
 		s.Writer = os.Stdout
 		s.Start()
 		defer s.Stop()
 	}
 
-	if err := podman.Pull(imageFull); err != nil {
-		return false, fmt.Errorf("failed to pull image %s", imageFull)
+	if err := podman.Pull(imageURI); err != nil {
+		return false, fmt.Errorf("failed to pull image %s", imageURI)
 	}
 
 	return true, nil
