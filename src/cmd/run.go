@@ -308,7 +308,7 @@ func runCommand(container string,
 	execArgs = append(execArgs, command...)
 
 	if emitEscapeSequence {
-		fmt.Printf("\033]777;container;push;%s;toolbox\033\\", container)
+		fmt.Printf("\033]777;container;push;%s;toolbox;%s\033\\", container, currentUser.Uid)
 	}
 
 	logrus.Debugf("Running in container %s:", container)
@@ -320,7 +320,7 @@ func runCommand(container string,
 	exitCode, err := shell.RunWithExitCode("podman", os.Stdin, os.Stdout, nil, execArgs...)
 
 	if emitEscapeSequence {
-		fmt.Print("\033]777;container;pop;;\033\\")
+		fmt.Printf("\033]777;container;pop;;;%s\033\\", currentUser.Uid)
 	}
 
 	switch exitCode {
