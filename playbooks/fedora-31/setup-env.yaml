@@ -16,8 +16,11 @@
           - udisks2
           - podman
 
-    - name: Setup environment (create missing /run/media)
-      command: sudo systemd-tmpfiles --create
+    - name: Setup environment
+      become: yes
+      command:
+        cmd: systemd-tmpfiles --create
+        creates: /run/media
 
     - name: Check versions of crucial packages
       command: rpm -q golang podman crun conmon fuse-overlayfs flatpak-session-helper
