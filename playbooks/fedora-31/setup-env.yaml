@@ -25,4 +25,16 @@
     - name: Check versions of crucial packages
       command: rpm -q golang podman crun conmon fuse-overlayfs flatpak-session-helper
 
-    - include_tasks: ./pre-common.yaml
+    - name: Pull registry.fedoraproject.org/f31/fedora-toolbox:31
+      command: podman pull registry.fedoraproject.org/f31/fedora-toolbox:31
+      register: _podman
+      until: _podman.rc == 0
+      retries: 5
+      delay: 10
+
+    - name: Pull registry.fedoraproject.org/f29/fedora-toolbox:29
+      command: podman pull registry.fedoraproject.org/f29/fedora-toolbox:29
+      register: _podman
+      until: _podman.rc == 0
+      retries: 5
+      delay: 10
