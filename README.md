@@ -72,6 +72,7 @@ The following dependencies are required to build it:
 - meson
 - go-md2man
 - systemd
+- a c compiler. gcc is known to work
 
 The following dependencies enable various optional features:
 - bash-completion
