@@ -73,6 +73,8 @@ The following dependencies are required to build it:
 - go-md2man
 - systemd
 - a c compiler. gcc is known to work
+- go
+- ninja
 
 The following dependencies enable various optional features:
 - bash-completion
