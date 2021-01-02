@@ -5,12 +5,17 @@ These tests are built with BATS (Bash Automated Testing System).
 The tests are meant to ensure that Toolbox's functionality remains stable
 throughout updates of both Toolbox and Podman/libpod.
 
-**Warning**: The tests are not executed in an isolated environment. They affect
-the system where they are run.
+**Warning**: The tests are not executed in an isolated environment. Running the
+tests will clear all podman state (delete all containers, images, etc).
 
 ## Dependencies
 
-These tests use a few standard libraries for BATS which help with clarity
+- `bats`
+- `podman`
+- `skopeo`
+- `toolbox`
+
+These tests use a few standard libraries for `bats` which help with clarity
 and consistency. In order to use it you need to download them to the `libs`
 directory:
 
@@ -39,11 +44,18 @@ Examples:
 
 ## How to run the tests
 
-Make sure you have `bats`, `podman` and `toolbox` installed on your system. And
-have the test dependencies prepared.
+First, make sure you have all the dependencies installed.
 
 - Enter the toolbox root folder
+- Prepare container images. See [playbooks/setup-env.yaml](../../playbooks/setup-env.yaml)
 - Invoke command `bats ./test/system/` and the test suite should fire up
+
+Mocking of images is done to prevent potential networking issues and to speed
+up the cases.
+
+> Currently, this is done in a playbook that is a part of Toolbox's CI. In the
+  future, this should be converted and become part of the test suite itself to
+  allow local execution.
 
 By default the test suite uses the system versions of `podman` and `toolbox`.
 
