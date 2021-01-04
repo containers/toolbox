@@ -589,6 +589,14 @@ func sanitizeRedirectionTarget(target string) string {
 func updateTimeZoneFromLocalTime() error {
 	localTimeEvaled, err := filepath.EvalSymlinks("/etc/localtime")
 	if err != nil {
+		if os.IsNotExist(err) {
+			if err := writeTimeZone("UTC"); err != nil {
+				return err
+			}
+
+			return nil
+		}
+
 		return fmt.Errorf("failed to resolve /etc/localtime: %w", err)
 	}
 
@@ -605,6 +613,14 @@ func updateTimeZoneFromLocalTime() error {
 		return fmt.Errorf("failed to extract time zone: %w", err)
 	}
 
+	if err := writeTimeZone(timeZone); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func writeTimeZone(timeZone string) error {
 	const etcTimeZone = "/etc/timezone"
 
 	if err := os.Remove(etcTimeZone); err != nil {
@@ -614,8 +630,7 @@ func updateTimeZoneFromLocalTime() error {
 	}
 
 	timeZoneBytes := []byte(timeZone + "\n")
-	err = ioutil.WriteFile(etcTimeZone, timeZoneBytes, 0664)
-	if err != nil {
+	if err := ioutil.WriteFile(etcTimeZone, timeZoneBytes, 0664); err != nil {
 		return fmt.Errorf("failed to create new %s: %w", etcTimeZone, err)
 	}
 
