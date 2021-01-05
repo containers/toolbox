@@ -1,3 +1,21 @@
+Overview of changes in 0.0.98
+=============================
+
+* Add nss-mdns to the fedora-toolbox images
+* Correctly check validity of container name
+* Don't leak all the os-release fields into the shell
+* Don't rely on XDG_RUNTIME_DIR when running as root
+* Give access to Avahi to resolve the .local mDNS domain
+* Make coredumpctl(1) 'dump' and 'debug' work inside toolbox containers
+* Make options --image and --release for 'create' mutually exclusive
+* Notify the terminal about the real UID of 'toolbox enter'
+* Remove periods at the end of flag descriptions
+* Set XDG_RUNTIME_DIR when creating the toolbox container
+* Unbreak 'enter' on hosts without a /etc/localtime
+* Unbreak the system tests on Fedora 33
+* Use the host's user namespace when running as root
+
+
 Overview of changes in 0.0.97
 =============================
 
