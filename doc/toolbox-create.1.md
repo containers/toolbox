@@ -44,12 +44,13 @@ customized containers from custom-built base images.
 **--image** NAME, **-i** NAME
 
 Change the NAME of the base image used to create the toolbox container. This
-is useful for creating containers from custom-built base images.
+is useful for creating containers from custom-built base images. Cannot be used
+used with `--release`.
 
 **--release** RELEASE, **-r** RELEASE
 
 Create a toolbox container for a different operating system RELEASE than the
-host.
+host. Cannot be used with `--image`.
 
 ## EXAMPLES
 
