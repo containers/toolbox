@@ -6,8 +6,8 @@ host_welcome_stub="$toolbox_config/host-welcome-shown"
 toolbox_welcome_stub="$toolbox_config/toolbox-welcome-shown"
 
 # shellcheck disable=2046
+# shellcheck disable=SC1091
 eval $(
-          # shellcheck disable=SC1091
           . /usr/lib/os-release
 
           echo ID="$ID"
