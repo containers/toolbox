@@ -1,3 +1,12 @@
+Overview of changes in 0.0.98.1
+===============================
+
+* Pass the USER environment variable to the container
+* Make /etc/profile.d/toolbox.sh compatible with Z shell again
+* Update the manual to mention that the --image and --release options of
+  'create' can't be used together
+
+
 Overview of changes in 0.0.98
 =============================
 
