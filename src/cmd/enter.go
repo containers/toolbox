@@ -102,14 +102,14 @@ func enter(cmd *cobra.Command, args []string) error {
 		nonDefaultContainer = true
 
 		var err error
-		release, err = utils.ParseRelease(enterFlags.release)
+		release, err = utils.ParseRelease("", enterFlags.release)
 		if err != nil {
 			err := utils.CreateErrorInvalidRelease(executableBase)
 			return err
 		}
 	}
 
-	container, image, release, err := utils.ResolveContainerAndImageNames(container, "", release)
+	container, image, release, err := utils.ResolveContainerAndImageNames(container, "", "", release)
 	if err != nil {
 		return err
 	}

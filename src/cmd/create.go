@@ -130,7 +130,7 @@ func create(cmd *cobra.Command, args []string) error {
 	var release string
 	if createFlags.release != "" {
 		var err error
-		release, err = utils.ParseRelease(createFlags.release)
+		release, err = utils.ParseRelease("", createFlags.release)
 		if err != nil {
 			err := utils.CreateErrorInvalidRelease(executableBase)
 			return err
@@ -138,6 +138,7 @@ func create(cmd *cobra.Command, args []string) error {
 	}
 
 	container, image, release, err := utils.ResolveContainerAndImageNames(container,
+		"",
 		createFlags.image,
 		release)
 	if err != nil {
@@ -659,7 +660,11 @@ func pullImage(image, release string) (bool, error) {
 	if hasDomain {
 		imageFull = image
 	} else {
-		imageFull = fmt.Sprintf("registry.fedoraproject.org/f%s/%s", release, image)
+		var err error
+		imageFull, err = utils.GetFullyQualifiedImageFromDistros(image, release)
+		if err != nil {
+			return false, fmt.Errorf("image %s not found in local storage and known registries", image)
+		}
 	}
 
 	logrus.Debugf("Looking for image %s", imageFull)

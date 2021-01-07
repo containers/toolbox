@@ -97,7 +97,7 @@ func run(cmd *cobra.Command, args []string) error {
 		nonDefaultContainer = true
 
 		var err error
-		release, err = utils.ParseRelease(runFlags.release)
+		release, err = utils.ParseRelease("", runFlags.release)
 		if err != nil {
 			err := utils.CreateErrorInvalidRelease(executableBase)
 			return err
@@ -115,7 +115,7 @@ func run(cmd *cobra.Command, args []string) error {
 
 	command := args
 
-	container, image, release, err := utils.ResolveContainerAndImageNames(runFlags.container, "", release)
+	container, image, release, err := utils.ResolveContainerAndImageNames(runFlags.container, "", "", release)
 	if err != nil {
 		return err
 	}
