@@ -101,6 +101,14 @@ var (
 			"f%s",
 			true,
 		},
+		"rhel": {
+			"rhel-toolbox",
+			"ubi",
+			parseReleaseRHEL,
+			"registry.access.redhat.com",
+			"ubi8",
+			false,
+		},
 	}
 )
 
@@ -598,6 +606,23 @@ func parseReleaseFedora(str string) (string, error) {
 	}
 
 	return release, nil
+}
+
+func parseReleaseRHEL(str string) (string, error) {
+	if i := strings.IndexRune(str, '.'); i == -1 {
+		return "", errors.New("release must have a '.'")
+	}
+
+	releaseN, err := strconv.ParseFloat(str, 32)
+	if err != nil {
+		return "", err
+	}
+
+	if releaseN <= 0 {
+		return "", errors.New("release must be a positive number")
+	}
+
+	return str, nil
 }
 
 // PathExists wraps around os.Stat providing a nice interface for checking an existence of a path.
