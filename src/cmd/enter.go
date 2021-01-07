@@ -123,7 +123,7 @@ func enter(cmd *cobra.Command, args []string) error {
 
 	hostID, err := utils.GetHostID()
 	if err != nil {
-		return errors.New("failed to get the host ID")
+		return fmt.Errorf("failed to get the host ID: %w", err)
 	}
 
 	hostVariantID, err := utils.GetHostVariantID()
