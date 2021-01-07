@@ -676,6 +676,10 @@ func ResolveContainerAndImageNames(container, distro, image, release string) (st
 		distro = distroDefault
 	}
 
+	if distro != distroDefault && release == "" {
+		return "", "", "", fmt.Errorf("release not found for non-default distribution %s", distro)
+	}
+
 	if release == "" {
 		release = releaseDefault
 	}

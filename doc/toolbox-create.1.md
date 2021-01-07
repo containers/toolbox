@@ -5,6 +5,7 @@ toolbox\-create - Create a new toolbox container
 
 ## SYNOPSIS
 **toolbox create** [*--container NAME* | *-c NAME*]
+               [*--distro DISTRO* | *-d DISTRO*]
                [*--image NAME* | *-i NAME*]
                [*--release RELEASE* | *-r RELEASE*]
 
@@ -15,9 +16,10 @@ to interact with the container at any point.
 
 A toolbox container is an OCI container created from an OCI image. On Fedora
 the base image is known as `fedora-toolbox`. If the image is not present
-locally, then it is pulled from `registry.fedoraproject.org`. The base image is
-locally customized for the current user to create a second image, from which
-the container is finally created.
+locally, then it is pulled from a well-known registry like
+`registry.fedoraproject.org`. The base image is locally customized for the
+current user to create a second image, from which the container is finally
+created.
 
 Toolbox containers and images are tagged with the version of the OS that
 corresponds to the content inside them. The user-specific images and the
@@ -33,6 +35,11 @@ The following options are understood:
 Assign a different NAME to the toolbox container. This is useful for creating
 multiple toolbox containers from the same base image, or for entirely
 customized containers from custom-built base images.
+
+**--distro** DISTRO, **-d** DISTRO
+
+Create a toolbox container for a different operating system DISTRO than the
+host. Cannot be used with `--image`.
 
 **--image** NAME, **-i** NAME
 
@@ -56,7 +63,7 @@ $ toolbox create
 ### Create a toolbox container using the default image for Fedora 30
 
 ```
-$ toolbox create --release f30
+$ toolbox create --distro fedora --release f30
 ```
 
 ### Create a custom toolbox container from a custom image

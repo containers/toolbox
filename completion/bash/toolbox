@@ -5,6 +5,10 @@ __toolbox_containers() {
   podman ps --all --format '{{.Names}}'
 }
 
+__toolbox_distros() {
+  echo "fedora"
+}
+
 __toolbox_images() {
   podman images --format '{{.Repository}}:{{.Tag}}'
 }
@@ -16,14 +20,14 @@ __toolbox() {
   local commands="create enter help init-container list reset rm rmi run"
 
   declare -A options
-  local options=([create]="--container --image --release" \
-                 [enter]="--container --release" \
+  local options=([create]="--container --distro --image --release" \
+                 [enter]="--container --distro --release" \
                  [help]="$commands" \
                  [init-container]="--home --home-link --monitor-host --shell --uid --user" \
 		 [list]="--containers --images" \
 		 [rm]="--all --force" \
 		 [rmi]="--all --force" \
-		 [run]="--container --release")
+		 [run]="--container --distro --release")
 
   _init_completion -s || return
 
@@ -39,6 +43,10 @@ __toolbox() {
       ;;
     --container | -c)
       mapfile -t COMPREPLY < <(compgen -W "$(__toolbox_containers)" -- "$2")
+      return 0
+      ;;
+    --distro | -d)
+      mapfile -t COMPREPLY < <(compgen -W "$(__toolbox_distros)" -- "$2")
       return 0
       ;;
     --image | -i)

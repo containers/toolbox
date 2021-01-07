@@ -29,6 +29,7 @@ import (
 var (
 	enterFlags struct {
 		container string
+		distro    string
 		release   string
 	}
 )
@@ -47,6 +48,12 @@ func init() {
 		"c",
 		"",
 		"Enter a toolbox container with the given name")
+
+	flags.StringVarP(&enterFlags.distro,
+		"distro",
+		"d",
+		"",
+		"Enter a toolbox container for a different operating system distribution than the host")
 
 	flags.StringVarP(&enterFlags.release,
 		"release",
@@ -102,14 +109,14 @@ func enter(cmd *cobra.Command, args []string) error {
 		nonDefaultContainer = true
 
 		var err error
-		release, err = utils.ParseRelease("", enterFlags.release)
+		release, err = utils.ParseRelease(enterFlags.distro, enterFlags.release)
 		if err != nil {
 			err := utils.CreateErrorInvalidRelease(executableBase)
 			return err
 		}
 	}
 
-	container, image, release, err := utils.ResolveContainerAndImageNames(container, "", "", release)
+	container, image, release, err := utils.ResolveContainerAndImageNames(container, enterFlags.distro, "", release)
 	if err != nil {
 		return err
 	}

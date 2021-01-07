@@ -43,6 +43,7 @@ const (
 var (
 	createFlags struct {
 		container string
+		distro    string
 		image     string
 		release   string
 	}
@@ -71,6 +72,12 @@ func init() {
 		"",
 		"Assign a different name to the toolbox container")
 
+	flags.StringVarP(&createFlags.distro,
+		"distro",
+		"d",
+		"",
+		"Create a toolbox container for a different operating system distribution than the host")
+
 	flags.StringVarP(&createFlags.image,
 		"image",
 		"i",
@@ -98,6 +105,10 @@ func create(cmd *cobra.Command, args []string) error {
 		}
 
 		return nil
+	}
+
+	if cmd.Flag("distro").Changed && cmd.Flag("image").Changed {
+		return errors.New("options --distro and --image cannot be used together")
 	}
 
 	if cmd.Flag("image").Changed && cmd.Flag("release").Changed {
@@ -130,7 +141,7 @@ func create(cmd *cobra.Command, args []string) error {
 	var release string
 	if createFlags.release != "" {
 		var err error
-		release, err = utils.ParseRelease("", createFlags.release)
+		release, err = utils.ParseRelease(createFlags.distro, createFlags.release)
 		if err != nil {
 			err := utils.CreateErrorInvalidRelease(executableBase)
 			return err
@@ -138,7 +149,7 @@ func create(cmd *cobra.Command, args []string) error {
 	}
 
 	container, image, release, err := utils.ResolveContainerAndImageNames(container,
-		"",
+		createFlags.distro,
 		createFlags.image,
 		release)
 	if err != nil {
