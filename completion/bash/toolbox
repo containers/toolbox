@@ -16,7 +16,7 @@ __toolbox() {
   local commands="create enter help init-container list reset rm rmi run"
 
   declare -A options
-  local options=([create]="--candidate-registry --container --image --release" \
+  local options=([create]="--container --image --release" \
                  [enter]="--container --release" \
                  [help]="$commands" \
                  [init-container]="--home --home-link --monitor-host --shell --uid --user" \
