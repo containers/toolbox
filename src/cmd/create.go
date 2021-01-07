@@ -100,11 +100,12 @@ func create(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	var container string
-	var containerArg string
 	if cmd.Flag("image").Changed && cmd.Flag("release").Changed {
 		return errors.New("options --image and --release cannot be used together")
 	}
+
+	var container string
+	var containerArg string
 
 	if len(args) != 0 {
 		container = args[0]
