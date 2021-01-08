@@ -41,7 +41,7 @@ import (
 
 const (
 	idTruncLength          = 12
-	releaseDefaultFallback = "31"
+	releaseDefaultFallback = "32"
 )
 
 const (
