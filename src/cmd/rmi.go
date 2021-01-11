@@ -70,11 +70,11 @@ func rmi(cmd *cobra.Command, args []string) error {
 	}
 
 	if rmiFlags.deleteAll {
-		logrus.Debug("Fetching images with label=com.redhat.component=fedora-toolbox")
-		args := []string{"--filter", "label=com.redhat.component=fedora-toolbox"}
+		logrus.Debug("Fetching images with label=com.github.containers.toolbox=true")
+		args := []string{"--filter", "label=com.github.containers.toolbox=true"}
 		images_old, err := podman.GetImages(args...)
 		if err != nil {
-			return errors.New("failed to list images with com.redhat.component=fedora-toolbox")
+			return errors.New("failed to list images with label=com.github.containers.toolbox=true")
 		}
 
 		logrus.Debug("Fetching images with label=com.github.debarshiray.toolbox=true")

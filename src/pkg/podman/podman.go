@@ -201,8 +201,7 @@ func IsToolboxContainer(container string) (bool, error) {
 	}
 
 	labels, _ := info["Config"].(map[string]interface{})["Labels"].(map[string]interface{})
-	if labels["com.redhat.component"] != "fedora-toolbox" &&
-		labels["com.github.debarshiray.toolbox"] != "true" {
+	if labels["com.github.containers.toolbox"] != "true" && labels["com.github.debarshiray.toolbox"] != "true" {
 		return false, fmt.Errorf("%s is not a toolbox container", container)
 	}
 
@@ -220,8 +219,7 @@ func IsToolboxImage(image string) (bool, error) {
 	}
 
 	labels := info["Labels"].(map[string]interface{})
-	if labels["com.redhat.component"] != "fedora-toolbox" &&
-		labels["com.github.debarshiray.toolbox"] != "true" {
+	if labels["com.github.containers.toolbox"] != "true" && labels["com.github.debarshiray.toolbox"] != "true" {
 		return false, fmt.Errorf("%s is not a toolbox image", image)
 	}
 

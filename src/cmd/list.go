@@ -121,11 +121,11 @@ func list(cmd *cobra.Command, args []string) error {
 }
 
 func listContainers() ([]toolboxContainer, error) {
-	logrus.Debug("Fetching containers with label=com.redhat.component=fedora-toolbox")
-	args := []string{"--all", "--filter", "label=com.redhat.component=fedora-toolbox"}
+	logrus.Debug("Fetching containers with label=com.github.containers.toolbox=true")
+	args := []string{"--all", "--filter", "label=com.github.containers.toolbox=true"}
 	containers_old, err := podman.GetContainers(args...)
 	if err != nil {
-		return nil, errors.New("failed to list containers with com.redhat.component=fedora-toolbox")
+		return nil, errors.New("failed to list containers with label=com.github.containers.toolbox=true")
 	}
 
 	logrus.Debug("Fetching containers with label=com.github.debarshiray.toolbox=true")
@@ -189,11 +189,11 @@ func listHelp(cmd *cobra.Command, args []string) {
 }
 
 func listImages() ([]toolboxImage, error) {
-	logrus.Debug("Fetching images with label=com.redhat.component=fedora-toolbox")
-	args := []string{"--filter", "label=com.redhat.component=fedora-toolbox"}
+	logrus.Debug("Fetching images with label=com.github.containers.toolbox=true")
+	args := []string{"--filter", "label=com.github.containers.toolbox=true"}
 	images_old, err := podman.GetImages(args...)
 	if err != nil {
-		return nil, errors.New("failed to list images with com.redhat.component=fedora-toolbox")
+		return nil, errors.New("failed to list images with label=com.github.containers.toolbox=true")
 	}
 
 	logrus.Debug("Fetching images with label=com.github.debarshiray.toolbox=true")

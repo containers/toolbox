@@ -70,11 +70,11 @@ func rm(cmd *cobra.Command, args []string) error {
 	}
 
 	if rmFlags.deleteAll {
-		logrus.Debug("Fetching containers with label=com.redhat.component=fedora-toolbox")
-		args := []string{"--all", "--filter", "label=com.redhat.component=fedora-toolbox"}
+		logrus.Debug("Fetching containers with label=com.github.containers.toolbox=true")
+		args := []string{"--all", "--filter", "label=com.github.containers.toolbox=true"}
 		containers_old, err := podman.GetContainers(args...)
 		if err != nil {
-			return errors.New("failed to list containers with com.redhat.component=fedora-toolbox")
+			return errors.New("failed to list containers with label=com.github.containers.toolbox=true")
 		}
 
 		logrus.Debug("Fetching containers with label=com.github.debarshiray.toolbox=true")
