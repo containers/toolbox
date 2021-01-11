@@ -537,7 +537,18 @@ func getFullyQualifiedImageName(image string) (string, error) {
 			return "", fmt.Errorf("empty RepoTag for image %s", image)
 		}
 
-		imageFull = repoTags[0].(string)
+		for _, repoTag := range repoTags {
+			repoTagString := repoTag.(string)
+			tag := utils.ImageReferenceGetTag(repoTagString)
+			if tag != "latest" {
+				imageFull = repoTagString
+				break
+			}
+		}
+
+		if imageFull == "" {
+			imageFull = repoTags[0].(string)
+		}
 	}
 
 	logrus.Debugf("Resolved image %s to %s", image, imageFull)
