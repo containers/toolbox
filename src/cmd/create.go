@@ -185,7 +185,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		return nil
 	}
 
-	imageFull, err := getFullyQualifiedImageName(image)
+	imageFull, err := getFullyQualifiedImageFromRepoTags(image)
 	if err != nil {
 		return err
 	}
@@ -515,8 +515,8 @@ func getEnterCommand(container, release string) string {
 	return enterCommand
 }
 
-func getFullyQualifiedImageName(image string) (string, error) {
-	logrus.Debugf("Resolving fully qualified name for image %s", image)
+func getFullyQualifiedImageFromRepoTags(image string) (string, error) {
+	logrus.Debugf("Resolving fully qualified name for image %s from RepoTags", image)
 
 	var imageFull string
 
