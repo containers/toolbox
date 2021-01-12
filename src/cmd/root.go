@@ -141,10 +141,8 @@ func preRun(cmd *cobra.Command, args []string) error {
 	toolboxPath = os.Getenv("TOOLBOX_PATH")
 	logrus.Debugf("TOOLBOX_PATH is %s", toolboxPath)
 
-	if cmd.Use != "reset" {
-		if err := migrate(); err != nil {
-			return err
-		}
+	if err := migrate(); err != nil {
+		return err
 	}
 
 	return nil

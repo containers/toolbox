@@ -11,7 +11,6 @@ manuals = [
   'toolbox-init-container.1',
   'toolbox-help.1',
   'toolbox-list.1',
-  'toolbox-reset.1',
   'toolbox-rm.1',
   'toolbox-rmi.1',
   'toolbox-run.1',
