@@ -1,3 +1,17 @@
+Overview of changes in 0.0.99
+=============================
+
+* Add a --distro option to 'create', 'enter' and 'run'
+* Prevent setting VTE-specific PROMPT_COMMAND without VTE
+* Remove the --candidate-registry option from Bash completion and the manual
+  for 'create'
+* Remove the deprecated reset command
+* Support RHEL hosts by creating containers based on UBI
+* Try to avoid 'latest' tags, when looking at RepoTags
+* Update the labels used for filtering toolbox containers images
+* Update the range of supported Fedora releases
+
+
 Overview of changes in 0.0.98.1
 ===============================
 
