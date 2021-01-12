@@ -55,6 +55,14 @@ if [ -f /run/.containerenv ] \
         touch "$toolbox_welcome_stub"
     fi
 
+    if ! [ -f /etc/profile.d/vte.sh ] && [ -z "$PROMPT_COMMAND" ] && [ "${VTE_VERSION:-0}" -ge 3405 ]; then
+        case "$TERM" in
+            xterm*|vte*)
+                [ -n "${BASH_VERSION:-}" ] && PROMPT_COMMAND=" "
+                ;;
+        esac
+    fi
+
     if [ "$TERM" != "" ]; then
         error_message="Error: terminfo entry not found for $TERM"
         term_without_first_character="${TERM#?}"
