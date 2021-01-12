@@ -46,6 +46,7 @@ var (
 		distro    string
 		image     string
 		release   string
+		volumes   []string
 	}
 
 	createToolboxShMounts = []struct {
@@ -89,6 +90,11 @@ func init() {
 		"r",
 		"",
 		"Create a toolbox container for a different operating system release than the host")
+
+	flags.StringArrayVar(&createFlags.volumes,
+		"volume",
+		[]string{},
+		"Create the toolbox container with additional bind mounts.")
 
 	createCmd.SetHelpFunc(createHelp)
 	rootCmd.AddCommand(createCmd)
@@ -431,6 +437,10 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	createArgs = append(createArgs, mntMount...)
 	createArgs = append(createArgs, runMediaMount...)
 	createArgs = append(createArgs, toolboxShMount...)
+
+	for _, additionalMount := range createFlags.volumes {
+		createArgs = append(createArgs, "--volume", additionalMount)
+	}
 
 	createArgs = append(createArgs, []string{
 		imageFull,
