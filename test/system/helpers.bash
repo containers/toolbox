@@ -12,11 +12,6 @@ TOOLBOX_DEFAULT_IMAGE=${TOOLBOX_DEFAULT_IMAGE:-"registry.fedoraproject.org/f31/f
 TOOLBOX_TIMEOUT=${TOOLBOX_TIMEOUT:-100}
 PODMAN_TIMEOUT=${PODMAN_TIMEOUT:-100}
 
-# Colors
-LGC='\033[1;32m' # Light Green Color
-LBC='\033[1;34m' # Light Blue Color
-NC='\033[0m' # No Color
-
 
 ################
 #  run_podman  #  Invoke $PODMAN, with timeout, using BATS 'run'
