@@ -1,3 +1,5 @@
+# shellcheck shell=sh
+
 [ "$BASH_VERSION" != "" ] || [ "$ZSH_VERSION" != "" ] || return 0
 [ "$PS1" != "" ] || return 0
 
