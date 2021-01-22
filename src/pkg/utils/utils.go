@@ -453,6 +453,11 @@ func GetMountOptions(target string) (string, error) {
 }
 
 func GetRuntimeDirectory(targetUser *user.User) (string, error) {
+	gid, err := strconv.Atoi(targetUser.Gid)
+	if err != nil {
+		return "", fmt.Errorf("failed to convert group ID to integer: %w", err)
+	}
+
 	uid, err := strconv.Atoi(targetUser.Uid)
 	if err != nil {
 		return "", fmt.Errorf("failed to convert user ID to integer: %w", err)
@@ -476,7 +481,7 @@ func GetRuntimeDirectory(targetUser *user.User) (string, error) {
 		return "", wrapped_err
 	}
 
-	if err := os.Chown(toolboxRuntimeDirectory, uid, uid); err != nil {
+	if err := os.Chown(toolboxRuntimeDirectory, uid, gid); err != nil {
 		wrapped_err := fmt.Errorf("failed to change ownership of the runtime directory %s: %w",
 			toolboxRuntimeDirectory,
 			err)

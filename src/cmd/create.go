@@ -379,6 +379,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	entryPoint := []string{
 		"toolbox", "--verbose",
 		"init-container",
+		"--gid", currentUser.Gid,
 		"--home", currentUser.HomeDir,
 	}
 

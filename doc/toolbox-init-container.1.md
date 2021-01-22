@@ -4,7 +4,8 @@
 toolbox\-init\-container - Initialize a running container
 
 ## SYNOPSIS
-**toolbox init-container** *--home HOME*
+**toolbox init-container** *--gid GID*
+                       *--home HOME*
                        *--home-link*
                        *--media-link*
                        *--mnt-link*
@@ -48,6 +49,11 @@ confusion.
 ## OPTIONS ##
 
 The following options are understood:
+
+**--gid** GID
+
+Pass GID as the user's numerical group ID from the host to the toolbox
+container.
 
 **--home** HOME
 

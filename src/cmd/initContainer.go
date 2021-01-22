@@ -36,6 +36,7 @@ import (
 
 var (
 	initContainerFlags struct {
+		gid         int
 		home        string
 		homeLink    bool
 		mediaLink   bool
@@ -74,6 +75,11 @@ var initContainerCmd = &cobra.Command{
 
 func init() {
 	flags := initContainerCmd.Flags()
+
+	flags.IntVar(&initContainerFlags.gid,
+		"gid",
+		0,
+		"Create a user inside the toolbox container whose numerical group ID is GID")
 
 	flags.StringVar(&initContainerFlags.home,
 		"home",
@@ -128,6 +134,10 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 		errMsg := builder.String()
 		return errors.New(errMsg)
+	}
+
+	if !cmd.Flag("gid").Changed {
+		initContainerFlags.gid = initContainerFlags.uid
 	}
 
 	utils.EnsureXdgRuntimeDirIsSet(initContainerFlags.uid)
@@ -303,7 +313,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 	defer initializedStampFile.Close()
 
-	if err := initializedStampFile.Chown(initContainerFlags.uid, initContainerFlags.uid); err != nil {
+	if err := initializedStampFile.Chown(initContainerFlags.uid, initContainerFlags.gid); err != nil {
 		return errors.New("failed to change ownership of initialization stamp")
 	}
 
