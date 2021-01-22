@@ -20,7 +20,7 @@ locally, then it is pulled from a well-known registry like
 `registry.fedoraproject.org`. The container is created with `podman create`,
 and its entry point is set to `toolbox init-container`.
 
-Toolbox containers and images are tagged with the version of the OS that
+By default, toolbox containers are tagged with the version of the OS that
 corresponds to the content inside them.
 
 ### Entry Point
