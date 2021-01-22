@@ -4,10 +4,10 @@
 toolbox\-create - Create a new toolbox container
 
 ## SYNOPSIS
-**toolbox create** [*--container NAME* | *-c NAME*]
-               [*--distro DISTRO* | *-d DISTRO*]
+**toolbox create** [*--distro DISTRO* | *-d DISTRO*]
                [*--image NAME* | *-i NAME*]
                [*--release RELEASE* | *-r RELEASE*]
+               [*CONTAINER*]
 
 ## DESCRIPTION
 
@@ -20,8 +20,10 @@ locally, then it is pulled from a well-known registry like
 `registry.fedoraproject.org`. The container is created with `podman create`,
 and its entry point is set to `toolbox init-container`.
 
-By default, toolbox containers are tagged with the version of the OS that
-corresponds to the content inside them.
+By default, toolbox containers are named after their corresponding images. If
+the image had a tag, then the tag is included in the name of the container,
+but it's separated by a hyphen, not a colon. A different name can be assigned
+by using the CONTAINER argument.
 
 ### Entry Point
 
@@ -53,12 +55,6 @@ confusion.
 ## OPTIONS ##
 
 The following options are understood:
-
-**--container** NAME, **-c** NAME
-
-Assign a different NAME to the toolbox container. This is useful for creating
-multiple toolbox containers from the same base image, or for entirely
-customized containers from custom-built base images.
 
 **--distro** DISTRO, **-d** DISTRO
 
@@ -93,7 +89,7 @@ $ toolbox create --distro fedora --release f30
 ### Create a custom toolbox container from a custom image
 
 ```
-$ toolbox create --container foo --image bar
+$ toolbox create --image bar foo
 ```
 
 ## SEE ALSO
