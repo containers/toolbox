@@ -10,8 +10,9 @@ toolbox\-enter - Enter a toolbox container for interactive use
 
 ## DESCRIPTION
 
-Spawns an interactive shell inside a toolbox container. The container should
-have been created using the `toolbox create` command.
+Spawns an interactive shell inside a toolbox container that was created using
+the `toolbox create` command. It tries to spawn the user's default shell, but
+if it's not available inside the container then it falls back to `/bin/bash`.
 
 When invoked without any options, `toolbox enter` will try to enter the default
 toolbox container for the host, or if there's only one container available then
