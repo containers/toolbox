@@ -11,25 +11,29 @@ systems, which allows the use of containerized command line environments. It is
 built on top of [Podman](https://podman.io/) and other standard container
 technologies from [OCI](https://opencontainers.org/).
 
-The toolbox container is a fully *mutable* container; when you see
-`yum install ansible` for example, that's something you can do inside your
-toolbox container, without affecting the base operating system.
-
 This is particularly useful on
 [OSTree](https://ostree.readthedocs.io/en/latest/) based operating systems like
 [Fedora CoreOS](https://coreos.fedoraproject.org/) and
-[Silverblue](https://silverblue.fedoraproject.org/).  The intention of these
+[Silverblue](https://silverblue.fedoraproject.org/). The intention of these
 systems is to discourage installation of software on the host, and instead
-install software as (or in) containers.
+install software as (or in) containers — they mostly don't even have package
+managers like DNF or YUM. This makes it difficult to set up a development
+environment or install tools for debugging in the usual way.
 
-However, this tool doesn't *require* using an OSTree based system — it
-works equally well if you're running e.g. existing Fedora Workstation or
-Server, and that's a useful way to incrementally adopt containerization.
+Toolbox solves this problem by providing a fully mutable container within
+which one can install their favourite development and debugging tools, editors
+and SDKs. For example, it's possible to do `yum install ansible` without
+affecting the base operating system.
+
+However, this tool doesn't *require* using an OSTree based system. It works
+equally well on Fedora Workstation and Server, and that's a useful way to
+incrementally adopt containerization.
 
 The toolbox environment is based on an [OCI](https://www.opencontainers.org/)
 image. On Fedora this is the `fedora-toolbox` image. This image is used to
 create a toolbox container that seamlessly integrates with the rest of the
-operating system.
+operating system by providing access to the user's home directory, the Wayland
+and X11 sockets, SSH agent, etc..
 
 ## Installation
 
