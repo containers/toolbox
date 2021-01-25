@@ -4,34 +4,29 @@
 toolbox\-enter - Enter a toolbox container for interactive use
 
 ## SYNOPSIS
-**toolbox enter** [*--container NAME* | *-c NAME*]
-              [*--distro DISTRO* | *-d DISTRO*]
+**toolbox enter** [*--distro DISTRO* | *-d DISTRO*]
               [*--release RELEASE* | *-r RELEASE*]
+              [*CONTAINER*]
 
 ## DESCRIPTION
 
 Spawns an interactive shell inside a toolbox container. The container should
-have been created using the `toolbox create` command. If there aren't any
-containers, `toolbox enter` will offer to create one for you. When invoked with
-the default parameters, and if there's only one container available, it will
-fall back to it, even if it doesn't match the default name.
+have been created using the `toolbox create` command.
+
+When invoked without any options, `toolbox enter` will try to enter the default
+toolbox container for the host, or if there's only one container available then
+it will use it. On Fedora, the default container is known as
+`fedora-toolbox-N`, where N is the release of the host. If there aren't any
+containers, `toolbox enter` will offer to create the default one for you.
+
+A specific container can be selected using the CONTAINER argument.
 
 A toolbox container is an OCI container. Therefore, `toolbox enter` is
 analogous to a `podman start` followed by a `podman exec`.
 
-By default, the toolbox containers are tagged with the version of the OS that
-corresponds to the content inside them. Their names are prefixed with the name
-of the base image and suffixed with the current user name.
-
 ## OPTIONS ##
 
 The following options are understood:
-
-**--container** NAME, **-c** NAME
-
-Enter a toolbox container with the given NAME. This is useful when there are
-multiple toolbox containers created from the same base image, or entirely
-customized containers created from custom-built base images.
 
 **--distro** DISTRO, **-d** DISTRO
 
@@ -60,7 +55,7 @@ $ toolbox enter --distro fedora --release f30
 ### Enter a custom toolbox container using a custom image
 
 ```
-$ toolbox enter --container foo
+$ toolbox enter foo
 ```
 
 ## SEE ALSO
