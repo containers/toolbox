@@ -31,6 +31,11 @@ image. On Fedora this is the `fedora-toolbox` image. This image is used to
 create a toolbox container that seamlessly integrates with the rest of the
 operating system.
 
+## Installation
+
+Toolbox is installed by default on Fedora Silverblue. On other operating
+systems it's just a matter of installing the `toolbox` package.
+
 ## Usage
 
 ### Create your toolbox container:
@@ -54,7 +59,7 @@ This will create a container called `fedora-toolbox-<version-id>`.
 [user@hostname ~]$
 ```
 
-## Dependencies and Installation
+## Dependencies and Building
 
 Toolbox requires at least Podman 1.4.0 to work, and uses the Meson build
 system.
