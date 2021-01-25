@@ -1,60 +1,66 @@
 <img src="data/logo/toolbox-logo-landscape.svg" alt="Toolbox logo landscape" width="800"/>
 
-## Goals and Use Cases
+## Goals
 
 ### High Level Goals
 
-- Provide a CLI convenience interface to run containers (via `podman`) easily
-- Support for Developer and Debugging/Management use cases
+- Provide a convenient command line interface to run containers using
+  [Podman](https://podman.io/)
+- Support for development, debugging and system management use cases
 - Support for multiple distros
-    - toolbox package in multiple distros
-    - toolbox containers for multiple distros
+  - `toolbox` package in multiple distros
+  - `toolbox` containers for multiple distros
 
-### Non-Goals - Anti Use Cases
+### Non-goals
 
-- Supporting multiple container runtimes. `toolbox` will use `podman` exclusively
-- Adding significant features on top of `podman`
-	- Significant feature requests should be driven into `podman` upstream
+- Supporting multiple container runtimes. Toolbox will use Podman exclusively
+- Adding significant features on top of Podman
+  - Significant feature requests should be driven into Podman upstream
 - To run containers that aren't tightly integrated with the host
-	- i.e. extremely sandboxed containers become specific to the user quickly
+  - Extremely sandboxed containers quickly become specific to the user
 
 ### Developer Use Cases
 
 - I’m a developer hacking on source code and building/testing code
-    - Most cases: user doesn't need root, rootless containers work fine
-    - Some cases: user needs root for testing
-- Desktop Development: 
-    - developers need things like dbus, display, etc, to be forwarded into the toolbox
+  - Most cases: user doesn't need root, rootless containers work fine
+  - Some cases: user needs root for testing
+- Desktop Development:
+  - Developers need things like D-Bus, display, etc. to be forwarded into the
+    toolbox container
 - Headless Development:
-    - toolbox works properly in headless environments (no display, etc)
-- Need development tools like gdb, strace, etc to work
+  - Toolbox works properly in headless environments (no display, etc)
+- Need development tools like GDB, strace, etc. to work
 
-### Debugging/System management Use Cases
+### Debugging and System Management Use Cases
 
-- Inspecting Host Processes/Kernel
-    - Typically need root access
-    - Need bpftrace, strace on host processes to work
-		- Ideally even do things like helping get kernel-debuginfo data for the host kernel
+- Inspecting host processes and the kernel
+  - Typically need root access
+  - Need bpftrace, strace on host processes to work
+    - Ideally even do things like helping get kernel-debuginfo data for the
+      host kernel
 - Managing system services
-    - systemctl restart foo.service
-    - journalctl
+  - `systemctl restart foo.service`
+  - journalctl
 - Managing updates to the host
-    - rpm-ostree
-    - dnf/yum (classic systems)
+  - rpm-ostree
+  - dnf/yum (classic systems)
 
 ### Specific environments
 
 - Fedora Silverblue
-	- Silverblue comes with a subset of packages and discourages host software changes
-		- Users need a toolbox container as a working environment
-		- Future: use toolbox container by default when a user opens a shell
+  - Silverblue comes with a subset of packages and discourages host software
+    changes
+    - Users need a toolbox container as a working environment
+    - Future: use toolbox container by default when a user opens a shell
 - Fedora CoreOS
-	- Similar to silverblue, but non-graphical and smaller package set
+  - Similar to Silverblue, but non-graphical and smaller package set
 - RHEL CoreOS
-	- Similar to Fedora CoreOS. Based on RHEL content and the underlying OS for OpenShift
-	- Need to [use default authfile on pull](https://github.com/coreos/toolbox/pull/58/commits/413f83f7240d3c31121b557bfd55e489fad24489)
-    - Need to ensure compatibility with the rhel7/support-tools container 
-		- currently not a toolbox image, opportunity for collaboration
-	- Alignment with `oc debug node/` (OpenShift)
-		- `oc debug node` opens a shell on a kubernetes node
-		- Value in having a consistent environment for both `toolbox` in debugging mode and `oc debug node`
+  - Similar to Fedora CoreOS. Based on RHEL content and the underlying
+    operating system for OpenShift
+  - Need to [use default authfile on pull](https://github.com/coreos/toolbox/pull/58/commits/413f83f7240d3c31121b557bfd55e489fad24489)
+  - Need to ensure compatibility with the rhel7/support-tools container
+    - Currently not a toolbox image, opportunity for collaboration
+  - Alignment with `oc debug node/` (OpenShift)
+    - `oc debug node` opens a shell on a kubernetes node
+    - Value in having a consistent environment for both Toolbox's debugging
+      mode and `oc debug node`
