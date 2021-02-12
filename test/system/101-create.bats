@@ -28,7 +28,7 @@ teardown() {
 }
 
 @test "create: Create a container with a custom image and name ('fedora29'; f29)" {
-  pull_image 29
+  pull_image_old 29
 
   run toolbox -y create -c "fedora29" -i fedora-toolbox:29
 

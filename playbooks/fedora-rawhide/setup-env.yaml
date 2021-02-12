@@ -44,8 +44,8 @@
     - name: Show podman debug information
       command: podman info --debug
 
-    - name: Pull registry.fedoraproject.org/f34/fedora-toolbox:34
-      command: podman pull registry.fedoraproject.org/f34/fedora-toolbox:34
+    - name: Pull registry.fedoraproject.org/fedora-toolbox:34
+      command: podman pull registry.fedoraproject.org/fedora-toolbox:34
       register: _podman
       until: _podman.rc == 0
       retries: 5

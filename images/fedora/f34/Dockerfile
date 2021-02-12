@@ -4,7 +4,7 @@ ENV NAME=fedora-toolbox VERSION=34
 LABEL com.github.containers.toolbox="true" \
       com.github.debarshiray.toolbox="true" \
       com.redhat.component="$NAME" \
-      name="$FGC/$NAME" \
+      name="$NAME" \
       version="$VERSION" \
       usage="This image is meant to be used with the toolbox command" \
       summary="Base image for creating Fedora toolbox containers" \

@@ -34,6 +34,31 @@ function pull_image() {
   local -i max_retries
   local -i wait_time
   version="$1"
+  image="${REGISTRY_URL}/fedora-toolbox:${version}"
+  count=0
+  max_retries=5
+  wait_time=15
+
+  until ${PODMAN} pull "${image}" >/dev/null ; do
+    sleep $wait_time
+    (( count += 1 ))
+
+    if (( "$count" == "$max_retries" )); then
+      # Max number of retries exceeded
+      echo "Podman couldn't pull the image ${image}."
+      return 1
+    fi
+  done
+}
+
+
+function pull_image_old() {
+  local version
+  local image
+  local -i count
+  local -i max_retries
+  local -i wait_time
+  version="$1"
   image="${REGISTRY_URL}/f${version}/fedora-toolbox:${version}"
   count=0
   max_retries=5
@@ -63,7 +88,7 @@ function create_container() {
   local image
   container_name="$1"
   version="$DEFAULT_FEDORA_VERSION"
-  image="${REGISTRY_URL}/f${version}/fedora-toolbox:${version}"
+  image="${REGISTRY_URL}/fedora-toolbox:${version}"
 
   pull_image "$version"
 

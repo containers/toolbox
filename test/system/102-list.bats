@@ -50,7 +50,7 @@ teardown() {
 @test "list: Try to list images and containers (no flag) with 3 containers and 2 images (the list should have 3 images and 2 containers)" {
   # Pull the two images
   pull_default_image
-  pull_image 29
+  pull_image_old 29
   # Create tree containers
   create_default_container
   create_container non-default-one
