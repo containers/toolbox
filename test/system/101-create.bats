@@ -52,3 +52,18 @@ teardown() {
   assert_line --index 1 "Container names must match '[a-zA-Z0-9][a-zA-Z0-9_.-]*'"
   assert_line --index 2 "Run 'toolbox --help' for usage."
 }
+
+@test "create: Create a container with a distro and release options ('fedora'; f29)" {
+  pull_image 29
+
+  run toolbox -y create -d "fedora" -r f29
+
+  assert_success
+  assert_output --partial "Created container: fedora-toolbox-29"
+  assert_output --partial "Enter with: toolbox enter --release 29"
+
+  # Make sure the container has actually been created
+  run podman ps -a
+
+  assert_output --regexp "Created[[:blank:]]+fedora-toolbox-29"
+}
