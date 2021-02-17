@@ -32,6 +32,17 @@
     run: playbooks/fedora-33/system-test-fedora-33.yaml
 
 - job:
+    name: system-test-fedora-34
+    description: Run Toolbox's system tests in Fedora 34
+    timeout: 1200
+    nodeset:
+      nodes:
+        - name: ci-node-34
+          label: cloud-fedora-34-small
+    pre-run: playbooks/fedora-34/setup-env.yaml
+    run: playbooks/fedora-34/system-test-fedora-34.yaml
+
+- job:
     name: system-test-fedora-rawhide
     description: Run Toolbox's system tests in Fedora Rawhide
     timeout: 1200
@@ -47,15 +58,18 @@
       jobs:
         - system-test-fedora-32
         - system-test-fedora-33
+        - system-test-fedora-34
         - system-test-fedora-rawhide
     check:
       jobs:
         - shellcheck
         - system-test-fedora-32
         - system-test-fedora-33
+        - system-test-fedora-34
         - system-test-fedora-rawhide
     gate:
       jobs:
         - system-test-fedora-32
         - system-test-fedora-33
+        - system-test-fedora-34
         - system-test-fedora-rawhide
