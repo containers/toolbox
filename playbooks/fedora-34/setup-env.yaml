@@ -38,8 +38,8 @@
     - name: Check versions of crucial packages
       command: rpm -q golang podman crun conmon fuse-overlayfs flatpak-session-helper
 
-    - name: Pull registry.fedoraproject.org/f33/fedora-toolbox:33
-      command: podman pull registry.fedoraproject.org/f33/fedora-toolbox:33
+    - name: Pull registry.fedoraproject.org/f34/fedora-toolbox:34
+      command: podman pull registry.fedoraproject.org/f34/fedora-toolbox:34
       register: _podman
       until: _podman.rc == 0
       retries: 5
