@@ -38,6 +38,12 @@
     - name: Check versions of crucial packages
       command: rpm -q golang podman crun conmon fuse-overlayfs flatpak-session-helper
 
+    - name: Show podman versions
+      command: podman version
+
+    - name: Show podman debug information
+      command: podman info --debug
+
     - name: Pull registry.fedoraproject.org/f32/fedora-toolbox:32
       command: podman pull registry.fedoraproject.org/f32/fedora-toolbox:32
       register: _podman
