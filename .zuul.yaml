@@ -10,17 +10,6 @@
     run: playbooks/shellcheck.yaml
 
 - job:
-    name: system-test-fedora-31
-    description: Run Toolbox's system tests in Fedora 31
-    timeout: 1200
-    nodeset:
-      nodes:
-        - name: ci-node-31
-          label: cloud-fedora-31-small
-    pre-run: playbooks/fedora-31/setup-env.yaml
-    run: playbooks/fedora-31/system-test-fedora-31.yaml
-
-- job:
     name: system-test-fedora-32
     description: Run Toolbox's system tests in Fedora 32
     timeout: 1200
@@ -56,20 +45,17 @@
 - project:
     periodic:
       jobs:
-        - system-test-fedora-31
         - system-test-fedora-32
         - system-test-fedora-33
         - system-test-fedora-rawhide
     check:
       jobs:
         - shellcheck
-        - system-test-fedora-31
         - system-test-fedora-32
         - system-test-fedora-33
         - system-test-fedora-rawhide
     gate:
       jobs:
-        - system-test-fedora-31
         - system-test-fedora-32
         - system-test-fedora-33
         - system-test-fedora-rawhide
