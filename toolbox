@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+# THIS IMPLEMENTATION OF TOOLBOX IS NO LONGER MAINTAINED.
+# Please, use the Go implementation instead.
 
 exec 3>/dev/null
 
@@ -2186,6 +2188,10 @@ update_container_and_image_names()
 
 
 arguments=$(save_positional_parameters "$@")
+
+echo "THIS IMPLEMENTATION OF TOOLBOX IS NO LONGER MAINTAINED."
+echo "Please, use the Go implementation instead."
+echo
 
 host_id=$(get_host_id)
 if [ "$host_id" = "fedora" ] 2>&3; then
