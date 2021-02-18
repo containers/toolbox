@@ -16,8 +16,8 @@ directory:
 
 ```
 # Go to the Toolbox root folder
-$ git clone https://github.com/ztombol/bats-assert test/system/libs/bats-assert
-$ git clone https://github.com/ztombol/bats-support test/system/libs/bats-support
+$ git clone https://github.com/bats-core/bats-assert test/system/libs/bats-assert
+$ git clone https://github.com/bats-core/bats-support test/system/libs/bats-support
 ```
 
 ## Convention
