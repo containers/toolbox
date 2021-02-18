@@ -50,3 +50,5 @@ e.g., Fedora Silverblue 32
 Add any other context about the problem here.
 When did the issue start occurring? After an update (what packages were updated)?
 If the issue is about operating with containers/images (creating, using, deleting,..), share here what image you used. If you're unsure, share here the output of `toolbox list -i` (shows all toolbox images on your system).
+
+If you see an error message saying: `Error: invalid entry point PID of container <name-of-container>`, add to the ticket output of command `podman start --attach <name-of-container>`.
