@@ -3,6 +3,8 @@
 # Podman and Toolbox commands to run
 readonly PODMAN=${PODMAN:-podman}
 readonly TOOLBOX=${TOOLBOX:-toolbox}
+readonly SKOPEO=$(command -v skopeo)
+readonly PROJECT_DIR=${PWD}
 
 # Helpful globals
 current_os_version=$(awk -F= '/VERSION_ID/ {print $2}' /etc/os-release)
@@ -30,50 +32,22 @@ function get_busybox_image() {
 function pull_image() {
   local version
   local image
-  local -i count
-  local -i max_retries
-  local -i wait_time
   version="$1"
   image="${REGISTRY_URL}/fedora-toolbox:${version}"
-  count=0
-  max_retries=5
-  wait_time=15
 
-  until ${PODMAN} pull "${image}" >/dev/null ; do
-    sleep $wait_time
-    (( count += 1 ))
-
-    if (( "$count" == "$max_retries" )); then
-      # Max number of retries exceeded
-      echo "Podman couldn't pull the image ${image}."
-      return 1
-    fi
-  done
+  $SKOPEO copy "dir:${PROJECT_DIR}/fedora-toolbox-${version}" "containers-storage:${image}"
+  $PODMAN images
 }
 
 
 function pull_image_old() {
   local version
   local image
-  local -i count
-  local -i max_retries
-  local -i wait_time
   version="$1"
   image="${REGISTRY_URL}/f${version}/fedora-toolbox:${version}"
-  count=0
-  max_retries=5
-  wait_time=15
 
-  until ${PODMAN} pull "${image}" >/dev/null ; do
-    sleep $wait_time
-    (( count += 1 ))
-
-    if (( "$count" == "$max_retries" )); then
-      # Max number of retries exceeded
-      echo "Podman couldn't pull the image ${image}."
-      return 1
-    fi
-  done
+  $SKOPEO copy "dir:${PROJECT_DIR}/fedora-toolbox-${version}" "containers-storage:${image}"
+  $PODMAN images
 }
 
 

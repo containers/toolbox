@@ -54,9 +54,22 @@
       retries: 5
       delay: 10
 
+    - name: Copy the default image to a directory
+      command:
+        cmd: "skopeo copy containers-storage:registry.fedoraproject.org/fedora-toolbox:{{ ansible_distribution_version }} dir:{{ zuul.project.src_dir }}/fedora-toolbox-{{ ansible_distribution_version }}"
+        creates: "{{ zuul.project.src_dir }}/fedora-toolbox-{{ ansible_distribution_version }}/manifest.json"
+
     - name: Pull registry.fedoraproject.org/f29/fedora-toolbox:29
       command: podman pull registry.fedoraproject.org/f29/fedora-toolbox:29
       register: _podman
       until: _podman.rc == 0
       retries: 5
       delay: 10
+
+    - name: Copy registry.fedoraproject.org/f29/fedora-toolbox:29 to a directory
+      command:
+        cmd: "skopeo copy containers-storage:registry.fedoraproject.org/f29/fedora-toolbox:29 dir:{{ zuul.project.src_dir }}/fedora-toolbox-29"
+        creates: "{{ zuul.project.src_dir }}/fedora-toolbox-29/manifest.json"
+
+    - name: Clean up the local containers storage
+      command: podman system reset --force
