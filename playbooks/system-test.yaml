@@ -1,21 +1,27 @@
 ---
 - hosts: all
+
+  vars:
+    toolbox_bin: '/usr/local/bin/toolbox'
+
   tasks:
     - name: Build toolbox
       command: meson builddir
       args:
         chdir: '{{ zuul.project.src_dir }}'
+        creates: builddir/src/toolbox
 
     - name: Install toolbox
       become: yes
       command: ninja -C builddir install
       args:
         chdir: '{{ zuul.project.src_dir }}'
+        creates: '{{ toolbox_bin }}'
 
     - name: Run system tests
       command: bats ./test/system
       environment:
         PODMAN: '/usr/bin/podman'
-        TOOLBOX: '/usr/local/bin/toolbox'
+        TOOLBOX: '{{ toolbox_bin }}'
       args:
         chdir: '{{ zuul.project.src_dir }}'
