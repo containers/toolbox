@@ -1,5 +1,5 @@
 ---
-- hosts: ci-node-33
+- hosts: all
   tasks:
     - name: Build toolbox
       command: meson builddir
