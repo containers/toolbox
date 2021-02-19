@@ -6,27 +6,28 @@
       package:
         use: dnf
         name:
+          - bash-completion
+          - bats
+          - flatpak-session-helper
           - golang
           - golang-github-cpuguy83-md2man
-          - ninja-build
           - meson
-          - flatpak-session-helper
-          - systemd
-          - bats
-          - bash-completion
-          - udisks2
+          - ninja-build
           - podman
-
-    - name: Install bats-support library
-      git:
-        repo: https://github.com/bats-core/bats-support
-        dest: '{{ zuul.project.src_dir }}/test/system/libs/bats-support'
-        depth: 1
+          - skopeo
+          - systemd
+          - udisks2
 
     - name: Install bats-assert library
       git:
         repo: https://github.com/bats-core/bats-assert
         dest: '{{ zuul.project.src_dir }}/test/system/libs/bats-assert'
+        depth: 1
+
+    - name: Install bats-support library
+      git:
+        repo: https://github.com/bats-core/bats-support
+        dest: '{{ zuul.project.src_dir }}/test/system/libs/bats-support'
         depth: 1
 
     - name: Setup environment
@@ -44,8 +45,8 @@
     - name: Show podman debug information
       command: podman info --debug
 
-    - name: Pull registry.fedoraproject.org/fedora-toolbox:34
-      command: podman pull registry.fedoraproject.org/fedora-toolbox:34
+    - name: Pull the default image from registry.fedoraproject.org
+      command: "podman pull registry.fedoraproject.org/fedora-toolbox:{{ ansible_distribution_version }}"
       register: _podman
       until: _podman.rc == 0
       retries: 5
