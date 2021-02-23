@@ -54,6 +54,7 @@ var (
 		{"/etc/machine-id", "/run/host/etc/machine-id", "ro"},
 		{"/run/libvirt", "/run/host/run/libvirt", ""},
 		{"/run/systemd/journal", "/run/host/run/systemd/journal", ""},
+		{"/run/systemd/resolve", "/run/host/run/systemd/resolve", ""},
 		{"/run/udev/data", "/run/host/run/udev/data", ""},
 		{"/tmp", "/run/host/tmp", "rslave"},
 		{"/var/lib/flatpak", "/run/host/var/lib/flatpak", "ro"},
