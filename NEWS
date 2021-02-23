@@ -1,3 +1,19 @@
+Overview of changes in 0.0.99.1
+===============================
+
+* Add deprecation notices to the POSIX shell implementation
+* Add test for the new --distro option
+* Drop the FGC namespace from the fedora-toolbox images
+* Fix miscellaneous issues pointed out by https://www.shellcheck.net/
+* Handle hosts with /etc/localtime as absolute symlink
+* Improve README.md
+* Improve the Zuul configuration
+* Mount /mnt only if it is available
+* Refactor the system tests, and use bats-assert and bats-support
+* Test that sudo doesn't require a password
+* Update the manuals
+
+
 Overview of changes in 0.0.99
 =============================
 
