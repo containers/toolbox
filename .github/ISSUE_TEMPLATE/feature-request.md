@@ -2,7 +2,7 @@
 name: Feature request
 about: Toolbox's feature request template
 title: ''
-labels: feature request
+labels: 1. Feature request
 assignees: ''
 
 ---

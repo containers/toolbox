@@ -2,7 +2,7 @@
 name: Bug report
 about: Toolbox's bug report template
 title: ''
-labels: bug
+labels: 1. Bug
 assignees: ''
 
 ---
