@@ -265,8 +265,19 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	logrus.Debugf("%s canonicalized to %s", currentUser.HomeDir, homeDirEvaled)
 	homeDirMountArg := homeDirEvaled + ":" + homeDirEvaled + ":rslave"
 
+	bootMountFlags := "rw"
+	isBootReadWrite, err := isPathReadWrite("/boot")
+	if err != nil {
+		return err
+	}
+	if !isBootReadWrite {
+		bootMountFlags = "ro"
+	}
+
+	bootMountArg := "/boot:/run/host/boot:" + bootMountFlags + ",rslave"
+
 	usrMountFlags := "ro"
-	isUsrReadWrite, err := isUsrReadWrite()
+	isUsrReadWrite, err := isPathReadWrite("/usr")
 	if err != nil {
 		return err
 	}
@@ -414,7 +425,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	createArgs = append(createArgs, []string{
 		"--userns", usernsArg,
 		"--user", "root:root",
-		"--volume", "/boot:/run/host/boot:rslave",
+		"--volume", bootMountArg,
 		"--volume", "/etc:/run/host/etc",
 		"--volume", "/dev:/dev:rslave",
 		"--volume", "/run:/run/host/run:rslave",
@@ -624,22 +635,22 @@ func getServiceSocket(serviceName string, unitName string) (string, error) {
 	return "", errors.New(errMsg)
 }
 
-func isUsrReadWrite() (bool, error) {
-	logrus.Debug("Checking if /usr is mounted read-only or read-write")
+func isPathReadWrite(path string) (bool, error) {
+	logrus.Debugf("Checking if %s is mounted read-only or read-write", path)
 
-	mountPoint, err := utils.GetMountPoint("/usr")
+	mountPoint, err := utils.GetMountPoint(path)
 	if err != nil {
-		return false, fmt.Errorf("failed to get the mount-point of /usr: %s", err)
+		return false, fmt.Errorf("failed to get the mount-point of %s: %s", path, err)
 	}
 
-	logrus.Debugf("Mount-point of /usr is %s", mountPoint)
+	logrus.Debugf("Mount-point of %s is %s", path, mountPoint)
 
 	mountFlags, err := utils.GetMountOptions(mountPoint)
 	if err != nil {
 		return false, fmt.Errorf("failed to get the mount options of %s: %s", mountPoint, err)
 	}
 
-	logrus.Debugf("Mount flags of /usr on the host are %s", mountFlags)
+	logrus.Debugf("Mount flags of %s on the host are %s", path, mountFlags)
 
 	if !strings.Contains(mountFlags, "ro") {
 		return true, nil
