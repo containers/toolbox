@@ -4,7 +4,7 @@
 toolbox\-rmi - Remove one or more toolbox images
 
 ## SYNOPSIS
-**toolbox rmi** [*--all*] [*--force*] [*IMAGE*...]
+**toolbox rmi** [*--all* | *-a*] [*--force* | *-f*] [*IMAGE*...]
 
 ## DESCRIPTION
 
@@ -49,4 +49,4 @@ $ toolbox rmi --all --force
 
 ## SEE ALSO
 
-`buildah(1)`, `podman(1)`, `podman-rmi(1)`
+`toolbox(1)`, `podman(1)`, `podman-rmi(1)`

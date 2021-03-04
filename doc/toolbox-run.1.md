@@ -13,12 +13,16 @@ toolbox\-run - Run a command in an existing toolbox container
 Runs a command inside an existing toolbox container. The container should have
 been created using the `toolbox create` command.
 
+`toolbox run` wraps around `podman exec` and by default passes several options
+to it. It allocates a tty, connects to stdin, runs the passed command as the
+current user in the current directory and shares common environmental
+variables.
+
+The executed command is wrapped in `capsh` that gets rid of all extra
+capabilities that could negatively affect the experience.
+
 A toolbox container is an OCI container. Therefore, `toolbox run` is analogous
 to a `podman start` followed by a `podman exec`.
-
-By default, the toolbox containers are tagged with the version of the OS that
-corresponds to the content inside them. Their names are prefixed with the name
-of the base image and suffixed with the current user name.
 
 ## OPTIONS ##
 
@@ -62,4 +66,5 @@ $ toolbox run --container foo uptime
 
 ## SEE ALSO
 
-`buildah(1)`, `podman(1)`, `podman-exec(1)`, `podman-start(1)`
+`toolbox(1)`, `podman(1)`, `podman-exec(1)`, `podman-start(1)`, `capsh(1)`,
+`sh(1)`

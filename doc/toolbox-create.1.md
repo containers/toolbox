@@ -26,36 +26,42 @@ the image had a tag, then the tag is included in the name of the container,
 but it's separated by a hyphen, not a colon. A different name can be assigned
 by using the CONTAINER argument.
 
+If the host system is not recognized the used image will be `fedora-toolbox`.
+
+Toolbox containers are primarily created in a way to be tightly integrated with
+the host system. They are not meant to be secure.
+
 ### Entry Point
 
 A key feature of toolbox containers is their entry point, the `toolbox
 init-container` command.
 
-OCI containers are inherently immutable. Configuration options passed through
-`podman create` are baked into the definition of the OCI container, and can't
-be changed later. This means that changes and improvements made in newer
-versions of Toolbox can't be applied to pre-existing toolbox containers
-created by older versions of Toolbox. This is avoided by using the entry point
-to configure the container at runtime.
+Read more about the entry-point in `toolbox-init-container(1)`.
 
-The entry point of a toolbox container customizes the container to fit the
-current user by ensuring that it has a user that matches the one on the host.
-It ensures that configuration files, such as `/etc/host.conf`, `/etc/hosts`,
-`/etc/localtime`, `/etc/resolv.conf` and `/etc/timezone`, inside the container
-are kept synchronized with the host. The entry point also bind mounts various
-subsets of the host's filesystem hierarchy to their corresponding locations
-inside the container to provide seamless integration with the host. This
-includes `/run/libvirt`, `/run/systemd/journal`, `/run/udev/data`,
-`/var/lib/libvirt`, `/var/lib/systemd/coredump`, `/var/log/journal` and others.
+### Toolbox setup
 
-On some host operating systems, important paths like `/home`, `/media` or
-`/mnt` are symbolic links to other locations. The entry point ensures that
-paths inside the container match those on the host, to avoid needless
-confusion.
+`toolbox-create(1)` passes several options to `podman-create(1)` when creating
+toolbox containers to provide the needed functionality. The options have the
+following effects:
+
+- Toolboxes share with the host system:
+    - network stack, including dns
+    - IPC (shared memory, semaphores, message queues,..)
+    - PID namespace
+    - ulimits
+- Toolboxes have access to cherry-picked parts of host filesystem made
+  available under /run/host/
+- Toolboxes are privileged containers
+- SELinux label separation is disabled for toolboxes
+- Toolboxes use as their entry-point `toolbox-init-container(1)`
+
+Despite being privileged, rootless containers cannot have more privileges than
+the user that created them.
+
+Thanks to these options, `toolbox-init-container(1)` can futher set up the
+containers. Read more about the entry-point in `toolbox-init-container(1)`.
 
 ## OPTIONS ##
-
-The following options are understood:
 
 **--distro** DISTRO, **-d** DISTRO
 
@@ -67,6 +73,9 @@ host. Cannot be used with `--image`.
 Change the NAME of the base image used to create the toolbox container. This
 is useful for creating containers from custom-built base images. Cannot be used
 used with `--release`.
+
+If NAME does not contain a domain, the image will be pulled from
+`registry.fedoraproject.org`.
 
 **--release** RELEASE, **-r** RELEASE
 
@@ -95,4 +104,4 @@ $ toolbox create --image bar foo
 
 ## SEE ALSO
 
-`buildah(1)`, `podman(1)`
+`toolbox(1)`, `toolbox-init-container(1)`, `podman(1)`, `podman-create(1)`
