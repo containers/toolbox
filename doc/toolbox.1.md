@@ -4,7 +4,11 @@
 toolbox - Unprivileged development environment
 
 ## SYNOPSIS
-**toolbox** [*--verbose* | *-v*] *COMMAND* [*ARGS*]
+**toolbox** [*--assumeyes* | *-y*]
+        [*--help* | *-h*]
+        [*--log-level LEVEL*]
+        [*--log-podman*]
+        *COMMAND* [*ARGS*...]
 
 ## DESCRIPTION
 
@@ -34,7 +38,7 @@ seamlessly integrates with the rest of the operating system by providing
 access to the user's home directory, the Wayland and X11 sockets, SSH agent,
 etc..
 
-## OPTIONS ##
+## GLOBAL OPTIONS ##
 
 The following options are understood:
 
@@ -46,10 +50,15 @@ Automatically answer yes for all questions.
 
 Print a synopsis of this manual and exit.
 
-**--verbose, -v**
+**--log-level**=*level*
 
-Print debug information including standard error stream of internal commands.
-Use `-vv` for more detail.
+Log messages above specified level: debug, info, warn, error, fatal or panic
+(default: error)
+
+**--log-podman**
+
+Show log messages of invocations of Podman based on the logging level specified
+by option **log-level**.
 
 ## COMMANDS
 
@@ -87,6 +96,37 @@ Remove one or more toolbox images.
 
 Run a command in an existing toolbox container.
 
+## Toolbox images
+
+Toolbox currently supports these images:
+
+registry.fedoraproject.org/fedora-toolbox
+: default image on Fedora
+
+registry.access.redhat.com/ubi8
+: default image on RHEL
+
+Images in this list are tested to be working with Toolbox. Any other image may
+work as well, but it is not guaranteed.
+
+### NOTE: Name change of default Fedora image
+
+Since version 0.0.99.1 Toolbox started to use registry.fedoraproject.org/fedora-toolbox
+instead of registry.fedoraproject.org/f{version}/fedora-toolbox. The image is
+still the same, only the name has changed.
+
+Existing containers are not affected by this change, only new ones.
+
+## Toolbox containers
+
+Information about how toolbox containers are created can be found in
+`toolbox-create(1)`.
+
+Information about the entry-point of toolbox containers can be found in
+`toolbox-init-container(1)`.
+
 ## SEE ALSO
 
-`buildah(1)`, `podman(1)`
+`podman(1)`, `toolbox-create(1)`, `toolbox-enter(1)`, `toolbox-run(1)`,
+`toolbox-init-container(1)`, `toolbox-list(1)`, `toolbox-rm(1)`,
+`toolbox-rmi(1)` `toolbox-help(1)`, https://github.com/containers/toolbox

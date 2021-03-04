@@ -4,7 +4,7 @@
 toolbox\-rm - Remove one or more toolbox containers
 
 ## SYNOPSIS
-**toolbox rm** [*--all*] [*--force*] [*CONTAINER*...]
+**toolbox rm** [*--all* | *-a*] [*--force* | *-f*] [*CONTAINER*...]
 
 ## DESCRIPTION
 
@@ -49,4 +49,4 @@ $ toolbox rm --all --force
 
 ## SEE ALSO
 
-`buildah(1)`, `podman(1)`, `podman-rm(1)`
+`toolbox(1)`, `podman(1)`, `podman-rm(1)`

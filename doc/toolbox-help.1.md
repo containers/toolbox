@@ -29,3 +29,7 @@ $ toolbox help
 ```
 $ toolbox help create
 ```
+
+## SEE ALSO
+
+`toolbox(1)`
