@@ -176,12 +176,10 @@ func initContainer(cmd *cobra.Command, args []string) error {
 				return err
 			}
 
-			if _, err := os.Readlink("/etc/resolv.conf"); err != nil {
-				if err := redirectPath("/etc/resolv.conf",
-					"/run/host/etc/resolv.conf",
-					false); err != nil {
-					return err
-				}
+			if err := redirectPath("/etc/resolv.conf",
+				"/run/host/etc/resolv.conf",
+				false); err != nil {
+				return err
 			}
 
 			for _, mount := range initContainerMounts {
