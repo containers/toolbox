@@ -2,7 +2,7 @@
 [ -z "$BASH_VERSION" ] && return
 
 __toolbox_containers() {
-  podman ps --all --format '{{.Names}}'
+  toolbox list -c 2>/dev/null | tail -n +2 2>/dev/null | cut -d " " -f 3 2>/dev/null
 }
 
 __toolbox_distros() {
@@ -11,7 +11,7 @@ __toolbox_distros() {
 }
 
 __toolbox_images() {
-  podman images --format '{{.Repository}}:{{.Tag}}'
+  toolbox list -i 2>/dev/null | tail -n +2 2>/dev/null | cut -d " " -f 3 2>/dev/null
 }
 
 __toolbox() {
@@ -19,10 +19,12 @@ __toolbox() {
   local RAWHIDE_VERSION=34
 
   local commands="create enter help init-container list rm rmi run"
+  local global_options="--assumeyes --help --log-level --log-podman"
+  local log_levels="debug info warn error fatal panic"
 
   declare -A options
-  local options=([create]="--container --distro --image --release" \
-                 [enter]="--container --distro --release" \
+  local options=([create]="--distro --image --release" \
+                 [enter]="--distro --release" \
                  [help]="$commands" \
                  [init-container]="--home --home-link --monitor-host --shell --uid --user" \
 		 [list]="--containers --images" \
@@ -33,13 +35,29 @@ __toolbox() {
   _init_completion -s || return
 
   if [ "${COMP_CWORD}" -eq 1 ]; then
-    mapfile -t COMPREPLY < <(compgen -W "--assumeyes --help --verbose --very-verbose $commands" -- "$2")
+    mapfile -t COMPREPLY < <(compgen -W "$global_options $commands" -- "$2")
     return 0
   fi
 
+  # If a global option is mentioned, don't mention it anymore
+  for option in $global_options; do
+    if [[ "${COMP_LINE}" =~ "$option" ]]; then
+      global_options="${global_options/$option}"
+    fi
+  done
+
+  # If a command is mentioned, don't mention any more commands
+  local command
+  for cmd in $commands; do
+    if [[ "${COMP_LINE}" =~ "$cmd" ]]; then
+      commands=""
+      command="$cmd"
+    fi
+  done
+
   case "$prev" in
-    --verbose | -v | --very-verbose | -vv)
-      mapfile -t COMPREPLY < <(compgen -W "$commands" -- "$2")
+    --assumeyes | -y | --help | -h | --verbose | -v | --very-verbose | -vv | --log-podman)
+      mapfile -t COMPREPLY < <(compgen -W "$global_options $commands" -- "$2")
       return 0
       ;;
     --container | -c)
@@ -58,18 +76,15 @@ __toolbox() {
       mapfile -t COMPREPLY < <(compgen -W "$(seq $MIN_VERSION $RAWHIDE_VERSION)" -- "$2")
       return 0
       ;;
+    --log-level)
+      mapfile -t COMPREPLY < <(compgen -W "$log_levels" -- "$2")
+      return 0
+      ;;
   esac
-
-  local command
-  if [ "${COMP_WORDS[1]}" = --verbose ] || [ "${COMP_WORDS[1]}" = --very-verbose ]; then
-    command=${COMP_WORDS[2]}
-  else
-    command=${COMP_WORDS[1]}
-  fi
 
   local extra_comps
   case "$command" in
-    rm)
+    rm | enter)
       extra_comps="$(__toolbox_containers)"
       ;;&
     rmi)
