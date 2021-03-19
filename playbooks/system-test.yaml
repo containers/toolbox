@@ -24,7 +24,7 @@
         creates: '{{ toolbox_bin }}'
 
     - name: Run system tests
-      command: bats ./test/system
+      command: bats --timing ./test/system
       environment:
         PODMAN: '/usr/bin/podman'
         TOOLBOX: '{{ toolbox_bin }}'
