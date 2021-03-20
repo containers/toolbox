@@ -74,14 +74,14 @@ func rm(cmd *cobra.Command, args []string) error {
 		args := []string{"--all", "--filter", "label=com.github.containers.toolbox=true"}
 		containers_old, err := podman.GetContainers(args...)
 		if err != nil {
-			return errors.New("failed to list containers with label=com.github.containers.toolbox=true")
+			return fmt.Errorf("failed to list containers with label=com.github.containers.toolbox=true: %w", err)
 		}
 
 		logrus.Debug("Fetching containers with label=com.github.debarshiray.toolbox=true")
 		args = []string{"--all", "--filter", "label=com.github.debarshiray.toolbox=true"}
 		containers_new, err := podman.GetContainers(args...)
 		if err != nil {
-			return errors.New("failed to list containers with com.github.debarshiray.toolbox=true")
+			return fmt.Errorf("failed to list containers with com.github.debarshiray.toolbox=true: %w", err)
 		}
 
 		var idKey string
