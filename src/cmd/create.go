@@ -377,22 +377,19 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	}
 
 	entryPoint := []string{
-		"toolbox", "--verbose",
+		"toolbox", "--log-level", "debug",
 		"init-container",
 		"--gid", currentUser.Gid,
 		"--home", currentUser.HomeDir,
+		"--shell", userShell,
+		"--uid", currentUser.Uid,
+		"--user", currentUser.Username,
+		"--monitor-host",
 	}
 
 	entryPoint = append(entryPoint, slashHomeLink...)
 	entryPoint = append(entryPoint, mediaLink...)
 	entryPoint = append(entryPoint, mntLink...)
-
-	entryPoint = append(entryPoint, []string{
-		"--monitor-host",
-		"--shell", userShell,
-		"--uid", currentUser.Uid,
-		"--user", currentUser.Username,
-	}...)
 
 	createArgs := []string{
 		"--log-level", logLevelString,
