@@ -515,7 +515,7 @@ func getDBusSystemSocket() (string, error) {
 	path := addressSplit[1]
 	pathEvaled, err := filepath.EvalSymlinks(path)
 	if err != nil {
-		return "", errors.New("failed to resolve the path to the D-Bus system socket")
+		return "", fmt.Errorf("failed to resolve the path to the D-Bus system socket: %w", err)
 	}
 
 	return pathEvaled, nil
@@ -583,7 +583,7 @@ func getServiceSocket(serviceName string, unitName string) (string, error) {
 
 	connection, err := dbus.SystemBus()
 	if err != nil {
-		return "", errors.New("failed to connect to the D-Bus system instance")
+		return "", fmt.Errorf("failed to connect to the D-Bus system instance: %w", err)
 	}
 
 	unitNameEscaped := systemdPathBusEscape(unitName)
@@ -594,14 +594,12 @@ func getServiceSocket(serviceName string, unitName string) (string, error) {
 	var result map[string]dbus.Variant
 	err = call.Store(&result)
 	if err != nil {
-		errMsg := fmt.Sprintf("failed to get the properties of %s", unitName)
-		return "", errors.New(errMsg)
+		return "", fmt.Errorf("failed to get the properties of %s: %w", unitName, err)
 	}
 
 	listenVariant, listenFound := result["Listen"]
 	if !listenFound {
-		errMsg := fmt.Sprintf("failed to find the Listen property of %s", unitName)
-		return "", errors.New(errMsg)
+		return "", fmt.Errorf("failed to find the Listen property of %s: %w", unitName, err)
 	}
 
 	listenVariantSignature := listenVariant.Signature().String()
@@ -627,8 +625,7 @@ func getServiceSocket(serviceName string, unitName string) (string, error) {
 		}
 	}
 
-	errMsg := fmt.Sprintf("failed to find a SOCK_STREAM socket for %s", unitName)
-	return "", errors.New(errMsg)
+	return "", fmt.Errorf("failed to find a SOCK_STREAM socket for %s", unitName)
 }
 
 func isPathReadWrite(path string) (bool, error) {

@@ -74,14 +74,14 @@ func rmi(cmd *cobra.Command, args []string) error {
 		args := []string{"--filter", "label=com.github.containers.toolbox=true"}
 		images_old, err := podman.GetImages(args...)
 		if err != nil {
-			return errors.New("failed to list images with label=com.github.containers.toolbox=true")
+			return fmt.Errorf("failed to list images with label=com.github.containers.toolbox=true: %w", err)
 		}
 
 		logrus.Debug("Fetching images with label=com.github.debarshiray.toolbox=true")
 		args = []string{"--filter", "label=com.github.debarshiray.toolbox=true"}
 		images_new, err := podman.GetImages(args...)
 		if err != nil {
-			return errors.New("failed to list images with com.github.debarshiray.toolbox=true")
+			return fmt.Errorf("failed to list images with com.github.debarshiray.toolbox=true: %w", err)
 		}
 
 		var idKey string
