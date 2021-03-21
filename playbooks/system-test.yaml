@@ -5,13 +5,18 @@
     toolbox_bin: '/usr/local/bin/toolbox'
 
   tasks:
-    - name: Build toolbox
+    - name: Set up build directory
       command: meson builddir
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+
+    - name: Build Toolbox
+      command: ninja -C builddir
       args:
         chdir: '{{ zuul.project.src_dir }}'
         creates: builddir/src/toolbox
 
-    - name: Install toolbox
+    - name: Install Toolbox
       become: yes
       command: ninja -C builddir install
       args:

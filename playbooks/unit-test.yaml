@@ -11,10 +11,16 @@
           - meson
           - ShellCheck
 
-    - name: Build
+    - name: Set up build directory
       command: meson builddir
       args:
         chdir: '{{ zuul.project.src_dir }}'
+
+    - name: Build Toolbox
+      command: ninja -C builddir
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+        creates: builddir/src/toolbox
 
     - name: Test
       command: ninja -C builddir test
