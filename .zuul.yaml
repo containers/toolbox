@@ -1,13 +1,13 @@
 ---
 - job:
-    name: shellcheck
-    description: Check validity of shell scripts with shellcheck
+    name: unit-test
+    description: Run Toolbox's unit tests declared in Meson
     timeout: 300
     nodeset:
       nodes:
         - name: ci-node-32
           label: cloud-fedora-32-small
-    run: playbooks/shellcheck.yaml
+    run: playbooks/unit-test.yaml
 
 - job:
     name: system-test-fedora-32
@@ -62,13 +62,14 @@
         - system-test-fedora-rawhide
     check:
       jobs:
-        - shellcheck
+        - unit-test
         - system-test-fedora-32
         - system-test-fedora-33
         - system-test-fedora-34
         - system-test-fedora-rawhide
     gate:
       jobs:
+        - unit-test
         - system-test-fedora-32
         - system-test-fedora-33
         - system-test-fedora-34
