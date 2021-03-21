@@ -21,12 +21,6 @@ bash_completion = dependency('bash-completion', required: false)
 profiledir = get_option('profile_dir')
 tmpfilesdir = systemd_dep.get_pkgconfig_variable('tmpfilesdir')
 
-toolbox = files('toolbox')
-
-if shellcheck.found()
-  test('shellcheck', shellcheck, args: [toolbox])
-endif
-
 if bash_completion.found()
   install_data(
     'completion/bash/toolbox',
