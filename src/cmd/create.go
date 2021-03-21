@@ -419,7 +419,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	createArgs = append(createArgs, xdgRuntimeDirEnv...)
 
 	createArgs = append(createArgs, []string{
-		"--hostname", "toolbox",
+		"--hostname", strings.NewReplacer("_", "-", ".", "-").Replace(container),
 		"--ipc", "host",
 		"--label", "com.github.containers.toolbox=true",
 	}...)
