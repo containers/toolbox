@@ -40,3 +40,5 @@ custom_target(
 if shellcheck.found()
   test('shellcheck go-build-wrapper', shellcheck, args: [go_build_wrapper_file])
 endif
+
+test('toolbox go unit tests', go, args: ['test', '-v', './...'], workdir: meson.current_source_dir())
