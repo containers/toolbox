@@ -358,7 +358,7 @@ func GetFullyQualifiedImageFromDistros(image, release string) (string, error) {
 		return imageFull, nil
 	}
 
-	return "", fmt.Errorf("failed to resolve image %s")
+	return "", fmt.Errorf("failed to resolve image %s", image)
 }
 
 // GetGroupForSudo returns the name of the sudoers group.
