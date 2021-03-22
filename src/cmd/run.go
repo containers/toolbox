@@ -166,7 +166,7 @@ func runCommand(container string,
 			return err
 		}
 
-		containers, err := listContainers()
+		containers, err := getContainers()
 		if err != nil {
 			err := utils.CreateErrorContainerNotFound(container, executableBase)
 			return err
