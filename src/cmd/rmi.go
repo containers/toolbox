@@ -71,7 +71,7 @@ func rmi(cmd *cobra.Command, args []string) error {
 	if rmiFlags.deleteAll {
 		var toolboxImages []toolboxImage
 
-		toolboxImages, err := listImages()
+		toolboxImages, err := getImages()
 		if err != nil {
 			return err
 		}
