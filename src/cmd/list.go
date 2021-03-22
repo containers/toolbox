@@ -103,14 +103,14 @@ func list(cmd *cobra.Command, args []string) error {
 	var err error
 
 	if lsImages {
-		images, err = listImages()
+		images, err = getImages()
 		if err != nil {
 			return err
 		}
 	}
 
 	if lsContainers {
-		containers, err = listContainers()
+		containers, err = getContainers()
 		if err != nil {
 			return err
 		}
@@ -120,7 +120,7 @@ func list(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func listContainers() ([]toolboxContainer, error) {
+func getContainers() ([]toolboxContainer, error) {
 	logrus.Debug("Fetching containers with label=com.github.containers.toolbox=true")
 	args := []string{"--all", "--filter", "label=com.github.containers.toolbox=true"}
 	containers_old, err := podman.GetContainers(args...)
@@ -188,7 +188,7 @@ func listHelp(cmd *cobra.Command, args []string) {
 	}
 }
 
-func listImages() ([]toolboxImage, error) {
+func getImages() ([]toolboxImage, error) {
 	logrus.Debug("Fetching images with label=com.github.containers.toolbox=true")
 	args := []string{"--filter", "label=com.github.containers.toolbox=true"}
 	images_old, err := podman.GetImages(args...)
