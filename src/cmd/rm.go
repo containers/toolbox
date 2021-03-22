@@ -24,7 +24,6 @@ import (
 
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/utils"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -70,31 +69,15 @@ func rm(cmd *cobra.Command, args []string) error {
 	}
 
 	if rmFlags.deleteAll {
-		logrus.Debug("Fetching containers with label=com.github.containers.toolbox=true")
-		args := []string{"--all", "--filter", "label=com.github.containers.toolbox=true"}
-		containers_old, err := podman.GetContainers(args...)
+		var toolboxContainers []toolboxContainer
+
+		toolboxContainers, err := listContainers()
 		if err != nil {
-			return fmt.Errorf("failed to list containers with label=com.github.containers.toolbox=true: %w", err)
+			return err
 		}
 
-		logrus.Debug("Fetching containers with label=com.github.debarshiray.toolbox=true")
-		args = []string{"--all", "--filter", "label=com.github.debarshiray.toolbox=true"}
-		containers_new, err := podman.GetContainers(args...)
-		if err != nil {
-			return fmt.Errorf("failed to list containers with com.github.debarshiray.toolbox=true: %w", err)
-		}
-
-		var idKey string
-		if podman.CheckVersion("2.0.0") {
-			idKey = "Id"
-		} else {
-			idKey = "ID"
-		}
-
-		containers := utils.JoinJSON(idKey, containers_old, containers_new)
-
-		for _, container := range containers {
-			containerID := container[idKey].(string)
+		for _, container := range toolboxContainers {
+			containerID := container.ID
 			if err := podman.RemoveContainer(containerID, rmFlags.forceDelete); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 				continue
