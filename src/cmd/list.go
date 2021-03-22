@@ -34,6 +34,7 @@ type toolboxImage struct {
 	ID      string
 	Names   []string
 	Created string
+	Labels  map[string]string
 }
 
 type toolboxContainer struct {
@@ -42,6 +43,7 @@ type toolboxContainer struct {
 	Status  string
 	Created string
 	Image   string
+	Labels  map[string]string
 }
 
 var (
@@ -323,6 +325,7 @@ func (i *toolboxImage) UnmarshalJSON(data []byte) error {
 		ID      string
 		Names   []string
 		Created interface{}
+		Labels  map[string]string
 	}
 
 	if err := json.Unmarshal(data, &raw); err != nil {
@@ -341,6 +344,8 @@ func (i *toolboxImage) UnmarshalJSON(data []byte) error {
 		i.Created = utils.HumanDuration(int64(value))
 	}
 
+	i.Labels = raw.Labels
+
 	return nil
 }
 
@@ -352,6 +357,7 @@ func (c *toolboxContainer) UnmarshalJSON(data []byte) error {
 		State   interface{}
 		Created interface{}
 		Image   string
+		Labels  map[string]string
 	}
 
 	if err := json.Unmarshal(data, &raw); err != nil {
@@ -394,6 +400,7 @@ func (c *toolboxContainer) UnmarshalJSON(data []byte) error {
 		c.Created = utils.HumanDuration(int64(value))
 	}
 	c.Image = raw.Image
+	c.Labels = raw.Labels
 
 	return nil
 }
