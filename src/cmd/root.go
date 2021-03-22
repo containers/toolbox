@@ -95,6 +95,8 @@ func init() {
 }
 
 func preRun(cmd *cobra.Command, args []string) error {
+	var toolboxPath string
+
 	cmd.Root().SilenceUsage = true
 
 	if err := setUpLoggers(); err != nil {
@@ -110,15 +112,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 
 	if !utils.IsInsideContainer() {
 		logrus.Debugf("Running on a cgroups v%d host", cgroupsVersion)
-	}
 
-	toolboxPath := os.Getenv("TOOLBOX_PATH")
-
-	if utils.IsInsideContainer() {
-		if toolboxPath == "" {
-			return errors.New("TOOLBOX_PATH not set")
-		}
-	} else {
 		if currentUser.Uid != "0" {
 			logrus.Debugf("Checking if /etc/subgid and /etc/subuid have entries for user %s",
 				currentUser.Username)
@@ -131,13 +125,19 @@ func preRun(cmd *cobra.Command, args []string) error {
 				return newSubIDFileError()
 			}
 		}
-
-		if toolboxPath == "" {
-			os.Setenv("TOOLBOX_PATH", executable)
-		}
 	}
 
 	toolboxPath = os.Getenv("TOOLBOX_PATH")
+
+	if toolboxPath == "" {
+		if utils.IsInsideContainer() {
+			return errors.New("TOOLBOX_PATH not set")
+		}
+
+		os.Setenv("TOOLBOX_PATH", executable)
+		toolboxPath = os.Getenv("TOOLBOX_PATH")
+	}
+
 	logrus.Debugf("TOOLBOX_PATH is %s", toolboxPath)
 
 	if err := migrate(); err != nil {
