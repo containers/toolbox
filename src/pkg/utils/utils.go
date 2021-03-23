@@ -52,7 +52,7 @@ type Distro struct {
 
 const (
 	idTruncLength          = 12
-	releaseDefaultFallback = "32"
+	releaseDefaultFallback = "33"
 )
 
 const (
