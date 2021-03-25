@@ -86,7 +86,7 @@ It can be built and installed as any other typical Meson-based project:
 ```
 
 Toolbox is written in Go. Consult the
-[src/go.mod](https://github.com/containers/toolbox/blob/master/src/go.mod) file
+[src/go.mod](https://github.com/containers/toolbox/blob/main/src/go.mod) file
 for a full list of all the Go dependencies.
 
 By default, Toolbox uses Go modules and all the required Go packages are

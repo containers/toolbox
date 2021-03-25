@@ -93,7 +93,7 @@ When writing a suggestion:
 Toolbox is written in [Go](https://golang.org) and uses [Meson](https://mesonbuild.com)
 as it's buildsystem.
 
-Instructions for building Toolbox from source are in our [README](https://github.com/containers/toolbox/blob/master/README.md).
+Instructions for building Toolbox from source are in our [README](https://github.com/containers/toolbox/blob/main/README.md).
 
 > You may not need to build the project from source if your contribution is not
 > related to the code of Toolbox itself (e.g., documentation, updating CI
