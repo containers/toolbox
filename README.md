@@ -160,3 +160,9 @@ following snippet in a Dockerfile for this:
 LABEL com.github.containers.toolbox="true" \
       com.github.debarshiray.toolbox="true"
 ```
+
+## Alternatives
+
+* https://github.com/cgwalters/coretoolbox - Toolbox implementation in Rust
+* https://gitlab.com/uppercat/tlbx - Toolbox in any container ([#350](https://github.com/containers/toolbox/issues/350))
+  with HOME-less mode ([#348](https://github.com/containers/toolbox/issues/348))
