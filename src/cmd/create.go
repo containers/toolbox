@@ -203,17 +203,6 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		return err
 	}
 
-	s := spinner.New(spinner.CharSets[9], 500*time.Millisecond)
-
-	stdoutFd := os.Stdout.Fd()
-	stdoutFdInt := int(stdoutFd)
-	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel && terminal.IsTerminal(stdoutFdInt) {
-		s.Prefix = fmt.Sprintf("Creating container %s: ", container)
-		s.Writer = os.Stdout
-		s.Start()
-		defer s.Stop()
-	}
-
 	toolboxPath := os.Getenv("TOOLBOX_PATH")
 	toolboxPathEnvArg := "TOOLBOX_PATH=" + toolboxPath
 	toolboxPathMountArg := toolboxPath + ":/usr/bin/toolbox:ro"
@@ -466,9 +455,23 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		logrus.Debugf("%s", arg)
 	}
 
+	s := spinner.New(spinner.CharSets[9], 500*time.Millisecond)
+
+	stdoutFd := os.Stdout.Fd()
+	stdoutFdInt := int(stdoutFd)
+	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel && terminal.IsTerminal(stdoutFdInt) {
+		s.Prefix = fmt.Sprintf("Creating container %s: ", container)
+		s.Writer = os.Stdout
+		s.Start()
+		defer s.Stop()
+	}
+
 	if err := shell.Run("podman", nil, nil, nil, createArgs...); err != nil {
 		return fmt.Errorf("failed to create container %s", container)
 	}
+
+	// The spinner must be stopped before showing the 'enter' hit below.
+	s.Stop()
 
 	if showCommandToEnter {
 		fmt.Printf("Created container: %s\n", container)
