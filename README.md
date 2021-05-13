@@ -63,6 +63,44 @@ This will create a container called `fedora-toolbox-<version-id>`.
 [user@hostname ~]$
 ```
 
+### Specify image for toolbox container:
+```console
+[user@hostname ~]$ toolbox create --image registry.opensuse.org/opensuse/toolbox
+[user@hostname ~]$
+```
+
+### Create multiple toolbox containers:
+```console
+[user@hostname ~]$ toolbox create --container toolbox1
+[user@hostname ~]$ toolbox create --container toolbox2
+[user@hostname ~]$
+```
+
+### Enter a toolbox container by name:
+```console
+[user@hostname ~]$ toolbox enter --container toolbox2
+⬢[user@toolbox ~]$
+```
+
+### Define toolbox container with a Containerfile:
+
+The parent image must satisfy the [image requirements](##Image-requirements).
+
+```Dockerfile
+FROM registry.opensuse.org/opensuse/toolbox
+RUN zypper in -y emacs git
+RUN zypper in -t pattern devel_C_C++
+```
+
+In the directory of the Containerfile do:
+
+```console
+[user@hostname ~]$ podman build -t my-dev-toolbox .
+[user@hostname ~]$ toolbox create --image localhost/my-dev-toolbox --container my-dev-toolbox
+[user@hostname ~]$ toolbox enter --container my-dev-toolbox
+⬢[user@toolbox ~]$
+```
+
 ## Dependencies and Building
 
 Toolbox requires at least Podman 1.4.0 to work, and uses the Meson build
