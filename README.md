@@ -84,7 +84,7 @@ This will create a container called `fedora-toolbox-<version-id>`.
 
 ### Define toolbox container with a Containerfile:
 
-The parent image must satisfy the [image requirements](##Image-requirements).
+The parent image must satisfy the [image requirements](#Image-requirements).
 
 ```Dockerfile
 FROM registry.opensuse.org/opensuse/toolbox
