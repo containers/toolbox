@@ -71,14 +71,14 @@ This will create a container called `fedora-toolbox-<version-id>`.
 
 ### Create multiple toolbox containers:
 ```console
-[user@hostname ~]$ toolbox create --container toolbox1
-[user@hostname ~]$ toolbox create --container toolbox2
+[user@hostname ~]$ toolbox create toolbox1
+[user@hostname ~]$ toolbox create toolbox2
 [user@hostname ~]$
 ```
 
 ### Enter a toolbox container by name:
 ```console
-[user@hostname ~]$ toolbox enter --container toolbox2
+[user@hostname ~]$ toolbox enter toolbox2
 ⬢[user@toolbox ~]$
 ```
 
