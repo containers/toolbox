@@ -65,7 +65,7 @@ This will create a container called `fedora-toolbox-<version-id>`.
 
 ### Specify image for toolbox container:
 ```console
-[user@hostname ~]$ toolbox create --image registry.opensuse.org/opensuse/toolbox
+[user@hostname ~]$ toolbox create --image registry.fedoraproject.org/f34/fedora-toolbox:34 fedora34-toolbox
 [user@hostname ~]$
 ```
 
