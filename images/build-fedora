@@ -1,0 +1,131 @@
+#!/bin/bash
+set -Eeuo pipefail
+
+cd $(dirname "$0")
+
+if [ -z "${1+x}" ]; then
+    echo "Usage: $0 FEDORA_RELEASE_NUMBER"
+    exit 1
+fi
+
+if [[ ! "$1" =~ ^[0-9]+$ || "$1" -lt 28 ]]; then
+    echo "Invalid Fedora version '$1'. Earliest supported version is Fedora 28"
+    exit 1
+fi
+
+# Container name and version label
+name="fedora-toolbox"
+version=$1
+
+# Build container
+container=$(buildah from registry.fedoraproject.org/fedora:$version)
+
+# It's important to set environment variables before running the setup script
+buildah config \
+    --env NAME="$name" \
+    --env VERSION="$version" \
+    --label com.github.containers.toolbox="true" \
+    --label com.github.debarshiray.toolbox="true" \
+    --label com.redhat.component="$name" \
+    --label name="$name" \
+    --label version="$version" \
+    --label usage="This image is meant to be used with the toolbox command" \
+    --label summary="Base image for creating Fedora toolbox containers" \
+    --label maintainer="Debarshi Ray <rishi@fedoraproject.org>" \
+    --cmd /bin/sh \
+    $container
+
+# Create script that runs inside the container (saves the script in $setup_script)
+# || true is needed because read return 1 on EOF
+tmp_setup_script=$(mktemp)
+chmod +x "$tmp_setup_script"
+cat <<'EOF' > $tmp_setup_script || true
+#!/bin/bash
+set -Eeuo pipefail
+
+# Enable docs installation
+sed -i "/tsflags=nodocs/d" /etc/dnf/dnf.conf
+
+# Reinstall all currently installed packages to get docs
+dnf -y reinstall $(dnf list --installed|cut -d' ' -f1)
+
+# Update every package to the latest version
+dnf -y distro-sync
+
+# Add extra packages on a per release basis
+case $VERSION in
+    28)
+        extra_pkgs="PackageKit-command-not-found"
+        ;;
+    29)
+        extra_pkgs="flatpak-xdg-utils"
+        ;;
+    30)
+        extra_pkgs="flatpak-spawn"
+        ;;
+    31|32)
+        extra_pkgs="flatpak-spawn xorg-x11-xauth gvfs-client"
+        ;;
+    33|34)
+        extra_pkgs="flatpak-spawn xorg-x11-xauth gvfs-client nano-default-editor"
+        ;;
+    *)
+        extra_pkgs=""
+        ;;
+esac
+
+# Install packages common for all versions (along with $extra_pkgs)
+dnf -y install $extra_pkgs \
+    bash-completion \
+    bzip2 \
+    diffutils \
+    dnf-plugins-core \
+    findutils \
+    fpaste \
+    git \
+    gnupg \
+    gnupg2-smime \
+    hostname \
+    iputils \
+    jwhois \
+    keyutils \
+    krb5-libs \
+    less \
+    lsof \
+    man-db \
+    man-pages \
+    mlocate \
+    mtr \
+    nss-mdns \
+    openssh-clients \
+    passwd \
+    pigz \
+    procps-ng \
+    rsync \
+    shadow-utils \
+    sudo \
+    tcpdump \
+    time \
+    traceroute \
+    tree \
+    unzip \
+    vte-profile \
+    wget \
+    which \
+    words \
+    xz \
+    zip
+
+# Clean package installation cache to save some space
+dnf clean all
+EOF
+
+# Inject and run setup script from $setup_script
+buildah copy $container "$tmp_setup_script" /setup.sh
+buildah run $container /setup.sh
+buildah run $container rm /setup.sh
+
+# Add README and finish container
+buildah copy $container ../README.md /README.md
+buildah commit $container $name:$version
+buildah rm $container
