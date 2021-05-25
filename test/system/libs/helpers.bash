@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 
+load 'libs/bats-support/load'
+
 # Podman and Toolbox commands to run
 readonly PODMAN=${PODMAN:-podman}
 readonly TOOLBOX=${TOOLBOX:-toolbox}
 readonly SKOPEO=$(command -v skopeo)
-readonly PROJECT_DIR=${PWD}
 
 # Helpful globals
-current_os_version=$(awk -F= '/VERSION_ID/ {print $2}' /etc/os-release)
-readonly DEFAULT_FEDORA_VERSION=${DEFAULT_FEDORA_VERSION:-${current_os_version}}
-readonly REGISTRY_URL=${REGISTRY_URL:-"registry.fedoraproject.org"}
-readonly BUSYBOX_IMAGE="docker.io/library/busybox"
+readonly PROJECT_DIR=${PWD}
+readonly IMAGE_CACHE_DIR="${PROJECT_DIR}/image-cache"
+
+# Images
+declare -Ag IMAGES=([busybox]="docker.io/library/busybox" \
+                   [fedora]="registry.fedoraproject.org/fedora-toolbox" \
+                   [rhel]="registry.access.redhat.com/ubi8")
 
 
 function cleanup_all() {
@@ -23,46 +27,176 @@ function cleanup_containers() {
 }
 
 
-function get_busybox_image() {
-  $PODMAN pull "$BUSYBOX_IMAGE" >/dev/null \
-    || fail "Podman couldn't pull the image."
+# Pulls an image using Podman and saves it to a image dir using Skopeo
+#
+# Parameters
+# ==========
+# - distro - os-release field ID (e.g., fedora, rhel)
+# - version - os-release field VERSION_ID (e.g., 33, 34, 8.4)
+#
+# Only use during test suite setup for caching all images to be used throught
+# tests.
+function _pull_and_cache_distro_image() {
+  local num_of_retries=5
+  local timeout=10
+  local pulled=false
+  local distro
+  local version
+  local image
+  local image_archive
+
+  distro="$1"
+  version="$2"
+
+  if [ ! -v IMAGES[$distro] ]; then
+    fail "Requested distro (${distro}) does not have a matching image"
+  fi
+
+  image="${IMAGES[$distro]}"
+  image_archive="${distro}-toolbox"
+
+  if [[ $# -eq 2 ]]; then
+    image="${image}:${version}"
+    image_archive="${image_archive}-${version}"
+  fi
+
+  for ((i = ${num_of_retries}; i > 0; i--)); do
+    run $PODMAN pull ${image}
+
+    if [ "$status" -eq 0 ]; then
+      pulled=true
+      break
+    fi
+
+    sleep $timeout
+  done
+  
+  if !pulled; then
+    echo "Failed to pull image ${image}"
+    assert_success
+  fi
+
+  if [ ! -d ${IMAGE_CACHE_DIR} ]; then
+    mkdir -p ${IMAGE_CACHE_DIR}
+  fi
+
+  run $SKOPEO copy --dest-compress containers-storage:${image} dir:${IMAGE_CACHE_DIR}/${image_archive}
+
+  if [ "$status" -ne 0 ]; then
+    echo "Failed to cache image ${image} to ${IMAGE_CACHE_DIR}/${image_archive}"
+    assert_success
+  fi
+
+  cleanup_all
 }
 
 
-function pull_image() {
+# Removes the folder with cached images
+function _clean_cached_images() {
+  rm -rf ${IMAGE_CACHE_DIR}
+}
+
+
+# Copies an image from local storage to Podman's image store
+# 
+# Call before creating any container. Network failures are not nice.
+#
+# An image has to be cached first. See _pull_and_cache_distro_image()
+#
+# Parameters:
+# ===========
+# - distro - os-release field ID (e.g., fedora, rhel)
+# - version - os-release field VERSION_ID (e.g., 33, 34, 8.4)
+function pull_distro_image() {
+  local distro
   local version
   local image
-  version="$1"
-  image="${REGISTRY_URL}/fedora-toolbox:${version}"
+  local image_archive
 
-  $SKOPEO copy "dir:${PROJECT_DIR}/fedora-toolbox-${version}" "containers-storage:${image}"
+  distro="$1"
+  version="$2"
+
+  if [ ! -v IMAGES[$distro] ]; then
+    fail "Requested distro (${distro}) does not have a matching image"
+  fi
+
+  image="${IMAGES[$distro]}"
+  image_archive="${distro}-toolbox"
+
+  if [[ -n $version ]]; then
+    image="${image}:${version}"
+    image_archive="${image_archive}-${version}"
+  fi
+
+  # No need to copy if the image is already available in Podman
+  run $PODMAN image exists ${image}
+  if [[ "$status" -eq 0 ]]; then
+    return
+  fi
+
+  run $SKOPEO copy "dir:${IMAGE_CACHE_DIR}/${image_archive}" "containers-storage:${image}"
+  if [ "$status" -ne 0 ]; then
+    echo "Failed to load image ${image} from cache ${IMAGE_CACHE_DIR}/${image_archive}"
+    assert_success
+  fi
+
   $PODMAN images
 }
 
 
+# Copies the system's default image to Podman's image store
+#
+# See pull_default_image() for more info.
 function pull_default_image() {
-  pull_image "${DEFAULT_FEDORA_VERSION}"
+  pull_distro_image $(get_system_id) $(get_system_version)
 }
 
 
+# Creates a container with specific name, distro and version
+#
+# Pulling of an image is taken care of by the function
+#
+# Parameters:
+# ===========
+# - distro - os-release field ID (e.g., fedora, rhel)
+# - version - os-release field VERSION_ID (e.g., 33, 34, 8.4)
+# - container_name - name of the container
+function create_distro_container() {
+  local distro
+  local version
+  local container_name
+
+  distro="$1"
+  version="$2"
+  container_name="$3"
+
+  pull_distro_image ${distro} ${version}
+
+  $TOOLBOX --assumeyes create --container "${container_name}" --distro "${distro}" --release "${version}" >/dev/null \
+    || fail "Toolbox couldn't create container '$container_name'"
+}
+
+
+# Creates a container with specific name matching the system
+#
+# Parameters:
+# ===========
+# - container_name - name of the container
 function create_container() {
   local container_name
-  local version
-  local image
+
   container_name="$1"
-  version="$DEFAULT_FEDORA_VERSION"
-  image="${REGISTRY_URL}/fedora-toolbox:${version}"
 
-  pull_image "$version"
-
-  $TOOLBOX --assumeyes create --container "$container_name" \
-    --image "$image" >/dev/null \
-    || fail "Toolbox couldn't create the container '$container_name'"
+  create_distro_container $(get_system_id) $(get_system_version) $container_name
 }
 
 
+# Creates a default container
 function create_default_container() {
-  create_container "fedora-toolbox-${DEFAULT_FEDORA_VERSION}"
+  pull_default_image
+
+  $TOOLBOX --assumeyes create >/dev/null \
+    || fail "Toolbox couldn't create default container"
 }
 
 
@@ -94,4 +228,46 @@ function list_images() {
 
 function list_containers() {
   $PODMAN ps --all --quiet | wc -l
+}
+
+
+# Returns the path to os-release
+function find_os_release() {
+  if [[ -f "/etc/os-release" ]]; then
+    echo "/etc/os-release"
+  elif [[ -f "/usr/lib/os-release" ]]; then
+    echo "/usr/lib/os-release"
+  else
+    echo ""
+  fi
+}
+
+
+# Returns the content of field ID in os-release
+function get_system_id() {
+    local os_release
+
+    os_release="$(find_os_release)"
+
+    if [[ -z "$os_release" ]]; then
+        echo ""
+        return
+    fi
+
+    echo $(awk -F= '/ID/ {print $2}' $os_release | head -n 1)
+}
+
+
+# Returns the content of field VERSION_ID in os-release
+function get_system_version() {
+    local os_release
+
+    os_release="$(find_os_release)"
+
+    if [[ -z "$os_release" ]]; then
+        echo ""
+        return
+    fi
+
+    echo $(awk -F= '/VERSION_ID/ {print $2}' $os_release | head -n 1)
 }

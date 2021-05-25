@@ -22,13 +22,15 @@ teardown() {
 }
 
 @test "create: Create a container with a valid custom name ('custom-containerName')" {
+  pull_default_image
+
   run $TOOLBOX -y create -c "custom-containerName"
 
   assert_success
 }
 
 @test "create: Create a container with a custom image and name ('fedora32'; f32)" {
-  pull_image 32
+  pull_distro_image fedora 32
 
   run $TOOLBOX -y create -c "fedora32" -i fedora-toolbox:32
 
@@ -54,7 +56,7 @@ teardown() {
 }
 
 @test "create: Create a container with a distro and release options ('fedora'; f32)" {
-  pull_image 32
+  pull_distro_image fedora 32
 
   run $TOOLBOX -y create -d "fedora" -r f32
 
