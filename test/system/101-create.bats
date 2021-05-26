@@ -27,10 +27,10 @@ teardown() {
   assert_success
 }
 
-@test "create: Create a container with a custom image and name ('fedora29'; f29)" {
-  pull_image_old 29
+@test "create: Create a container with a custom image and name ('fedora32'; f32)" {
+  pull_image 32
 
-  run $TOOLBOX -y create -c "fedora29" -i fedora-toolbox:29
+  run $TOOLBOX -y create -c "fedora32" -i fedora-toolbox:32
 
   assert_success
 }
@@ -53,17 +53,17 @@ teardown() {
   assert_line --index 2 "Run 'toolbox --help' for usage."
 }
 
-@test "create: Create a container with a distro and release options ('fedora'; f29)" {
-  pull_image 29
+@test "create: Create a container with a distro and release options ('fedora'; f32)" {
+  pull_image 32
 
-  run $TOOLBOX -y create -d "fedora" -r f29
+  run $TOOLBOX -y create -d "fedora" -r f32
 
   assert_success
-  assert_output --partial "Created container: fedora-toolbox-29"
-  assert_output --partial "Enter with: toolbox enter --release 29"
+  assert_output --partial "Created container: fedora-toolbox-32"
+  assert_output --partial "Enter with: toolbox enter --release 32"
 
   # Make sure the container has actually been created
   run podman ps -a
 
-  assert_output --regexp "Created[[:blank:]]+fedora-toolbox-29"
+  assert_output --regexp "Created[[:blank:]]+fedora-toolbox-32"
 }

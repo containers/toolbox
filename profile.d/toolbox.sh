@@ -1,5 +1,6 @@
 # shellcheck shell=sh
 
+# shellcheck disable=SC2153
 [ "$BASH_VERSION" != "" ] || [ "$ZSH_VERSION" != "" ] || return 0
 [ "$PS1" != "" ] || return 0
 
