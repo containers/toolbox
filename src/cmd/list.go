@@ -52,11 +52,18 @@ var (
 		onlyImages     bool
 	}
 
-	// toolboxLabels holds labels used by containers/images that mark them as compatible with Toolbox
-	toolboxLabels = map[string]string{
+	// toolboxImageLabels holds labels used by images that mark them as compatible with Toolbox
+	toolboxImageLabels = map[string]string{
 		"com.github.debarshiray.toolbox": "true",
 		"com.github.containers.toolbox":  "true",
+        "com.redhat.component": "ubi8-container",
 	}
+
+    // toolboxContainerLabels holds labels used by container that mark them as compatible with Toolbox
+    toolboxContainerLabels = map[string]string{
+        "com.github.debarshiray.toolbox": "true",
+        "com.github.containrs.toolbox": "true",
+    }
 )
 
 var listCmd = &cobra.Command{
@@ -157,7 +164,7 @@ func getContainers() ([]toolboxContainer, error) {
 			continue
 		}
 
-		for label := range toolboxLabels {
+		for label := range toolboxContainerLabels {
 			if _, ok := c.Labels[label]; ok {
 				isToolboxContainer = true
 				break
@@ -222,7 +229,7 @@ func getImages() ([]toolboxImage, error) {
 			continue
 		}
 
-		for label := range toolboxLabels {
+		for label := range toolboxImageLabels {
 			if _, ok := i.Labels[label]; ok {
 				isToolboxImage = true
 				break
