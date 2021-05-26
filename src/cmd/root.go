@@ -91,7 +91,7 @@ func init() {
 	persistentFlags.CountVarP(&rootFlags.verbose, "verbose", "v", "Set log-level to 'debug'")
 
 	rootCmd.SetHelpFunc(rootHelp)
-	rootCmd.SetUsageFunc(rootUsage)
+    rootCmd.SetUsageTemplate("Run '{{ .CommandPath }} --help' for usage.")
 }
 
 func preRun(cmd *cobra.Command, args []string) error {
@@ -185,16 +185,10 @@ func rootRun(cmd *cobra.Command, args []string) error {
 	fmt.Fprintf(&builder, "enter     Enter an existing toolbox container\n")
 	fmt.Fprintf(&builder, "list      List all existing toolbox containers and images\n")
 	fmt.Fprintf(&builder, "\n")
-	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+	fmt.Fprintf(&builder, cmd.UsageString())
 
 	errMsg := builder.String()
 	return errors.New(errMsg)
-}
-
-func rootUsage(cmd *cobra.Command) error {
-	err := fmt.Errorf("Run '%s --help' for usage.", executableBase)
-	fmt.Fprintf(os.Stderr, "%s", err)
-	return err
 }
 
 func migrate() error {
