@@ -2,9 +2,10 @@
 
 load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
+load 'libs/helpers.bash'
 
 @test "help: Try to run toolbox with no command (shows usage screen)" {
-  run toolbox
+  run $TOOLBOX
 
   assert_failure
   assert_line --index 0 "Error: missing command"
@@ -12,21 +13,21 @@ load 'libs/bats-assert/load'
 }
 
 @test "help: Run command 'help'" {
-  run toolbox help
+  run $TOOLBOX help
 
   assert_success
   assert_output --partial "toolbox - Unprivileged development environment"
 }
 
 @test "help: Use flag '--help' (it should show usage screen)" {
-  run toolbox --help
+  run $TOOLBOX --help
 
   assert_success
   assert_output --partial "toolbox - Unprivileged development environment"
 }
 
 @test "help: Try to run toolbox with non-existent command (shows usage screen)" {
-  run toolbox foo
+  run $TOOLBOX foo
 
   assert_failure
   assert_line --index 0 "Error: unknown command \"foo\" for \"toolbox\""

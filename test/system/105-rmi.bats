@@ -19,7 +19,7 @@ teardown() {
 
   pull_default_image
 
-  run toolbox rmi --all
+  run $TOOLBOX rmi --all
 
   assert_success
   assert_output ""
@@ -37,7 +37,7 @@ teardown() {
   create_container foo
   start_container foo
 
-  run toolbox rmi --all
+  run $TOOLBOX rmi --all
 
   assert_failure
   assert_output --regexp "Error: image .* has dependent children"
@@ -54,7 +54,7 @@ teardown() {
   create_container foo
   start_container foo
 
-  run toolbox rmi --all --force
+  run $TOOLBOX rmi --all --force
 
   assert_success
   assert_output ""
