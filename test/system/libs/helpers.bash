@@ -40,17 +40,6 @@ function pull_image() {
 }
 
 
-function pull_image_old() {
-  local version
-  local image
-  version="$1"
-  image="${REGISTRY_URL}/f${version}/fedora-toolbox:${version}"
-
-  $SKOPEO copy "dir:${PROJECT_DIR}/fedora-toolbox-${version}" "containers-storage:${image}"
-  $PODMAN images
-}
-
-
 function pull_default_image() {
   pull_image "${DEFAULT_FEDORA_VERSION}"
 }
