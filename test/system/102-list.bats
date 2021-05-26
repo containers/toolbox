@@ -14,21 +14,21 @@ teardown() {
 
 
 @test "list: Run 'list' with zero containers and zero images (the list should be empty)" {
-  run toolbox list
+  run $TOOLBOX list
 
   assert_success
   assert_output ""
 }
 
 @test "list: Run 'list -c' with zero containers (the list should be empty)" {
-  run toolbox list -c
+  run $TOOLBOX list -c
 
   assert_success
   assert_output ""
 }
 
 @test "list: Run 'list -i' with zero images (the list should be empty)" {
-  run toolbox list -c
+  run $TOOLBOX list -c
 
   assert_success
   assert_output ""
@@ -41,7 +41,7 @@ teardown() {
 
   assert_output --partial "$BUSYBOX_IMAGE"
 
-  run toolbox list
+  run $TOOLBOX list
 
   assert_success
   assert_output ""
@@ -57,14 +57,14 @@ teardown() {
   create_container non-default-two
 
   # Check images
-  run toolbox list --images
+  run $TOOLBOX list --images
 
   assert_success
   assert_output --partial "fedora-toolbox:${DEFAULT_FEDORA_VERSION}"
   assert_output --partial "fedora-toolbox:29"
 
   # Check containers
-  run toolbox list --containers
+  run $TOOLBOX list --containers
 
   assert_success
   assert_output --partial "fedora-toolbox-${DEFAULT_FEDORA_VERSION}"
@@ -72,7 +72,7 @@ teardown() {
   assert_output --partial "non-default-two"
 
   # Check all together
-  run toolbox list
+  run $TOOLBOX list
 
   assert_success
   assert_output --partial "fedora-toolbox:${DEFAULT_FEDORA_VERSION}"

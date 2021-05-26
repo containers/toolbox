@@ -21,7 +21,7 @@ teardown() {
 
 
 @test "run: Try to run echo 'Hello World' with no containers created" {
-  run toolbox run echo "Hello World"
+  run $TOOLBOX run echo "Hello World"
 
   assert_failure
   assert_line --index 0 --regexp 'Error: container .* not found'
@@ -33,7 +33,7 @@ teardown() {
 @test "run: Run echo 'Hello World' inside of the default container" {
   create_default_container
 
-  run toolbox --verbose run echo "Hello World"
+  run $TOOLBOX --verbose run echo "Hello World"
 
   assert_success
   assert_output --partial "Hello World"
@@ -45,7 +45,7 @@ teardown() {
   start_container running
   stop_container running
 
-  run toolbox --verbose run --container running echo -n "Hello World"
+  run $TOOLBOX --verbose run --container running echo -n "Hello World"
 
   assert_success
   assert_output --partial "Hello World"
@@ -54,7 +54,7 @@ teardown() {
 @test "run: Run sudo id inside of the default container" {
   create_default_container
 
-  run toolbox --verbose run sudo id
+  run $TOOLBOX --verbose run sudo id
 
   assert_success
   assert_output --partial "uid=0(root)"
