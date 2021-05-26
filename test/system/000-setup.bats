@@ -7,5 +7,6 @@ load 'libs/helpers'
     _pull_and_cache_distro_image $(get_system_id) $(get_system_version) || die
     # Cache all images that will be needed during the tests
     _pull_and_cache_distro_image fedora 32 || die
+    _pull_and_cache_distro_image rhel 8.4 || die
     _pull_and_cache_distro_image busybox || die
 }
