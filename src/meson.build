@@ -10,6 +10,7 @@ sources = files(
   'cmd/help.go',
   'cmd/initContainer.go',
   'cmd/list.go',
+  'cmd/rename.go',
   'cmd/rm.go',
   'cmd/rmi.go',
   'cmd/root.go',

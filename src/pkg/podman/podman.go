@@ -19,8 +19,10 @@ package podman
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/HarryMichal/go-version"
 	"github.com/containers/toolbox/pkg/shell"
@@ -304,6 +306,37 @@ func RemoveImage(image string, forceDelete bool) error {
 	return nil
 }
 
+// Rename wraps around command 'podman rename'
+//
+// container is the name of the renamed container and name is the new container
+// name
+//
+// The comamnd is available since Podman v3.0.0
+func Rename(container, name string) error {
+	var stderr bytes.Buffer
+
+	logrus.Debugf("Renaming container %s", container)
+
+	logLevelString := LogLevel.String()
+	args := []string{"--log-level", logLevelString, "rename", container, name}
+
+	exitCode, err := shell.RunWithExitCode("podman", nil, nil, &stderr, args...)
+	switch exitCode {
+	case 0:
+		if err != nil {
+			panic("unexpected error: 'podman rename' finished successfully")
+		}
+	default:
+		if stderr.Len() != 0 {
+			return errors.New(parseErrorMsg(&stderr))
+		} else {
+			return errors.New("failed to rename container (no additional info available)")
+		}
+	}
+
+	return nil
+}
+
 func SetLogLevel(logLevel logrus.Level) {
 	LogLevel = logLevel
 }
@@ -331,4 +364,16 @@ func SystemMigrate(ociRuntimeRequired string) error {
 	}
 
 	return nil
+}
+
+// parseErrorMsg serves for converting error output of Podman into a string
+// that can be used as an error message in Go.
+func parseErrorMsg(stderr *bytes.Buffer) string {
+	var errMsg string
+
+	errMsg = stderr.String()
+	errMsg = strings.TrimSpace(errMsg)
+	errMsg = strings.TrimPrefix(errMsg, "Error: ")
+
+	return errMsg
 }

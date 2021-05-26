@@ -220,6 +220,12 @@ function stop_container() {
     || fail "Podman couldn't stop the container '$container_name'"
 }
 
+function get_container_id() {
+  local container_name
+  container_name="$1"
+
+  echo $($PODMAN ps -a --format "{{.ID}} {{.Names}}" | awk -v container_name=$container_name '{if ($2 == container_name) print $1}')
+}
 
 function list_images() {
   $PODMAN images --all --quiet | wc -l
