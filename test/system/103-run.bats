@@ -51,10 +51,10 @@ teardown() {
   assert_output --partial "Hello World"
 }
 
-@test "run: Run sudo id inside of the default container" {
+@test "run: Run id inside of the default container as root" {
   create_default_container
 
-  run $TOOLBOX --verbose run sudo id
+  run $TOOLBOX --verbose run su -c "id"
 
   assert_success
   assert_output --partial "uid=0(root)"
