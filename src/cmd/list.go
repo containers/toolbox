@@ -62,7 +62,7 @@ var (
     // toolboxContainerLabels holds labels used by container that mark them as compatible with Toolbox
     toolboxContainerLabels = map[string]string{
         "com.github.debarshiray.toolbox": "true",
-        "com.github.containrs.toolbox": "true",
+        "com.github.containers.toolbox": "true",
     }
 )
 
