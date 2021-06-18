@@ -14,7 +14,7 @@ readonly IMAGE_CACHE_DIR="${PROJECT_DIR}/image-cache"
 # Images
 declare -Ag IMAGES=([busybox]="docker.io/library/busybox" \
                    [fedora]="registry.fedoraproject.org/fedora-toolbox" \
-                   [rhel]="registry.access.redhat.com/ubi8/ubi")
+                   [rhel]="registry.access.redhat.com/ubi8")
 
 
 function cleanup_all() {

@@ -82,31 +82,3 @@ teardown() {
   assert_output --partial "non-default-one"
   assert_output --partial "non-default-two"
 }
-
-@test "list: Run 'list -i' with UBI image (8.4; public) present" {
-  pull_distro_image rhel 8.4
-
-  run toolbox list --images
-
-  assert_success
-  assert_output --partial "registry.access.redhat.com/ubi8/ubi:8.4"
-}
-
-@test "list: Run 'list' with UBI image (8.4; public), toolbox container and non-toolbox container" {
-  local num_of_containers
-
-  pull_distro_image rhel 8.4
-
-  create_distro_container rhel 8.4 rhel-toolbox
-  podman create --name podman-container ubi8/ubi:8.4 /bin/sh
-
-  num_of_containers=$(list_containers)
-  assert [ $num_of_containers -eq 2 ]
-
-  run toolbox list
-
-  assert_success
-  assert_line --index 1 --partial "registry.access.redhat.com/ubi8/ubi:8.4"
-  assert_line --index 3 --partial "rhel-toolbox"
-  refute_output --partial "podman-container"
-}
