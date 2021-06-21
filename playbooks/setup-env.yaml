@@ -39,7 +39,7 @@
         creates: /run/media
 
     - name: Check versions of crucial packages
-      command: rpm -q golang podman crun conmon fuse-overlayfs flatpak-session-helper
+      command: rpm -qa *kernel* golang podman conmon containernetworking-plugins containers-common container-selinux crun runc fuse-overlayfs flatpak-session-helper
 
     - name: Show podman versions
       command: podman version
