@@ -71,7 +71,7 @@ function _pull_and_cache_distro_image() {
     sleep $timeout
   done
   
-  if !pulled; then
+  if ! $pulled; then
     echo "Failed to pull image ${image}"
     assert_success
   fi
