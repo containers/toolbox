@@ -456,10 +456,12 @@ func mountBind(containerPath, source, flags string) error {
 		return fmt.Errorf("failed to stat %s", source)
 	}
 
-	if fi.IsDir() {
-		logrus.Debugf("Creating %s", containerPath)
+	fileMode := fi.Mode()
+
+	if fileMode.IsDir() {
+		logrus.Debugf("Creating directory %s", containerPath)
 		if err := os.MkdirAll(containerPath, 0755); err != nil {
-			return fmt.Errorf("failed to create %s", containerPath)
+			return fmt.Errorf("failed to create directory %s", containerPath)
 		}
 	}
 
