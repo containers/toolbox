@@ -461,7 +461,7 @@ func mountBind(containerPath, source, flags string) error {
 	if fileMode.IsDir() {
 		logrus.Debugf("Creating directory %s", containerPath)
 		if err := os.MkdirAll(containerPath, 0755); err != nil {
-			return fmt.Errorf("failed to create directory %s", containerPath)
+			return fmt.Errorf("failed to create directory %s: %w", containerPath, err)
 		}
 	}
 
