@@ -22,8 +22,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/HarryMichal/go-version"
 	"github.com/containers/toolbox/pkg/shell"
+	"github.com/coreos/go-semver/semver"
 	"github.com/sirupsen/logrus"
 )
 
@@ -43,10 +43,10 @@ var (
 func CheckVersion(requiredVersion string) bool {
 	currentVersion, _ := GetVersion()
 
-	currentVersion = version.Normalize(currentVersion)
-	requiredVersion = version.Normalize(requiredVersion)
+	current := semver.New(currentVersion)
+	required := semver.New(requiredVersion)
 
-	return version.CompareSimple(currentVersion, requiredVersion) >= 0
+	return current.Compare(*required) >= 0
 }
 
 // ContainerExists checks using Podman if a container with given ID/name exists.
