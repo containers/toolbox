@@ -463,6 +463,15 @@ func mountBind(containerPath, source, flags string) error {
 		if err := os.MkdirAll(containerPath, 0755); err != nil {
 			return fmt.Errorf("failed to create directory %s: %w", containerPath, err)
 		}
+	} else if fileMode.IsRegular() {
+		logrus.Debugf("Creating regular file %s", containerPath)
+
+		containerPathFile, err := os.Create(containerPath)
+		if err != nil && !os.IsExist(err) {
+			return fmt.Errorf("failed to create regular file %s: %w", containerPath, err)
+		}
+
+		defer containerPathFile.Close()
 	}
 
 	logrus.Debugf("Binding %s to %s", containerPath, source)

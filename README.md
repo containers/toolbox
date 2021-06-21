@@ -133,7 +133,7 @@ Paths:
 * `/etc/hosts`: optional, if present not a bind mount
 * `/etc/krb5.conf.d`: directory, not a bind mount
 * `/etc/localtime`: optional, if present not a bind mount
-* `/etc/machine-id`: not a bind mount
+* `/etc/machine-id`: optional, not a bind mount
 * `/etc/resolv.conf`: optional, if present not a bind mount
 * `/etc/timezone`: optional, if present not a bind mount
 
