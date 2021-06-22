@@ -62,6 +62,11 @@ var (
 )
 
 func Execute() {
+	if err := setUpGlobals(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+		os.Exit(1)
+	}
+
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
@@ -98,10 +103,6 @@ func preRun(cmd *cobra.Command, args []string) error {
 	cmd.Root().SilenceUsage = true
 
 	if err := setUpLoggers(); err != nil {
-		return err
-	}
-
-	if err := setUpGlobals(); err != nil {
 		return err
 	}
 
