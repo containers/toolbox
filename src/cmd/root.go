@@ -95,8 +95,6 @@ func init() {
 }
 
 func preRun(cmd *cobra.Command, args []string) error {
-	var toolboxPath string
-
 	cmd.Root().SilenceUsage = true
 
 	if err := setUpLoggers(); err != nil {
@@ -127,7 +125,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	toolboxPath = os.Getenv("TOOLBOX_PATH")
+	toolboxPath := os.Getenv("TOOLBOX_PATH")
 
 	if toolboxPath == "" {
 		if utils.IsInsideContainer() {
