@@ -237,9 +237,14 @@ func listOutput(images []toolboxImage, containers []toolboxContainer) {
 		fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
 
 		for _, image := range images {
+			imageName := "<none>"
+			if len(image.Names) != 0 {
+				imageName = image.Names[0]
+			}
+
 			fmt.Fprintf(writer, "%s\t%s\t%s\n",
 				utils.ShortID(image.ID),
-				image.Names[0],
+				imageName,
 				image.Created)
 		}
 

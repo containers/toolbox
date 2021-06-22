@@ -82,3 +82,22 @@ teardown() {
   assert_output --partial "non-default-one"
   assert_output --partial "non-default-two"
 }
+
+@test "list: List an image without a name" {
+    echo -e "FROM scratch\n\nLABEL com.github.containers.toolbox=\"true\"" > "$BATS_TMPDIR"/Containerfile
+
+    run $PODMAN build "$BATS_TMPDIR"
+
+    assert_success
+    assert_line --index 0 "STEP 1: FROM scratch"
+    assert_line --index 1 "STEP 2: LABEL com.github.containers.toolbox=\"true\""
+    assert_line --index 2 "STEP 3: COMMIT"
+    assert_line --index 3 --regexp "^--> [a-z0-9]*$"
+
+    run $TOOLBOX list
+
+    assert_success
+    assert_line --index 1 --partial "<none>"
+
+    rm -f "$BATS_TMPDIR"/Containerfile
+}
