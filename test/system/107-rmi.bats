@@ -6,6 +6,7 @@ load 'libs/helpers'
 
 setup() {
   check_xdg_runtime_dir
+  setup_containers_store
   cleanup_all
 }
 
