@@ -33,3 +33,11 @@ load 'libs/helpers.bash'
   assert_line --index 0 "Error: unknown command \"foo\" for \"toolbox\""
   assert_line --index 1 "Run 'toolbox --help' for usage."
 }
+
+@test "help: Try to run toolbox with non-existent flag (shows usage screen)" {
+  run $TOOLBOX --foo
+
+  assert_failure
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+}
