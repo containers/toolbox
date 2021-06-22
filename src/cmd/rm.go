@@ -69,8 +69,6 @@ func rm(cmd *cobra.Command, args []string) error {
 	}
 
 	if rmFlags.deleteAll {
-		var toolboxContainers []toolboxContainer
-
 		toolboxContainers, err := getContainers()
 		if err != nil {
 			return err
