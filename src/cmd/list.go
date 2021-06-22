@@ -129,17 +129,14 @@ func list(cmd *cobra.Command, args []string) error {
 }
 
 func getContainers() ([]toolboxContainer, error) {
-	var err error
-	var args []string
-	var containers []map[string]interface{}
-	var toolboxContainers []toolboxContainer
-
 	logrus.Debug("Fetching all containers")
-	args = []string{"--all", "--sort", "names"}
-	containers, err = podman.GetContainers(args...)
+	args := []string{"--all", "--sort", "names"}
+	containers, err := podman.GetContainers(args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get containers: %w", err)
 	}
+
+	var toolboxContainers []toolboxContainer
 
 	for _, container := range containers {
 		var c toolboxContainer
@@ -194,17 +191,14 @@ func listHelp(cmd *cobra.Command, args []string) {
 }
 
 func getImages() ([]toolboxImage, error) {
-	var err error
-	var args []string
-	var images []map[string]interface{}
-	var toolboxImages []toolboxImage
-
 	logrus.Debug("Fetching all images")
-	args = []string{"--sort", "repository"}
-	images, err = podman.GetImages(args...)
+	args := []string{"--sort", "repository"}
+	images, err := podman.GetImages(args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get images: %w", err)
 	}
+
+	var toolboxImages []toolboxImage
 
 	for _, image := range images {
 		var i toolboxImage
