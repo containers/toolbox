@@ -122,7 +122,6 @@ func init() {
 		"Create a user inside the toolbox container whose login name is USER")
 	initContainerCmd.MarkFlagRequired("user")
 
-	initContainerCmd.FParseErrWhitelist.UnknownFlags = true
 	initContainerCmd.SetHelpFunc(initContainerHelp)
 	rootCmd.AddCommand(initContainerCmd)
 }
