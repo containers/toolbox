@@ -602,7 +602,7 @@ func getServiceSocket(serviceName string, unitName string) (string, error) {
 
 	listenVariant, listenFound := result["Listen"]
 	if !listenFound {
-		return "", fmt.Errorf("failed to find the Listen property of %s: %w", unitName, err)
+		return "", fmt.Errorf("failed to find the Listen property of %s", unitName)
 	}
 
 	listenVariantSignature := listenVariant.Signature().String()
