@@ -73,6 +73,7 @@ toolbox_container_old_v1=""
 toolbox_container_old_v2=""
 toolbox_container_prefix_default=""
 toolbox_image=""
+toolbox_run_with_tty=true
 toolbox_runtime_directory="$XDG_RUNTIME_DIR"/toolbox
 user_id_real=$(id -ru 2>&3)
 verbose=false
@@ -1586,13 +1587,17 @@ run()
 
     $emit_escape_sequence && printf "\033]777;container;push;%s;toolbox\033\\" "$toolbox_container"
 
+    extra_podman_args=()
+    if "${toolbox_run_with_tty}"; then
+        extra_podman_args+=(--tty)
+    fi
     # shellcheck disable=SC2016
     # for the command passed to capsh
     # shellcheck disable=SC2086
     $podman_command exec \
             --interactive \
-            --tty \
             --user "$USER" \
+            "${extra_podman_args[@]}" \
             --workdir "$PWD" \
             $set_environment \
             "$toolbox_container" \
@@ -2618,6 +2623,9 @@ case $op in
                     arg=$(echo "$1" | sed "s/^F\|^f//" 2>&3)
                     exit_if_non_positive_argument --release "$arg"
                     release=$arg
+                    ;;
+                -T | --no-tty )
+                    toolbox_run_with_tty=false
                     ;;
                 * )
                     exit_if_unrecognized_option "$1"
