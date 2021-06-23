@@ -56,7 +56,7 @@ __toolbox() {
   done
 
   case "$prev" in
-    --assumeyes | -y | --help | -h | --verbose | -v | --very-verbose | -vv | --log-podman)
+    --assumeyes | -y | --help | -h | --verbose | -v | --log-podman)
       mapfile -t COMPREPLY < <(compgen -W "$global_options $commands" -- "$2")
       return 0
       ;;
