@@ -197,6 +197,8 @@ func rootUsage(cmd *cobra.Command) error {
 }
 
 func migrate() error {
+	logrus.Debug("Migrating to newer Podman")
+
 	if utils.IsInsideContainer() {
 		return nil
 	}
@@ -371,6 +373,8 @@ func setUpLoggers() error {
 }
 
 func validateSubIDFile(path string) (bool, error) {
+	logrus.Debugf("Validating sub-ID file %s", path)
+
 	file, err := os.Open(path)
 	if err != nil {
 		logrus.Debugf("Validating sub-ID file: failed to open %s: %s", path, err)
