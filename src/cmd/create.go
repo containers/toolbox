@@ -518,7 +518,11 @@ func getDBusSystemSocket() (string, error) {
 	path := addressSplit[1]
 	pathEvaled, err := filepath.EvalSymlinks(path)
 	if err != nil {
-		return "", fmt.Errorf("failed to resolve the path to the D-Bus system socket: %w", err)
+		logrus.Debugf("Resolving path to the D-Bus system socket: failed to evaluate symbolic links in %s: %s",
+			path,
+			err)
+
+		return "", errors.New("failed to resolve the path to the D-Bus system socket")
 	}
 
 	return pathEvaled, nil
@@ -586,7 +590,11 @@ func getServiceSocket(serviceName string, unitName string) (string, error) {
 
 	connection, err := dbus.SystemBus()
 	if err != nil {
-		return "", fmt.Errorf("failed to connect to the D-Bus system instance: %w", err)
+		logrus.Debugf("Resolving path to the %s socket: failed to connect to the D-Bus system instance: %s",
+			serviceName,
+			err)
+
+		return "", errors.New("failed to connect to the D-Bus system instance")
 	}
 
 	unitNameEscaped := systemdPathBusEscape(unitName)
@@ -597,7 +605,12 @@ func getServiceSocket(serviceName string, unitName string) (string, error) {
 	var result map[string]dbus.Variant
 	err = call.Store(&result)
 	if err != nil {
-		return "", fmt.Errorf("failed to get the properties of %s: %w", unitName, err)
+		logrus.Debugf("Resolving path to the %s socket: failed to get the properties of %s: %s",
+			serviceName,
+			unitName,
+			err)
+
+		return "", fmt.Errorf("failed to get the properties of %s", unitName)
 	}
 
 	listenVariant, listenFound := result["Listen"]

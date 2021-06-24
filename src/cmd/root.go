@@ -203,7 +203,8 @@ func migrate() error {
 
 	configDir, err := os.UserConfigDir()
 	if err != nil {
-		return fmt.Errorf("failed to get the user config directory: %w", err)
+		logrus.Debugf("Migrating to newer Podman: failed to get the user config directory: %s", err)
+		return errors.New("failed to get the user config directory")
 	}
 
 	toolboxConfigDir := configDir + "/toolbox"
@@ -212,14 +213,19 @@ func migrate() error {
 
 	podmanVersion, err := podman.GetVersion()
 	if err != nil {
-		return fmt.Errorf("failed to get the Podman version: %w", err)
+		logrus.Debugf("Migrating to newer Podman: failed to get the Podman version: %s", err)
+		return errors.New("failed to get the Podman version")
 	}
 
 	logrus.Debugf("Current Podman version is %s", podmanVersion)
 
 	err = os.MkdirAll(toolboxConfigDir, 0775)
 	if err != nil {
-		return fmt.Errorf("failed to create configuration directory: %w", err)
+		logrus.Debugf("Migrating to newer Podman: failed to create configuration directory %s: %s",
+			toolboxConfigDir,
+			err)
+
+		return errors.New("failed to create configuration directory")
 	}
 
 	toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(currentUser)
@@ -231,7 +237,8 @@ func migrate() error {
 
 	migrateLockFile, err := os.Create(migrateLock)
 	if err != nil {
-		return fmt.Errorf("failed to create migration lock file: %w", err)
+		logrus.Debugf("Migrating to newer Podman: failed to create migration lock file %s: %s", migrateLock, err)
+		return errors.New("failed to create migration lock file")
 	}
 
 	defer migrateLockFile.Close()
@@ -239,13 +246,15 @@ func migrate() error {
 	migrateLockFD := migrateLockFile.Fd()
 	migrateLockFDInt := int(migrateLockFD)
 	if err := syscall.Flock(migrateLockFDInt, syscall.LOCK_EX); err != nil {
-		return fmt.Errorf("failed to acquire migration lock: %w", err)
+		logrus.Debugf("Migrating to newer Podman: failed to acquire migration lock on %s: %s", migrateLock, err)
+		return errors.New("failed to acquire migration lock")
 	}
 
 	stampBytes, err := ioutil.ReadFile(stampPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			return fmt.Errorf("failed to read migration stamp file: %w", err)
+			logrus.Debugf("Migrating to newer Podman: failed to read migration stamp file %s: %s", stampPath, err)
+			return errors.New("failed to read migration stamp file")
 		}
 	} else {
 		stampString := string(stampBytes)
@@ -268,7 +277,8 @@ func migrate() error {
 	}
 
 	if err = podman.SystemMigrate(""); err != nil {
-		return fmt.Errorf("failed to migrate containers: %w", err)
+		logrus.Debugf("Migrating to newer Podman: failed to migrate containers: %s", err)
+		return errors.New("failed to migrate containers")
 	}
 
 	logrus.Debugf("Migration to Podman version %s was ok", podmanVersion)
@@ -277,7 +287,11 @@ func migrate() error {
 	podmanVersionBytes := []byte(podmanVersion + "\n")
 	err = ioutil.WriteFile(stampPath, podmanVersionBytes, 0664)
 	if err != nil {
-		return fmt.Errorf("failed to update Podman version in migration stamp file: %w", err)
+		logrus.Debugf("Migrating to newer Podman: failed to update Podman version in migration stamp file %s: %s",
+			stampPath,
+			err)
+
+		return errors.New("failed to update Podman version in migration stamp file")
 	}
 
 	return nil
@@ -359,7 +373,8 @@ func setUpLoggers() error {
 func validateSubIDFile(path string) (bool, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return false, fmt.Errorf("failed to open %s: %w", path, err)
+		logrus.Debugf("Validating sub-ID file: failed to open %s: %s", path, err)
+		return false, fmt.Errorf("failed to open %s", path)
 	}
 
 	scanner := bufio.NewScanner(file)

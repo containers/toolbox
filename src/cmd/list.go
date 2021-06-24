@@ -133,7 +133,8 @@ func getContainers() ([]toolboxContainer, error) {
 	args := []string{"--all", "--sort", "names"}
 	containers, err := podman.GetContainers(args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get containers: %w", err)
+		logrus.Debugf("Fetching all containers failed: %s", err)
+		return nil, errors.New("failed to get containers")
 	}
 
 	var toolboxContainers []toolboxContainer
@@ -195,7 +196,8 @@ func getImages() ([]toolboxImage, error) {
 	args := []string{"--sort", "repository"}
 	images, err := podman.GetImages(args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get images: %w", err)
+		logrus.Debugf("Fetching all images failed: %s", err)
+		return nil, errors.New("failed to get images")
 	}
 
 	var toolboxImages []toolboxImage
