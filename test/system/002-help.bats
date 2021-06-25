@@ -4,14 +4,6 @@ load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers.bash'
 
-@test "help: Try to run toolbox with no command (shows usage screen)" {
-  run $TOOLBOX
-
-  assert_failure
-  assert_line --index 0 "Error: missing command"
-  assert_output --partial "Run 'toolbox --help' for usage."
-}
-
 @test "help: Run command 'help'" {
   run $TOOLBOX help
 

@@ -177,17 +177,62 @@ func rootHelp(cmd *cobra.Command, args []string) {
 }
 
 func rootRun(cmd *cobra.Command, args []string) error {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "missing command\n")
-	fmt.Fprintf(&builder, "\n")
-	fmt.Fprintf(&builder, "create    Create a new toolbox container\n")
-	fmt.Fprintf(&builder, "enter     Enter an existing toolbox container\n")
-	fmt.Fprintf(&builder, "list      List all existing toolbox containers and images\n")
-	fmt.Fprintf(&builder, "\n")
-	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+	if len(args) != 0 {
+		panic("unexpected argument: commands known or unknown shouldn't reach here")
+	}
 
-	errMsg := builder.String()
-	return errors.New(errMsg)
+	if utils.IsInsideContainer() {
+		if !utils.IsInsideToolboxContainer() {
+			return errors.New("this is not a toolbox container")
+		}
+
+		if _, err := utils.ForwardToHost(); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	container, image, release, err := utils.ResolveContainerAndImageNames("", "", "", "")
+	if err != nil {
+		return err
+	}
+
+	userShell := os.Getenv("SHELL")
+	if userShell == "" {
+		return errors.New("failed to get the current user's default shell")
+	}
+
+	command := []string{userShell, "-l"}
+
+	hostID, err := utils.GetHostID()
+	if err != nil {
+		return fmt.Errorf("failed to get the host ID: %w", err)
+	}
+
+	hostVariantID, err := utils.GetHostVariantID()
+	if err != nil {
+		return errors.New("failed to get the host VARIANT_ID")
+	}
+
+	var emitEscapeSequence bool
+
+	if hostID == "fedora" && (hostVariantID == "silverblue" || hostVariantID == "workstation") {
+		emitEscapeSequence = true
+	}
+
+	if err := runCommand(container,
+		true,
+		image,
+		release,
+		command,
+		emitEscapeSequence,
+		true,
+		false); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func rootUsage(cmd *cobra.Command) error {
