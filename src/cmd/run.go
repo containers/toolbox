@@ -36,6 +36,9 @@ var (
 		distro    string
 		release   string
 	}
+
+	runFallbackCommands = [][]string{{"/bin/bash", "-l"}}
+	runFallbackWorkDirs = []string{"" /* $HOME */}
 )
 
 var runCmd = &cobra.Command{
@@ -265,29 +268,14 @@ func runCommand(container string,
 
 	logrus.Debugf("Container %s is initialized", container)
 
-	if _, err := isCommandPresent(container, command[0]); err != nil {
-		if fallbackToBash {
-			fmt.Fprintf(os.Stderr,
-				"Error: command %s not found in container %s\n",
-				command[0],
-				container)
-			fmt.Fprintf(os.Stderr, "Using /bin/bash instead.\n")
-
-			command = []string{"/bin/bash", "-l"}
-		} else {
-			return fmt.Errorf("command %s not found in container %s", command[0], container)
-		}
+	if err := runCommandWithFallbacks(container, command, emitEscapeSequence, fallbackToBash); err != nil {
+		return err
 	}
 
-	if pathPresent, _ := isPathPresent(container, workingDirectory); !pathPresent {
-		fmt.Fprintf(os.Stderr, "Error: path %s not found in container %s\n",
-			workingDirectory, container)
-		fmt.Fprintf(os.Stderr, "Using %s instead.\n",
-			currentUser.HomeDir)
+	return nil
+}
 
-		workingDirectory = currentUser.HomeDir
-	}
-
+func runCommandWithFallbacks(container string, command []string, emitEscapeSequence, fallbackToBash bool) error {
 	logrus.Debug("Checking if 'podman exec' supports disabling the detach keys")
 
 	var detachKeysSupported bool
@@ -299,48 +287,82 @@ func runCommand(container string,
 
 	envOptions := utils.GetEnvOptionsForPreservedVariables()
 
-	execArgs := constructExecArgs(container, command, detachKeysSupported, envOptions, workingDirectory)
+	runFallbackCommandsIndex := 0
+	runFallbackWorkDirsIndex := 0
+	workDir := workingDirectory
 
-	if emitEscapeSequence {
-		fmt.Printf("\033]777;container;push;%s;toolbox;%s\033\\", container, currentUser.Uid)
-	}
+	for {
+		execArgs := constructExecArgs(container, command, detachKeysSupported, envOptions, workDir)
 
-	logrus.Debugf("Running in container %s:", container)
-	logrus.Debug("podman")
-	for _, arg := range execArgs {
-		logrus.Debugf("%s", arg)
-	}
-
-	exitCode, err := shell.RunWithExitCode("podman", os.Stdin, os.Stdout, nil, execArgs...)
-
-	if emitEscapeSequence {
-		fmt.Printf("\033]777;container;pop;;;%s\033\\", currentUser.Uid)
-	}
-
-	switch exitCode {
-	case 0:
-		if err != nil {
-			panic("unexpected error: 'podman exec' finished successfully")
+		if emitEscapeSequence {
+			fmt.Printf("\033]777;container;push;%s;toolbox;%s\033\\", container, currentUser.Uid)
 		}
-	case 125:
-		err = fmt.Errorf("failed to invoke 'podman exec' in container %s", container)
-	case 126:
-		err = fmt.Errorf("failed to invoke command %s in container %s", command[0], container)
-	case 127:
-		if pathPresent, _ := isPathPresent(container, workingDirectory); !pathPresent {
-			err = fmt.Errorf("directory %s not found in container %s", workingDirectory, container)
-		} else {
-			err = fmt.Errorf("command %s not found in container %s", command[0], container)
+
+		logrus.Debugf("Running in container %s:", container)
+		logrus.Debug("podman")
+		for _, arg := range execArgs {
+			logrus.Debugf("%s", arg)
 		}
-	default:
-		err = nil
+
+		exitCode, err := shell.RunWithExitCode("podman", os.Stdin, os.Stdout, nil, execArgs...)
+
+		if emitEscapeSequence {
+			fmt.Printf("\033]777;container;pop;;;%s\033\\", currentUser.Uid)
+		}
+
+		switch exitCode {
+		case 0:
+			if err != nil {
+				panic("unexpected error: 'podman exec' finished successfully")
+			}
+			return nil
+		case 125:
+			err = fmt.Errorf("failed to invoke 'podman exec' in container %s", container)
+			return err
+		case 126:
+			err = fmt.Errorf("failed to invoke command %s in container %s", command[0], container)
+			return err
+		case 127:
+			if pathPresent, _ := isPathPresent(container, workDir); !pathPresent {
+				if runFallbackWorkDirsIndex < len(runFallbackWorkDirs) {
+					fmt.Fprintf(os.Stderr,
+						"Error: directory %s not found in container %s\n",
+						workDir,
+						container)
+
+					workDir = runFallbackWorkDirs[runFallbackWorkDirsIndex]
+					if workDir == "" {
+						workDir = currentUser.HomeDir
+					}
+
+					fmt.Fprintf(os.Stderr, "Using %s instead.\n", workDir)
+					runFallbackWorkDirsIndex++
+				} else {
+					err = fmt.Errorf("directory %s not found in container %s", workDir, container)
+					return err
+				}
+			} else {
+				if fallbackToBash && runFallbackCommandsIndex < len(runFallbackCommands) {
+					fmt.Fprintf(os.Stderr,
+						"Error: command %s not found in container %s\n",
+						command[0],
+						container)
+
+					command = runFallbackCommands[runFallbackCommandsIndex]
+					fmt.Fprintf(os.Stderr, "Using %s instead.\n", command[0])
+
+					runFallbackCommandsIndex++
+				} else {
+					err = fmt.Errorf("command %s not found in container %s", command[0], container)
+					return err
+				}
+			}
+		default:
+			return nil
+		}
 	}
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	panic("code should not be reached")
 }
 
 func runHelp(cmd *cobra.Command, args []string) {
@@ -464,25 +486,6 @@ func getEntryPointAndPID(container string) (string, int, error) {
 	logrus.Debugf("Entry point of container %s is %s (PID=%d)", container, entryPoint, entryPointPIDInt)
 
 	return entryPoint, entryPointPIDInt, nil
-}
-
-func isCommandPresent(container, command string) (bool, error) {
-	logrus.Debugf("Looking for command %s in container %s", command, container)
-
-	logLevelString := podman.LogLevel.String()
-	args := []string{
-		"--log-level", logLevelString,
-		"exec",
-		"--user", currentUser.Username,
-		container,
-		"sh", "-c", "command -v \"$1\"", "sh", command,
-	}
-
-	if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
-		return false, err
-	}
-
-	return true, nil
 }
 
 func isPathPresent(container, path string) (bool, error) {
