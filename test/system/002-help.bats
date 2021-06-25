@@ -41,3 +41,67 @@ load 'libs/helpers.bash'
   assert_line --index 0 "Error: unknown flag: --foo"
   assert_line --index 1 "Run 'toolbox --help' for usage."
 }
+
+@test "help: Try to run 'toolbox create' with non-existent flag (shows usage screen)" {
+  run $TOOLBOX create --foo
+
+  assert_failure
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+}
+
+@test "help: Try to run 'toolbox enter' with non-existent flag (shows usage screen)" {
+  run $TOOLBOX enter --foo
+
+  assert_failure
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+}
+
+@test "help: Try to run 'toolbox help' with non-existent flag (shows usage screen)" {
+  run $TOOLBOX help --foo
+
+  assert_failure
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+}
+
+@test "help: Try to run 'toolbox init-container' with non-existent flag (shows usage screen)" {
+  run $TOOLBOX init-container --foo
+
+  assert_failure
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+}
+
+@test "help: Try to run 'toolbox list' with non-existent flag (shows usage screen)" {
+  run $TOOLBOX list --foo
+
+  assert_failure
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+}
+
+@test "help: Try to run 'toolbox rm' with non-existent flag (shows usage screen)" {
+  run $TOOLBOX rm --foo
+
+  assert_failure
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+}
+
+@test "help: Try to run 'toolbox rmi' with non-existent flag (shows usage screen)" {
+  run $TOOLBOX rmi --foo
+
+  assert_failure
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+}
+
+@test "help: Try to run 'toolbox run' with non-existent flag (shows usage screen)" {
+  run $TOOLBOX run --foo
+
+  assert_failure
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+}
