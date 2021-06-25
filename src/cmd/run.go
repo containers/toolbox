@@ -290,38 +290,16 @@ func runCommand(container string,
 
 	logrus.Debug("Checking if 'podman exec' supports disabling the detach keys")
 
-	var detachKeys []string
+	var detachKeysSupported bool
 
 	if podman.CheckVersion("1.8.1") {
 		logrus.Debug("'podman exec' supports disabling the detach keys")
-		detachKeys = []string{"--detach-keys", ""}
+		detachKeysSupported = true
 	}
 
 	envOptions := utils.GetEnvOptionsForPreservedVariables()
-	logLevelString := podman.LogLevel.String()
 
-	execArgs := []string{
-		"--log-level", logLevelString,
-		"exec",
-	}
-
-	execArgs = append(execArgs, detachKeys...)
-
-	execArgs = append(execArgs, []string{
-		"--interactive",
-		"--tty",
-		"--user", currentUser.Username,
-		"--workdir", workingDirectory,
-	}...)
-
-	execArgs = append(execArgs, envOptions...)
-
-	execArgs = append(execArgs, []string{
-		container,
-		"capsh", "--caps=", "--", "-c", "exec \"$@\"", "/bin/sh",
-	}...)
-
-	execArgs = append(execArgs, command...)
+	execArgs := constructExecArgs(container, command, detachKeysSupported, envOptions, workingDirectory)
 
 	if emitEscapeSequence {
 		fmt.Printf("\033]777;container;push;%s;toolbox;%s\033\\", container, currentUser.Uid)
@@ -415,6 +393,45 @@ func callFlatpakSessionHelper(container string) error {
 	}
 
 	return nil
+}
+
+func constructExecArgs(container string,
+	command []string,
+	detachKeysSupported bool,
+	envOptions []string,
+	workDir string) []string {
+	var detachKeys []string
+
+	if detachKeysSupported {
+		detachKeys = []string{"--detach-keys", ""}
+	}
+
+	logLevelString := podman.LogLevel.String()
+
+	execArgs := []string{
+		"--log-level", logLevelString,
+		"exec",
+	}
+
+	execArgs = append(execArgs, detachKeys...)
+
+	execArgs = append(execArgs, []string{
+		"--interactive",
+		"--tty",
+		"--user", currentUser.Username,
+		"--workdir", workDir,
+	}...)
+
+	execArgs = append(execArgs, envOptions...)
+
+	execArgs = append(execArgs, []string{
+		container,
+		"capsh", "--caps=", "--", "-c", "exec \"$@\"", "/bin/sh",
+	}...)
+
+	execArgs = append(execArgs, command...)
+
+	return execArgs
 }
 
 func getEntryPointAndPID(container string) (string, int, error) {
