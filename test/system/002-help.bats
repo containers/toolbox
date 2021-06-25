@@ -16,14 +16,14 @@ load 'libs/helpers.bash'
   run $TOOLBOX help
 
   assert_success
-  assert_output --partial "toolbox - Unprivileged development environment"
+  assert_output --partial "toolbox - Tool for containerized command line environments on Linux"
 }
 
 @test "help: Use flag '--help' (it should show usage screen)" {
   run $TOOLBOX --help
 
   assert_success
-  assert_output --partial "toolbox - Unprivileged development environment"
+  assert_output --partial "toolbox - Tool for containerized command line environments on Linux"
 }
 
 @test "help: Try to run toolbox with non-existent command (shows usage screen)" {

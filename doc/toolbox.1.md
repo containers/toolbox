@@ -1,7 +1,7 @@
 % toolbox(1)
 
 ## NAME
-toolbox - Unprivileged development environment
+toolbox - Tool for containerized command line environments on Linux
 
 ## SYNOPSIS
 **toolbox** [*--assumeyes* | *-y*]

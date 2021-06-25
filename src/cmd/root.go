@@ -45,7 +45,7 @@ var (
 
 	rootCmd = &cobra.Command{
 		Use:               "toolbox",
-		Short:             "Unprivileged development environment",
+		Short:             "Tool for containerized command line environments on Linux",
 		PersistentPreRunE: preRun,
 		RunE:              rootRun,
 		Version:           version.GetVersion(),
