@@ -117,9 +117,6 @@ available in the container:
 - `/var/log/journal`
 - `/var/mnt`
 
-If path `/sys/fs/selinux` is found in the container, path `/usr/share/empty` is
-bind-mounted to that location to suppress SELinux.
-
 ## SEE ALSO
 
 `toolbox(1)`, `podman(1)`, `podman-create(1)`, `podman-start(1)`
