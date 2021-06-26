@@ -29,8 +29,9 @@ the image had a tag, then the tag is included in the name of the container,
 but it's separated by a hyphen, not a colon. A different name can be assigned
 by using the CONTAINER argument.
 
-Toolbox containers are primarily created in a way to be tightly integrated with
-the host system. They are not meant to be secure.
+A toolbox container seamlessly integrates with the rest of the operating
+system by providing access to the user's home directory, the Wayland and X11
+sockets, SSH agent, etc..
 
 ### Entry Point
 
