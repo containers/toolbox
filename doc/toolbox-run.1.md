@@ -6,7 +6,8 @@ toolbox\-run - Run a command in an existing toolbox container
 ## SYNOPSIS
 **toolbox run** [*--container NAME* | *-c NAME*]
             [*--distro DISTRO* | *-d DISTRO*]
-            [*--release RELEASE* | *-r RELEASE*] [*COMMAND*]
+            [*--release RELEASE* | *-r RELEASE*]
+            [*COMMAND*]
 
 ## DESCRIPTION
 
