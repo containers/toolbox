@@ -101,19 +101,6 @@ Remove one or more toolbox images.
 
 Run a command in an existing toolbox container.
 
-## Toolbox images
-
-Toolbox currently supports these images:
-
-registry.fedoraproject.org/fedora-toolbox
-: default image on Fedora
-
-registry.access.redhat.com/ubi8
-: default image on RHEL
-
-Images in this list are tested to be working with Toolbox. Any other image may
-work as well, but it is not guaranteed.
-
 ### NOTE: Name change of default Fedora image
 
 Since version 0.0.99.1 Toolbox started to use registry.fedoraproject.org/fedora-toolbox
