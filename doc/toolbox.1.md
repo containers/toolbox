@@ -101,14 +101,6 @@ Remove one or more toolbox images.
 
 Run a command in an existing toolbox container.
 
-### NOTE: Name change of default Fedora image
-
-Since version 0.0.99.1 Toolbox started to use registry.fedoraproject.org/fedora-toolbox
-instead of registry.fedoraproject.org/f{version}/fedora-toolbox. The image is
-still the same, only the name has changed.
-
-Existing containers are not affected by this change, only new ones.
-
 ## SEE ALSO
 
 `podman(1)`, https://github.com/containers/toolbox
