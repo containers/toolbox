@@ -62,21 +62,6 @@ container.
 Create a user inside the toolbox container whose login directory is HOME. This
 option is required.
 
-**--shell** SHELL
-
-Create a user inside the toolbox container whose login shell is SHELL. This
-option is required.
-
-**--uid** UID
-
-Create a user inside the toolbox container whose numerical user ID is UID. This
-option is required.
-
-**--user** USER
-
-Create a user inside the toolbox container whose login name is LOGIN. This
-option is required.
-
 **--home-link**
 
 Make `/home` a symbolic link to `/var/home`.
@@ -91,8 +76,9 @@ Make `/mnt` a symbolic link to `/var/mnt`.
 
 **--monitor-host**
 
-Ensure that certain configuration files inside the toolbox container are kept
-synchronized with their counterparts on the host.
+Ensures that certain configuration files inside the toolbox container are kept
+synchronized with their counterparts on the host, and bind mounts some paths
+from the host's file system into the container.
 
 The synchronized files are:
 
@@ -102,8 +88,7 @@ The synchronized files are:
 - `/etc/resolv.conf`
 - `/etc/timezone`
 
-The following paths are bind mounted to paths from the host's filesystem
-available in the container:
+The bind mounted paths are:
 
 - `/etc/machine-id`
 - `/run/libvirt`
@@ -116,6 +101,21 @@ available in the container:
 - `/var/lib/systemd/coredump`
 - `/var/log/journal`
 - `/var/mnt`
+
+**--shell** SHELL
+
+Create a user inside the toolbox container whose login shell is SHELL. This
+option is required.
+
+**--uid** UID
+
+Create a user inside the toolbox container whose numerical user ID is UID. This
+option is required.
+
+**--user** USER
+
+Create a user inside the toolbox container whose login name is LOGIN. This
+option is required.
 
 ## SEE ALSO
 
