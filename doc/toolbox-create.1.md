@@ -76,8 +76,9 @@ Change the NAME of the base image used to create the toolbox container. This
 is useful for creating containers from custom-built base images. Cannot be used
 used with `--release`.
 
-If NAME does not contain a domain, the image will be pulled from
-`registry.fedoraproject.org`.
+If NAME does not contain a registry, the local image storage will be
+consulted, and if it's not present there then it will be pulled from a suitable
+remote registry.
 
 **--release** RELEASE, **-r** RELEASE
 
