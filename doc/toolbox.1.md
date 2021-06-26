@@ -8,6 +8,7 @@ toolbox - Tool for containerized command line environments on Linux
         [*--help* | *-h*]
         [*--log-level LEVEL*]
         [*--log-podman*]
+        [*--verbose* | *-v*]
         *COMMAND* [*ARGS*...]
 
 ## DESCRIPTION
@@ -59,6 +60,10 @@ Log messages above specified level: debug, info, warn, error, fatal or panic
 
 Show log messages of invocations of Podman based on the logging level specified
 by option **log-level**.
+
+**--verbose, -v**
+
+Same as `--log-level=debug`. Use `-vv` to include `--log-podman`.
 
 ## COMMANDS
 
