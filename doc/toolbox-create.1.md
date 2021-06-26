@@ -24,10 +24,10 @@ Fedora image will be used.
 The container is created with `podman create`, and its entry point is set to
 `toolbox init-container`.
 
-By default, toolbox containers are named after their corresponding images. If
-the image had a tag, then the tag is included in the name of the container,
-but it's separated by a hyphen, not a colon. A different name can be assigned
-by using the CONTAINER argument.
+By default, a toolbox container is named after its corresponding image. If the
+image had a tag, then the tag is included in the name of the container, but
+it's separated by a hyphen, not a colon. A different name can be assigned by
+using the CONTAINER argument.
 
 A toolbox container seamlessly integrates with the rest of the operating
 system by providing access to the user's home directory, the Wayland and X11
