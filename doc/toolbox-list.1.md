@@ -9,7 +9,7 @@ toolbox\-list - List existing toolbox containers and images
 ## DESCRIPTION
 
 Lists existing toolbox containers and images. These are OCI containers and
-images, which can be managed directly with tools like `buildah` and `podman`.
+images, which can be managed directly with a tool like `podman`.
 
 ## OPTIONS ##
 
