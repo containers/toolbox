@@ -17,16 +17,17 @@ to interact with the container at any point.
 A toolbox container is an OCI container created from an OCI image. On Fedora,
 the default image is known as `fedora-toolbox:N`, where N is the release of
 the host. If the image is not present locally, then it is pulled from a
-well-known registry like `registry.fedoraproject.org`. The container is
-created with `podman create`, and its entry point is set to `toolbox
-init-container`.
+well-known registry like `registry.fedoraproject.org`. Other images may be
+used on other host operating systems. If the host is not recognized, then the
+Fedora image will be used.
+
+The container is created with `podman create`, and its entry point is set to
+`toolbox init-container`.
 
 By default, toolbox containers are named after their corresponding images. If
 the image had a tag, then the tag is included in the name of the container,
 but it's separated by a hyphen, not a colon. A different name can be assigned
 by using the CONTAINER argument.
-
-If the host system is not recognized the used image will be `fedora-toolbox`.
 
 Toolbox containers are primarily created in a way to be tightly integrated with
 the host system. They are not meant to be secure.
