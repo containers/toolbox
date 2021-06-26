@@ -16,8 +16,9 @@ if it's not available inside the container then it falls back to `/bin/bash`.
 
 When invoked without any options, `toolbox enter` will try to enter the default
 toolbox container for the host, or if there's only one container available then
-it will use it. If there aren't any containers, `toolbox enter` will offer to
-create one for you.
+it will use it. On Fedora, the default container is known as
+`fedora-toolbox-N`, where N is the release of the host. If there aren't any
+containers, `toolbox enter` will offer to create the default one for you.
 
 A specific container can be selected using the CONTAINER argument.
 
