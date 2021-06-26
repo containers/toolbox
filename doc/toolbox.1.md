@@ -36,8 +36,9 @@ incrementally adopt containerization.
 The toolbox environment is based on an OCI image. On Fedora this is the
 `fedora-toolbox` image. This image is used to create a toolbox container that
 seamlessly integrates with the rest of the operating system by providing
-access to the user's home directory, the Wayland and X11 sockets, SSH agent,
-etc..
+access to the user's home directory, the Wayland and X11 sockets, networking
+(including Avahi), removable devices (like USB sticks), systemd journal, SSH
+agent, D-Bus, ulimits, /dev and the udev database, etc..
 
 ## GLOBAL OPTIONS ##
 
