@@ -109,16 +109,6 @@ still the same, only the name has changed.
 
 Existing containers are not affected by this change, only new ones.
 
-## Toolbox containers
-
-Information about how toolbox containers are created can be found in
-`toolbox-create(1)`.
-
-Information about the entry-point of toolbox containers can be found in
-`toolbox-init-container(1)`.
-
 ## SEE ALSO
 
-`podman(1)`, `toolbox-create(1)`, `toolbox-enter(1)`, `toolbox-run(1)`,
-`toolbox-init-container(1)`, `toolbox-list(1)`, `toolbox-rm(1)`,
-`toolbox-rmi(1)` `toolbox-help(1)`, https://github.com/containers/toolbox
+`podman(1)`, https://github.com/containers/toolbox
