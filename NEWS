@@ -1,3 +1,32 @@
+Overview of changes in 0.0.99.2
+===============================
+
+* Add nano-default-editor to the fedora-toolbox images
+* Add unit tests for pkg/shell
+* Connect Go unit tests to Meson & rename CI job
+* Decouple image caching from Zuul for the system tests
+* Don't assume that the user's GID is the same as the UID
+* Don't require /etc/machine-id in toolbox images
+* Drop ShellCheck on Shell Toolbox
+* Give access to systemd-resolved's Varlink socket
+* Optimize 'enter' and 'run' in the non-fallback case
+* Optimize the performance of 'list'
+* Properly separate builddir setup & build in the Ansible playbooks
+* Rename Dockerfile to Containerfile for the fedora-toolbox images
+* Show test execution time for the system tests
+* Support listing images without names
+* Unbreak 'create' on an unlocked OSTree deployment
+* Unbreak 'create' on CoreOS with read-only /boot
+* Update default release to 33 for non-Fedora hosts
+* Update the GitHub issue templates
+* Use a regular file, not a symbolic link, for the README.md in the
+  fedora-toolbox images
+* Fall back to $HOME when using a container if the current working directory
+  isn't present in it
+* Various updates to the Bash completion
+* Various updates to the manuals
+
+
 Overview of changes in 0.0.99.1
 ===============================
 
