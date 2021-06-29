@@ -111,7 +111,7 @@ func enter(cmd *cobra.Command, args []string) error {
 		var err error
 		release, err = utils.ParseRelease(enterFlags.distro, enterFlags.release)
 		if err != nil {
-			err := utils.CreateErrorInvalidRelease(executableBase)
+			err := createErrorInvalidRelease()
 			return err
 		}
 	}
@@ -178,7 +178,7 @@ func enterHelp(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if err := utils.ShowManual("toolbox-enter"); err != nil {
+	if err := showManual("toolbox-enter"); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}

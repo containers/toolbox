@@ -350,7 +350,7 @@ func initContainerHelp(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if err := utils.ShowManual("toolbox-init-container"); err != nil {
+	if err := showManual("toolbox-init-container"); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}
