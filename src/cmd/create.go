@@ -143,7 +143,7 @@ func create(cmd *cobra.Command, args []string) error {
 		var err error
 		release, err = utils.ParseRelease(createFlags.distro, createFlags.release)
 		if err != nil {
-			err := utils.CreateErrorInvalidRelease(executableBase)
+			err := createErrorInvalidRelease()
 			return err
 		}
 	}
@@ -471,7 +471,7 @@ func createHelp(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if err := utils.ShowManual("toolbox-create"); err != nil {
+	if err := showManual("toolbox-create"); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}
@@ -696,7 +696,7 @@ func pullImage(image, release string) (bool, error) {
 		fmt.Println("Image required to create toolbox container.")
 
 		prompt := fmt.Sprintf("Download %s (500MB)? [y/N]:", imageFull)
-		shouldPullImage = utils.AskForConfirmation(prompt)
+		shouldPullImage = askForConfirmation(prompt)
 	}
 
 	if !shouldPullImage {

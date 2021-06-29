@@ -185,7 +185,7 @@ func listHelp(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if err := utils.ShowManual("toolbox-list"); err != nil {
+	if err := showManual("toolbox-list"); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}

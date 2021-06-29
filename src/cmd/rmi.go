@@ -122,7 +122,7 @@ func rmiHelp(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if err := utils.ShowManual("toolbox-rmi"); err != nil {
+	if err := showManual("toolbox-rmi"); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}

@@ -174,7 +174,7 @@ func rootHelp(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if err := utils.ShowManual(manual); err != nil {
+	if err := showManual(manual); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}

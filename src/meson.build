@@ -12,6 +12,7 @@ sources = files(
   'cmd/rmi.go',
   'cmd/root.go',
   'cmd/run.go',
+  'cmd/utils.go',
   'pkg/podman/podman.go',
   'pkg/shell/shell.go',
   'pkg/utils/utils.go',
