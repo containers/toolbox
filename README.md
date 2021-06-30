@@ -161,6 +161,7 @@ used by the maintainer of the image to indicate that they have read this
 document and tested that the image works with Toolbox. You can use the
 following snippet in a Dockerfile for this:
 ```Dockerfile
-LABEL com.github.containers.toolbox="true" \
-      com.github.debarshiray.toolbox="true"
+LABEL com.github.containers.toolbox="true"
 ```
+The label `com.github.debarshiray.toolbox="true"` was used in previous versions
+of toolbox but is currently deprecated.
