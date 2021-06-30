@@ -32,6 +32,7 @@ shadow-utils
 sudo
 tcpdump
 time
+toolbox
 traceroute
 tree
 unzip

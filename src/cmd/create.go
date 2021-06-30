@@ -205,7 +205,6 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 
 	toolboxPath := os.Getenv("TOOLBOX_PATH")
 	toolboxPathEnvArg := "TOOLBOX_PATH=" + toolboxPath
-	toolboxPathMountArg := toolboxPath + ":/usr/bin/toolbox:ro"
 
 	var runtimeDirectory string
 	var xdgRuntimeDirEnv []string
@@ -431,7 +430,6 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		"--volume", bootMountArg,
 		"--volume", dbusSystemSocketMountArg,
 		"--volume", homeDirMountArg,
-		"--volume", toolboxPathMountArg,
 		"--volume", usrMountArg,
 		"--volume", runtimeDirectoryMountArg,
 	}...)
