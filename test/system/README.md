@@ -10,7 +10,9 @@ tests will clear all podman state (delete all containers, images, etc).
 
 ## Dependencies
 
+- `awk`
 - `bats`
+- `GNU coreutils`
 - `podman`
 - `skopeo`
 - `toolbox`
@@ -47,19 +49,19 @@ Examples:
 First, make sure you have all the dependencies installed.
 
 - Enter the toolbox root folder
-- Prepare container images. See [playbooks/setup-env.yaml](../../playbooks/setup-env.yaml)
 - Invoke command `bats ./test/system/` and the test suite should fire up
 
-Mocking of images is done to prevent potential networking issues and to speed
-up the cases.
+Mocking of images is done automatically to prevent potential networking issues
+and to speed up the cases.
 
-> Currently, this is done in a playbook that is a part of Toolbox's CI. In the
-  future, this should be converted and become part of the test suite itself to
-  allow local execution.
+By default the test suite uses the system versions of `podman`, `skopeo` and
+`toolbox`.
 
-By default the test suite uses the system versions of `podman` and `toolbox`.
+If you have a `podman`, `skopeo` or `toolbox` installed in a nonstandard
+location then you can use the `PODMAN`, `SKOPEO` and `TOOLBOX` environmental
+variables to set the path to the binaries. So the command to invoke the test
+suite could look something like this: `PODMAN=/usr/libexec/podman TOOLBOX=./toolbox bats ./test/system/`.
 
-If you have a `podman` or `toolbox` installed in a nonstandard location then
-you can use the `PODMAN` and `TOOLBOX` environmental variables to set the path
-to the binaries. So the command to invoke the test suite could look something
-like this: `PODMAN=/usr/libexec/podman TOOLBOX=./toolbox bats ./test/system/`.
+When running the tests, make sure the `test suite: [job]` jobs are successful.
+These jobs set up the whole environment and are a strict requirement for other
+jobs to run correctly.
