@@ -11,8 +11,10 @@
           - flatpak-session-helper
           - golang
           - golang-github-cpuguy83-md2man
+          - httpd-tools
           - meson
           - ninja-build
+          - openssl
           - podman
           - skopeo
           - systemd

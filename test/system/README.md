@@ -11,6 +11,8 @@ tests will clear all podman state (delete all containers, images, etc).
 ## Dependencies
 
 - `bats`
+- `htpasswd`
+- `openssl`
 - `podman`
 - `skopeo`
 - `toolbox`
@@ -41,6 +43,10 @@ Examples:
 - All the tests start with a clean system (no images or containers) to make sure
   that there are no dependencies between tests and they are really isolated. Use
   the `setup()` and `teardown()` functions for that purpose.
+
+- Due to lack of native support for test suite wide setup and teardown the suite
+  uses test files `000-setup.bats` and `999-teardown.bats`. All work related to
+  the whole suite should be done there.
 
 ## How to run the tests
 

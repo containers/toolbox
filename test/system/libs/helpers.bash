@@ -9,16 +9,22 @@ readonly SKOPEO=$(command -v skopeo)
 
 # Helpful globals
 readonly PROJECT_DIR=${PWD}
-readonly IMAGE_CACHE_DIR="${PROJECT_DIR}/image-cache"
+readonly CACHE_DIR="${HOME}/.cache/toolbox/system-test"
+readonly IMAGE_CACHE_DIR="${CACHE_DIR}/image-cache"
+readonly AUTH_DIR="${CACHE_DIR}/auth"
+readonly CERTS_DIR="${CACHE_DIR}/certs"
+readonly PODMAN_REG_ROOT="${CACHE_DIR}/reg"
 
 # Images
 declare -Ag IMAGES=([busybox]="docker.io/library/busybox" \
-                   [fedora]="registry.fedoraproject.org/fedora-toolbox" \
-                   [rhel]="registry.access.redhat.com/ubi8")
+                    [fedora]="registry.fedoraproject.org/fedora-toolbox")
 
 
 function cleanup_all() {
-  $PODMAN system reset --force >/dev/null
+  $PODMAN rm --all --force >/dev/null
+  $PODMAN rmi --all --force >/dev/null
+
+  $PODMAN logout --all >/dev/null
 }
 
 
