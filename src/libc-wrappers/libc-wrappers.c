@@ -15,7 +15,95 @@
  */
 
 
+#include <pthread.h>
 #include <signal.h>
+
+
+/*
+ * pthread_attr_getstacksize < GLIBC_2.34
+ */
+
+
+#if defined __aarch64__
+__asm__(".symver pthread_attr_getstacksize,pthread_attr_getstacksize@GLIBC_2.17");
+#elif defined __arm__
+__asm__(".symver pthread_attr_getstacksize,pthread_attr_getstacksize@GLIBC_2.4");
+#elif defined __i386__
+__asm__(".symver pthread_attr_getstacksize,pthread_attr_getstacksize@GLIBC_2.1");
+#elif defined __powerpc64__ && _CALL_ELF == 2 /* ppc64le */
+__asm__(".symver pthread_attr_getstacksize,pthread_attr_getstacksize@GLIBC_2.17");
+#elif defined __s390x__
+__asm__(".symver pthread_attr_getstacksize,pthread_attr_getstacksize@GLIBC_2.2");
+#elif defined __x86_64__
+__asm__(".symver pthread_attr_getstacksize,pthread_attr_getstacksize@GLIBC_2.2.5");
+#else
+#error "Please specify symbol version for pthread_attr_getstacksize"
+#endif
+
+
+int
+__wrap_pthread_attr_getstacksize (const pthread_attr_t *attr, size_t *stacksize)
+{
+  return pthread_attr_getstacksize (attr, stacksize);
+}
+
+
+/*
+ * pthread_create < GLIBC_2.34
+ */
+
+
+#if defined __aarch64__
+__asm__(".symver pthread_create,pthread_create@GLIBC_2.17");
+#elif defined __arm__
+__asm__(".symver pthread_create,pthread_create@GLIBC_2.4");
+#elif defined __i386__
+__asm__(".symver pthread_create,pthread_create@GLIBC_2.1");
+#elif defined __powerpc64__ && _CALL_ELF == 2 /* ppc64le */
+__asm__(".symver pthread_create,pthread_create@GLIBC_2.17");
+#elif defined __s390x__
+__asm__(".symver pthread_create,pthread_create@GLIBC_2.2");
+#elif defined __x86_64__
+__asm__(".symver pthread_create,pthread_create@GLIBC_2.2.5");
+#else
+#error "Please specify symbol version for pthread_create"
+#endif
+
+
+int
+__wrap_pthread_create (pthread_t *thread, const pthread_attr_t *attr, void *(*start_routine) (void *), void *arg)
+{
+  return pthread_create(thread, attr, start_routine, arg);
+}
+
+
+/*
+ * pthread_detach < GLIBC_2.34
+ */
+
+
+#if defined __aarch64__
+__asm__(".symver pthread_detach,pthread_detach@GLIBC_2.17");
+#elif defined __arm__
+__asm__(".symver pthread_detach,pthread_detach@GLIBC_2.4");
+#elif defined __i386__
+__asm__(".symver pthread_detach,pthread_detach@GLIBC_2.0");
+#elif defined __powerpc64__ && _CALL_ELF == 2 /* ppc64le */
+__asm__(".symver pthread_detach,pthread_detach@GLIBC_2.17");
+#elif defined __s390x__
+__asm__(".symver pthread_detach,pthread_detach@GLIBC_2.2");
+#elif defined __x86_64__
+__asm__(".symver pthread_detach,pthread_detach@GLIBC_2.2.5");
+#else
+#error "Please specify symbol version for pthread_detach"
+#endif
+
+
+int
+__wrap_pthread_detach (pthread_t thread)
+{
+  return pthread_detach (thread);
+}
 
 
 /*

@@ -16,7 +16,7 @@
 #
 
 
-readonly LIBC_WRAPPERS="--wrap,pthread_sigmask"
+readonly LIBC_WRAPPERS="--wrap,pthread_attr_getstacksize,--wrap,pthread_create,--wrap,pthread_detach,--wrap,pthread_sigmask"
 
 if [ "$#" -ne 4 ]; then
     echo "go-build-wrapper: wrong arguments" >&2
