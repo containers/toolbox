@@ -577,7 +577,7 @@ func ShortID(id string) string {
 	return id
 }
 
-func ParseRelease(distro, str string) (string, error) {
+func ParseRelease(distro, release string) (string, error) {
 	if distro == "" {
 		distro = distroDefault
 	}
@@ -593,17 +593,13 @@ func ParseRelease(distro, str string) (string, error) {
 	}
 
 	parseRelease := distroObj.ParseRelease
-	release, err := parseRelease(str)
+	release, err := parseRelease(release)
 	return release, err
 }
 
-func parseReleaseFedora(str string) (string, error) {
-	var release string
-
-	if strings.HasPrefix(str, "F") || strings.HasPrefix(str, "f") {
-		release = str[1:]
-	} else {
-		release = str
+func parseReleaseFedora(release string) (string, error) {
+	if strings.HasPrefix(release, "F") || strings.HasPrefix(release, "f") {
+		release = release[1:]
 	}
 
 	releaseN, err := strconv.Atoi(release)
@@ -618,12 +614,12 @@ func parseReleaseFedora(str string) (string, error) {
 	return release, nil
 }
 
-func parseReleaseRHEL(str string) (string, error) {
-	if i := strings.IndexRune(str, '.'); i == -1 {
+func parseReleaseRHEL(release string) (string, error) {
+	if i := strings.IndexRune(release, '.'); i == -1 {
 		return "", errors.New("release must have a '.'")
 	}
 
-	releaseN, err := strconv.ParseFloat(str, 32)
+	releaseN, err := strconv.ParseFloat(release, 32)
 	if err != nil {
 		return "", err
 	}
@@ -632,7 +628,7 @@ func parseReleaseRHEL(str string) (string, error) {
 		return "", errors.New("release must be a positive number")
 	}
 
-	return str, nil
+	return release, nil
 }
 
 // PathExists wraps around os.Stat providing a nice interface for checking an existence of a path.
