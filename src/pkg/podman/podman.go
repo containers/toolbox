@@ -228,6 +228,18 @@ func IsToolboxImage(image string) (bool, error) {
 	return true, nil
 }
 
+func Login(registry, username, password string) error {
+	logLevelString := LogLevel.String()
+	args := []string{"--log-level", logLevelString, "login", registry, "--password-stdin", "--username", username}
+	stdin := bytes.NewBufferString(password)
+
+	if err := shell.Run("podman", stdin, nil, nil, args...); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Pull pulls an image
 func Pull(imageName string) error {
 	var stderr bytes.Buffer
