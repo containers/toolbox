@@ -265,28 +265,6 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	logrus.Debugf("%s canonicalized to %s", currentUser.HomeDir, homeDirEvaled)
 	homeDirMountArg := homeDirEvaled + ":" + homeDirEvaled + ":rslave"
 
-	bootMountFlags := "ro"
-	isBootReadWrite, err := isPathReadWrite("/boot")
-	if err != nil {
-		return err
-	}
-	if isBootReadWrite {
-		bootMountFlags = "rw"
-	}
-
-	bootMountArg := "/boot:/run/host/boot:" + bootMountFlags + ",rslave"
-
-	usrMountFlags := "ro"
-	isUsrReadWrite, err := isPathReadWrite("/usr")
-	if err != nil {
-		return err
-	}
-	if isUsrReadWrite {
-		usrMountFlags = "rw"
-	}
-
-	usrMountArg := "/usr:/run/host/usr:" + usrMountFlags + ",rslave"
-
 	var avahiSocketMount []string
 
 	avahiSocket, err := getServiceSocket("Avahi", "avahi-daemon.socket")
@@ -423,16 +401,11 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	createArgs = append(createArgs, []string{
 		"--userns", usernsArg,
 		"--user", "root:root",
-		"--volume", "/etc:/run/host/etc",
+		"--volume", "/:/run/host:rslave",
 		"--volume", "/dev:/dev:rslave",
-		"--volume", "/run:/run/host/run:rslave",
-		"--volume", "/tmp:/run/host/tmp:rslave",
-		"--volume", "/var:/run/host/var:rslave",
-		"--volume", bootMountArg,
 		"--volume", dbusSystemSocketMountArg,
 		"--volume", homeDirMountArg,
 		"--volume", toolboxPathMountArg,
-		"--volume", usrMountArg,
 		"--volume", runtimeDirectoryMountArg,
 	}...)
 
