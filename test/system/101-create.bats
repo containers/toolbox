@@ -69,3 +69,32 @@ teardown() {
 
   assert_output --regexp "Created[[:blank:]]+fedora-toolbox-32"
 }
+
+@test "create: Create a container with overriden distro option (system-wide)" {
+    skip_if_system_config_unwritable
+}
+
+@test "create: Create a container with overriden distro option (user-specific)" {
+    skip_if_user_config_unwritable
+}
+
+@test "create: Create a container with overriden release option (system-wide)" {
+    skip_if_system_config_unwritable
+}
+
+@test "create: Create a container with overriden release option (user-specific)" {
+    skip_if_user_config_unwritable
+}
+
+@test "create: Create a container with overriden image option (system-wide)" {
+    skip_if_system_config_unwritable
+}
+
+@test "create: Create a container with overriden image option (user-specific)" {
+    skip_if_user_config_unwritable
+}
+
+@test "create: Create a container with overriden image option (both system-wide + user-specific)" {
+    skip_if_system_config_unwritable
+    skip_if_user_config_unwritable
+}

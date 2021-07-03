@@ -11,6 +11,11 @@ readonly SKOPEO=$(command -v skopeo)
 readonly PROJECT_DIR=${PWD}
 readonly IMAGE_CACHE_DIR="${PROJECT_DIR}/image-cache"
 
+readonly TOOLBOX_SYSTEM_CONFIG="/etc/containers/toolbox.conf"
+readonly TOOLBOX_USER_CONFIG="~/.config/containers/toolbox.conf"
+readonly BACKUP_SYSTEM_CONFIG="$BATS_TMPDIR/system-toolbox.conf"
+readonly BACKUP_USER_CONFIG="$BATS_TMPDIR/user-toolbox.conf"
+
 # Images
 declare -Ag IMAGES=([busybox]="docker.io/library/busybox" \
                    [fedora]="registry.fedoraproject.org/fedora-toolbox" \
@@ -96,6 +101,38 @@ function _clean_cached_images() {
   rm -rf ${IMAGE_CACHE_DIR}
 }
 
+
+# Backups writable configuration files
+function _setup_toolbox_configs() {
+  if _is_system_config_writable; then
+    mv $TOOLBOX_SYSTEM_CONFIG $BACKUP_SYSTEM_CONFIG
+  fi
+
+  if _is_user_config_writable; then
+    mv $TOOLBOX_USER_CONFIG $BACKUP_USER_CONFIG
+  fi
+}
+
+
+# Restores writable configuration files
+function _restore_toolbox_configs() {
+  if _is_system_config_writable; then
+    mv $BACKUP_SYSTEM_CONFIG $TOOLBOX_SYSTEM_CONFIG
+  fi
+
+  if _is_user_config_writable; then
+    mv $BACKUP_USER_CONFIG $TOOLBOX_USER_CONFIG
+  fi
+}
+
+function _is_system_config_writable() {
+    return is_path_writable "$TOOLBOX_SYSTEM_CONFIG"
+}
+
+
+function _is_user_config_writable() {
+    return is_path_writable "$TOOLBOX_USER_CONFIG"
+}
 
 # Copies an image from local storage to Podman's image store
 # 
@@ -270,4 +307,46 @@ function get_system_version() {
     fi
 
     echo $(awk -F= '/VERSION_ID/ {print $2}' $os_release | head -n 1)
+}
+
+
+# Checks if path is writable
+#
+# Parameters:
+# ===========
+# - path - the checked location
+function is_path_writable() {
+    local path="$1"
+
+    if [ -w "$path" ]; then
+        return true
+    fi
+
+    if ! [ -f "$path" ]; then
+        if ! mkdir -p $(dirname "$path"); then
+            return false
+        fi
+
+        if ! touch "$path"; then
+            return false
+        fi
+
+        rm "$path"
+        return true
+    fi
+
+    return false
+
+}
+
+function skip_if_system_config_unwritable() {
+    if ! _is_system_config_writable; then
+        skip "$TOOLBOX_SYSTEM_CONFIG is unwritable"
+    fi
+}
+
+function skip_if_user_config_unwritable() {
+    if ! _is_user_config_writable; then
+        skip "$TOOLBOX_USER_CONFIG is unwritable"
+    fi
 }
