@@ -411,6 +411,7 @@ func setUpLoggers() error {
 	}
 
 	if rootFlags.logPodman {
+		podman.ShowLogs = true
 		podman.SetLogLevel(logLevel)
 	}
 

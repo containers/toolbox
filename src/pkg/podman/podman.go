@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 
 	"github.com/HarryMichal/go-version"
 	"github.com/containers/toolbox/pkg/shell"
@@ -33,6 +34,7 @@ var (
 
 var (
 	LogLevel = logrus.ErrorLevel
+	ShowLogs = false
 )
 
 // CheckVersion compares provided version with the version of Podman.
@@ -53,10 +55,12 @@ func CheckVersion(requiredVersion string) bool {
 //
 // Parameter container is a name or an id of a container.
 func ContainerExists(container string) (bool, error) {
+	stderr := setupStderrWriter(nil)
+
 	logLevelString := LogLevel.String()
 	args := []string{"--log-level", logLevelString, "container", "exists", container}
 
-	exitCode, err := shell.RunWithExitCode("podman", nil, nil, nil, args...)
+	exitCode, err := shell.RunWithExitCode("podman", nil, stderr, nil, args...)
 	if exitCode != 0 && err == nil {
 		err = fmt.Errorf("failed to find container %s", container)
 	}
@@ -77,11 +81,12 @@ func ContainerExists(container string) (bool, error) {
 // If a problem happens during execution, first argument is nil and second argument holds the error message.
 func GetContainers(args ...string) ([]map[string]interface{}, error) {
 	var stdout bytes.Buffer
+	stderr := setupStderrWriter(nil)
 
 	logLevelString := LogLevel.String()
 	args = append([]string{"--log-level", logLevelString, "ps", "--format", "json"}, args...)
 
-	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
+	if err := shell.Run("podman", nil, &stdout, stderr, args...); err != nil {
 		return nil, err
 	}
 
@@ -104,10 +109,11 @@ func GetContainers(args ...string) ([]map[string]interface{}, error) {
 // If a problem happens during execution, first argument is nil and second argument holds the error message.
 func GetImages(args ...string) ([]map[string]interface{}, error) {
 	var stdout bytes.Buffer
+	stderr := setupStderrWriter(nil)
 
 	logLevelString := LogLevel.String()
 	args = append([]string{"--log-level", logLevelString, "images", "--format", "json"}, args...)
-	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
+	if err := shell.Run("podman", nil, &stdout, stderr, args...); err != nil {
 		return nil, err
 	}
 
@@ -128,11 +134,12 @@ func GetVersion() (string, error) {
 	}
 
 	var stdout bytes.Buffer
+	stderr := setupStderrWriter(nil)
 
 	logLevelString := LogLevel.String()
 	args := []string{"--log-level", logLevelString, "version", "--format", "json"}
 
-	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
+	if err := shell.Run("podman", nil, &stdout, stderr, args...); err != nil {
 		return "", err
 	}
 
@@ -156,10 +163,12 @@ func GetVersion() (string, error) {
 //
 // Parameter image is a name or an id of an image.
 func ImageExists(image string) (bool, error) {
+	stderr := setupStderrWriter(nil)
+
 	logLevelString := LogLevel.String()
 	args := []string{"--log-level", logLevelString, "image", "exists", image}
 
-	exitCode, err := shell.RunWithExitCode("podman", nil, nil, nil, args...)
+	exitCode, err := shell.RunWithExitCode("podman", nil, nil, stderr, args...)
 	if exitCode != 0 && err == nil {
 		err = fmt.Errorf("failed to find image %s", image)
 	}
@@ -176,11 +185,12 @@ func ImageExists(image string) (bool, error) {
 // Parameter 'typearg' takes in values 'container' or 'image' that is passed to the --type flag
 func Inspect(typearg string, target string) (map[string]interface{}, error) {
 	var stdout bytes.Buffer
+	stderr := setupStderrWriter(nil)
 
 	logLevelString := LogLevel.String()
 	args := []string{"--log-level", logLevelString, "inspect", "--format", "json", "--type", typearg, target}
 
-	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
+	if err := shell.Run("podman", nil, &stdout, stderr, args...); err != nil {
 		return nil, err
 	}
 
@@ -228,10 +238,12 @@ func IsToolboxImage(image string) (bool, error) {
 
 // Pull pulls an image
 func Pull(imageName string) error {
+	stderr := setupStderrWriter(nil)
+
 	logLevelString := LogLevel.String()
 	args := []string{"--log-level", logLevelString, "pull", imageName}
 
-	if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
+	if err := shell.Run("podman", nil, nil, stderr, args...); err != nil {
 		return err
 	}
 
@@ -240,6 +252,8 @@ func Pull(imageName string) error {
 
 func RemoveContainer(container string, forceDelete bool) error {
 	logrus.Debugf("Removing container %s", container)
+
+	stderr := setupStderrWriter(nil)
 
 	logLevelString := LogLevel.String()
 	args := []string{"--log-level", logLevelString, "rm"}
@@ -250,7 +264,7 @@ func RemoveContainer(container string, forceDelete bool) error {
 
 	args = append(args, container)
 
-	exitCode, err := shell.RunWithExitCode("podman", nil, nil, nil, args...)
+	exitCode, err := shell.RunWithExitCode("podman", nil, nil, stderr, args...)
 	switch exitCode {
 	case 0:
 		if err != nil {
@@ -274,6 +288,8 @@ func RemoveContainer(container string, forceDelete bool) error {
 func RemoveImage(image string, forceDelete bool) error {
 	logrus.Debugf("Removing image %s", image)
 
+	stderr := setupStderrWriter(nil)
+
 	logLevelString := LogLevel.String()
 	args := []string{"--log-level", logLevelString, "rmi"}
 
@@ -283,7 +299,7 @@ func RemoveImage(image string, forceDelete bool) error {
 
 	args = append(args, image)
 
-	exitCode, err := shell.RunWithExitCode("podman", nil, nil, nil, args...)
+	exitCode, err := shell.RunWithExitCode("podman", nil, nil, stderr, args...)
 	switch exitCode {
 	case 0:
 		if err != nil {
@@ -309,6 +325,8 @@ func SetLogLevel(logLevel logrus.Level) {
 }
 
 func Start(container string, stderr io.Writer) error {
+	stderr = setupStderrWriter(stderr)
+
 	logLevelString := LogLevel.String()
 	args := []string{"--log-level", logLevelString, "start", container}
 
@@ -320,15 +338,31 @@ func Start(container string, stderr io.Writer) error {
 }
 
 func SystemMigrate(ociRuntimeRequired string) error {
+	stderr := setupStderrWriter(nil)
+
 	logLevelString := LogLevel.String()
 	args := []string{"--log-level", logLevelString, "system", "migrate"}
 	if ociRuntimeRequired != "" {
 		args = append(args, []string{"--new-runtime", ociRuntimeRequired}...)
 	}
 
-	if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
+	if err := shell.Run("podman", nil, nil, stderr, args...); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func setupStderrWriter(buffer io.Writer) io.Writer {
+	var stderr io.Writer
+
+	if ShowLogs && buffer != nil {
+		stderr = io.MultiWriter(buffer, os.Stderr)
+	} else if ShowLogs && buffer == nil {
+		stderr = os.Stderr
+	} else {
+		stderr = buffer
+	}
+
+	return stderr
 }

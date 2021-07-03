@@ -29,5 +29,5 @@ func canStartSpinner() bool {
 
 	logLevel := logrus.GetLevel()
 
-	return logLevel < logrus.DebugLevel && terminal.IsTerminal(stdoutFdInt)
+	return !rootFlags.logPodman && logLevel < logrus.DebugLevel && terminal.IsTerminal(stdoutFdInt)
 }
