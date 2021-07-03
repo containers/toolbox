@@ -40,15 +40,12 @@ func Run(name string, stdin io.Reader, stdout, stderr io.Writer, arg ...string) 
 }
 
 func RunWithExitCode(name string, stdin io.Reader, stdout, stderr io.Writer, arg ...string) (int, error) {
-	logLevel := logrus.GetLevel()
-	if stderr == nil && logLevel >= logrus.DebugLevel {
-		stderr = os.Stderr
-	}
+	stderrWrapper := getStderrWrapper(stderr)
 
 	cmd := exec.Command(name, arg...)
 	cmd.Stdin = stdin
 	cmd.Stdout = stdout
-	cmd.Stderr = stderr
+	cmd.Stderr = stderrWrapper
 
 	if err := cmd.Run(); err != nil {
 		if errors.Is(err, exec.ErrNotFound) {
@@ -65,4 +62,19 @@ func RunWithExitCode(name string, stdin io.Reader, stdout, stderr io.Writer, arg
 	}
 
 	return 0, nil
+}
+
+func getStderrWrapper(buffer io.Writer) io.Writer {
+	var stderr io.Writer
+
+	logLevel := logrus.GetLevel()
+	if logLevel < logrus.DebugLevel {
+		stderr = buffer
+	} else if buffer == nil {
+		stderr = os.Stderr
+	} else {
+		stderr = io.MultiWriter(buffer, os.Stderr)
+	}
+
+	return stderr
 }
