@@ -35,6 +35,7 @@ import (
 	"github.com/docker/go-units"
 	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"golang.org/x/sys/unix"
 )
 
@@ -570,6 +571,71 @@ func ImageReferenceHasDomain(image string) bool {
 	return true
 }
 
+func SetUpConfiguration() error {
+	logrus.Debug("Setting up configuration")
+
+	configFiles := []string{
+		"/etc/containers/toolbox.conf",
+	}
+
+	userConfigDir, err := os.UserConfigDir()
+	if err != nil {
+		logrus.Debugf("Setting up configuration: failed to get the user config directory: %s", err)
+		return errors.New("failed to get the user config directory")
+	}
+
+	userConfigPath := userConfigDir + "/containers/toolbox.conf"
+	configFiles = append(configFiles, []string{
+		userConfigPath,
+	}...)
+
+	viper.SetConfigType("toml")
+
+	for _, configFile := range configFiles {
+		viper.SetConfigFile(configFile)
+
+		if err := viper.MergeInConfig(); err != nil {
+			// Seems like Viper's errors can't be examined with
+			// errors.As.
+
+			// Seems like Viper doesn't actually throw
+			// viper.ConfigFileNotFoundError if a configuration
+			// file is not found. We still check for it for the
+			// sake of completion or in case Viper uses it in a
+			// different version.
+			_, ok := err.(viper.ConfigFileNotFoundError)
+			if ok || os.IsNotExist(err) {
+				logrus.Debugf("Setting up configuration: file %s not found", configFile)
+				continue
+			}
+
+			if _, ok := err.(viper.ConfigParseError); ok {
+				logrus.Debugf("Setting up configuration: failed to parse file %s: %s", configFile, err)
+				return fmt.Errorf("failed to parse file %s", configFile)
+			}
+
+			logrus.Debugf("Setting up configuration: failed to read file %s: %s", configFile, err)
+			return fmt.Errorf("failed to read file %s", configFile)
+		}
+	}
+
+	image, release, err := ResolveImageName("", "", "")
+	if err != nil {
+		logrus.Debugf("Setting up configuration: failed to resolve image name: %s", err)
+		return errors.New("failed to resolve image name")
+	}
+
+	container, err := ResolveContainerName("", image, release)
+	if err != nil {
+		logrus.Debugf("Setting up configuration: failed to resolve container name: %s", err)
+		return errors.New("failed to resolve container name")
+	}
+
+	ContainerNameDefault = container
+
+	return nil
+}
+
 // ShortID shortens provided id to first 12 characters.
 func ShortID(id string) string {
 	if len(id) > idTruncLength {
@@ -581,6 +647,9 @@ func ShortID(id string) string {
 func ParseRelease(distro, release string) (string, error) {
 	if distro == "" {
 		distro = distroDefault
+		if viper.IsSet("general.distro") {
+			distro = viper.GetString("general.distro")
+		}
 	}
 
 	if _, supportedDistro := supportedDistros[distro]; !supportedDistro {
@@ -694,30 +763,53 @@ func ResolveContainerName(container, image, release string) (string, error) {
 // If no image name is specified then the base image will reflect the platform of the host (even the version).
 //
 // If the host system is unknown then the base image will be 'fedora-toolbox' with a default version
-func ResolveImageName(distro, image, release string) (string, string, error) {
+func ResolveImageName(distroCLI, imageCLI, releaseCLI string) (string, string, error) {
 	logrus.Debug("Resolving image name")
-	logrus.Debugf("Distribution: '%s'", distro)
-	logrus.Debugf("Image: '%s'", image)
-	logrus.Debugf("Release: '%s'", release)
+	logrus.Debugf("Distribution (CLI): '%s'", distroCLI)
+	logrus.Debugf("Image (CLI): '%s'", imageCLI)
+	logrus.Debugf("Release (CLI): '%s'", releaseCLI)
 
-	if distro == "" {
+	distro, image, release := distroCLI, imageCLI, releaseCLI
+
+	if distroCLI == "" {
 		distro = distroDefault
+		if viper.IsSet("general.distro") {
+			distro = viper.GetString("general.distro")
+		}
 	}
 
-	if distro != distroDefault && release == "" {
+	if distro != distroDefault && releaseCLI == "" && !viper.IsSet("general.release") {
 		return "", "", fmt.Errorf("release not found for non-default distribution %s", distro)
 	}
 
-	if release == "" {
+	if releaseCLI == "" {
 		release = releaseDefault
+		if viper.IsSet("general.release") {
+			release = viper.GetString("general.release")
+		}
 	}
 
-	if image == "" {
+	if imageCLI == "" {
 		image = getDefaultImageForDistro(distro, release)
+
+		if viper.IsSet("general.image") && distroCLI == "" && releaseCLI == "" {
+			image = viper.GetString("general.image")
+
+			release = ImageReferenceGetTag(image)
+			if release == "" {
+				release = releaseDefault
+				if viper.IsSet("general.release") {
+					release = viper.GetString("general.release")
+				}
+			}
+		}
 	} else {
 		release = ImageReferenceGetTag(image)
 		if release == "" {
 			release = releaseDefault
+			if viper.IsSet("general.release") {
+				release = viper.GetString("general.release")
+			}
 		}
 	}
 
