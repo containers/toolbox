@@ -31,7 +31,6 @@ import (
 	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 const (
@@ -432,9 +431,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 
 	s := spinner.New(spinner.CharSets[9], 500*time.Millisecond)
 
-	stdoutFd := os.Stdout.Fd()
-	stdoutFdInt := int(stdoutFd)
-	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel && terminal.IsTerminal(stdoutFdInt) {
+	if canStartSpinner() {
 		s.Prefix = fmt.Sprintf("Creating container %s: ", container)
 		s.Writer = os.Stdout
 		s.Start()
@@ -708,9 +705,7 @@ func pullImage(image, release string) (bool, error) {
 
 	logrus.Debugf("Pulling image %s", imageFull)
 
-	stdoutFd := os.Stdout.Fd()
-	stdoutFdInt := int(stdoutFd)
-	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel && terminal.IsTerminal(stdoutFdInt) {
+	if canStartSpinner() {
 		s := spinner.New(spinner.CharSets[9], 500*time.Millisecond)
 		s.Prefix = fmt.Sprintf("Pulling %s: ", imageFull)
 		s.Writer = os.Stdout
