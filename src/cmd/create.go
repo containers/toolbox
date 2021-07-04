@@ -17,6 +17,7 @@
 package cmd
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"os"
@@ -668,6 +669,65 @@ func isPathReadWrite(path string) (bool, error) {
 	return false, nil
 }
 
+func logIntoRegistry(imageFull, registry string) (bool, error) {
+	fmt.Printf("Image %s requires log-in.\n", imageFull)
+
+	scanner := bufio.NewScanner(os.Stdin)
+
+	stdinFd := os.Stdin.Fd()
+	stdinFdInt := int(stdinFd)
+
+	if terminal.IsTerminal(stdinFdInt) {
+		fmt.Printf("Username: ")
+	}
+
+	if !scanner.Scan() {
+		if err := scanner.Err(); err != nil {
+			logrus.Debugf("Logging into registry: failed to read username: %s", err)
+		}
+
+		return false, errors.New("failed to read username")
+	}
+
+	username := scanner.Text()
+
+	var password string
+
+	if terminal.IsTerminal(stdinFdInt) {
+		logrus.Debug("Reading password from a terminal input")
+
+		fmt.Printf("Password: ")
+
+		passwordBytes, err := terminal.ReadPassword(stdinFdInt)
+		if err != nil {
+			logrus.Debugf("Logging into registry: failed to read password: %s", err)
+			return false, errors.New("failed to read password")
+		}
+
+		password = string(passwordBytes)
+		fmt.Println("")
+	} else {
+		logrus.Debug("Reading password from a non-terminal input")
+
+		if !scanner.Scan() {
+			if err := scanner.Err(); err != nil {
+				logrus.Debugf("Logging into registry: failed to read password: %s", err)
+			}
+
+			return false, errors.New("failed to read password")
+		}
+
+		password = scanner.Text()
+	}
+
+	if err := podman.Login(registry, username, password); err != nil {
+		logrus.Debugf("Logging into registry %s failed: %s", registry, err)
+		return false, fmt.Errorf("failed to log into registry %s", registry)
+	}
+
+	return true, nil
+}
+
 func pullImage(image, release string) (bool, error) {
 	if _, err := utils.ImageReferenceCanBeID(image); err == nil {
 		logrus.Debugf("Looking for image %s", image)
@@ -732,7 +792,17 @@ func pullImage(image, release string) (bool, error) {
 	}
 
 	if _, err := pullImageWithSpinner(imageFull); err != nil {
-		return false, fmt.Errorf("failed to pull image %s", imageFull)
+		if !errors.Is(err, podman.ErrUnauthorized) {
+			return false, fmt.Errorf("failed to pull image %s", imageFull)
+		}
+
+		if _, err := logIntoRegistry(imageFull, domain); err != nil {
+			return false, err
+		}
+
+		if _, err := pullImageWithSpinner(imageFull); err != nil {
+			return false, fmt.Errorf("failed to pull image %s", imageFull)
+		}
 	}
 
 	return true, nil
