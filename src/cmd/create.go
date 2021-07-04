@@ -731,6 +731,14 @@ func pullImage(image, release string) (bool, error) {
 		return false, nil
 	}
 
+	if _, err := pullImageWithSpinner(imageFull); err != nil {
+		return false, fmt.Errorf("failed to pull image %s", imageFull)
+	}
+
+	return true, nil
+}
+
+func pullImageWithSpinner(imageFull string) (bool, error) {
 	logrus.Debugf("Pulling image %s", imageFull)
 
 	stdoutFd := os.Stdout.Fd()
@@ -744,7 +752,7 @@ func pullImage(image, release string) (bool, error) {
 	}
 
 	if err := podman.Pull(imageFull); err != nil {
-		return false, fmt.Errorf("failed to pull image %s", imageFull)
+		return false, err
 	}
 
 	return true, nil
