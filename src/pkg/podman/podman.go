@@ -19,6 +19,7 @@ package podman
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 
@@ -32,7 +33,8 @@ var (
 )
 
 var (
-	LogLevel = logrus.ErrorLevel
+	ErrUnauthorized = errors.New("unauthorized")
+	LogLevel        = logrus.ErrorLevel
 )
 
 // CheckVersion compares provided version with the version of Podman.
