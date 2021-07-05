@@ -15,11 +15,15 @@ go_md2man = find_program('go-md2man')
 shellcheck = find_program('shellcheck', required: false)
 skopeo = find_program('skopeo', required: false)
 
-systemd_dep = dependency('systemd')
 bash_completion = dependency('bash-completion', required: false)
 
 profiledir = get_option('profile_dir')
-tmpfilesdir = systemd_dep.get_pkgconfig_variable('tmpfilesdir')
+
+tmpfilesdir = get_option('tmpfiles_dir')
+if tmpfilesdir == ''
+  systemd_dep = dependency('systemd')
+  tmpfilesdir = systemd_dep.get_pkgconfig_variable('tmpfilesdir')
+endif
 
 if bash_completion.found()
   install_data(

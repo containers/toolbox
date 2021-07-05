@@ -4,3 +4,9 @@ option(
   type: 'string',
   value: '/usr/share/profile.d'
 )
+
+option(
+  'tmpfiles_dir',
+  description: 'Directory for system-wide tmpfiles.d(5) files',
+  type: 'string',
+)
