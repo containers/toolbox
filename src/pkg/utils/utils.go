@@ -500,9 +500,12 @@ func HumanDuration(duration int64) string {
 }
 
 // ImageReferenceCanBeID checks if 'image' might be the ID of an image
-func ImageReferenceCanBeID(image string) (bool, error) {
+func ImageReferenceCanBeID(image string) bool {
 	matched, err := regexp.MatchString("^[a-f0-9]\\{6,64\\}$", image)
-	return matched, err
+	if err != nil {
+		panic("regular expression for ID reference matching is invalid")
+	}
+	return matched
 }
 
 func ImageReferenceGetBasename(image string) string {

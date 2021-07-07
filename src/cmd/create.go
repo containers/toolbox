@@ -669,7 +669,7 @@ func isPathReadWrite(path string) (bool, error) {
 }
 
 func pullImage(image, release string) (bool, error) {
-	if _, err := utils.ImageReferenceCanBeID(image); err == nil {
+	if ok := utils.ImageReferenceCanBeID(image); ok {
 		logrus.Debugf("Looking for image %s", image)
 
 		if _, err := podman.ImageExists(image); err == nil {
