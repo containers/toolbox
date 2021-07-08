@@ -28,5 +28,6 @@
       environment:
         PODMAN: '/usr/bin/podman'
         TOOLBOX: '{{ toolbox_bin }}'
+        TOOLBOX_TESTS_SYSTEM_CONFIG: 0
       args:
         chdir: '{{ zuul.project.src_dir }}'

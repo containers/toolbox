@@ -5,6 +5,7 @@ load 'libs/bats-assert/load'
 load 'libs/helpers'
 
 setup() {
+  setup_config_files
   cleanup_containers
 }
 
@@ -77,4 +78,29 @@ teardown() {
   assert_line --index 0 "Error: failed to pull image foo.org/bar"
   assert_line --index 1 "If it was a private image, log in with: podman login foo.org"
   assert_line --index 2 "Use 'toolbox --verbose ...' for further details."
+}
+
+@test "create: Create a container with overriden distro option (system-wide)" {
+  skip_if_system_config_disabled
+}
+
+@test "create: Create a container with overriden distro option (user-specific)" {
+}
+
+@test "create: Create a container with overriden release option (system-wide)" {
+  skip_if_system_config_disabled
+}
+
+@test "create: Create a container with overriden release option (user-specific)" {
+}
+
+@test "create: Create a container with overriden image option (system-wide)" {
+  skip_if_system_config_disabled
+}
+
+@test "create: Create a container with overriden image option (user-specific)" {
+}
+
+@test "create: Create a container with overriden image option (both system-wide + user-specific)" {
+  skip_if_system_config_disabled
 }
