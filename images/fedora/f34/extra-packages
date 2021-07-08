@@ -11,6 +11,7 @@ gnupg
 gnupg2-smime
 gvfs-client
 hostname
+iproute
 iputils
 jwhois
 keyutils
