@@ -672,15 +672,41 @@ func IsInsideToolboxContainer() bool {
 	return false
 }
 
-// ResolveContainerAndImageNames takes care of standardizing names of containers and images.
+// ResolveContainerName standardizes the name of a container
+//
+// If no container name is specified then the name of the image will be used.
+func ResolveContainerName(container, image, release string) (string, error) {
+	logrus.Debug("Resolving container name")
+	logrus.Debugf("Container: '%s'", container)
+	logrus.Debugf("Image: '%s'", image)
+	logrus.Debugf("Release: '%s'", release)
+
+	if container == "" {
+		var err error
+		container, err = GetContainerNamePrefixForImage(image)
+		if err != nil {
+			return "", err
+		}
+
+		tag := ImageReferenceGetTag(image)
+		if tag != "" {
+			container = container + "-" + tag
+		}
+	}
+
+	logrus.Debug("Resolved container name")
+	logrus.Debugf("Container: '%s'", container)
+
+	return container, nil
+}
+
+// ResolveImageName standardizes the name of an image.
 //
 // If no image name is specified then the base image will reflect the platform of the host (even the version).
-// If no container name is specified then the name of the image will be used.
 //
 // If the host system is unknown then the base image will be 'fedora-toolbox' with a default version
-func ResolveContainerAndImageNames(container, distro, image, release string) (string, string, string, error) {
-	logrus.Debug("Resolving container and image names")
-	logrus.Debugf("Container: '%s'", container)
+func ResolveImageName(distro, image, release string) (string, string, error) {
+	logrus.Debug("Resolving image name")
 	logrus.Debugf("Distribution: '%s'", distro)
 	logrus.Debugf("Image: '%s'", image)
 	logrus.Debugf("Release: '%s'", release)
@@ -690,7 +716,7 @@ func ResolveContainerAndImageNames(container, distro, image, release string) (st
 	}
 
 	if distro != distroDefault && release == "" {
-		return "", "", "", fmt.Errorf("release not found for non-default distribution %s", distro)
+		return "", "", fmt.Errorf("release not found for non-default distribution %s", distro)
 	}
 
 	if release == "" {
@@ -706,25 +732,11 @@ func ResolveContainerAndImageNames(container, distro, image, release string) (st
 		}
 	}
 
-	if container == "" {
-		var err error
-		container, err = GetContainerNamePrefixForImage(image)
-		if err != nil {
-			return "", "", "", err
-		}
-
-		tag := ImageReferenceGetTag(image)
-		if tag != "" {
-			container = container + "-" + tag
-		}
-	}
-
-	logrus.Debug("Resolved container and image names")
-	logrus.Debugf("Container: '%s'", container)
+	logrus.Debug("Resolved image name")
 	logrus.Debugf("Image: '%s'", image)
 	logrus.Debugf("Release: '%s'", release)
 
-	return container, image, release, nil
+	return image, release, nil
 }
 
 func ShowManual(manual string) error {

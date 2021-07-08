@@ -125,7 +125,12 @@ func run(cmd *cobra.Command, args []string) error {
 
 	command := args
 
-	container, image, release, err := utils.ResolveContainerAndImageNames(runFlags.container, runFlags.distro, "", release)
+	image, release, err := utils.ResolveImageName(runFlags.distro, "", release)
+	if err != nil {
+		return err
+	}
+
+	container, err := utils.ResolveContainerName(runFlags.container, image, release)
 	if err != nil {
 		return err
 	}

@@ -193,7 +193,12 @@ func rootRun(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	container, image, release, err := utils.ResolveContainerAndImageNames("", "", "", "")
+	image, release, err := utils.ResolveImageName("", "", "")
+	if err != nil {
+		return err
+	}
+
+	container, err := utils.ResolveContainerName("", image, release)
 	if err != nil {
 		return err
 	}
