@@ -18,14 +18,9 @@ tests will clear all podman state (delete all containers, images, etc).
 - `toolbox`
 
 These tests use a few standard libraries for `bats` which help with clarity
-and consistency. In order to use it you need to download them to the `libs`
-directory:
-
-```
-# Go to the Toolbox root folder
-$ git clone https://github.com/bats-core/bats-assert test/system/libs/bats-assert
-$ git clone https://github.com/bats-core/bats-support test/system/libs/bats-support
-```
+and consistency. The libraries are [bats-support](https://github.com/bats-core/bats-support)
+and [bats-assert](https://github.com/bats-core/bats-assert). These libraries are
+provided as git submodules in the `libs` directory. Make sure both are present.
 
 ## Convention
 

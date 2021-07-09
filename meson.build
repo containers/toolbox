@@ -3,7 +3,7 @@ project(
   'c',
   version: '0.0.99.2',
   license: 'ASL 2.0',
-  meson_version: '>= 0.40.0',
+  meson_version: '>= 0.42.0',
 )
 
 cc = meson.get_compiler('c')
@@ -38,7 +38,25 @@ endif
 
 install_subdir(
   'test',
-  install_dir: join_paths(get_option('datadir'), meson.project_name())
+  install_dir: join_paths(get_option('datadir'), meson.project_name()),
+  exclude_files: [
+    'system/libs/bats-assert/.git',
+    'system/libs/bats-assert/.gitignore',
+    'system/libs/bats-assert/.travis.yml',
+    'system/libs/bats-assert/package.json',
+    'system/libs/bats-support/.git',
+    'system/libs/bats-support/.gitignore',
+    'system/libs/bats-support/.travis.yml',
+    'system/libs/bats-support/package.json'
+    ],
+  exclude_directories: [
+    'system/libs/bats-assert/.git',
+    'system/libs/bats-assert/script',
+    'system/libs/bats-assert/test',
+    'system/libs/bats-support/.git',
+    'system/libs/bats-support/script',
+    'system/libs/bats-support/test'
+  ]
 )
 
 subdir('data')
