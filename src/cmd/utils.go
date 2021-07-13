@@ -67,7 +67,16 @@ func showManual(manual string) error {
 	manBinary, err := exec.LookPath("man")
 	if err != nil {
 		if errors.Is(err, exec.ErrNotFound) {
-			return errors.New("man(1) not found")
+			fmt.Print(`toolbox - Tool for containerized command line environments on Linux
+
+Common commands are:
+create    Create a new toolbox container
+enter     Enter an existing toolbox container
+list      List all existing toolbox containers and images
+
+Go to https://github.com/containers/toolbox for further information.
+`)
+			return nil
 		}
 
 		return errors.New("failed to lookup man(1)")
