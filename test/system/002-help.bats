@@ -15,6 +15,22 @@ setup() {
   assert_output --partial "toolbox - Tool for containerized command line environments on Linux"
 }
 
+@test "help: Run command 'help' with no man present" {
+  if hash man 2>/dev/null; then
+    skip "Test works only if man is not in PATH"
+  fi
+
+  run $TOOLBOX help
+
+  assert_success
+  assert_line --index 0 "toolbox - Tool for containerized command line environments on Linux"
+  assert_line --index 1 "Common commands are:"
+  assert_line --index 2 "create    Create a new toolbox container"
+  assert_line --index 3 "enter     Enter an existing toolbox container"
+  assert_line --index 4 "list      List all existing toolbox containers and images"
+  assert_line --index 5 "Go to https://github.com/containers/toolbox for further information."
+}
+
 @test "help: Use flag '--help' (it should show usage screen)" {
   run $TOOLBOX --help
 
