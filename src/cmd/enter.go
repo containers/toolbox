@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/containers/toolbox/pkg/utils"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -35,9 +36,10 @@ var (
 )
 
 var enterCmd = &cobra.Command{
-	Use:   "enter",
-	Short: "Enter a toolbox container for interactive use",
-	RunE:  enter,
+	Use:               "enter",
+	Short:             "Enter a toolbox container for interactive use",
+	RunE:              enter,
+	ValidArgsFunction: completionContainerNamesFiltered,
 }
 
 func init() {
@@ -60,6 +62,13 @@ func init() {
 		"r",
 		"",
 		"Enter a toolbox container for a different operating system release than the host")
+
+	if err := enterCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
+		logrus.Panicf("failed to register flag completion function: %v", err)
+	}
+	if err := enterCmd.RegisterFlagCompletionFunc("distro", completionDistroNames); err != nil {
+		logrus.Panicf("failed to register flag completion function: %v", err)
+	}
 
 	enterCmd.SetHelpFunc(enterHelp)
 	rootCmd.AddCommand(enterCmd)

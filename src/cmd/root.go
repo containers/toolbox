@@ -95,6 +95,10 @@ func init() {
 
 	persistentFlags.CountVarP(&rootFlags.verbose, "verbose", "v", "Set log-level to 'debug'")
 
+	if err := rootCmd.RegisterFlagCompletionFunc("log-level", completionLogLevels); err != nil {
+		logrus.Panicf("failed to register flag completion function: %v", err)
+	}
+
 	rootCmd.SetHelpFunc(rootHelp)
 
 	usageTemplate := fmt.Sprintf("Run '%s --help' for usage.", executableBase)

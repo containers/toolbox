@@ -60,9 +60,10 @@ var (
 )
 
 var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List existing toolbox containers and images",
-	RunE:  list,
+	Use:               "list",
+	Short:             "List existing toolbox containers and images",
+	RunE:              list,
+	ValidArgsFunction: completionEmpty,
 }
 
 func init() {
