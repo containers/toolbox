@@ -28,15 +28,13 @@ teardown() {
   assert_output --partial "Run 'toolbox --help' for usage."
 }
 
-#TODO: This should work without --partial
-# The issue here is that toolbox output add the CRLF character at the end
 @test "run: Run echo 'Hello World' inside of the default container" {
   create_default_container
 
-  run $TOOLBOX --verbose run echo "Hello World"
+  run $TOOLBOX --verbose run echo -n "Hello World"
 
   assert_success
-  assert_output --partial "Hello World"
+  assert_line --index $((${#lines[@]}-1)) "Hello World"
 }
 
 @test "run: Run echo 'Hello World' inside a container after being stopped" {
@@ -48,7 +46,7 @@ teardown() {
   run $TOOLBOX --verbose run --container running echo -n "Hello World"
 
   assert_success
-  assert_output --partial "Hello World"
+  assert_line --index $((${#lines[@]}-1)) "Hello World"
 }
 
 @test "run: Run sudo id inside of the default container" {
@@ -57,5 +55,5 @@ teardown() {
   run $TOOLBOX --verbose run sudo id
 
   assert_success
-  assert_output --partial "uid=0(root)"
+  assert_line --index $((${#lines[@]}-1)) --partial "uid=0(root)"
 }
