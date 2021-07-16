@@ -5,6 +5,7 @@ meson_go_fmt_program = find_program('meson_go_fmt.py')
 
 sources = files(
   'toolbox.go',
+  'cmd/completion.go',
   'cmd/create.go',
   'cmd/enter.go',
   'cmd/help.go',

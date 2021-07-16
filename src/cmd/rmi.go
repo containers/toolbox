@@ -35,9 +35,10 @@ var (
 )
 
 var rmiCmd = &cobra.Command{
-	Use:   "rmi",
-	Short: "Remove one or more toolbox images",
-	RunE:  rmi,
+	Use:               "rmi",
+	Short:             "Remove one or more toolbox images",
+	RunE:              rmi,
+	ValidArgsFunction: completionImageNamesFiltered,
 }
 
 func init() {

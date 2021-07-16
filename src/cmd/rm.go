@@ -35,9 +35,10 @@ var (
 )
 
 var rmCmd = &cobra.Command{
-	Use:   "rm",
-	Short: "Remove one or more toolbox containers",
-	RunE:  rm,
+	Use:               "rm",
+	Short:             "Remove one or more toolbox containers",
+	RunE:              rm,
+	ValidArgsFunction: completionContainerNamesFiltered,
 }
 
 func init() {

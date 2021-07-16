@@ -58,9 +58,10 @@ var (
 )
 
 var createCmd = &cobra.Command{
-	Use:   "create",
-	Short: "Create a new toolbox container",
-	RunE:  create,
+	Use:               "create",
+	Short:             "Create a new toolbox container",
+	RunE:              create,
+	ValidArgsFunction: completionEmpty,
 }
 
 func init() {
@@ -91,6 +92,14 @@ func init() {
 		"Create a toolbox container for a different operating system release than the host")
 
 	createCmd.SetHelpFunc(createHelp)
+
+	if err := createCmd.RegisterFlagCompletionFunc("distro", completionDistroNames); err != nil {
+		logrus.Panicf("failed to register flag completion function: %v", err)
+	}
+	if err := createCmd.RegisterFlagCompletionFunc("image", completionImageNames); err != nil {
+		logrus.Panicf("failed to register flag completion function: %v", err)
+	}
+
 	rootCmd.AddCommand(createCmd)
 }
 

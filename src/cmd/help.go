@@ -26,9 +26,10 @@ import (
 )
 
 var helpCmd = &cobra.Command{
-	Use:   "help",
-	Short: "Display help information about Toolbox",
-	RunE:  help,
+	Use:               "help",
+	Short:             "Display help information about Toolbox",
+	RunE:              help,
+	ValidArgsFunction: completionCommands,
 }
 
 func init() {

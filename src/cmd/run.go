@@ -42,9 +42,10 @@ var (
 )
 
 var runCmd = &cobra.Command{
-	Use:   "run",
-	Short: "Run a command in an existing toolbox container",
-	RunE:  run,
+	Use:               "run",
+	Short:             "Run a command in an existing toolbox container",
+	RunE:              run,
+	ValidArgsFunction: completionEmpty,
 }
 
 func init() {
@@ -70,6 +71,14 @@ func init() {
 		"Run command inside a toolbox container for a different operating system release than the host")
 
 	runCmd.SetHelpFunc(runHelp)
+
+	if err := runCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
+		logrus.Panicf("failed to register flag completion function: %v", err)
+	}
+	if err := runCmd.RegisterFlagCompletionFunc("distro", completionDistroNames); err != nil {
+		logrus.Panicf("failed to register flag completion function: %v", err)
+	}
+
 	rootCmd.AddCommand(runCmd)
 }
 
