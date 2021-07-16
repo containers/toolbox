@@ -4,19 +4,12 @@ load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers'
 
-# It seems like 'toolbox run' (or 'enter') doesn't work fine when
-# the workdir is outside the $HOME.
-# This hack is to make the tests work from outside the $HOME.
-readonly CURDIR=$PWD
-
 setup() {
-  cd "$HOME" || return 1
   cleanup_containers
 }
 
 teardown() {
   cleanup_containers
-  cd "$CURDIR" || return 1
 }
 
 
