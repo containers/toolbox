@@ -3,6 +3,7 @@ FROM registry.access.redhat.com/ubi8/ubi:8.5
 ENV NAME=ubi-toolbox VERSION=8.5
 LABEL com.github.containers.toolbox="true" \
       com.redhat.component="$NAME" \
+      com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
       name="$NAME" \
       version="$VERSION" \
       usage="This image is meant to be used with the toolbox command" \
