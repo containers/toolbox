@@ -18,19 +18,12 @@
           - systemd
           - udisks2
 
-    - name: Install bats-assert library
-      git:
-        repo: https://github.com/bats-core/bats-assert
-        dest: '{{ zuul.project.src_dir }}/test/system/libs/bats-assert'
-        depth: 1
-        version: v2.0.0
-
-    - name: Install bats-support library
-      git:
-        repo: https://github.com/bats-core/bats-support
-        dest: '{{ zuul.project.src_dir }}/test/system/libs/bats-support'
-        depth: 1
-        version: v0.3.0
+    - name: Setup submodules
+      shell: |
+        git submodule init
+        git submodule update
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
 
     - name: Setup environment
       become: yes
