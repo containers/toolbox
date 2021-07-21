@@ -285,7 +285,7 @@ func GetContainerNamePrefixForImage(image string) (string, error) {
 	return basename, nil
 }
 
-func GetDefaultImageForDistro(distro, release string) string {
+func getDefaultImageForDistro(distro, release string) string {
 	if _, supportedDistro := supportedDistros[distro]; !supportedDistro {
 		distro = "fedora"
 	}
@@ -712,7 +712,7 @@ func ResolveImageName(distro, image, release string) (string, string, error) {
 	}
 
 	if image == "" {
-		image = GetDefaultImageForDistro(distro, release)
+		image = getDefaultImageForDistro(distro, release)
 	} else {
 		release = ImageReferenceGetTag(image)
 		if release == "" {
