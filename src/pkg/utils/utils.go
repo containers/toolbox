@@ -209,10 +209,10 @@ func CreateErrorInvalidRelease(executableBase string) error {
 }
 
 func EnsureXdgRuntimeDirIsSet(uid int) {
-	if xdgRuntimeDir, ok := os.LookupEnv("XDG_RUNTIME_DIR"); !ok {
+	if _, ok := os.LookupEnv("XDG_RUNTIME_DIR"); !ok {
 		logrus.Debug("XDG_RUNTIME_DIR is unset")
 
-		xdgRuntimeDir = fmt.Sprintf("/run/user/%d", uid)
+		xdgRuntimeDir := fmt.Sprintf("/run/user/%d", uid)
 		os.Setenv("XDG_RUNTIME_DIR", xdgRuntimeDir)
 
 		logrus.Debugf("XDG_RUNTIME_DIR set to %s", xdgRuntimeDir)
@@ -653,19 +653,11 @@ func IsContainerNameValid(containerName string) bool {
 }
 
 func IsInsideContainer() bool {
-	if PathExists("/run/.containerenv") {
-		return true
-	}
-
-	return false
+	return PathExists("/run/.containerenv")
 }
 
 func IsInsideToolboxContainer() bool {
-	if PathExists("/run/.toolboxenv") {
-		return true
-	}
-
-	return false
+	return PathExists("/run/.toolboxenv")
 }
 
 // ResolveContainerName standardizes the name of a container
