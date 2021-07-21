@@ -89,9 +89,9 @@ teardown() {
     run $PODMAN build "$BATS_TMPDIR"
 
     assert_success
-    assert_line --index 0 "STEP 1: FROM scratch"
-    assert_line --index 1 "STEP 2: LABEL com.github.containers.toolbox=\"true\""
-    assert_line --index 2 "STEP 3: COMMIT"
+    assert_line --index 0 --partial "FROM scratch"
+    assert_line --index 1 --partial "LABEL com.github.containers.toolbox=\"true\""
+    assert_line --index 2 --partial "COMMIT"
     assert_line --index 3 --regexp "^--> [a-z0-9]*$"
 
     run $TOOLBOX list
