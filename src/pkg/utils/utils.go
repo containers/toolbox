@@ -61,6 +61,8 @@ const (
 )
 
 var (
+	containerNamePrefixDefault = "fedora-toolbox"
+
 	distroDefault = "fedora"
 
 	preservedEnvironmentVariables = []string{
@@ -112,8 +114,7 @@ var (
 )
 
 var (
-	ContainerNameDefault       string
-	ContainerNamePrefixDefault = "fedora-toolbox"
+	ContainerNameDefault string
 )
 
 func init() {
@@ -124,14 +125,14 @@ func init() {
 		if distroObj, supportedDistro := supportedDistros[hostID]; supportedDistro {
 			release, err := GetHostVersionID()
 			if err == nil {
-				ContainerNamePrefixDefault = distroObj.ContainerNamePrefix
+				containerNamePrefixDefault = distroObj.ContainerNamePrefix
 				distroDefault = hostID
 				releaseDefault = release
 			}
 		}
 	}
 
-	ContainerNameDefault = ContainerNamePrefixDefault + "-" + releaseDefault
+	ContainerNameDefault = containerNamePrefixDefault + "-" + releaseDefault
 }
 
 func AskForConfirmation(prompt string) bool {
