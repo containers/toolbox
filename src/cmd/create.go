@@ -178,7 +178,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		panic("release not specified")
 	}
 
-	enterCommand := getEnterCommand(container, release)
+	enterCommand := getEnterCommand(container)
 
 	logrus.Debugf("Checking if container %s already exists", container)
 
@@ -503,15 +503,12 @@ func getDBusSystemSocket() (string, error) {
 	return pathEvaled, nil
 }
 
-func getEnterCommand(container, release string) string {
+func getEnterCommand(container string) string {
 	var enterCommand string
-	containerNamePrefixDefaultWithRelease := utils.ContainerNamePrefixDefault + "-" + release
 
 	switch container {
 	case utils.ContainerNameDefault:
 		enterCommand = fmt.Sprintf("%s enter", executableBase)
-	case containerNamePrefixDefaultWithRelease:
-		enterCommand = fmt.Sprintf("%s enter --release %s", executableBase, release)
 	default:
 		enterCommand = fmt.Sprintf("%s enter %s", executableBase, container)
 	}
