@@ -8,8 +8,7 @@ readonly TOOLBOX=${TOOLBOX:-toolbox}
 readonly SKOPEO=$(command -v skopeo)
 
 # Helpful globals
-readonly PROJECT_DIR=${PWD}
-readonly IMAGE_CACHE_DIR="${PROJECT_DIR}/image-cache"
+readonly IMAGE_CACHE_DIR="${BATS_RUN_TMPDIR}/image-cache"
 
 # Images
 declare -Ag IMAGES=([busybox]="docker.io/library/busybox" \
