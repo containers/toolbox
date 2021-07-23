@@ -716,7 +716,13 @@ func pullImage(image, release string) (bool, error) {
 	}
 
 	if err := podman.Pull(imageFull); err != nil {
-		return false, fmt.Errorf("failed to pull image %s", imageFull)
+		var builder strings.Builder
+		fmt.Fprintf(&builder, "failed to pull image %s\n", imageFull)
+		fmt.Fprintf(&builder, "If it was a private image, log in with: podman login %s\n", domain)
+		fmt.Fprintf(&builder, "Use '%s --verbose ...' for further details.", executableBase)
+
+		errMsg := builder.String()
+		return false, errors.New(errMsg)
 	}
 
 	return true, nil
