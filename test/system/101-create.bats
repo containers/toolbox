@@ -69,3 +69,12 @@ teardown() {
 
   assert_output --regexp "Created[[:blank:]]+fedora-toolbox-32"
 }
+
+@test "create: Try to create a container based on non-existent image" {
+  run $TOOLBOX -y create -i foo.org/bar
+
+  assert_failure
+  assert_line --index 0 "Error: failed to pull image foo.org/bar"
+  assert_line --index 1 "If it was a private image, log in with: podman login foo.org"
+  assert_line --index 2 "Use 'toolbox --verbose ...' for further details."
+}
