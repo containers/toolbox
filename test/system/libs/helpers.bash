@@ -8,7 +8,12 @@ readonly TOOLBOX=${TOOLBOX:-toolbox}
 readonly SKOPEO=$(command -v skopeo)
 
 # Helpful globals
+readonly RUNTIME_DIR="${XDG_RUNTIME_DIR:-"/run"}/toolbox/system-tests"
 readonly IMAGE_CACHE_DIR="${BATS_RUN_TMPDIR}/image-cache"
+readonly TEST_HOME_DIR="${RUNTIME_DIR}/home"
+
+readonly SYSTEM_CONFIG="/etc/containers/toolbox.conf"
+readonly USER_CONFIG="~/.config/containers/toolbox.conf"
 
 # Images
 declare -Ag IMAGES=([busybox]="docker.io/library/busybox" \
@@ -23,6 +28,28 @@ function cleanup_all() {
 
 function cleanup_containers() {
   $PODMAN rm --all --force >/dev/null
+}
+
+
+# Backups writable configuration files
+function setup_config_files() {
+  if [ ${TOOLBOX_TESTS_SYSTEM_CONFIG} -eq 1 ]; then
+    if ! _is_system_config_writable; then
+      echo "System config file is not writable. Tests configuring system config file will fail."
+      return 1
+    fi
+
+    rm ${SYSTEM_CONFIG}
+  fi
+
+  export HOME=${TEST_HOME_DIR}
+
+  if ! _is_user_config_writable; then
+    echo "User config file is not writable. Tests configuring user config file will fail."
+    return 1
+  fi
+
+  rm ${USER_CONFIG}
 }
 
 
@@ -93,6 +120,41 @@ function _pull_and_cache_distro_image() {
 # Removes the folder with cached images
 function _clean_cached_images() {
   rm -rf ${IMAGE_CACHE_DIR}
+}
+
+
+function _is_system_config_writable() {
+  is_path_writable "$SYSTEM_CONFIG"
+  return $?
+}
+
+
+function _is_user_config_writable() {
+  is_path_writable "$USER_CONFIG"
+  return $?
+}
+
+
+# Restores writable configuration files
+function _restore_toolbox_configs() {
+  if _is_system_config_writable; then
+    mv $BACKUP_SYSTEM_CONFIG $SYSTEM_CONFIG
+  fi
+
+  if _is_user_config_writable; then
+    mv $BACKUP_USER_CONFIG $USER_CONFIG
+  fi
+}
+
+
+function _setup_runtime_dir() {
+  local user_id=$(id -u)
+
+  if [ -z "${XDG_RUNTIME_DIR}" ] && [ "${user_id}" -ne 0 ]; then
+    echo "XDG_RUNTIME_DIR is not set and the user is not root. Runtime dir ${RUNTIME_DIR} will probably be inaccessible."
+  fi
+
+  mkdir -p "${RUNTIME_DIR}"
 }
 
 
@@ -270,3 +332,41 @@ function get_system_version() {
 
     echo $(awk -F= '/VERSION_ID/ {print $2}' $os_release | head -n 1)
 }
+
+
+# Checks if path is writable
+#
+# Parameters:
+# ===========
+# - path - the checked location
+function is_path_writable() {
+  local path="$1"
+
+  if [ -w "$path" ]; then
+    return 0
+  fi
+
+  if ! [ -f "$path" ]; then
+    if ! mkdir -p $(dirname "$path"); then
+      echo "Failed to create directory $(dirname "$path")"
+      return 1
+    fi
+
+    if ! touch "$path"; then
+      echo "Failed to create file $path"
+      return 1
+    fi
+
+    rm "$path"
+    return 0
+  fi
+
+  return 1
+}
+
+function skip_if_system_config_disabled() {
+  if [ "${TOOLBOX_TESTS_SYSTEM_CONFIG}" -eq 0 ]; then
+    skip "Tests relying on system-wide config file are disabled"
+  fi
+}
+
