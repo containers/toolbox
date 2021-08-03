@@ -270,3 +270,11 @@ function get_system_version() {
 
     echo $(awk -F= '/VERSION_ID/ {print $2}' $os_release | head -n 1)
 }
+
+
+# Setup the XDG_RUNTIME_DIR variable if not set
+function check_xdg_runtime_dir() {
+    if [[ -z "${XDG_RUNTIME_DIR}" ]]; then
+        export XDG_RUNTIME_DIR="/run/user/${UID}"
+    fi
+}

@@ -4,6 +4,10 @@ load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers.bash'
 
+setup() {
+  check_xdg_runtime_dir
+}
+
 @test "help: Run command 'help'" {
   run $TOOLBOX help
 
