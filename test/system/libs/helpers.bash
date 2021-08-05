@@ -11,7 +11,7 @@ readonly SKOPEO=$(command -v skopeo)
 readonly IMAGE_CACHE_DIR="${BATS_RUN_TMPDIR}/image-cache"
 
 # Images
-declare -Ag IMAGES=([busybox]="docker.io/library/busybox" \
+declare -Ag IMAGES=([busybox]="quay.io/toolbox_tests/busybox" \
                    [fedora]="registry.fedoraproject.org/fedora-toolbox" \
                    [rhel]="registry.access.redhat.com/ubi8")
 
