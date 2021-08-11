@@ -1,0 +1,19 @@
+FROM docker.io/library/archlinux:base-devel
+
+LABEL com.github.containers.toolbox="true" \
+      name="arch-toolbox" \
+      version="base-devel" \
+      usage="This image is meant to be used with the toolbox command" \
+      summary="Base image for creating Arch Linux toolbox containers" \
+      maintainer="Morten Linderud <foxboron@archlinux.org>"
+
+# Install extra packages
+COPY extra-packages /
+RUN pacman -Syu --needed --noconfirm - < extra-packages
+RUN rm /extra-packages
+
+# Clean up cache
+RUN pacman -Scc --noconfirm
+
+# Enable sudo permission for wheel users
+RUN echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/toolbox
