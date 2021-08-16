@@ -27,6 +27,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/containers/toolbox/pkg/i18n"
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/containers/toolbox/pkg/version"
@@ -45,7 +46,7 @@ var (
 
 	rootCmd = &cobra.Command{
 		Use:               "toolbox",
-		Short:             "Tool for containerized command line environments on Linux",
+		Short:             i18n.T("Tool for containerized command line environments on Linux"),
 		PersistentPreRunE: preRun,
 		RunE:              rootRun,
 		Version:           version.GetVersion(),
@@ -337,6 +338,10 @@ func setUpGlobals() error {
 	workingDirectory, err = os.Getwd()
 	if err != nil {
 		return fmt.Errorf("failed to get the working directory: %w", err)
+	}
+
+	if err := i18n.LoadTranslations("toolbox"); err != nil {
+		return fmt.Errorf("failed to load translations: %w", err)
 	}
 
 	return nil

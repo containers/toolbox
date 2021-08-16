@@ -1,6 +1,6 @@
 module github.com/containers/toolbox
 
-go 1.13
+go 1.16
 
 require (
 	github.com/HarryMichal/go-version v1.0.1

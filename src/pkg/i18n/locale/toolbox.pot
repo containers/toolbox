@@ -1,0 +1,56 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid   ""
+msgstr  "Project-Id-Version: \n"
+        "Report-Msgid-Bugs-To: EMAIL\n"
+        "POT-Creation-Date: 2021-08-16 08:23+0530\n"
+        "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+        "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+        "Language-Team: LANGUAGE <LL@li.org>\n"
+        "Language: \n"
+        "MIME-Version: 1.0\n"
+        "Content-Type: text/plain; charset=CHARSET\n"
+        "Content-Transfer-Encoding: 8bit\n"
+
+#: cmd/rm.go:88
+msgid   "missing argument for \"rm\"\n"
+msgstr  ""
+
+#: cmd/rm.go:89 cmd/rmi.go:89 cmd/run.go:121
+#, c-format
+msgid   "Run '%s --help' for usage."
+msgstr  ""
+
+#: cmd/rmi.go:88
+msgid   "missing argument for \"rmi\"\n"
+msgstr  ""
+
+#: cmd/run.go:202
+msgid   "A container can be created later with the 'create' command.\n"
+msgstr  ""
+
+#: cmd/run.go:203
+#, c-format
+msgid   "Run '%s --help' for usage.\n"
+msgstr  ""
+
+#: cmd/create.go:697
+msgid   "Image required to create toolbox container."
+msgstr  ""
+
+#: cmd/root.go:49
+msgid   "Tool for containerized command line environments on Linux"
+msgstr  ""
+
+#: cmd/run.go:120
+msgid   "missing argument for \"run\"\n"
+msgstr  ""
+
+#: cmd/run.go:197
+msgid   "No toolbox containers found. Create now? [y/N]"
+msgstr  ""
+

@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
+	"github.com/containers/toolbox/pkg/i18n"
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
@@ -695,7 +696,7 @@ func pullImage(image, release string) (bool, error) {
 	}
 
 	if promptForDownload {
-		fmt.Println("Image required to create toolbox container.")
+		fmt.Println(i18n.T("Image required to create toolbox container."))
 
 		prompt := fmt.Sprintf("Download %s (500MB)? [y/N]:", imageFull)
 		shouldPullImage = askForConfirmation(prompt)
