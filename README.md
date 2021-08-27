@@ -81,11 +81,12 @@ The following dependencies are required to build it:
 The following dependencies enable various optional features:
 - bash-completion
 
-It can be built and installed as any other typical Meson-based project:
+It can be built, installed and uninstalled as any other typical Meson-based project:
 ```console
 [user@hostname toolbox]$ meson -Dprofile_dir=/etc/profile.d builddir
 [user@hostname toolbox]$ ninja -C builddir
 [user@hostname toolbox]$ sudo ninja -C builddir install
+[user@hostname toolbox]$ sudo ninja -C builddir uninstall
 ```
 
 Toolbox is written in Go. Consult the
