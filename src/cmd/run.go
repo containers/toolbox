@@ -363,7 +363,13 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 				}
 			}
 		default:
-			return nil
+			var newerr error
+			if err != nil {
+				newerr = fmt.Errorf("failed to invoke command %s in container %s (Exit code: %d): %s", command[0], container, exitCode, err)
+			} else {
+				newerr = fmt.Errorf("failed to invoke command %s in container %s (Exit code: %d)", command[0], container, exitCode)
+			}
+			return newerr
 		}
 	}
 
