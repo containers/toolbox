@@ -61,8 +61,29 @@ var (
 	workingDirectory string
 )
 
+type exitError struct {
+	Code int
+	err  error
+}
+
+func (e *exitError) Error() string {
+	if e.err != nil {
+		return e.err.Error()
+	} else {
+		return ""
+	}
+}
+
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
+		var errExit *exitError
+		if errors.As(err, &errExit) {
+			if errExit.err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %s\n", errExit)
+			}
+			os.Exit(errExit.Code)
+		}
+
 		os.Exit(1)
 	}
 
