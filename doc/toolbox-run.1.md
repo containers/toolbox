@@ -42,6 +42,41 @@ matches the host system.
 Run command inside a toolbox container for a different operating system
 RELEASE than the host.
 
+## EXIT STATUS
+
+The exit code gives information about why the command within the container
+failed to run or why it exited.
+
+**1** There was an internal error in Toolbox
+
+**125** There was an internal error in Podman
+
+**126** The run command could not be invoked
+
+```
+$ toolbox run /etc; echo $?
+/bin/sh: line 1: /etc: Is a directory
+/bin/sh: line 1: exec: /etc: cannot execute: Is a directory
+Error: failed to invoke command /etc in container fedora-toolbox-35
+126
+```
+
+**127** The run command cannot be found or the working directory does not exist
+
+```
+$ toolbox run foo; echo $?
+/bin/sh: line 1: exec: foo: not found
+Error: command foo not found in container fedora-toolbox-35
+127
+```
+
+**Exit code** The run command exit code
+
+```
+$ toolbox run false; echo $?
+1
+```
+
 ## EXAMPLES
 
 ### Run ls inside a toolbox container using the default image matching the host OS

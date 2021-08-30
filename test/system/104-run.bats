@@ -121,3 +121,48 @@ teardown() {
   assert_success
   assert_output --partial "uid=0(root)"
 }
+
+@test "run: Run command exiting with zero code in the default container" {
+  create_default_container
+
+  run $TOOLBOX run /bin/sh -c 'exit 0'
+
+  assert_success
+  assert_output ""
+}
+
+@test "run: Run command exiting with non-zero code in the default container" {
+  create_default_container
+
+  run $TOOLBOX run /bin/sh -c 'exit 2'
+  assert_failure
+  assert [ $status -eq 2 ]
+  assert_output ""
+}
+
+@test "run: Try to run non-existent command in the default container" {
+  local cmd="non-existent-command"
+
+  create_default_container
+
+  run $TOOLBOX run $cmd
+
+  assert_failure
+  assert [ $status -eq 127 ]
+  assert_line --index 0 "/bin/sh: line 1: exec: $cmd: not found"
+  assert_line --index 1 "Error: command $cmd not found in container $(get_latest_container_name)"
+  assert [ ${#lines[@]} -eq 2 ]
+}
+
+@test "run: Try to run /etc as a command in the deault container" {
+  create_default_container
+
+  run $TOOLBOX run /etc
+
+  assert_failure
+  assert [ $status -eq 126 ]
+  assert_line --index 0 "/bin/sh: line 1: /etc: Is a directory"
+  assert_line --index 1 "/bin/sh: line 1: exec: /etc: cannot execute: Is a directory"
+  assert_line --index 2 "Error: failed to invoke command /etc in container $(get_latest_container_name)"
+  assert [ ${#lines[@]} -eq 3 ]
+}

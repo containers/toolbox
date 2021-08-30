@@ -159,6 +159,15 @@ func run(cmd *cobra.Command, args []string) error {
 		false,
 		false,
 		true); err != nil {
+		// runCommand returns exitError for the executed commands to properly
+		// propagate return codes. Cobra prints all non-nil errors which in
+		// that case is not desirable. In that scenario silence the errors and
+		// leave the error handling to the root command.
+		var errExit *exitError
+		if errors.As(err, &errExit) {
+			cmd.SilenceErrors = true
+		}
+
 		return err
 	}
 
@@ -338,9 +347,9 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 			}
 			return nil
 		case 125:
-			return fmt.Errorf("failed to invoke 'podman exec' in container %s", container)
+			return &exitError{exitCode, fmt.Errorf("failed to invoke 'podman exec' in container %s", container)}
 		case 126:
-			return fmt.Errorf("failed to invoke command %s in container %s", command[0], container)
+			return &exitError{exitCode, fmt.Errorf("failed to invoke command %s in container %s", command[0], container)}
 		case 127:
 			if pathPresent, _ := isPathPresent(container, workDir); !pathPresent {
 				if runFallbackWorkDirsIndex < len(runFallbackWorkDirs) {
@@ -357,7 +366,7 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 					fmt.Fprintf(os.Stderr, "Using %s instead.\n", workDir)
 					runFallbackWorkDirsIndex++
 				} else {
-					return fmt.Errorf("directory %s not found in container %s", workDir, container)
+					return &exitError{exitCode, fmt.Errorf("directory %s not found in container %s", workDir, container)}
 				}
 			} else if _, err := isCommandPresent(container, command[0]); err != nil {
 				if fallbackToBash && runFallbackCommandsIndex < len(runFallbackCommands) {
@@ -371,13 +380,13 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 
 					runFallbackCommandsIndex++
 				} else {
-					return fmt.Errorf("command %s not found in container %s", command[0], container)
+					return &exitError{exitCode, fmt.Errorf("command %s not found in container %s", command[0], container)}
 				}
 			} else {
 				return nil
 			}
 		default:
-			return nil
+			return &exitError{exitCode, nil}
 		}
 	}
 }

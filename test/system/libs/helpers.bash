@@ -391,6 +391,12 @@ function stop_container() {
 }
 
 
+# Returns the name of the latest created container
+function get_latest_container_name() {
+  $PODMAN ps -l --format "{{ .Names }}"
+}
+
+
 function list_images() {
   $PODMAN images --all --quiet | wc -l
 }
