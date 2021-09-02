@@ -130,6 +130,10 @@ func preRun(cmd *cobra.Command, args []string) error {
 
 	if toolboxPath == "" {
 		if utils.IsInsideContainer() {
+			if err := preRunIsCoreOSBug(); err != nil {
+				return err
+			}
+
 			return errors.New("TOOLBOX_PATH not set")
 		}
 

@@ -27,6 +27,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func preRunIsCoreOSBug() error {
+	return nil
+}
+
 func rootRunImpl(cmd *cobra.Command, args []string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "missing command\n")

@@ -23,10 +23,25 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/spf13/cobra"
 )
+
+func preRunIsCoreOSBug() error {
+	if containerType := os.Getenv("container"); containerType == "" {
+		var builder strings.Builder
+		fmt.Fprintf(&builder, "/run/.containerenv found on what looks like the host\n")
+		fmt.Fprintf(&builder, "If this is the host, then remove /run/.containerenv and try again.\n")
+		fmt.Fprintf(&builder, "Otherwise, contact your system administrator or file a bug.")
+
+		errMsg := builder.String()
+		return errors.New(errMsg)
+	}
+
+	return nil
+}
 
 func rootRunImpl(cmd *cobra.Command, args []string) error {
 	if len(args) != 0 {
