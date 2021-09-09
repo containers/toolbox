@@ -343,7 +343,7 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 				} else {
 					return fmt.Errorf("directory %s not found in container %s", workDir, container)
 				}
-			} else {
+			} else if _, err := isCommandPresent(container, command[0]); err != nil {
 				if fallbackToBash && runFallbackCommandsIndex < len(runFallbackCommands) {
 					fmt.Fprintf(os.Stderr,
 						"Error: command %s not found in container %s\n",
@@ -357,6 +357,8 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 				} else {
 					return fmt.Errorf("command %s not found in container %s", command[0], container)
 				}
+			} else {
+				return nil
 			}
 		default:
 			return nil
@@ -487,6 +489,25 @@ func getEntryPointAndPID(container string) (string, int, error) {
 	logrus.Debugf("Entry point of container %s is %s (PID=%d)", container, entryPoint, entryPointPIDInt)
 
 	return entryPoint, entryPointPIDInt, nil
+}
+
+func isCommandPresent(container, command string) (bool, error) {
+	logrus.Debugf("Looking for command %s in container %s", command, container)
+
+	logLevelString := podman.LogLevel.String()
+	args := []string{
+		"--log-level", logLevelString,
+		"exec",
+		"--user", currentUser.Username,
+		container,
+		"sh", "-c", "command -v \"$1\"", "sh", command,
+	}
+
+	if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func isPathPresent(container, path string) (bool, error) {
