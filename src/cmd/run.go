@@ -322,11 +322,9 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 			}
 			return nil
 		case 125:
-			err = fmt.Errorf("failed to invoke 'podman exec' in container %s", container)
-			return err
+			return fmt.Errorf("failed to invoke 'podman exec' in container %s", container)
 		case 126:
-			err = fmt.Errorf("failed to invoke command %s in container %s", command[0], container)
-			return err
+			return fmt.Errorf("failed to invoke command %s in container %s", command[0], container)
 		case 127:
 			if pathPresent, _ := isPathPresent(container, workDir); !pathPresent {
 				if runFallbackWorkDirsIndex < len(runFallbackWorkDirs) {
@@ -343,8 +341,7 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 					fmt.Fprintf(os.Stderr, "Using %s instead.\n", workDir)
 					runFallbackWorkDirsIndex++
 				} else {
-					err = fmt.Errorf("directory %s not found in container %s", workDir, container)
-					return err
+					return fmt.Errorf("directory %s not found in container %s", workDir, container)
 				}
 			} else {
 				if fallbackToBash && runFallbackCommandsIndex < len(runFallbackCommands) {
@@ -358,8 +355,7 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 
 					runFallbackCommandsIndex++
 				} else {
-					err = fmt.Errorf("command %s not found in container %s", command[0], container)
-					return err
+					return fmt.Errorf("command %s not found in container %s", command[0], container)
 				}
 			}
 		default:
