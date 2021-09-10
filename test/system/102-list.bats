@@ -29,7 +29,7 @@ teardown() {
 }
 
 @test "list: Run 'list -i' with zero images (the list should be empty)" {
-  run $TOOLBOX list -c
+  run $TOOLBOX list -i
 
   assert_success
   assert_output ""
