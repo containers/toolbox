@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2022 Red Hat Inc.
+ * Copyright © 2019 – 2023 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -284,6 +284,8 @@ func runCommand(container string,
 	}
 
 	logrus.Debugf("Container %s is initialized", container)
+
+	defer stopContainer(container)
 
 	if err := runCommandWithFallbacks(container,
 		preserveFDs,
@@ -650,4 +652,11 @@ func startContainer(container string) error {
 	}
 
 	return nil
+}
+
+func stopContainer(container string) {
+	logrus.Debugf("Stopping container %s", container)
+	if err := podman.Stop(container); err != nil {
+		logrus.Debugf("Stopping container %s failed: %s", container, err)
+	}
 }
