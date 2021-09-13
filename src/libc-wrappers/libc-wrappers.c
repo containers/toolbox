@@ -18,6 +18,11 @@
 #include <signal.h>
 
 
+/*
+ * pthread_sigmask < GLIBC_2.32
+ */
+
+
 #if defined __aarch64__
 __asm__(".symver pthread_sigmask,pthread_sigmask@GLIBC_2.17");
 #elif defined __arm__
