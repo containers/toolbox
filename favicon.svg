@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="16"
+   height="16"
+   version="1.1"
+   id="svg14"
+   sodipodi:docname="favicon.svg"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   inkscape:export-filename="/var/home/jimmac/src/git/gnome/toolbox/favicon.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs18" />
+  <sodipodi:namedview
+     id="namedview16"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     showgrid="false"
+     inkscape:current-layer="g12">
+    <inkscape:grid
+       type="xygrid"
+       id="grid20" />
+  </sodipodi:namedview>
+  <g
+     transform="translate(380 -506.52)"
+     id="g12">
+    <rect
+       ry="16.875"
+       rx="16.875"
+       y="2409.281"
+       x="4128.568"
+       height="90"
+       width="90"
+       fill="#201a26"
+       transform="matrix(.17778 0 0 .17778 -1113.968 78.203)"
+       stroke-width="5.625"
+       id="rect2"
+       style="fill:#613583;fill-opacity:1" />
+    <path
+       id="path1013"
+       d="m -372.02133,507.5742 -6.01789,3.49784 0.0134,4.56745 2.03684,-1.10975 c 0.004,-2.20028 1.78716,-3.98313 3.9881,-3.98313 0.67785,2.6e-4 1.34438,0.17369 1.93666,0.50331 l -3.08307,1.8287 0.009,2.32721 2.01896,1.15773 3.1085,-1.84366 c 1.8e-4,0.005 2.3e-4,0.01 2.3e-4,0.015 0,2.20263 -1.7856,3.98824 -3.98822,3.98824 -0.57237,0 -1.11613,-0.12148 -1.60817,-0.33861 l -2.1257,1.15807 3.75418,2.15295 6.01789,-3.49786 -0.02,-6.96067 z"
+       style="vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.44734;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;marker-start:none;marker-mid:none;marker-end:none;paint-order:normal;enable-background:new"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>

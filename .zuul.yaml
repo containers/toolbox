@@ -1,0 +1,62 @@
+---
+- job:
+    name: unit-test
+    description: Run Toolbox's unit tests declared in Meson
+    timeout: 300
+    nodeset:
+      nodes:
+        - name: ci-node-33
+          label: cloud-fedora-33-small
+    run: playbooks/unit-test.yaml
+
+- job:
+    name: system-test-fedora-33
+    description: Run Toolbox's system tests in Fedora 33
+    timeout: 1200
+    nodeset:
+      nodes:
+        - name: ci-node-33
+          label: cloud-fedora-33-small
+    pre-run: playbooks/setup-env.yaml
+    run: playbooks/system-test.yaml
+
+- job:
+    name: system-test-fedora-34
+    description: Run Toolbox's system tests in Fedora 34
+    timeout: 1200
+    nodeset:
+      nodes:
+        - name: ci-node-34
+          label: cloud-fedora-34-small
+    pre-run: playbooks/setup-env.yaml
+    run: playbooks/system-test.yaml
+
+- job:
+    name: system-test-fedora-rawhide
+    description: Run Toolbox's system tests in Fedora Rawhide
+    timeout: 1200
+    nodeset:
+      nodes:
+        - name: ci-node-rawhide
+          label: cloud-fedora-rawhide-small
+    pre-run: playbooks/setup-env.yaml
+    run: playbooks/system-test.yaml
+
+- project:
+    periodic:
+      jobs:
+        - system-test-fedora-33
+        - system-test-fedora-34
+        - system-test-fedora-rawhide
+    check:
+      jobs:
+        - unit-test
+        - system-test-fedora-33
+        - system-test-fedora-34
+        - system-test-fedora-rawhide
+    gate:
+      jobs:
+        - unit-test
+        - system-test-fedora-33
+        - system-test-fedora-34
+        - system-test-fedora-rawhide

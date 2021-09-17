@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   sodipodi:docname="card.svg"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   id="svg10448"
+   version="1.1"
+   viewBox="0 0 158.75 105.83334"
+   height="400.00003"
+   width="600"
+   inkscape:export-filename="/home/jimmac/src/git/gnome/toolbox/assets/card.png"
+   inkscape:export-xdpi="192"
+   inkscape:export-ydpi="192"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs10442">
+    <filter
+       id="filter62647-5-1-29"
+       inkscape:label="Better Shadow"
+       style="color-interpolation-filters:sRGB"
+       x="-0.14328897"
+       y="-0.089033969"
+       width="1.286578"
+       height="1.3395338">
+      <feFlood
+         id="feFlood62637-04-2-75"
+         result="flood"
+         flood-color="rgb(0,0,0)"
+         flood-opacity="0.180392" />
+      <feComposite
+         id="feComposite62639-87-2-64"
+         result="composite1"
+         operator="in"
+         in2="SourceGraphic"
+         in="flood" />
+      <feGaussianBlur
+         id="feGaussianBlur62641-1-7-63"
+         result="blur"
+         stdDeviation="7"
+         in="composite1" />
+      <feOffset
+         id="feOffset62643-7-7-7"
+         result="offset"
+         dy="6"
+         dx="0" />
+      <feComposite
+         id="feComposite62645-2-9-9"
+         result="fbSourceGraphic"
+         operator="over"
+         in2="offset"
+         in="SourceGraphic" />
+      <feColorMatrix
+         id="feColorMatrix62793-7-1-7"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         in="fbSourceGraphic"
+         result="fbSourceGraphicAlpha" />
+      <feFlood
+         in="fbSourceGraphic"
+         result="flood"
+         flood-color="rgb(0,0,0)"
+         flood-opacity="0.34902"
+         id="feFlood62795-2-4-49" />
+      <feComposite
+         result="composite1"
+         operator="in"
+         in="flood"
+         id="feComposite62797-26-04-17"
+         in2="fbSourceGraphic" />
+      <feGaussianBlur
+         result="blur"
+         stdDeviation="3.5"
+         in="composite1"
+         id="feGaussianBlur62799-1-7-0" />
+      <feOffset
+         result="offset"
+         dy="3"
+         dx="0"
+         id="feOffset62801-06-8-6" />
+      <feComposite
+         result="composite2"
+         operator="over"
+         in="fbSourceGraphic"
+         id="feComposite62803-1-7-0"
+         in2="offset" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     inkscape:snap-bbox-midpoints="true"
+     inkscape:snap-bbox-edge-midpoints="true"
+     inkscape:bbox-nodes="true"
+     inkscape:bbox-paths="true"
+     inkscape:snap-bbox="true"
+     inkscape:window-maximized="1"
+     inkscape:window-y="0"
+     inkscape:window-x="0"
+     inkscape:window-height="1016"
+     inkscape:window-width="1920"
+     units="px"
+     showgrid="false"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="px"
+     inkscape:cy="153.7187"
+     inkscape:cx="407.73045"
+     inkscape:zoom="1"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     inkscape:snap-page="true"
+     inkscape:snap-text-baseline="true"
+     inkscape:snap-center="true"
+     inkscape:snap-object-midpoints="true"
+     inkscape:pagecheckerboard="1">
+    <inkscape:grid
+       originy="1.2031857e-13"
+       originx="0"
+       id="grid11077"
+       type="xygrid" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata10445">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(-459.7283,604.72058)"
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <rect
+       y="-604.72058"
+       x="459.7283"
+       height="105.83334"
+       width="158.75"
+       id="rect965"
+       style="fill:#613583;fill-opacity:1;stroke:none;stroke-width:0.26458597;stroke-linecap:butt;stroke-linejoin:miter;font-variation-settings:normal;opacity:1;vector-effect:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1"
+       inkscape:export-xdpi="192"
+       inkscape:export-ydpi="192" />
+    <text
+       id="text977"
+       y="-642.84528"
+       x="539.16895"
+       style="font-style:normal;font-variant:normal;font-weight:800;font-stretch:normal;font-size:5.64444px;line-height:0%;font-family:Cantarell;-inkscape-font-specification:'Cantarell Ultra-Bold';text-align:center;letter-spacing:-0.105833px;word-spacing:0px;text-anchor:middle;display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         id="tspan973"
+         y="-642.84528"
+         x="539.16895"
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:Cantarell;-inkscape-font-specification:'Cantarell Ultra-Bold';text-align:center;text-anchor:middle;fill:#ffffff;stroke-width:0.264583">Try the lastest and greatest GNOME software</tspan><tspan
+         id="tspan975"
+         y="-635.78973"
+         x="539.11603"
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:Cantarell;-inkscape-font-specification:'Cantarell Ultra-Bold';text-align:center;text-anchor:middle;fill:#ffffff;stroke-width:0.264583">in a VM or on real hardware</tspan></text>
+    <g
+       id="g1369"
+       transform="translate(0.27289279,6.1960894)">
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12.7px;line-height:0%;font-family:Heebo;-inkscape-font-specification:'Heebo, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;letter-spacing:-0.105833px;word-spacing:0px;text-anchor:middle;display:inline;fill:#dc8add;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="538.83661"
+         y="-538.95154"
+         id="text971"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12.7px;line-height:1.25;font-family:Heebo;-inkscape-font-specification:'Heebo, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;text-anchor:middle;fill:#dc8add;stroke-width:0.264583;fill-opacity:1"
+           sodipodi:role="line"
+           id="tspan969"
+           x="538.78369"
+           y="-538.95154">toolbox</tspan></text>
+      <g
+         id="g1053"
+         transform="matrix(0.26458333,0,0,0.26458333,517.00735,-590.571)">
+        <path
+           id="path1013"
+           d="m 89.879087,50.640063 -34.028851,19.778938 0.07577,25.827172 11.517546,-6.275209 c 0.02262,-12.441737 10.105704,-22.523067 22.551172,-22.523067 3.832981,0.0015 7.601951,0.98215 10.951066,2.846024 l -17.433573,10.340595 0.05089,13.159476 11.416442,6.546518 17.577361,-10.425188 c 0.001,0.02827 0.001,0.05655 0.001,0.08482 0,12.455028 -10.09688,22.551968 -22.55184,22.551968 -3.236532,0 -6.311285,-0.68693 -9.093582,-1.91471 l -12.020013,6.54844 21.228443,12.1741 34.028842,-19.77905 -0.11309,-39.359913 z"
+           style="vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:8.18415;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;marker-start:none;marker-mid:none;marker-end:none;paint-order:normal;enable-background:new"
+           inkscape:connector-curvature="0" />
+      </g>
+    </g>
+  </g>
+</svg>

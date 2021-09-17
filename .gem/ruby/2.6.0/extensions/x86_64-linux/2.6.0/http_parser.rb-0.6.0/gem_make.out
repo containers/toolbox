@@ -1,0 +1,51 @@
+current directory: /var/work/src/git/gnome/toolbox/.gem/ruby/2.6.0/gems/http_parser.rb-0.6.0/ext/ruby_http_parser
+/var/home/jimmac/.rvm/rubies/ruby-2.6.0/bin/ruby -I /var/home/jimmac/.rvm/rubies/ruby-2.6.0/lib/ruby/site_ruby/2.6.0 -r ./siteconf20210917-512582-yj0roh.rb extconf.rb
+creating Makefile
+
+current directory: /var/work/src/git/gnome/toolbox/.gem/ruby/2.6.0/gems/http_parser.rb-0.6.0/ext/ruby_http_parser
+make "DESTDIR=" clean
+
+current directory: /var/work/src/git/gnome/toolbox/.gem/ruby/2.6.0/gems/http_parser.rb-0.6.0/ext/ruby_http_parser
+make "DESTDIR="
+compiling ruby_http_parser.c
+ruby_http_parser.c: In function ‘on_message_begin’:
+ruby_http_parser.c:108:3: warning: ISO C90 forbids mixed declarations and code [-Wdeclaration-after-statement]
+  108 |   VALUE ret = Qnil;
+      |   ^~~~~
+ruby_http_parser.c: In function ‘on_header_value’:
+ruby_http_parser.c:146:3: warning: ISO C90 forbids mixed declarations and code [-Wdeclaration-after-statement]
+  146 |   int new_field = 0;
+      |   ^~~
+ruby_http_parser.c: In function ‘on_headers_complete’:
+ruby_http_parser.c:192:3: warning: ISO C90 forbids mixed declarations and code [-Wdeclaration-after-statement]
+  192 |   VALUE ret = Qnil;
+      |   ^~~~~
+ruby_http_parser.c: In function ‘on_body’:
+ruby_http_parser.c:213:3: warning: ISO C90 forbids mixed declarations and code [-Wdeclaration-after-statement]
+  213 |   VALUE ret = Qnil;
+      |   ^~~~~
+ruby_http_parser.c: In function ‘on_message_complete’:
+ruby_http_parser.c:232:3: warning: ISO C90 forbids mixed declarations and code [-Wdeclaration-after-statement]
+  232 |   VALUE ret = Qnil;
+      |   ^~~~~
+ruby_http_parser.c: In function ‘Parser_execute’:
+ruby_http_parser.c:314:3: warning: ISO C90 forbids mixed declarations and code [-Wdeclaration-after-statement]
+  314 |   char *ptr = RSTRING_PTR(data);
+      |   ^~~~
+ruby_http_parser.c:320:3: warning: ISO C90 forbids mixed declarations and code [-Wdeclaration-after-statement]
+  320 |   size_t nparsed = ryah_http_parser_execute(&wrapper->parser, &settings, ptr, len);
+      |   ^~~~~~
+ruby_http_parser.c: In function ‘Parser_set_header_value_type’:
+ruby_http_parser.c:451:3: warning: ISO C90 forbids mixed declarations and code [-Wdeclaration-after-statement]
+  451 |   ParserWrapper *wrapper = NULL;
+      |   ^~~~~~~~~~~~~
+ruby_http_parser.c: At top level:
+cc1: note: unrecognized command-line option ‘-Wno-self-assign’ may have been intended to silence earlier diagnostics
+cc1: note: unrecognized command-line option ‘-Wno-parentheses-equality’ may have been intended to silence earlier diagnostics
+cc1: note: unrecognized command-line option ‘-Wno-constant-logical-operand’ may have been intended to silence earlier diagnostics
+compiling ryah_http_parser.c
+linking shared-object ruby_http_parser.so
+
+current directory: /var/work/src/git/gnome/toolbox/.gem/ruby/2.6.0/gems/http_parser.rb-0.6.0/ext/ruby_http_parser
+make "DESTDIR=" install
+/var/home/jimmac/bin/install -c -m 0755 ruby_http_parser.so ./.gem.20210917-512582-1y8ru7q

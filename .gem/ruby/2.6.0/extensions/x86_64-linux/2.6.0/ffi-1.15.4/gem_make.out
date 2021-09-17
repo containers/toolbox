@@ -1,0 +1,43 @@
+current directory: /var/work/src/git/gnome/toolbox/.gem/ruby/2.6.0/gems/ffi-1.15.4/ext/ffi_c
+/var/home/jimmac/.rvm/rubies/ruby-2.6.0/bin/ruby -I /var/home/jimmac/.rvm/rubies/ruby-2.6.0/lib/ruby/site_ruby/2.6.0 -r ./siteconf20210917-513325-6jd5aa.rb extconf.rb
+checking for ffi_prep_closure_loc() in -lffi... yes
+checking for ffi_prep_cif_var()... yes
+checking for ffi_raw_call()... yes
+checking for ffi_prep_raw_closure()... yes
+checking for whether -pthread is accepted as LDFLAGS... yes
+creating extconf.h
+creating Makefile
+
+current directory: /var/work/src/git/gnome/toolbox/.gem/ruby/2.6.0/gems/ffi-1.15.4/ext/ffi_c
+make "DESTDIR=" clean
+
+current directory: /var/work/src/git/gnome/toolbox/.gem/ruby/2.6.0/gems/ffi-1.15.4/ext/ffi_c
+make "DESTDIR="
+compiling AbstractMemory.c
+compiling ArrayType.c
+compiling Buffer.c
+compiling Call.c
+compiling ClosurePool.c
+compiling DynamicLibrary.c
+compiling Function.c
+compiling FunctionInfo.c
+compiling LastError.c
+compiling LongDouble.c
+compiling MappedType.c
+compiling MemoryPointer.c
+compiling MethodHandle.c
+compiling Platform.c
+compiling Pointer.c
+compiling Struct.c
+compiling StructByValue.c
+compiling StructLayout.c
+compiling Thread.c
+compiling Type.c
+compiling Types.c
+compiling Variadic.c
+compiling ffi.c
+linking shared-object ffi_c.so
+
+current directory: /var/work/src/git/gnome/toolbox/.gem/ruby/2.6.0/gems/ffi-1.15.4/ext/ffi_c
+make "DESTDIR=" install
+/var/home/jimmac/bin/install -c -m 0755 ffi_c.so ./.gem.20210917-513325-1eym7u2

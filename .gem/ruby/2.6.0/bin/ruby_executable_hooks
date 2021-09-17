@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+title = "ruby #{ARGV*" "}"
+$0    = ARGV.shift
+Process.setproctitle(title) if Process.methods.include?(:setproctitle)
+
+require 'rubygems'
+begin
+  require 'executable-hooks/hooks'
+  Gem::ExecutableHooks.run($0)
+rescue LoadError
+  warn "unable to load executable-hooks/hooks" if ENV.key?('ExecutableHooks_DEBUG')
+end unless $0.end_with?('/executable-hooks-uninstaller')
+
+content = File.read($0)
+
+if
+  (index = content.index("\n#!ruby\n")) && index > 0
+then
+  skipped_content = content.slice!(0..index)
+  start_line = skipped_content.count("\n") + 1
+  eval content, binding, $0, start_line
+else
+  eval content, binding, $0
+end
