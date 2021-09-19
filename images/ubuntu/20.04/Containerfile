@@ -1,0 +1,30 @@
+FROM docker.io/library/ubuntu:20.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+ENV NAME=ubuntu-toolbox VERSION=20.04
+LABEL com.github.containers.toolbox="true" \
+      com.redhat.component="$NAME" \
+      name="$NAME" \
+      version="$VERSION" \
+      usage="This image is meant to be used with the toolbox command" \
+      summary="Base image for creating Ubuntu toolbox containers" \
+      maintainer="Francesco Nicoletta Puzzillo <francesconicoletta@nomnp.com>"
+
+COPY README.md /
+
+RUN apt-get update
+
+COPY missing-docs /
+RUN apt-get -y reinstall $(cat missing-docs)
+RUN rm /missing-docs
+
+COPY extra-packages /
+RUN apt-get -y install $(cat extra-packages)
+RUN rm /extra-packages
+
+RUN apt-get clean
+
+COPY exempt_group /etc/sudoers.d/
+
+CMD /bin/sh
