@@ -53,29 +53,27 @@
   --borders: var(--light3);
 }
 
-@font-face {
-    font-family: 'Heebo';
-    src: url('fonts/heebo-regular.woff');
-    font-weight: 400;
-}
-
-@font-face {
-    font-family: 'Heebo';
-    src: url('fonts/heebo-bold.woff');
-    font-weight: 600;
-}
-
 /* Typography */
+
+@font-face {
+  font-family: 'Inter Var';
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: oblique 0deg 10deg;
+  src: url("fonts/Inter.var.woff2?v=3.19") format("woff2");
+}
+
 * {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
+
 html, body {
   margin: 0;
   padding: 0;
   font-size: 16px;
-  font-family: "Heebo", sans-serif;
+  font-family: "Inter Var", sans-serif;
   font-weight: 400;
   line-height: 1.6;
 }
@@ -87,6 +85,7 @@ h1, h2, h3, h4, h5, h6 {
   margin: 1rem 0 10px;
   font-weight: 600;
   line-height: 1.25;
+  font-variation-settings: "wght" 600; /* needed for webkit */
 }
 h1 {
   text-align: center;
@@ -111,6 +110,7 @@ a {
   text-decoration: none;
   color: var(--primary-color);
   cursor: pointer;
+  font-variation-settings: "wght" 600; /* needed for webkit */
 }
 a:hover {
   text-decoration: underline;
