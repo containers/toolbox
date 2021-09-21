@@ -20,9 +20,10 @@ eval $(
 if [ -f /run/ostree-booted ] \
    && ! [ -f "$host_welcome_stub" ] \
    && [ "${ID}" = "fedora" ] \
-   && { [ "${VARIANT_ID}" = "workstation" ] || [ "${VARIANT_ID}" = "silverblue" ]; }; then
+   && { [ "${VARIANT_ID}" = "workstation" ] || [ "${VARIANT_ID}" = "silverblue" ] || [ "${VARIANT_ID}" = "kinoite" ]; }; then
     echo ""
-    echo "Welcome to Fedora Silverblue. This terminal is running on the"
+    # shellcheck disable=SC3059
+    echo "Welcome to Fedora ${VARIANT_ID^}. This terminal is running on the"
     echo "host system. You may want to try out the Toolbox for a directly"
     echo "mutable environment that allows package installation with DNF."
     echo ""
