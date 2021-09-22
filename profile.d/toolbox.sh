@@ -38,7 +38,7 @@ fi
 
 if [ -f /run/.containerenv ] \
    && [ -f /run/.toolboxenv ]; then
-    PS1=$(printf "\[\033[35m\]⬢\[\033[0m\]%s" "[\u@\h \W]\\$ ")
+    PS1=$(printf "\[\033[${TOOLBOX_COLOR:-35}m\]⬢\[\033[0m\]%s" "[\u@\h \W]\\$ ")
 
     if ! [ -f "$toolbox_welcome_stub" ]; then
         echo ""
