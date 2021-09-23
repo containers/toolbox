@@ -1,7 +1,7 @@
 # Site settings
 title: toolbox
 baseurl: "" # the subpath of your site, e.g. /blog/
-url: "https://toolbox.io" # the base hostname & protocol for your site
+url: "https://containers.github.io/toolbox/" # the base hostname & protocol for your site
 
 permalink: /:title/
 
