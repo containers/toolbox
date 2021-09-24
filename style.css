@@ -127,6 +127,14 @@ hr {
   opacity: 40%;
 }
 
+img {
+  display: block;
+  margin: 2rem auto;
+  max-width: 100%;
+  }
+  img.full { width: 100%; }
+  img.pixels { image-rendering: pixelated; }
+
 /* Layout */
 .container {
   width: 80%;
