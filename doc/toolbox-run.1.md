@@ -7,6 +7,7 @@ toolbox\-run - Run a command in an existing toolbox container
 **toolbox run** [*--container NAME* | *-c NAME*]
             [*--distro DISTRO* | *-d DISTRO*]
             [*--release RELEASE* | *-r RELEASE*]
+            [*--env KEY=VALUE* | *-e KEY=VALUE*]
             [*COMMAND*]
 
 ## DESCRIPTION
@@ -40,6 +41,11 @@ than the host.
 
 Run command inside a toolbox container for a different operating system
 RELEASE than the host.
+
+**--env** KEY=VALUE, **-e** KEY=VALUE
+
+Set environment variables. This option allows arbitrary environment variables
+that are available for the process to be launched inside of the container.
 
 ## EXAMPLES
 
