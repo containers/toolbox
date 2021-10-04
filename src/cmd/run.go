@@ -35,6 +35,7 @@ var (
 		container string
 		distro    string
 		release   string
+		env       []string
 	}
 
 	runFallbackCommands = [][]string{{"/bin/bash", "-l"}}
@@ -68,6 +69,12 @@ func init() {
 		"r",
 		"",
 		"Run command inside a toolbox container for a different operating system release than the host")
+
+	flags.StringArrayVarP(&runFlags.env,
+		"env",
+		"e",
+		[]string{},
+		"Set environment variables")
 
 	runCmd.SetHelpFunc(runHelp)
 	rootCmd.AddCommand(runCmd)
@@ -135,11 +142,17 @@ func run(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	envVariables, err := utils.ParseEnvVariables(runFlags.env)
+	if err != nil {
+		return err
+	}
+
 	if err := runCommand(container,
 		!nonDefaultContainer,
 		image,
 		release,
 		command,
+		envVariables,
 		false,
 		false,
 		true); err != nil {
@@ -153,6 +166,7 @@ func runCommand(container string,
 	defaultContainer bool,
 	image, release string,
 	command []string,
+	envVariables []string,
 	emitEscapeSequence, fallbackToBash, pedantic bool) error {
 	if !pedantic {
 		if image == "" {
@@ -273,14 +287,14 @@ func runCommand(container string,
 
 	logrus.Debugf("Container %s is initialized", container)
 
-	if err := runCommandWithFallbacks(container, command, emitEscapeSequence, fallbackToBash); err != nil {
+	if err := runCommandWithFallbacks(container, command, envVariables, emitEscapeSequence, fallbackToBash); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func runCommandWithFallbacks(container string, command []string, emitEscapeSequence, fallbackToBash bool) error {
+func runCommandWithFallbacks(container string, command []string, envVariables []string, emitEscapeSequence, fallbackToBash bool) error {
 	logrus.Debug("Checking if 'podman exec' supports disabling the detach keys")
 
 	var detachKeysSupported bool
@@ -297,7 +311,7 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 	workDir := workingDirectory
 
 	for {
-		execArgs := constructExecArgs(container, command, detachKeysSupported, envOptions, workDir)
+		execArgs := constructExecArgs(container, command, detachKeysSupported, envOptions, envVariables, workDir)
 
 		if emitEscapeSequence {
 			fmt.Printf("\033]777;container;push;%s;toolbox;%s\033\\", container, currentUser.Uid)
@@ -424,6 +438,7 @@ func constructExecArgs(container string,
 	command []string,
 	detachKeysSupported bool,
 	envOptions []string,
+	envVariables []string,
 	workDir string) []string {
 	var detachKeys []string
 
@@ -448,6 +463,8 @@ func constructExecArgs(container string,
 	}...)
 
 	execArgs = append(execArgs, envOptions...)
+
+	execArgs = append(execArgs, envVariables...)
 
 	execArgs = append(execArgs, []string{
 		container,

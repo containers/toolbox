@@ -235,6 +235,7 @@ func rootRun(cmd *cobra.Command, args []string) error {
 		image,
 		release,
 		command,
+		nil,
 		emitEscapeSequence,
 		true,
 		false); err != nil {

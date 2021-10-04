@@ -847,3 +847,21 @@ func ShowManual(manual string) error {
 
 	return nil
 }
+
+// ParseEnvVariables parses the specified environment variables and returns them as a string array
+func ParseEnvVariables(envVariables []string) ([]string, error) {
+	var env []string
+
+	for _, envVariable := range envVariables {
+		data := strings.SplitN(envVariable, "=", 2)
+
+		// catch invalid variables such as "=", "=A" or "A A=A"
+		if data[0] == "" || strings.Contains(data[0], " ") {
+			return nil, errors.New("invalid environment variable: " + envVariable)
+		}
+
+		env = append(env, fmt.Sprintf("--env=%s=%s ", data[0], data[1]))
+	}
+
+	return env, nil
+}
