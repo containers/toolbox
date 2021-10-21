@@ -13,6 +13,7 @@
           - golang-github-cpuguy83-md2man
           - meson
           - ninja-build
+          - patchelf
           - podman
           - skopeo
           - systemd

@@ -16,9 +16,9 @@
 #
 
 
-if [ "$#" -ne 4 ]; then
+if [ "$#" -ne 3 ]; then
     echo "go-build-wrapper: wrong arguments" >&2
-    echo "Usage: go-build-wrapper [SOURCE DIR] [OUTPUT DIR] [VERSION] [libc-wrappers.a]" >&2
+    echo "Usage: go-build-wrapper [SOURCE DIR] [OUTPUT DIR] [VERSION]" >&2
     exit 1
 fi
 
@@ -27,5 +27,16 @@ if ! cd "$1"; then
     exit 1
 fi
 
-go build -trimpath -ldflags "-extldflags '-Wl,--wrap,pthread_sigmask $4' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3" -o "$2/toolbox"
+go build -trimpath -ldflags "-extldflags '-Wl,-rpath,/run/host/usr/lib -Wl,-rpath,/run/host/usr/lib64' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3" -o "$2/toolbox"
+
+if ! interpreter=$(patchelf --print-interpreter "$2/toolbox"); then
+    echo "go-build-wrapper: failed to read PT_INTERP from $2/toolbox" >&2
+    exit 1
+fi
+
+if ! patchelf --set-interpreter "/run/host$interpreter" "$2/toolbox"; then
+    echo "go-build-wrapper: failed to change PT_INTERP of $2/toolbox to /run/host$interpreter" >&2
+    exit 1
+fi
+
 exit "$?"

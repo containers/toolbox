@@ -1,5 +1,3 @@
-subdir('libc-wrappers')
-
 go_build_wrapper_file = files('go-build-wrapper')
 go_build_wrapper_program = find_program('go-build-wrapper')
 
@@ -28,9 +26,7 @@ custom_target(
     meson.current_source_dir(),
     meson.current_build_dir(),
     meson.project_version(),
-    libc_wrappers.full_path(),
   ],
-  depends: libc_wrappers,
   input: sources,
   install: true,
   install_dir: get_option('bindir'),

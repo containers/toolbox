@@ -1,17 +1,13 @@
 project(
   'toolbox',
-  'c',
   version: '0.0.99.2',
   license: 'ASL 2.0',
-  meson_version: '>= 0.42.0',
+  meson_version: '>= 0.53.0',
 )
-
-cc = meson.get_compiler('c')
-add_project_arguments('-pthread', language: 'c')
-add_project_link_arguments('-pthread', language: 'c')
 
 go = find_program('go')
 go_md2man = find_program('go-md2man')
+patchelf = find_program('patchelf')
 shellcheck = find_program('shellcheck', required: false)
 skopeo = find_program('skopeo', required: false)
 
