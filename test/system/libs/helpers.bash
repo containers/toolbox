@@ -232,6 +232,38 @@ function start_container() {
 }
 
 
+# Checks if a toolbox container started
+#
+# Parameters:
+# ===========
+# - container_name - name of the container
+function container_started() {
+  local container_name
+  container_name="$1"
+
+  run $PODMAN start $container_name
+
+  container_initialized=0
+
+  for TRIES in 1 2 3 4 5
+  do
+    run $PODMAN logs $container_name
+    container_output=$output
+    # Look for last line of the container startup log
+    run grep 'Listening to file system and ticker events' <<< $container_output
+    if [[ "$status" -eq 0 ]]; then
+      container_initialized=1
+      break
+    fi
+    sleep 1
+  done
+
+  echo $container_output >2
+
+  echo $container_initialized
+}
+
+
 function stop_container() {
   local container_name
   container_name="$1"
