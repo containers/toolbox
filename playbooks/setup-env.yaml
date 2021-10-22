@@ -26,14 +26,8 @@
       args:
         chdir: '{{ zuul.project.src_dir }}'
 
-    - name: Setup environment
-      become: yes
-      command:
-        cmd: systemd-tmpfiles --create
-        creates: /run/media
-
     - name: Check versions of crucial packages
-      command: rpm -qa *kernel* *glibc* golang podman conmon containernetworking-plugins containers-common container-selinux crun runc fuse-overlayfs flatpak-session-helper
+      command: rpm -qa *kernel* *glibc* golang podman conmon containernetworking-plugins containers-common container-selinux crun runc fuse-overlayfs flatpak-session-helper patchelf
 
     - name: Show podman versions
       command: podman version
@@ -58,3 +52,10 @@
       args:
         chdir: '{{ zuul.project.src_dir }}'
         creates: /usr/local/bin/toolbox
+
+    - name: Setup environment
+      become: yes
+      command:
+        cmd: systemd-tmpfiles --create
+        creates: /run/media
+        creates: /run/host
