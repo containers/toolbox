@@ -7,6 +7,7 @@
       nodes:
         - name: ci-node-33
           label: cloud-fedora-33-small
+    pre-run: playbooks/setup-env.yaml
     run: playbooks/unit-test.yaml
 
 - job:
