@@ -40,3 +40,21 @@
 
     - name: Show podman debug information
       command: podman info --debug
+
+    - name: Set up build directory
+      command: meson builddir
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+
+    - name: Build Toolbox
+      command: ninja -C builddir
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+        creates: builddir/src/toolbox
+
+    - name: Install Toolbox
+      become: yes
+      command: ninja -C builddir install
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+        creates: /usr/local/bin/toolbox
