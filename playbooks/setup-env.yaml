@@ -6,6 +6,7 @@
       package:
         use: dnf
         name:
+          - ShellCheck
           - bash-completion
           - bats
           - flatpak-session-helper
