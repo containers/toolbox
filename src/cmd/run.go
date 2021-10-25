@@ -86,10 +86,10 @@ func run(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	var nonDefaultContainer bool
+	var defaultContainer bool = true
 
 	if runFlags.container != "" {
-		nonDefaultContainer = true
+		defaultContainer = false
 
 		if !utils.IsContainerNameValid(runFlags.container) {
 			var builder strings.Builder
@@ -104,7 +104,7 @@ func run(cmd *cobra.Command, args []string) error {
 
 	var release string
 	if runFlags.release != "" {
-		nonDefaultContainer = true
+		defaultContainer = false
 
 		var err error
 		release, err = utils.ParseRelease(runFlags.distro, runFlags.release)
@@ -136,7 +136,7 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	if err := runCommand(container,
-		!nonDefaultContainer,
+		defaultContainer,
 		image,
 		release,
 		command,
