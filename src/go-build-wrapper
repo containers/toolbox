@@ -34,8 +34,25 @@ if ! interpreter=$(patchelf --print-interpreter "$2/toolbox"); then
     exit 1
 fi
 
-if ! patchelf --set-interpreter "/run/host$interpreter" "$2/toolbox"; then
-    echo "go-build-wrapper: failed to change PT_INTERP of $2/toolbox to /run/host$interpreter" >&2
+if ! interpreter_canonical=$(readlink --canonicalize "$interpreter"); then
+    echo "go-build-wrapper: failed to canonicalize PT_INTERP" >&2
+    exit 1
+fi
+
+if ! interpreter_basename=$(basename "$interpreter"); then
+    echo "go-build-wrapper: failed to read the basename of PT_INTERP" >&2
+    exit 1
+fi
+
+if ! interpreter_canonical_dirname=$(dirname "$interpreter_canonical"); then
+    echo "go-build-wrapper: failed to read the dirname of the canonicalized PT_INTERP" >&2
+    exit 1
+fi
+
+interpreter="/run/host$interpreter_canonical_dirname/$interpreter_basename"
+
+if ! patchelf --set-interpreter "$interpreter" "$2/toolbox"; then
+    echo "go-build-wrapper: failed to change PT_INTERP of $2/toolbox to $interpreter" >&2
     exit 1
 fi
 
