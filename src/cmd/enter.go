@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/containers/toolbox/pkg/utils"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -150,14 +151,70 @@ func enter(cmd *cobra.Command, args []string) error {
 	}
 
 	if err := runCommand(container,
-		defaultContainer,
 		image,
 		release,
 		command,
 		emitEscapeSequence,
-		true,
-		false); err != nil {
-		return err
+		true); err != nil {
+		if errors.Is(err, ErrNotFound) {
+			logrus.Infof("Container %s was not found. Looking for an alternative one.", container)
+
+			containers, err := getContainers()
+			if err != nil {
+				return err
+			}
+
+			containersCount := len(containers)
+			logrus.Debugf("Found %d containers", containersCount)
+
+			if containersCount == 0 {
+				shouldCreateContainer := false
+				promptForCreate := true
+
+				if rootFlags.assumeYes {
+					shouldCreateContainer = true
+					promptForCreate = false
+				}
+
+				if promptForCreate {
+					prompt := "No toolbox containers found. Create now? [y/N]"
+					shouldCreateContainer = utils.AskForConfirmation(prompt)
+				}
+
+				if !shouldCreateContainer {
+					fmt.Printf("A container can be created later with the 'create' command.\n")
+					fmt.Printf("Run '%s --help' for usage.\n", executableBase)
+					return nil
+				}
+
+				if err := createContainer(container, image, release, false); err != nil {
+					return err
+				}
+			} else if containersCount == 1 && defaultContainer {
+				fmt.Fprintf(os.Stderr, "Error: container %s not found\n", container)
+
+				container = containers[0].Names[0]
+				fmt.Fprintf(os.Stderr, "Entering container %s instead.\n", container)
+				fmt.Fprintf(os.Stderr, "Use the 'create' command to create a different toolbox.\n")
+				fmt.Fprintf(os.Stderr, "Run '%s --help' for usage.\n", executableBase)
+
+				err = runCommand(container,
+					image,
+					release,
+					command,
+					emitEscapeSequence,
+					true)
+				return err
+			} else {
+				var builder strings.Builder
+				fmt.Fprintf(&builder, "container %s not found\n", container)
+				fmt.Fprintf(&builder, "Use the '--container' option to select a toolbox.\n")
+				fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+				errMsg := builder.String()
+				return errors.New(errMsg)
+			}
+		}
 	}
 
 	return nil

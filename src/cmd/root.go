@@ -231,13 +231,62 @@ func rootRun(cmd *cobra.Command, args []string) error {
 	}
 
 	if err := runCommand(container,
-		true,
 		image,
 		release,
 		command,
 		emitEscapeSequence,
-		true,
-		false); err != nil {
+		true); err != nil {
+		if errors.Is(err, ErrNotFound) {
+			logrus.Infof("Container %s was not found. Looking for an alternative one.", container)
+
+			containers, err := getContainers()
+			if err != nil {
+				return err
+			}
+
+			containersCount := len(containers)
+			logrus.Debugf("Found %d containers", containersCount)
+
+			if containersCount == 0 {
+				shouldCreateContainer := false
+				promptForCreate := true
+
+				if rootFlags.assumeYes {
+					shouldCreateContainer = true
+					promptForCreate = false
+				}
+
+				if promptForCreate {
+					prompt := "No toolbox containers found. Create now? [y/N]"
+					shouldCreateContainer = utils.AskForConfirmation(prompt)
+				}
+
+				if !shouldCreateContainer {
+					fmt.Printf("A container can be created later with the 'create' command.\n")
+					fmt.Printf("Run '%s --help' for usage.\n", executableBase)
+					return nil
+				}
+
+				if err := createContainer(container, image, release, false); err != nil {
+					return err
+				}
+			} else if containersCount == 1 {
+				fmt.Fprintf(os.Stderr, "Error: container %s not found\n", container)
+
+				container = containers[0].Names[0]
+				fmt.Fprintf(os.Stderr, "Entering container %s instead.\n", container)
+				fmt.Fprintf(os.Stderr, "Use the 'create' command to create a different toolbox.\n")
+				fmt.Fprintf(os.Stderr, "Run '%s --help' for usage.\n", executableBase)
+
+				err = runCommand(container,
+					image,
+					release,
+					command,
+					emitEscapeSequence,
+					true)
+				return err
+			}
+		}
 		return err
 	}
 

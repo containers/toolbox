@@ -39,6 +39,10 @@ var (
 
 	runFallbackCommands = [][]string{{"/bin/bash", "-l"}}
 	runFallbackWorkDirs = []string{"" /* $HOME */}
+
+	// TODO: The error is here only temporarily. In the future this kind of
+	// "API" should live in a package of its own with the "core" functionality.
+	ErrNotFound error = errors.New("container does not exist")
 )
 
 var runCmd = &cobra.Command{
@@ -86,11 +90,7 @@ func run(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	var defaultContainer bool = true
-
 	if runFlags.container != "" {
-		defaultContainer = false
-
 		if !utils.IsContainerNameValid(runFlags.container) {
 			var builder strings.Builder
 			fmt.Fprintf(&builder, "invalid argument for '--container'\n")
@@ -104,8 +104,6 @@ func run(cmd *cobra.Command, args []string) error {
 
 	var release string
 	if runFlags.release != "" {
-		defaultContainer = false
-
 		var err error
 		release, err = utils.ParseRelease(runFlags.distro, runFlags.release)
 		if err != nil {
@@ -136,13 +134,14 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	if err := runCommand(container,
-		defaultContainer,
 		image,
 		release,
 		command,
 		false,
-		false,
-		true); err != nil {
+		false); err != nil {
+		if errors.Is(err, ErrNotFound) {
+			err = utils.CreateErrorContainerNotFound(container, executableBase)
+		}
 		return err
 	}
 
@@ -150,78 +149,21 @@ func run(cmd *cobra.Command, args []string) error {
 }
 
 func runCommand(container string,
-	defaultContainer bool,
 	image, release string,
 	command []string,
-	emitEscapeSequence, fallbackToBash, pedantic bool) error {
-	if !pedantic {
-		if image == "" {
-			panic("image not specified")
-		}
+	emitEscapeSequence, fallbackToBash bool) error {
+	if image == "" {
+		panic("image not specified")
+	}
 
-		if release == "" {
-			panic("release not specified")
-		}
+	if release == "" {
+		panic("release not specified")
 	}
 
 	logrus.Debugf("Checking if container %s exists", container)
 
-	if _, err := podman.ContainerExists(container); err != nil {
-		logrus.Debugf("Container %s not found", container)
-
-		if pedantic {
-			err := utils.CreateErrorContainerNotFound(container, executableBase)
-			return err
-		}
-
-		containers, err := getContainers()
-		if err != nil {
-			err := utils.CreateErrorContainerNotFound(container, executableBase)
-			return err
-		}
-
-		containersCount := len(containers)
-		logrus.Debugf("Found %d containers", containersCount)
-
-		if containersCount == 0 {
-			var shouldCreateContainer bool
-			promptForCreate := true
-
-			if rootFlags.assumeYes {
-				shouldCreateContainer = true
-				promptForCreate = false
-			}
-
-			if promptForCreate {
-				prompt := "No toolbox containers found. Create now? [y/N]"
-				shouldCreateContainer = utils.AskForConfirmation(prompt)
-			}
-
-			if !shouldCreateContainer {
-				fmt.Printf("A container can be created later with the 'create' command.\n")
-				fmt.Printf("Run '%s --help' for usage.\n", executableBase)
-				return nil
-			}
-
-			if err := createContainer(container, image, release, false); err != nil {
-				return err
-			}
-		} else if containersCount == 1 && defaultContainer {
-			fmt.Fprintf(os.Stderr, "Error: container %s not found\n", container)
-
-			container = containers[0].Names[0]
-			fmt.Fprintf(os.Stderr, "Entering container %s instead.\n", container)
-			fmt.Fprintf(os.Stderr, "Use the 'create' command to create a different toolbox.\n")
-			fmt.Fprintf(os.Stderr, "Run '%s --help' for usage.\n", executableBase)
-		} else {
-			var builder strings.Builder
-			fmt.Fprintf(&builder, "container %s not found\n", container)
-			fmt.Fprintf(&builder, "Use the '--container' option to select a toolbox.\n")
-			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-			errMsg := builder.String()
-			return errors.New(errMsg)
-		}
+	if exists, _ := podman.ContainerExists(container); !exists {
+		return ErrNotFound
 	}
 
 	if err := callFlatpakSessionHelper(container); err != nil {
