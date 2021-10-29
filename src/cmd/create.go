@@ -289,6 +289,17 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		kcmSocketMount = []string{"--volume", kcmSocketMountArg}
 	}
 
+	var pcscSocketMount []string
+
+	pcscSocket, err := getServiceSocket("pcsc", "pcscd.socket")
+	if err != nil {
+		logrus.Debug(err)
+	}
+	if pcscSocket != "" {
+		pcscSocketMountArg := pcscSocket + ":" + pcscSocket
+		pcscSocketMount = []string{"--volume", pcscSocketMountArg}
+	}
+
 	var mediaLink []string
 	var mediaMount []string
 
@@ -415,6 +426,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	createArgs = append(createArgs, kcmSocketMount...)
 	createArgs = append(createArgs, mediaMount...)
 	createArgs = append(createArgs, mntMount...)
+	createArgs = append(createArgs, pcscSocketMount...)
 	createArgs = append(createArgs, runMediaMount...)
 	createArgs = append(createArgs, toolboxShMount...)
 
