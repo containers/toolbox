@@ -77,6 +77,7 @@ The following dependencies are required to build it:
 - systemd
 - go
 - ninja
+- patchelf
 
 The following dependencies enable various optional features:
 - bash-completion
