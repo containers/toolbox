@@ -13,13 +13,39 @@ teardown() {
   cleanup_containers
 }
 
+@test "run: Try to run a command in the default container with no containers created" {
+  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
 
-@test "run: Try to run echo 'Hello World' with no containers created" {
-  run $TOOLBOX run echo "Hello World"
+  run $TOOLBOX run true
 
   assert_failure
-  assert_line --index 0 --regexp 'Error: container .* not found'
-  assert_output --partial "Run 'toolbox --help' for usage."
+  assert_line --index 0 "Error: container $default_container_name not found"
+  assert_line --index 1 "Use the 'create' command to create a toolbox."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+}
+
+@test "run: Try to run a command in the default container when 1 non-default container is present" {
+  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+
+  create_container other-container
+
+  run $TOOLBOX run true
+
+  assert_failure
+  assert_line --index 0 "Error: container $default_container_name not found"
+  assert_line --index 1 "Use the 'create' command to create a toolbox."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+}
+
+@test "run: Try to run a command in a specific non-existent container" {
+  create_container other-container
+
+  run $TOOLBOX run -c wrong-container true
+
+  assert_failure
+  assert_line --index 0 "Error: container wrong-container not found"
+  assert_line --index 1 "Use the 'create' command to create a toolbox."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
 }
 
 @test "run: Run echo 'Hello World' inside of the default container" {
