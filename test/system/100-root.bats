@@ -20,3 +20,8 @@ teardown() {
   assert_line --index 0 "No toolbox containers found. Create now? [y/N] A container can be created later with the 'create' command."
   assert_line --index 1 "Run 'toolbox --help' for usage."
 }
+
+# TODO: Write the test
+@test "root: Enter the default container when 1 non-default container is present" {
+  skip "Testing of entering toolboxes is not implemented"
+}
