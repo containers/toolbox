@@ -53,3 +53,18 @@ teardown() {
   assert_line --index 1 "Use the '--container' option to select a toolbox."
   assert_line --index 2 "Run 'toolbox --help' for usage."
 }
+
+# TODO: Write the test
+@test "enter: Enter the default toolbox" {
+  skip "Testing of entering toolboxes is not implemented"
+}
+
+# TODO: Write the test
+@test "enter: Enter the default toolbox when only 1 non-default toolbox is present" {
+  skip "Testing of entering toolboxes is not implemented"
+}
+
+# TODO: Write the test
+@test "enter: Enter a specific toolbox" {
+  skip "Testing of entering toolboxes is not implemented"
+}
