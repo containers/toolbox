@@ -9,10 +9,14 @@ setup() {
 }
 
 @test "help: Run command 'help'" {
+  if ! hash man 2>/dev/null; then
+    skip "Test works only if man is in PATH"
+  fi
+
   run $TOOLBOX help
 
   assert_success
-  assert_output --partial "toolbox - Tool for containerized command line environments on Linux"
+  assert_line --index 0 --partial "toolbox(1)()"
 }
 
 @test "help: Run command 'help' with no man present" {
