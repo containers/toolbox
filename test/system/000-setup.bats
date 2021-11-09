@@ -5,8 +5,8 @@ load 'libs/helpers'
 @test "test suite: Setup" {
     _setup_environment
     # Cache the default image for the system
-    _pull_and_cache_distro_image $(get_system_id) $(get_system_version) || die
+    _pull_and_cache_distro_image $(get_system_id) $(get_system_version) || false
     # Cache all images that will be needed during the tests
-    _pull_and_cache_distro_image fedora 32 || die
-    _pull_and_cache_distro_image busybox || die
+    _pull_and_cache_distro_image fedora 32 || false
+    _pull_and_cache_distro_image busybox || false
 }
