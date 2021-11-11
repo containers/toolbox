@@ -31,6 +31,11 @@ function cleanup_containers() {
 }
 
 
+function _setup_environment() {
+  _setup_containers_store
+  check_xdg_runtime_dir
+}
+
 function _setup_containers_store() {
   mkdir -p ${TEMP_STORAGE_DIR}
   # Setup a storage config file for PODMAN
