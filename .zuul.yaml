@@ -3,6 +3,7 @@
     name: unit-test
     description: Run Toolbox's unit tests declared in Meson
     timeout: 300
+    files: ['playbooks/*', 'src/*', 'meson.build', 'meson_options.txt', '.zuul.yaml']
     nodeset:
       nodes:
         - name: ci-node-34
@@ -14,6 +15,7 @@
     name: system-test-fedora-34
     description: Run Toolbox's system tests in Fedora 34
     timeout: 1200
+    files: &system_test_files ['data/*', 'playbooks/*', 'profile.d/*', 'src/*', 'meson.build', 'meson_options.txt', '.zuul.yaml']
     nodeset:
       nodes:
         - name: ci-node-34
@@ -25,6 +27,7 @@
     name: system-test-fedora-35
     description: Run Toolbox's system tests in Fedora 35
     timeout: 1200
+    files: *system_test_files
     nodeset:
       nodes:
         - name: ci-node-35
@@ -36,6 +39,7 @@
     name: system-test-fedora-rawhide
     description: Run Toolbox's system tests in Fedora Rawhide
     timeout: 1320
+    files: *system_test_files
     nodeset:
       nodes:
         - name: ci-node-rawhide
