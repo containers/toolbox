@@ -3,6 +3,8 @@
     name: unit-test
     description: Run Toolbox's unit tests declared in Meson
     timeout: 300
+    irrelevant-files: &excluded_locations ['.github/*', 'completion/*', 'doc/*', 'images/*', 'CODE-OF-CONDUCT.md', 'CONTRIBUTING.md', 'COPYING', 'GOALS.md', 'NEWS', 'README.md', 'SECURITY.md', 'toolbox']
+    requires: build-f33
     nodeset:
       nodes:
         - name: ci-node-33
@@ -13,7 +15,9 @@
 - job:
     name: system-test-fedora-33
     description: Run Toolbox's system tests in Fedora 33
-    timeout: 1200
+    timeout: 900
+    irrelevant-files: *excluded_locations
+    requires: build-f33
     nodeset:
       nodes:
         - name: ci-node-33
@@ -24,7 +28,8 @@
 - job:
     name: system-test-fedora-34
     description: Run Toolbox's system tests in Fedora 34
-    timeout: 1200
+    timeout: 900
+    irrelevant-files: *excluded_locations
     nodeset:
       nodes:
         - name: ci-node-34
@@ -36,6 +41,7 @@
     name: system-test-fedora-rawhide
     description: Run Toolbox's system tests in Fedora Rawhide
     timeout: 1200
+    irrelevant-files: *excluded_locations
     nodeset:
       nodes:
         - name: ci-node-rawhide
