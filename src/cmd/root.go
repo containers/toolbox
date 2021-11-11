@@ -62,11 +62,6 @@ var (
 )
 
 func Execute() {
-	if err := setUpGlobals(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-		os.Exit(1)
-	}
-
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
@@ -75,6 +70,11 @@ func Execute() {
 }
 
 func init() {
+	if err := setUpGlobals(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+		os.Exit(1)
+	}
+
 	persistentFlags := rootCmd.PersistentFlags()
 
 	persistentFlags.BoolVarP(&rootFlags.assumeYes,
@@ -96,7 +96,9 @@ func init() {
 	persistentFlags.CountVarP(&rootFlags.verbose, "verbose", "v", "Set log-level to 'debug'")
 
 	rootCmd.SetHelpFunc(rootHelp)
-	rootCmd.SetUsageFunc(rootUsage)
+
+	usageTemplate := fmt.Sprintf("Run '%s --help' for usage.", executableBase)
+	rootCmd.SetUsageTemplate(usageTemplate)
 }
 
 func preRun(cmd *cobra.Command, args []string) error {
@@ -186,12 +188,6 @@ func rootHelp(cmd *cobra.Command, args []string) {
 
 func rootRun(cmd *cobra.Command, args []string) error {
 	return rootRunImpl(cmd, args)
-}
-
-func rootUsage(cmd *cobra.Command) error {
-	err := fmt.Errorf("Run '%s --help' for usage.", executableBase)
-	fmt.Fprintf(os.Stderr, "%s", err)
-	return err
 }
 
 func migrate() error {
