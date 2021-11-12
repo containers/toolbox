@@ -1,5 +1,17 @@
 ---
 - hosts: all
+  roles:
+    - role: download-artifact
+      download_artifact_api: https://softwarefactory-project.io/zuul/api/tenant/local
+      download_artifact_pipeline: '{{ zuul.pipeline }}'
+      download_artifact_job: '{{ build_job }}'
+      download_artifact_type:
+        - builddir
+        - go-cachedir
+        - go-mod-cachedir
+      download_artifact_directory: '{{ zuul.project.src_dir }}'
+
+
   tasks:
     - name: Install requirements
       become: yes
@@ -20,6 +32,21 @@
           - systemd
           - udisks2
 
+    - name: Set up artifacts
+      shell: |
+        # GOCACHE
+        GOCACHE=$(go env GOCACHE)
+        GOCACHE=${GOCACHE:-$HOME/.cache/go-build}
+        rm -rf $GOCACHE
+        mv ./$(basename "$GOCACHE") $GOCACHE
+        # GOMODCACHE
+        GOMODCACHE=$(go env GOMODCACHE)
+        GOMODCACHE=${GOMODCACHE:-$HOME/go/pkg/mod}
+        rm -rf $GOMODCACHE
+        mv ./$(basename "$GOMODCACHE") $GOMODCACHE 
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+
     - name: Setup submodules
       shell: |
         git submodule init
@@ -35,17 +62,6 @@
 
     - name: Show podman debug information
       command: podman info --debug
-
-    - name: Set up build directory
-      command: meson builddir
-      args:
-        chdir: '{{ zuul.project.src_dir }}'
-
-    - name: Build Toolbox
-      command: ninja -C builddir
-      args:
-        chdir: '{{ zuul.project.src_dir }}'
-        creates: builddir/src/toolbox
 
     - name: Install Toolbox
       become: yes

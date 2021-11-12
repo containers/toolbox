@@ -1,15 +1,29 @@
 ---
 - job:
-    name: unit-test
-    description: Run Toolbox's unit tests declared in Meson
+    name: build-fedora-33
+    description: Build Toolbox Fedora 33
     timeout: 300
-    irrelevant-files: &excluded_locations ['.github/*', 'completion/*', 'doc/*', 'images/*', 'CODE-OF-CONDUCT.md', 'CONTRIBUTING.md', 'COPYING', 'GOALS.md', 'NEWS', 'README.md', 'SECURITY.md', 'toolbox']
-    requires: build-f33
     nodeset:
       nodes:
         - name: ci-node-33
           label: cloud-fedora-33-small
-    pre-run: playbooks/setup-env.yaml
+    vars:
+      build_job: "build-fedora-33"
+    pre-run: playbooks/build.yaml
+
+- job:
+    name: unit-test
+    description: Run Toolbox's unit tests declared in Meson
+    timeout: 300
+    irrelevant-files: &excluded_locations ['.github/*', 'completion/*', 'doc/*', 'images/*', 'CODE-OF-CONDUCT.md', 'CONTRIBUTING.md', 'COPYING', 'GOALS.md', 'NEWS', 'README.md', 'SECURITY.md', 'toolbox']
+    parent: build-fedora-33
+    nodeset:
+      nodes:
+        - name: ci-node-33
+          label: cloud-fedora-33-small
+    vars:
+      build_job: "build-fedora-33"
+    pre-run: playbooks/setup-test-env.yaml
     run: playbooks/unit-test.yaml
 
 - job:
@@ -17,41 +31,74 @@
     description: Run Toolbox's system tests in Fedora 33
     timeout: 900
     irrelevant-files: *excluded_locations
-    requires: build-f33
+    parent: build-fedora-33
     nodeset:
       nodes:
         - name: ci-node-33
           label: cloud-fedora-33-small
-    pre-run: playbooks/setup-env.yaml
+    vars:
+      build_job: "build-fedora-33"
+    pre-run: playbooks/setup-test-env.yaml
     run: playbooks/system-test.yaml
+
+- job:
+    name: build-fedora-34
+    description: Build Toolbox on Fedora 34
+    timeout: 300
+    nodeset:
+      nodes:
+        - name: ci-node-34
+          label: cloud-fedora-34-small
+    vars:
+      build_job: "build-fedora-34"
+    pre-run: playbooks/build.yaml
 
 - job:
     name: system-test-fedora-34
     description: Run Toolbox's system tests in Fedora 34
     timeout: 900
     irrelevant-files: *excluded_locations
+    parent: build-fedora-34
     nodeset:
       nodes:
         - name: ci-node-34
           label: cloud-fedora-34-small
-    pre-run: playbooks/setup-env.yaml
+    vars:
+      build_job: "build-fedora-34"
+    pre-run: playbooks/setup-test-env.yaml
     run: playbooks/system-test.yaml
+
+- job:
+    name: build-fedora-rawhide
+    description: Build Toolbox Fedora Rawhide
+    timeout: 300
+    nodeset:
+      nodes:
+        - name: ci-node-rawhide
+          label: cloud-fedora-rawhide-small
+    vars:
+      build_job: "build-fedora-rawhide"
+    pre-run: playbooks/build.yaml
 
 - job:
     name: system-test-fedora-rawhide
     description: Run Toolbox's system tests in Fedora Rawhide
     timeout: 1200
     irrelevant-files: *excluded_locations
+    parent: build-fedora-rawhide
     nodeset:
       nodes:
         - name: ci-node-rawhide
           label: cloud-fedora-rawhide-small
-    pre-run: playbooks/setup-env.yaml
+    vars:
+      build_job: "build-fedora-rawhide"
+    pre-run: playbooks/setup-test-env.yaml
     run: playbooks/system-test.yaml
 
 - project:
     periodic:
       jobs:
+        - unit-test
         - system-test-fedora-33
         - system-test-fedora-34
         - system-test-fedora-rawhide

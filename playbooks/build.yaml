@@ -1,0 +1,73 @@
+---
+- hosts: all
+  roles:
+    - role: download-artifact
+      download_artifact_api: https://softwarefactory-project.io/zuul/api/tenant/local
+      download_artifact_pipeline: '{{ zuul.pipeline }}'
+      download_artifact_job: '{{ build_job }}'
+      download_artifact_type:
+        - builddir
+        - go-cachedir
+        - go-mod-cachedir
+      download_artifact_directory: '{{ zuul.project.src_dir }}'
+
+  tasks:
+    - name: Get Go cache directory
+      command: go env GOCACHE
+      register: go_cachedir
+
+    - name: Get Go mod cache directory
+      command: go env GOMODCACHE
+      register: go_mod_cachedir
+
+    - name: Set up artifacts
+      shell: |
+        # GOCACHE
+        GOCACHE=$(go env GOCACHE)
+        GOCACHE=${GOCACHE:-$HOME/.cache/go-build}
+        rm -rf $GOCACHE
+        mv ./$(basename "$GOCACHE") $GOCACHE
+        # GOMODCACHE
+        GOMODCACHE=$(go env GOMODCACHE)
+        GOMODCACHE=${GOMODCACHE:-$HOME/go/pkg/mod}
+        rm -rf $GOMODCACHE
+        mv ./$(basename "$GOMODCACHE") $GOMODCACHE 
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+
+    - name: Install requirements
+      become: yes
+      package:
+        use: dnf
+        name:
+          - golang
+          - golang-github-cpuguy83-md2man
+          - meson
+          - ninja-build
+          - patchelf
+          - systemd
+
+    - name: Show versions of packages
+      command: rpm -qa golang golang-github-cpuguy83-md2man meson ninja-build patchelf systemd
+
+    - name: Set up build directory
+      command: meson builddir --reconfigure
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+
+    - name: Build Toolbox
+      command: ninja -C builddir
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+        creates: builddir/src/toolbox
+
+    - zuul_return:
+        data:
+          zuul:
+            artifacts:
+              - name: builddir
+                url: builddir
+              - name: go-cachedir
+                url: "{{ go_cachedir }}/"
+              - name: go-mod-cachedir
+                url: "{{ go_mod_cachedir }}/"
