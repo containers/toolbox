@@ -9,7 +9,7 @@ setup() {
 }
 
 @test "help: Run command 'help'" {
-  if ! hash man 2>/dev/null; then
+  if ! command -v man 2>/dev/null; then
     skip "Test works only if man is in PATH"
   fi
 
@@ -20,7 +20,7 @@ setup() {
 }
 
 @test "help: Run command 'help' with no man present" {
-  if hash man 2>/dev/null; then
+  if command -v man 2>/dev/null; then
     skip "Test works only if man is not in PATH"
   fi
 
