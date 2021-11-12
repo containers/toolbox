@@ -1,4 +1,4 @@
-<img src="data/logo/toolbox-logo-landscape.svg" alt="Toolbox logo landscape" width="800"/>
+![README](data/gfx/README.gif)
 
 [![Zuul](https://zuul-ci.org/gated.svg)](https://softwarefactory-project.io/zuul/t/local/builds?project=containers/toolbox)
 [![Daily Pipeline](https://softwarefactory-project.io/zuul/api/tenant/local/badge?project=containers/toolbox&pipeline=periodic)](https://softwarefactory-project.io/zuul/t/local/builds?project=containers%2Ftoolbox&pipeline=periodic)
