@@ -3,7 +3,7 @@ project(
   'c',
   version: '0.0.99.2',
   license: 'ASL 2.0',
-  meson_version: '>= 0.53.0',
+  meson_version: '>= 0.56.0',
 )
 
 cc = meson.get_compiler('c')
@@ -21,13 +21,13 @@ profiledir = get_option('profile_dir')
 tmpfilesdir = get_option('tmpfiles_dir')
 if tmpfilesdir == ''
   systemd_dep = dependency('systemd')
-  tmpfilesdir = systemd_dep.get_pkgconfig_variable('tmpfilesdir')
+  tmpfilesdir = systemd_dep.get_variable(pkgconfig: 'tmpfilesdir')
 endif
 
 if bash_completion.found()
   install_data(
     'completion/bash/toolbox',
-    install_dir: bash_completion.get_pkgconfig_variable('completionsdir')
+    install_dir: bash_completion.get_variable(pkgconfig: 'completionsdir')
   )
 endif
 
