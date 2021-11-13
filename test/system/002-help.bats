@@ -8,6 +8,17 @@ setup() {
   _setup_environment
 }
 
+@test "help: Try to run toolbox with no command" {
+  run $TOOLBOX
+
+  assert_failure
+  assert_line --index 0 "Error: missing command"
+  assert_line --index 1 "create    Create a new toolbox container"
+  assert_line --index 2 "enter     Enter an existing toolbox container"
+  assert_line --index 3 "list      List all existing toolbox containers and images"
+  assert_line --index 4 "Run 'toolbox --help' for usage."
+}
+
 @test "help: Run command 'help'" {
   if ! command -v man 2>/dev/null; then
     skip "Test works only if man is in PATH"

@@ -11,6 +11,8 @@ sources = files(
   'cmd/rm.go',
   'cmd/rmi.go',
   'cmd/root.go',
+  'cmd/rootDefault.go',
+  'cmd/rootMigrationPath.go',
   'cmd/run.go',
   'cmd/utils.go',
   'pkg/podman/podman.go',
