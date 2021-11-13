@@ -7,6 +7,9 @@ project(
 )
 
 cc = meson.get_compiler('c')
+if not cc.has_argument('-print-file-name=libc.so')
+  error('C compiler does not support the -print-file-name argument.')
+endif
 
 go = find_program('go')
 go_md2man = find_program('go-md2man')
