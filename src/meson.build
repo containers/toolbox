@@ -27,6 +27,7 @@ custom_target(
     meson.current_source_dir(),
     meson.current_build_dir(),
     meson.project_version(),
+    cc.cmd_array().get(-1),
   ],
   input: sources,
   install: true,
