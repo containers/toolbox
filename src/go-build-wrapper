@@ -16,19 +16,25 @@
 #
 
 
-if [ "$#" -ne 5 ]; then
+if [ "$#" -ne 6 ]; then
     echo "go-build-wrapper: wrong arguments" >&2
     echo "Usage: go-build-wrapper [SOURCE DIR]" >&2
     echo "                        [OUTPUT DIR]" >&2
     echo "                        [VERSION]" >&2
     echo "                        [C COMPILER]" >&2
     echo "                        [DYNAMIC LINKER]" >&2
+    echo "                        [MIGRATION PATH FOR COREOS/TOOLBOX]" >&2
     exit 1
 fi
 
 if ! cd "$1"; then
     echo "go-build-wrapper: failed to enter source directory $1"
     exit 1
+fi
+
+tags=""
+if $6; then
+    tags="-tags migration_path_for_coreos_toolbox"
 fi
 
 if ! libc_dir=$("$4" --print-file-name=libc.so); then
@@ -63,7 +69,9 @@ fi
 
 dynamic_linker="/run/host$dynamic_linker_canonical_dirname/$dynamic_linker_basename"
 
+# shellcheck disable=SC2086
 go build \
+        $tags \
         -trimpath \
         -ldflags "-extldflags '-Wl,-dynamic-linker,$dynamic_linker -Wl,-rpath,/run/host$libc_dir_canonical_dirname' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3" \
         -o "$2/toolbox"

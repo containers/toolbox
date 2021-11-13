@@ -52,6 +52,7 @@ custom_target(
     meson.project_version(),
     cc.cmd_array().get(-1),
     dynamic_linker,
+    migration_path_for_coreos_toolbox.to_string(),
   ],
   input: sources,
   install: true,

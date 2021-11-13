@@ -15,6 +15,7 @@ skopeo = find_program('skopeo', required: false)
 
 bash_completion = dependency('bash-completion', required: false)
 
+migration_path_for_coreos_toolbox = get_option('migration_path_for_coreos_toolbox')
 profiledir = get_option('profile_dir')
 
 tmpfilesdir = get_option('tmpfiles_dir')
