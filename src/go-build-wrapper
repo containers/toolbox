@@ -18,7 +18,11 @@
 
 if [ "$#" -ne 5 ]; then
     echo "go-build-wrapper: wrong arguments" >&2
-    echo "Usage: go-build-wrapper [SOURCE DIR] [OUTPUT DIR] [VERSION] [C COMPILER] [DYNAMIC LINKER]" >&2
+    echo "Usage: go-build-wrapper [SOURCE DIR]" >&2
+    echo "                        [OUTPUT DIR]" >&2
+    echo "                        [VERSION]" >&2
+    echo "                        [C COMPILER]" >&2
+    echo "                        [DYNAMIC LINKER]" >&2
     exit 1
 fi
 
@@ -59,6 +63,9 @@ fi
 
 dynamic_linker="/run/host$dynamic_linker_canonical_dirname/$dynamic_linker_basename"
 
-go build -trimpath -ldflags "-extldflags '-Wl,-dynamic-linker,$dynamic_linker -Wl,-rpath,/run/host$libc_dir_canonical_dirname' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3" -o "$2/toolbox"
+go build \
+        -trimpath \
+        -ldflags "-extldflags '-Wl,-dynamic-linker,$dynamic_linker -Wl,-rpath,/run/host$libc_dir_canonical_dirname' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3" \
+        -o "$2/toolbox"
 
 exit "$?"
