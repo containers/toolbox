@@ -117,6 +117,7 @@ certain tools and paths to be present and have certain characteristics inside
 the OCI image.
 
 Tools:
+* `capsh(1)`
 * `getent(1)`
 * `id(1)`
 * `ln(1)`
