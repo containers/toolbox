@@ -19,6 +19,7 @@ shellcheck = find_program('shellcheck', required: false)
 skopeo = find_program('skopeo', required: false)
 
 bash_completion = dependency('bash-completion', required: false)
+fish = dependency('fish', required: false)
 
 migration_path_for_coreos_toolbox = get_option('migration_path_for_coreos_toolbox')
 profiledir = get_option('profile_dir')
@@ -30,13 +31,6 @@ if tmpfilesdir == '' or not fs.exists('/run/.containerenv')
   if tmpfilesdir == ''
     tmpfilesdir = systemd_dep.get_variable(pkgconfig: 'tmpfilesdir')
   endif
-endif
-
-if bash_completion.found()
-  install_data(
-    'completion/bash/toolbox',
-    install_dir: bash_completion.get_variable(pkgconfig: 'completionsdir')
-  )
 endif
 
 if not skopeo.found()
@@ -70,5 +64,8 @@ subdir('data')
 subdir('doc')
 subdir('profile.d')
 subdir('src')
+if get_option('install_completions')
+  subdir('completion')
+endif
 
 meson.add_install_script('meson_post_install.py')

@@ -17,3 +17,10 @@ option(
   description: 'Directory for system-wide tmpfiles.d(5) files',
   type: 'string',
 )
+
+option(
+  'install_completions',
+  description: 'Install bash, zsh and fish command completions',
+  type: 'boolean',
+  value: true,
+)
