@@ -130,7 +130,6 @@ Tools:
 * `sleep(1)`
 * `test(1)`
 * `touch(1)`
-* `unlink(1)`
 * `useradd(8)`
 * `usermod(8)`
 
