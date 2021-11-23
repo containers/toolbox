@@ -118,7 +118,7 @@ the OCI image.
 
 Tools:
 * `capsh(1)`
-* `mkdir(1)`: for hosts where `/home` is a symbolic link to `/var/home`
+* `mkdir(1)`
 * `mount(8)`
 * `passwd(1)`
 * `test(1)`
