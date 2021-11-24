@@ -227,9 +227,18 @@ func IsToolboxImage(image string) (bool, error) {
 }
 
 // Pull pulls an image
-func Pull(imageName string) error {
+//
+// authfile is a path to a JSON authentication file and is internally used only
+// if it is not an empty string.
+func Pull(imageName string, authfile string) error {
 	logLevelString := LogLevel.String()
-	args := []string{"--log-level", logLevelString, "pull", imageName}
+	args := []string{"--log-level", logLevelString, "pull"}
+
+	if authfile != "" {
+		args = append(args, []string{"--authfile", authfile}...)
+	}
+
+	args = append(args, imageName)
 
 	if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
 		return err

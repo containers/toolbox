@@ -19,4 +19,6 @@ load 'libs/helpers'
         _pull_and_cache_distro_image fedora "$((system_version-1))" || false
         _pull_and_cache_distro_image fedora "$((system_version-2))" || false
     fi
+
+    _setup_docker_registry
 }

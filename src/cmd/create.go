@@ -42,6 +42,7 @@ const (
 
 var (
 	createFlags struct {
+		authFile  string
 		container string
 		distro    string
 		image     string
@@ -66,6 +67,11 @@ var createCmd = &cobra.Command{
 
 func init() {
 	flags := createCmd.Flags()
+
+	flags.StringVar(&createFlags.authFile,
+		"authfile",
+		"",
+		"Path to a file with credentials for authenticating to the registry for private images")
 
 	flags.StringVarP(&createFlags.container,
 		"container",
@@ -122,6 +128,12 @@ func create(cmd *cobra.Command, args []string) error {
 
 	if cmd.Flag("image").Changed && cmd.Flag("release").Changed {
 		return errors.New("options --image and --release cannot be used together")
+	}
+
+	if cmd.Flag("authfile").Changed {
+		if !utils.PathExists(createFlags.authFile) {
+			return fmt.Errorf("file %s not found", createFlags.authFile)
+		}
 	}
 
 	var container string
@@ -717,7 +729,7 @@ func pullImage(image, release string) (bool, error) {
 		defer s.Stop()
 	}
 
-	if err := podman.Pull(imageFull); err != nil {
+	if err := podman.Pull(imageFull, createFlags.authFile); err != nil {
 		var builder strings.Builder
 		fmt.Fprintf(&builder, "failed to pull image %s\n", imageFull)
 		fmt.Fprintf(&builder, "If it was a private image, log in with: podman login %s\n", domain)

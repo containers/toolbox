@@ -13,6 +13,8 @@ Running them won't remove any existing containers or images.
 - `awk`
 - `bats`
 - `GNU coreutils`
+- `httpd-tools`
+- `openssl`
 - `podman`
 - `skopeo`
 - `toolbox`
@@ -69,3 +71,18 @@ Examples:
 - All the tests start with a clean system (no images or containers) to make sure
   that there are no dependencies between tests and they are really isolated. Use
   the `setup()` and `teardown()` functions for that purpose.
+
+### Image registry
+
+- The system tests set up an OCI image registry for testing purposes -
+  `localhost:50000`. The registry requires authentication. There is one account
+  present: `user` (password: `user`)
+
+- The registry contains by default only one image: `fedora-toolbox:32`
+
+Example pull of the `fedora-toolbox:32` image:
+
+```bash
+$PODMAN login --username user --password user "$DOCKER_REG_URI"
+$PODMAN pull "$DOCKER_REG_URI/fedora-toolbox:32"
+```

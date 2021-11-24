@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 load 'libs/bats-support/load'
+load 'libs/bats-assert/load'
 
 # Helpful globals
 readonly TEMP_BASE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/toolbox"
@@ -10,6 +11,11 @@ readonly IMAGE_CACHE_DIR="${BATS_RUN_TMPDIR}/image-cache"
 readonly ROOTLESS_PODMAN_STORE_DIR="${TEMP_STORAGE_DIR}/storage"
 readonly ROOTLESS_PODMAN_RUNROOT_DIR="${TEMP_STORAGE_DIR}/runroot"
 readonly PODMAN_STORE_CONFIG_FILE="${TEMP_STORAGE_DIR}/storage.conf"
+readonly DOCKER_REG_ROOT="${TEMP_STORAGE_DIR}/docker-registry-root"
+readonly DOCKER_REG_CERTS_DIR="${BATS_RUN_TMPDIR}/certs"
+readonly DOCKER_REG_AUTH_DIR="${BATS_RUN_TMPDIR}/auth"
+readonly DOCKER_REG_URI="localhost:50000"
+readonly DOCKER_REG_NAME="docker-registry"
 
 # Podman and Toolbox commands to run
 readonly PODMAN=${PODMAN:-$(command -v podman)}
@@ -18,6 +24,7 @@ readonly SKOPEO=${SKOPEO:-$(command -v skopeo)}
 
 # Images
 declare -Ag IMAGES=([busybox]="quay.io/toolbox_tests/busybox" \
+                   [docker-reg]="quay.io/toolbox_tests/registry" \
                    [fedora]="registry.fedoraproject.org/fedora-toolbox" \
                    [rhel]="registry.access.redhat.com/ubi8/toolbox")
 
@@ -127,6 +134,99 @@ function _pull_and_cache_distro_image() {
 # Removes the folder with cached images
 function _clean_cached_images() {
   rm -rf ${IMAGE_CACHE_DIR}
+}
+
+
+# Prepares a localy hosted image registry
+#
+# The registry is set up with Podman set to an alternative root. It won't
+# affect other containers or images in the default root.
+#
+# Instructions taken from https://docs.docker.com/registry/deploying/
+function _setup_docker_registry() {
+  # Create certificates for HTTPS
+  # This is needed so that Podman does not have to be configured to work with
+  # HTTP-only registries
+  run mkdir -p "${DOCKER_REG_CERTS_DIR}"
+  assert_success
+  run openssl req \
+    -newkey rsa:4096 \
+    -nodes -sha256 \
+    -keyout "${DOCKER_REG_CERTS_DIR}"/domain.key \
+    -addext "subjectAltName= DNS:localhost" \
+    -x509 \
+    -days 365 \
+    -subj '/' \
+    -out "${DOCKER_REG_CERTS_DIR}"/domain.crt
+  assert_success
+
+  # Add certificate to Podman's trusted certificates (rootless)
+  run mkdir -p "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"
+  assert_success
+  run cp "${DOCKER_REG_CERTS_DIR}"/domain.crt "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"/domain.crt
+  assert_success
+
+  # Create a registry user
+  # username: user; password: user
+  run mkdir -p "${DOCKER_REG_AUTH_DIR}"
+  assert_success
+  run htpasswd -Bbc "${DOCKER_REG_AUTH_DIR}"/htpasswd user user
+  assert_success
+
+  # Create separate Podman root
+  run mkdir -p "${DOCKER_REG_ROOT}"
+  assert_success
+
+  # Pull Docker registry image
+  run $PODMAN --root "${DOCKER_REG_ROOT}" pull "${IMAGES[docker-reg]}"
+  assert_success
+
+  # Create a Docker registry
+  run $PODMAN --root "${DOCKER_REG_ROOT}" run -d \
+    --rm \
+    --name "${DOCKER_REG_NAME}" \
+    --privileged \
+    -v "${DOCKER_REG_AUTH_DIR}":/auth \
+    -e REGISTRY_AUTH=htpasswd \
+    -e REGISTRY_AUTH_HTPASSWD_REALM="Registry Realm" \
+    -e REGISTRY_AUTH_HTPASSWD_PATH="/auth/htpasswd" \
+    -v "${DOCKER_REG_CERTS_DIR}":/certs \
+    -e REGISTRY_HTTP_ADDR=0.0.0.0:443 \
+    -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \
+    -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
+    -p 50000:443 \
+    "${IMAGES[docker-reg]}"
+  assert_success
+
+  run $PODMAN login \
+    --authfile ${TEMP_BASE_DIR}/authfile.json \
+    --username user \
+    --password user \
+    "${DOCKER_REG_URI}"
+  assert_success
+
+  # Add fedora-toolbox:32 image to the registry
+  run $SKOPEO copy --dest-authfile ${TEMP_BASE_DIR}/authfile.json \
+    dir:"${IMAGE_CACHE_DIR}"/fedora-toolbox-32 \
+    docker://"${DOCKER_REG_URI}"/fedora-toolbox:32
+  assert_success
+
+  run rm ${TEMP_BASE_DIR}/authfile.json
+  assert_success
+}
+
+
+# Stop, removes and cleans after a locally hosted Docker registry
+function _clean_docker_registry() {
+  # Stop Docker registry container
+  $PODMAN --root "${DOCKER_REG_ROOT}" stop --time 0 "${DOCKER_REG_NAME}"
+  # Clean up Podman's registry root state
+  $PODMAN --root "${DOCKER_REG_ROOT}" rm --all --force
+  $PODMAN --root "${DOCKER_REG_ROOT}" rmi --all --force
+  # Remove Docker registry dir
+  rm -rf "${DOCKER_REG_ROOT}"
+  # Remove dir with created registry certificates
+  rm -rf "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"
 }
 
 

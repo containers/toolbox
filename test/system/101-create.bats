@@ -117,3 +117,37 @@ teardown() {
   assert_line --index 0 "Error: release not found for non-default distribution $distro"
   assert [ ${#lines[@]} -eq 1 ]
 }
+
+@test "create: Try to create a container and pass a non-existent file to the --authfile option" {
+  local file="$BATS_RUN_TMPDIR/non-existent-file"
+
+  run $TOOLBOX create --authfile "$file"
+
+  assert_failure
+  assert_output "Error: file $file not found"
+}
+
+@test "create: Create a container based on an image from locked registry using an authentication file" {
+  local authfile="$BATS_RUN_TMPDIR/authfile"
+  local image="fedora-toolbox:32"
+
+  run $PODMAN login --authfile "$authfile" --username user --password user "$DOCKER_REG_URI"
+  assert_success
+
+  run $TOOLBOX --assumeyes create --image "$DOCKER_REG_URI/$image"
+
+  assert_failure
+  assert_line --index 0 "Error: failed to pull image $DOCKER_REG_URI/$image"
+  assert_line --index 1 "If it was a private image, log in with: podman login $DOCKER_REG_URI"
+  assert_line --index 2 "Use 'toolbox --verbose ...' for further details."
+  assert [ ${#lines[@]} -eq 3 ]
+
+  run $TOOLBOX --assumeyes create --authfile "$authfile" --image "$DOCKER_REG_URI/$image"
+
+  rm "$authfile"
+
+  assert_success
+  assert_line --index 0 "Created container: fedora-toolbox-32"
+  assert_line --index 1 "Enter with: toolbox enter fedora-toolbox-32"
+  assert [ ${#lines[@]} -eq 2 ]
+}
