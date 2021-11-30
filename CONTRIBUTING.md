@@ -23,12 +23,12 @@ interest!
 
 # Reporting Bugs
 
-## Before Submiting a Bug Report
+## Before Submitting a Bug Report
 
 - Check if your issue is already reported in our [bug tracker](https://github.com/containers/toolbox/issues)
   - If the issue is already reported and is marked as **OPEN**, comment on it
     and if possible and needed, share info about the issue just as if you were
-    submiting a new issue
+    submitting a new issue
   - If the issue is marked as **CLOSED**, check if your version of Toolbox is
     up-to-date or if there are some steps, described in the closed issue, that
     you should follow. If you are still experiencing the issue, please file a
