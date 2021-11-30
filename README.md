@@ -166,7 +166,7 @@ it will refuse images that aren't tagged with
 `com.github.debarshiray.toolbox="true"` labels. These labels are meant to be
 used by the maintainer of the image to indicate that they have read this
 document and tested that the image works with Toolbox. You can use the
-following snippet in a Dockerfile for this:
+following snippet in a Containerfile for this:
 ```Dockerfile
 LABEL com.github.containers.toolbox="true"
 ```
