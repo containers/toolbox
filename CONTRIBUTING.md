@@ -1,25 +1,9 @@
-![Toolbox logo](data/logo/toolbox-logo-landscape.svg)
+![Toolbox logo](data/gfx/powerup.gif)
 
 # Contributing to Toolbox
 
 Thank you for wanting to contribute to Toolbox! We greatly appreciate your
 interest!
-
-# Table of contents
-
-- [Contributing to Toolbox](#contributing-to-toolbox)
-- [Table of contents](#table-of-contents)
-- [Reporting Bugs](#reporting-bugs)
-  - [Before Submiting a Bug Report](#before-submiting-a-bug-report)
-  - [Writing a Bug Report](#writing-a-bug-report)
-- [Making Suggestions](#making-suggestions)
-  - [Before Submitting a Suggestion](#before-submitting-a-suggestion)
-  - [Writing a Suggestion](#writing-a-suggestion)
-- [First Contribution](#first-contribution)
-- [Pull Requests](#pull-requests)
-  - [Creating a Pull Request](#creating-a-pull-request)
-  - [After Creating a Pull Request](#after-creating-a-pull-request)
-- [Little Style Guide](#little-style-guide)
 
 # Reporting Bugs
 
@@ -36,9 +20,7 @@ interest!
 - See our [documentation](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/)
   if there are some steps that could help you solve your issue
 - Sometimes a bug is not reported in our bug tracker but instead people ask for
-  help somewhere else: IRC ([Freenode](https://freenode.net) - #silverblue,
-  #containers, #fedora, #fedora-devel,..), [Fedora forum](https://discussion.fedoraproject.org/tag/toolbox),
-  or somewhere else. In such cases we'd like you to still report the bug and
+  help somewhere else (e.g., chat channels). In such cases we'd like you to still report the bug and
   share with us any info that could be gathered from those places
 
 ## Writing a Bug Report
@@ -136,6 +118,7 @@ documentation, code comments and much more.
   directory `doc`. If your changes affect Toolbox's [documentation](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/),
   consider creating a PR there (but to save yourself time, you can do it
   after your changes are accepted), too.
+- After creating a PR add to the bottom of all your commits a link to the PR. This helps the future maintainers find discussions around the changes.
 
 ## After Creating a Pull Request
 
@@ -145,16 +128,15 @@ your efforts! We really appreciate them! Sometimes we may be stuck in different
 parts of our lives.
 
 If it takes us a very long time to even respond to your Pull Request, you can
-try to @ping us, request a review or try to reach to us on IRC ([Freenode](https://freenode.net/);
-#silverblue, #containers, #fedora-devel,..) or [Fedora Forum](https://discussion.fedoraproject.org).
+try to @ping us at our communication channels (see section #Communication).
 
-Toolbox has a simple CI (Continuos Integration) setup for running system tests (
-can be found under directory `test/system`). Their goal is to check if your
+## 
+Toolbox has a CI (Continuous Integration) setup for running tests. Their goal is to check if your
 changes don't affect adversely Toolbox's functionality. Sometimes these tests
 mail fail with a false-positive. If you are not sure about the outcome of the
-tests, reach out to the maintainers!
+tests, you can try to trigger a new test run by writing a comment with text `recheck` (really just that). If the issue persists, reach out to the maintainers!
 
-Toolbox's CI system is [Zuul](https://zuul-ci.org/) hosted at [softwarefactory](https://softwarefactory-project.io/).
+Toolbox's CI system is [Zuul](https://zuul-ci.org/) hosted at [softwarefactory](https://softwarefactory-project.io/). The CI is defined using [Ansible](https://www.ansible.com) playbooks. For more information on writing Zuul jobs see their [documentation](https://zuul-ci.org/docs/zuul/reference/user.html).
 
 # Little Style Guide
 
@@ -175,3 +157,8 @@ If you are using Visual Studio Code, there are [plugins](https://marketplace.vis
 that include all this functionality and throw a warning if you're doing
 something wrong.
 
+# Communication
+
+The Toolbx team hangs-out at a dedicated Matrix channel: [#toolbx:matrix.org](https://matrix.to/#/#toolbx:matrix.org).
+
+For Fedora-specific discussions you can visit their [wiki](https://docs.fedoraproject.org/en-US/project/join/) to learn about the means to contact the community.
