@@ -112,6 +112,18 @@ default image to ensure a smooth user experience.
 
 ## Image requirements
 
+Toolbox specifies the entry points of newly created containers in a certain
+way. It's best if the OCI image doesn't specify any entry point of its own to
+avoid interfering with the desired command line arguments. In other words,
+there shouldn't be any `Entrypoint` in the `podman inspect` output for the
+image. A wrong set of arguments will prevent `toolbox enter` from working.
+
+If the image has a parent base image that does specify an entry point, then it
+can be reset with this Containerfile snippet:
+```Dockerfile
+ENTRYPOINT []
+```
+
 Toolbox customizes newly created containers in a certain way. This requires
 certain tools and paths to be present and have certain characteristics inside
 the OCI image.
