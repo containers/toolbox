@@ -19,6 +19,29 @@ sources = files(
   'pkg/version/version.go',
 )
 
+cpu_family = host_machine.cpu_family()
+endian = host_machine.endian()
+
+dynamic_linker = ''
+if cpu_family == 'aarch64' and endian == 'little'
+  dynamic_linker = '/lib/ld-linux-aarch64.so.1'
+elif cpu_family == 'arm' and endian == 'little'
+  dynamic_linker = '/lib/ld-linux-armhf.so.3'
+elif cpu_family == 'ppc64' and endian == 'little'
+  dynamic_linker = '/lib64/ld64.so.2'
+elif cpu_family == 's390x' and endian == 'big'
+  dynamic_linker = '/lib/ld64.so.1'
+elif cpu_family == 'x86' and endian == 'little'
+  dynamic_linker = '/lib/ld-linux.so.2'
+elif cpu_family == 'x86_64' and endian == 'little'
+  dynamic_linker = '/lib64/ld-linux-x86-64.so.2'
+else
+  host_machine_description = cpu_family + ' (' + endian + ' endian)'
+  error('Please specify dynamic linker for:', host_machine_description)
+endif
+
+message('Host machine dynamic linker:', dynamic_linker)
+
 custom_target(
   'toolbox',
   build_by_default: true,
@@ -28,6 +51,7 @@ custom_target(
     meson.current_build_dir(),
     meson.project_version(),
     cc.cmd_array().get(-1),
+    dynamic_linker,
   ],
   input: sources,
   install: true,

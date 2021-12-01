@@ -14,7 +14,6 @@
           - golang-github-cpuguy83-md2man
           - meson
           - ninja-build
-          - patchelf
           - podman
           - skopeo
           - systemd
@@ -28,7 +27,7 @@
         chdir: '{{ zuul.project.src_dir }}'
 
     - name: Check versions of crucial packages
-      command: rpm -qa *kernel* *glibc* golang podman conmon containernetworking-plugins containers-common container-selinux crun runc fuse-overlayfs flatpak-session-helper patchelf
+      command: rpm -qa *kernel* *glibc* golang podman conmon containernetworking-plugins containers-common container-selinux crun runc fuse-overlayfs flatpak-session-helper
 
     - name: Show podman versions
       command: podman version

@@ -16,9 +16,9 @@
 #
 
 
-if [ "$#" -ne 4 ]; then
+if [ "$#" -ne 5 ]; then
     echo "go-build-wrapper: wrong arguments" >&2
-    echo "Usage: go-build-wrapper [SOURCE DIR] [OUTPUT DIR] [VERSION] [C COMPILER]" >&2
+    echo "Usage: go-build-wrapper [SOURCE DIR] [OUTPUT DIR] [VERSION] [C COMPILER] [DYNAMIC LINKER]" >&2
     exit 1
 fi
 
@@ -42,33 +42,23 @@ if ! libc_dir_canonical_dirname=$(dirname "$libc_dir_canonical"); then
     exit 1
 fi
 
-go build -trimpath -ldflags "-extldflags '-Wl,-rpath,/run/host$libc_dir_canonical_dirname' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3" -o "$2/toolbox"
-
-if ! interpreter=$(patchelf --print-interpreter "$2/toolbox"); then
-    echo "go-build-wrapper: failed to read PT_INTERP from $2/toolbox" >&2
+if ! dynamic_linker_basename=$(basename "$5"); then
+    echo "go-build-wrapper: failed to read the basename of dynamic linker $5" >&2
     exit 1
 fi
 
-if ! interpreter_canonical=$(readlink --canonicalize "$interpreter"); then
-    echo "go-build-wrapper: failed to canonicalize PT_INTERP" >&2
+if ! dynamic_linker_canonical=$(readlink --canonicalize "$5"); then
+    echo "go-build-wrapper: failed to canonicalize dynamic linker $5" >&2
     exit 1
 fi
 
-if ! interpreter_basename=$(basename "$interpreter"); then
-    echo "go-build-wrapper: failed to read the basename of PT_INTERP" >&2
+if ! dynamic_linker_canonical_dirname=$(dirname "$dynamic_linker_canonical"); then
+    echo "go-build-wrapper: failed to read the dirname of the canonicalized dynamic linker $dynamic_linker_canonical" >&2
     exit 1
 fi
 
-if ! interpreter_canonical_dirname=$(dirname "$interpreter_canonical"); then
-    echo "go-build-wrapper: failed to read the dirname of the canonicalized PT_INTERP" >&2
-    exit 1
-fi
+dynamic_linker="/run/host$dynamic_linker_canonical_dirname/$dynamic_linker_basename"
 
-interpreter="/run/host$interpreter_canonical_dirname/$interpreter_basename"
-
-if ! patchelf --set-interpreter "$interpreter" "$2/toolbox"; then
-    echo "go-build-wrapper: failed to change PT_INTERP of $2/toolbox to $interpreter" >&2
-    exit 1
-fi
+go build -trimpath -ldflags "-extldflags '-Wl,-dynamic-linker,$dynamic_linker -Wl,-rpath,/run/host$libc_dir_canonical_dirname' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3" -o "$2/toolbox"
 
 exit "$?"

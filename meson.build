@@ -3,14 +3,13 @@ project(
   'c',
   version: '0.0.99.2',
   license: 'ASL 2.0',
-  meson_version: '>= 0.56.0',
+  meson_version: '>= 0.58.0',
 )
 
 cc = meson.get_compiler('c')
 
 go = find_program('go')
 go_md2man = find_program('go-md2man')
-patchelf = find_program('patchelf')
 shellcheck = find_program('shellcheck', required: false)
 skopeo = find_program('skopeo', required: false)
 
