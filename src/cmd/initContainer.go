@@ -406,7 +406,7 @@ func configureUsers(targetUserUid int,
 		}
 
 		if err := shell.Run("usermod", nil, nil, nil, usermodArgs...); err != nil {
-			return fmt.Errorf("failed to modify user %s with UID %d", targetUser, targetUserUid)
+			return fmt.Errorf("failed to modify user %s with UID %d: %w", targetUser, targetUserUid, err)
 		}
 	} else {
 		logrus.Debugf("Adding user %s with UID %d:", targetUser, targetUserUid)
@@ -426,20 +426,20 @@ func configureUsers(targetUserUid int,
 		}
 
 		if err := shell.Run("useradd", nil, nil, nil, useraddArgs...); err != nil {
-			return fmt.Errorf("failed to add user %s with UID %d", targetUser, targetUserUid)
+			return fmt.Errorf("failed to add user %s with UID %d: %w", targetUser, targetUserUid, err)
 		}
 	}
 
 	logrus.Debugf("Removing password for user %s", targetUser)
 
 	if err := shell.Run("passwd", nil, nil, nil, "--delete", targetUser); err != nil {
-		return fmt.Errorf("failed to remove password for user %s", targetUser)
+		return fmt.Errorf("failed to remove password for user %s: %w", targetUser, err)
 	}
 
 	logrus.Debug("Removing password for user root")
 
 	if err := shell.Run("passwd", nil, nil, nil, "--delete", "root"); err != nil {
-		return errors.New("failed to remove password for root")
+		return fmt.Errorf("failed to remove password for root: %w", err)
 	}
 
 	return nil
