@@ -28,14 +28,12 @@ import (
 
 func Run(name string, stdin io.Reader, stdout, stderr io.Writer, arg ...string) error {
 	exitCode, err := RunWithExitCode(name, stdin, stdout, stderr, arg...)
-	if exitCode != 0 && err == nil {
-		err = fmt.Errorf("failed to invoke %s(1)", name)
-	}
-
 	if err != nil {
 		return err
 	}
-
+	if exitCode != 0 {
+		return fmt.Errorf("failed to invoke %s(1)", name)
+	}
 	return nil
 }
 
