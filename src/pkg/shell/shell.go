@@ -17,6 +17,7 @@
 package shell
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -35,6 +36,20 @@ func Run(name string, stdin io.Reader, stdout, stderr io.Writer, arg ...string) 
 		return fmt.Errorf("failed to invoke %s(1)", name)
 	}
 	return nil
+}
+
+// RunGetOutput spawns a command, capturing its stdout.
+func RunGetOutput(name string, arg ...string) ([]byte, error) {
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	exitCode, err := RunWithExitCode(name, nil, &stdout, &stderr, arg...)
+	if err != nil {
+		return nil, err
+	}
+	if exitCode != 0 {
+		return nil, fmt.Errorf("failed to invoke %s: %s", name, string(stderr.Bytes()))
+	}
+	return stdout.Bytes(), nil
 }
 
 func RunWithExitCode(name string, stdin io.Reader, stdout, stderr io.Writer, arg ...string) (int, error) {
