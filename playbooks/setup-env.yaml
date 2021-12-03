@@ -11,7 +11,19 @@
           - bats
           - flatpak-session-helper
           - golang
+          - golang-github-acobaugh-osrelease-devel
+          - golang-github-briandowns-spinner-devel
           - golang-github-cpuguy83-md2man
+          - golang-github-docker-units-devel
+          - golang-github-fsnotify-devel
+          - golang-github-godbus-dbus-devel
+          - golang-github-harrymichal-version-devel
+          - golang-github-mattn-isatty-devel
+          - golang-github-sirupsen-logrus-devel
+          - golang-github-stretchr-testify-devel
+          - golang-github-spf13-cobra-devel
+          - golang-github-spf13-viper-devel
+          - golang-x-sys-devel
           - meson
           - ninja-build
           - patchelf
