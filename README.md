@@ -6,9 +6,9 @@
 [![Arch Linux package](https://img.shields.io/archlinux/v/community/x86_64/toolbox)](https://www.archlinux.org/packages/community/x86_64/toolbox/)
 [![Fedora package](https://img.shields.io/fedora/v/toolbox/rawhide)](https://src.fedoraproject.org/rpms/toolbox/)
 
-[Toolbox](https://github.com/containers/toolbox) is a tool for Linux operating
-systems, which allows the use of containerized command line environments. It is
-built on top of [Podman](https://podman.io/) and other standard container
+[Toolbox](https://containertoolbx.org/) is a tool for Linux operating systems,
+which allows the use of containerized command line environments. It is built
+on top of [Podman](https://podman.io/) and other standard container
 technologies from [OCI](https://opencontainers.org/).
 
 This is particularly useful on
