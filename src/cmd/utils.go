@@ -78,6 +78,16 @@ func createErrorInvalidRelease() error {
 	return errors.New(errMsg)
 }
 
+func getUsageForCommonCommands() string {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "create    Create a new toolbox container\n")
+	fmt.Fprintf(&builder, "enter     Enter an existing toolbox container\n")
+	fmt.Fprintf(&builder, "list      List all existing toolbox containers and images\n")
+
+	usage := builder.String()
+	return usage
+}
+
 // showManual tries to open the specified manual page using man on stdout
 func showManual(manual string) error {
 	manBinary, err := exec.LookPath("man")
@@ -86,9 +96,10 @@ func showManual(manual string) error {
 			fmt.Printf("toolbox - Tool for containerized command line environments on Linux\n")
 			fmt.Printf("\n")
 			fmt.Printf("Common commands are:\n")
-			fmt.Printf("create    Create a new toolbox container\n")
-			fmt.Printf("enter     Enter an existing toolbox container\n")
-			fmt.Printf("list      List all existing toolbox containers and images\n")
+
+			usage := getUsageForCommonCommands()
+			fmt.Printf("%s", usage)
+
 			fmt.Printf("\n")
 			fmt.Printf("Go to https://github.com/containers/toolbox for further information.\n")
 			return nil
