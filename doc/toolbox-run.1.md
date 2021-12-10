@@ -28,8 +28,8 @@ The following options are understood:
 **--container** NAME, **-c** NAME
 
 Run command inside a toolbox container with the given NAME. This is useful
-when there are multiple toolbox containers created from the same base image,
-or entirely customized containers created from custom-built base images.
+when there are multiple toolbox containers created from the same image, or
+entirely customized containers created from custom-built images.
 
 **--distro** DISTRO, **-d** DISTRO
 
