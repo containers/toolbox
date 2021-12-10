@@ -1,7 +1,7 @@
 project(
   'toolbox',
   'c',
-  version: '0.0.99.2',
+  version: '0.0.99.3',
   license: 'ASL 2.0',
   meson_version: '>= 0.58.0',
 )
