@@ -88,7 +88,7 @@ host. Cannot be used with `--image`.
 
 Change the NAME of the image used to create the toolbox container. This is
 useful for creating containers from custom-built images. Cannot be used with
-`--release`.
+`--distro` and `--release`.
 
 If NAME does not contain a registry, the local image storage will be
 consulted, and if it's not present there then it will be pulled from a suitable
