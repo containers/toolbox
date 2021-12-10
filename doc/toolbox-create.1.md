@@ -107,10 +107,10 @@ host. Cannot be used with `--image`.
 $ toolbox create
 ```
 
-### Create a toolbox container using the default image for Fedora 30
+### Create a toolbox container using the default image for Fedora 36
 
 ```
-$ toolbox create --distro fedora --release f30
+$ toolbox create --distro fedora --release f36
 ```
 
 ### Create a custom toolbox container from a custom image

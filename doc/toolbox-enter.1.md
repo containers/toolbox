@@ -47,10 +47,10 @@ host.
 $ toolbox enter
 ```
 
-### Enter a toolbox container using the default image for Fedora 30
+### Enter a toolbox container using the default image for Fedora 36
 
 ```
-$ toolbox enter --distro fedora --release f30
+$ toolbox enter --distro fedora --release f36
 ```
 
 ### Enter a custom toolbox container using a custom image

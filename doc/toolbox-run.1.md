@@ -49,10 +49,10 @@ RELEASE than the host.
 $ toolbox run ls -la
 ```
 
-### Run emacs inside a toolbox container using the default image for Fedora 30
+### Run emacs inside a toolbox container using the default image for Fedora 36
 
 ```
-$ toolbox run --distro fedora --release f30 emacs
+$ toolbox run --distro fedora --release f36 emacs
 ```
 
 ### Run uptime inside a custom toolbox container using a custom image
