@@ -1,4 +1,11 @@
 option(
+  'migration_path_for_coreos_toolbox',
+  description: 'Offer a migration path to users of github.com/coreos/toolbox',
+  type: 'boolean',
+  value: false
+)
+
+option(
   'profile_dir',
   description: 'Directory for profile.d files to be read by the shell on start-up',
   type: 'string',

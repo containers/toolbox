@@ -5,7 +5,7 @@ load 'libs/bats-assert/load'
 load 'libs/helpers'
 
 setup() {
-  check_xdg_runtime_dir
+  _setup_environment
   cleanup_containers
 }
 

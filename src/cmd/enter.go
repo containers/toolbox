@@ -80,7 +80,7 @@ func enter(cmd *cobra.Command, args []string) error {
 
 	var container string
 	var containerArg string
-	var nonDefaultContainer bool
+	var defaultContainer bool = true
 
 	if len(args) != 0 {
 		container = args[0]
@@ -91,7 +91,7 @@ func enter(cmd *cobra.Command, args []string) error {
 	}
 
 	if container != "" {
-		nonDefaultContainer = true
+		defaultContainer = false
 
 		if !utils.IsContainerNameValid(container) {
 			var builder strings.Builder
@@ -106,12 +106,12 @@ func enter(cmd *cobra.Command, args []string) error {
 
 	var release string
 	if enterFlags.release != "" {
-		nonDefaultContainer = true
+		defaultContainer = false
 
 		var err error
 		release, err = utils.ParseRelease(enterFlags.distro, enterFlags.release)
 		if err != nil {
-			err := utils.CreateErrorInvalidRelease(executableBase)
+			err := createErrorInvalidRelease()
 			return err
 		}
 	}
@@ -150,7 +150,7 @@ func enter(cmd *cobra.Command, args []string) error {
 	}
 
 	if err := runCommand(container,
-		!nonDefaultContainer,
+		defaultContainer,
 		image,
 		release,
 		command,
@@ -178,7 +178,7 @@ func enterHelp(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if err := utils.ShowManual("toolbox-enter"); err != nil {
+	if err := showManual("toolbox-enter"); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}

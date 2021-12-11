@@ -88,7 +88,7 @@ func helpShowManual(args []string) error {
 		manual = "toolbox-" + args[0]
 	}
 
-	if err := utils.ShowManual(manual); err != nil {
+	if err := showManual(manual); err != nil {
 		return err
 	}
 

@@ -1,7 +1,7 @@
 # shellcheck shell=sh
 
 # shellcheck disable=SC2153
-[ "$BASH_VERSION" != "" ] || [ "$ZSH_VERSION" != "" ] || return 0
+[ "${BASH_VERSION:-}" != "" ] || [ "${ZSH_VERSION:-}" != "" ] || return 0
 [ "$PS1" != "" ] || return 0
 
 toolbox_config="$HOME/.config/toolbox"
@@ -20,9 +20,10 @@ eval $(
 if [ -f /run/ostree-booted ] \
    && ! [ -f "$host_welcome_stub" ] \
    && [ "${ID}" = "fedora" ] \
-   && { [ "${VARIANT_ID}" = "workstation" ] || [ "${VARIANT_ID}" = "silverblue" ]; }; then
+   && { [ "${VARIANT_ID}" = "workstation" ] || [ "${VARIANT_ID}" = "silverblue" ] || [ "${VARIANT_ID}" = "kinoite" ]; }; then
     echo ""
-    echo "Welcome to Fedora Silverblue. This terminal is running on the"
+    # shellcheck disable=SC3059
+    echo "Welcome to Fedora ${VARIANT_ID^}. This terminal is running on the"
     echo "host system. You may want to try out the Toolbox for a directly"
     echo "mutable environment that allows package installation with DNF."
     echo ""
@@ -38,7 +39,8 @@ fi
 
 if [ -f /run/.containerenv ] \
    && [ -f /run/.toolboxenv ]; then
-    PS1=$(printf "\[\033[${TOOLBOX_COLOR:-35}m\]⬢\[\033[0m\]%s" "[\u@\h \W]\\$ ")
+    [ "${BASH_VERSION:-}" != "" ] && PS1=$(printf "\[\033[${TOOLBOX_COLOR:-35}m\]⬢\[\033[0m\]%s" "[\u@\h \W]\\$ ")
+    [ "${ZSH_VERSION:-}" != "" ] && PS1=$(printf "\033[${TOOLBOX_COLOR:-35}m⬢\033[0m%s" "[%n@%m]%~%# ")
 
     if ! [ -f "$toolbox_welcome_stub" ]; then
         echo ""

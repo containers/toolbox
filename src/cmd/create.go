@@ -171,7 +171,7 @@ func create(cmd *cobra.Command, args []string) error {
 		var err error
 		release, err = utils.ParseRelease(createFlags.distro, createFlags.release)
 		if err != nil {
-			err := utils.CreateErrorInvalidRelease(executableBase)
+			err := createErrorInvalidRelease()
 			return err
 		}
 	}
@@ -317,6 +317,17 @@ func createContainer(container, image, release string, showCommandToEnter bool, 
 		kcmSocketMount = []string{"--volume", kcmSocketMountArg}
 	}
 
+	var pcscSocketMount []string
+
+	pcscSocket, err := getServiceSocket("pcsc", "pcscd.socket")
+	if err != nil {
+		logrus.Debug(err)
+	}
+	if pcscSocket != "" {
+		pcscSocketMountArg := pcscSocket + ":" + pcscSocket
+		pcscSocketMount = []string{"--volume", pcscSocketMountArg}
+	}
+
 	var mediaLink []string
 	var mediaMount []string
 
@@ -412,7 +423,6 @@ func createContainer(container, image, release string, showCommandToEnter bool, 
 		"--hostname", "toolbox",
 		"--ipc", "host",
 		"--label", "com.github.containers.toolbox=true",
-		"--label", "com.github.debarshiray.toolbox=true",
 	}...)
 
 	createArgs = append(createArgs, devPtsMount...)
@@ -447,6 +457,7 @@ func createContainer(container, image, release string, showCommandToEnter bool, 
 	createArgs = append(createArgs, kcmSocketMount...)
 	createArgs = append(createArgs, mediaMount...)
 	createArgs = append(createArgs, mntMount...)
+	createArgs = append(createArgs, pcscSocketMount...)
 	createArgs = append(createArgs, runMediaMount...)
 	createArgs = append(createArgs, toolboxShMount...)
 
@@ -503,7 +514,7 @@ func createHelp(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if err := utils.ShowManual("toolbox-create"); err != nil {
+	if err := showManual("toolbox-create"); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}
@@ -728,7 +739,7 @@ func pullImage(image, release string) (bool, error) {
 		fmt.Println("Image required to create toolbox container.")
 
 		prompt := fmt.Sprintf("Download %s (500MB)? [y/N]:", imageFull)
-		shouldPullImage = utils.AskForConfirmation(prompt)
+		shouldPullImage = askForConfirmation(prompt)
 	}
 
 	if !shouldPullImage {

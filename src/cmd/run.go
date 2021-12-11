@@ -86,10 +86,10 @@ func run(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	var nonDefaultContainer bool
+	var defaultContainer bool = true
 
 	if runFlags.container != "" {
-		nonDefaultContainer = true
+		defaultContainer = false
 
 		if !utils.IsContainerNameValid(runFlags.container) {
 			var builder strings.Builder
@@ -104,12 +104,12 @@ func run(cmd *cobra.Command, args []string) error {
 
 	var release string
 	if runFlags.release != "" {
-		nonDefaultContainer = true
+		defaultContainer = false
 
 		var err error
 		release, err = utils.ParseRelease(runFlags.distro, runFlags.release)
 		if err != nil {
-			err := utils.CreateErrorInvalidRelease(executableBase)
+			err := createErrorInvalidRelease()
 			return err
 		}
 	}
@@ -136,7 +136,7 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	if err := runCommand(container,
-		!nonDefaultContainer,
+		defaultContainer,
 		image,
 		release,
 		command,
@@ -170,13 +170,13 @@ func runCommand(container string,
 		logrus.Debugf("Container %s not found", container)
 
 		if pedantic {
-			err := utils.CreateErrorContainerNotFound(container, executableBase)
+			err := createErrorContainerNotFound(container)
 			return err
 		}
 
 		containers, err := getContainers()
 		if err != nil {
-			err := utils.CreateErrorContainerNotFound(container, executableBase)
+			err := createErrorContainerNotFound(container)
 			return err
 		}
 
@@ -194,7 +194,7 @@ func runCommand(container string,
 
 			if promptForCreate {
 				prompt := "No toolbox containers found. Create now? [y/N]"
-				shouldCreateContainer = utils.AskForConfirmation(prompt)
+				shouldCreateContainer = askForConfirmation(prompt)
 			}
 
 			if !shouldCreateContainer {
@@ -383,7 +383,7 @@ func runHelp(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if err := utils.ShowManual("toolbox-run"); err != nil {
+	if err := showManual("toolbox-run"); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}

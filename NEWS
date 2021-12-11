@@ -1,3 +1,33 @@
+Overview of changes in 0.0.99.3
+===============================
+
+* Add bc and iproute to the fedora-toolbox images
+* Add fedora-toolbox image definition for Fedoras 35 and 36
+* Add support for configuration files
+* Add optional migration paths for coreos/toolbox users
+* Allow overriding the path to tmpfilesdir
+* Avoid RPM failures due to unexpected file owners
+* Bump minimum Meson version to 0.58.0
+* Ensure that binaries are run against their build-time ABI
+* Expose the host's entire / in the container at /run/host
+* Fix the PS1 on Z shell
+* Fix wrong use of regexp.MatchString
+* Give access to PC/SC smart card daemon
+* Make locate(1) opt-in by default
+* Make the test suite non-destructive
+* Mention that private images require 'podman login'
+* Remove misleading and redundant CMD from the fedora-toolbox images
+* Remove the deprecated com.github.debarshiray.toolbox label from the
+  fedora-toolbox images, and when creating a new container
+* Replace outdated logos with pixels
+* Show basic help when man(1) is not available
+* Show welcome message on Fedora Kinoite
+* Test ImageReferenceCanBeID and ParseRelease
+* Unbreak 'enter' if the shell had exited with 127
+* Various additions and improvements to the test suite
+* Various updates to the documentation and manuals
+
+
 Overview of changes in 0.0.99.2
 ===============================
 

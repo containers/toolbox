@@ -122,7 +122,7 @@ func rmHelp(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if err := utils.ShowManual("toolbox-rm"); err != nil {
+	if err := showManual("toolbox-rm"); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}

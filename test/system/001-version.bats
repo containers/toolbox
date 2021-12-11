@@ -4,6 +4,10 @@ load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers.bash'
 
+setup() {
+  _setup_environment
+}
+
 @test "version: Check version using option --version" {
   run $TOOLBOX --version
 

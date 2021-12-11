@@ -130,6 +130,10 @@ func preRun(cmd *cobra.Command, args []string) error {
 
 	if toolboxPath == "" {
 		if utils.IsInsideContainer() {
+			if err := preRunIsCoreOSBug(); err != nil {
+				return err
+			}
+
 			return errors.New("TOOLBOX_PATH not set")
 		}
 
@@ -174,74 +178,14 @@ func rootHelp(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if err := utils.ShowManual(manual); err != nil {
+	if err := showManual(manual); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}
 }
 
 func rootRun(cmd *cobra.Command, args []string) error {
-	if len(args) != 0 {
-		panic("unexpected argument: commands known or unknown shouldn't reach here")
-	}
-
-	if utils.IsInsideContainer() {
-		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a toolbox container")
-		}
-
-		if _, err := utils.ForwardToHost(); err != nil {
-			return err
-		}
-
-		return nil
-	}
-
-	image, release, err := utils.ResolveImageName("", "", "")
-	if err != nil {
-		return err
-	}
-
-	container, err := utils.ResolveContainerName("", image, release)
-	if err != nil {
-		return err
-	}
-
-	userShell := os.Getenv("SHELL")
-	if userShell == "" {
-		return errors.New("failed to get the current user's default shell")
-	}
-
-	command := []string{userShell, "-l"}
-
-	hostID, err := utils.GetHostID()
-	if err != nil {
-		return fmt.Errorf("failed to get the host ID: %w", err)
-	}
-
-	hostVariantID, err := utils.GetHostVariantID()
-	if err != nil {
-		return errors.New("failed to get the host VARIANT_ID")
-	}
-
-	var emitEscapeSequence bool
-
-	if hostID == "fedora" && (hostVariantID == "silverblue" || hostVariantID == "workstation") {
-		emitEscapeSequence = true
-	}
-
-	if err := runCommand(container,
-		true,
-		image,
-		release,
-		command,
-		emitEscapeSequence,
-		true,
-		false); err != nil {
-		return err
-	}
-
-	return nil
+	return rootRunImpl(cmd, args)
 }
 
 func rootUsage(cmd *cobra.Command) error {

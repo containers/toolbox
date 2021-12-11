@@ -5,14 +5,45 @@ load 'libs/bats-assert/load'
 load 'libs/helpers.bash'
 
 setup() {
-  check_xdg_runtime_dir
+  _setup_environment
+}
+
+@test "help: Try to run toolbox with no command" {
+  run $TOOLBOX
+
+  assert_failure
+  assert_line --index 0 "Error: missing command"
+  assert_line --index 1 "create    Create a new toolbox container"
+  assert_line --index 2 "enter     Enter an existing toolbox container"
+  assert_line --index 3 "list      List all existing toolbox containers and images"
+  assert_line --index 4 "Run 'toolbox --help' for usage."
 }
 
 @test "help: Run command 'help'" {
+  if ! command -v man 2>/dev/null; then
+    skip "Test works only if man is in PATH"
+  fi
+
   run $TOOLBOX help
 
   assert_success
-  assert_output --partial "toolbox - Tool for containerized command line environments on Linux"
+  assert_line --index 0 --partial "toolbox(1)()"
+}
+
+@test "help: Run command 'help' with no man present" {
+  if command -v man 2>/dev/null; then
+    skip "Test works only if man is not in PATH"
+  fi
+
+  run $TOOLBOX help
+
+  assert_success
+  assert_line --index 0 "toolbox - Tool for containerized command line environments on Linux"
+  assert_line --index 1 "Common commands are:"
+  assert_line --index 2 "create    Create a new toolbox container"
+  assert_line --index 3 "enter     Enter an existing toolbox container"
+  assert_line --index 4 "list      List all existing toolbox containers and images"
+  assert_line --index 5 "Go to https://github.com/containers/toolbox for further information."
 }
 
 @test "help: Use flag '--help' (it should show usage screen)" {

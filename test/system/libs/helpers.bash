@@ -2,13 +2,18 @@
 
 load 'libs/bats-support/load'
 
+# Helpful globals
+readonly TEMP_BASE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/toolbox"
+readonly TEMP_STORAGE_DIR="${TEMP_BASE_DIR}/system-test-storage"
+
+readonly IMAGE_CACHE_DIR="${BATS_RUN_TMPDIR}/image-cache"
+readonly ROOTLESS_PODMAN_STORE_DIR="${TEMP_STORAGE_DIR}/storage"
+readonly PODMAN_STORE_CONFIG_FILE="${TEMP_STORAGE_DIR}/store.conf"
+
 # Podman and Toolbox commands to run
 readonly PODMAN=${PODMAN:-podman}
 readonly TOOLBOX=${TOOLBOX:-toolbox}
 readonly SKOPEO=$(command -v skopeo)
-
-# Helpful globals
-readonly IMAGE_CACHE_DIR="${BATS_RUN_TMPDIR}/image-cache"
 
 # Images
 declare -Ag IMAGES=([busybox]="quay.io/toolbox_tests/busybox" \
@@ -23,6 +28,24 @@ function cleanup_all() {
 
 function cleanup_containers() {
   $PODMAN rm --all --force >/dev/null
+}
+
+
+function _setup_environment() {
+  _setup_containers_store
+  check_xdg_runtime_dir
+}
+
+function _setup_containers_store() {
+  mkdir -p ${TEMP_STORAGE_DIR}
+  # Setup a storage config file for PODMAN
+  echo -e "[storage]\n  driver = \"overlay\"\n  rootless_storage_path = \"${ROOTLESS_PODMAN_STORE_DIR}\"\n" > ${PODMAN_STORE_CONFIG_FILE}
+  export CONTAINERS_STORAGE_CONF=${PODMAN_STORE_CONFIG_FILE}
+}
+
+
+function _clean_temporary_storage() {
+  rm -rf ${TEMP_STORAGE_DIR}
 }
 
 
@@ -69,7 +92,7 @@ function _pull_and_cache_distro_image() {
 
     sleep $timeout
   done
-  
+
   if ! $pulled; then
     echo "Failed to pull image ${image}"
     assert_success
@@ -133,7 +156,8 @@ function pull_distro_image() {
     return
   fi
 
-  run $SKOPEO copy "dir:${IMAGE_CACHE_DIR}/${image_archive}" "containers-storage:${image}"
+  # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
+  run $SKOPEO copy "dir:${IMAGE_CACHE_DIR}/${image_archive}" "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]${image}"
   if [ "$status" -ne 0 ]; then
     echo "Failed to load image ${image} from cache ${IMAGE_CACHE_DIR}/${image_archive}"
     assert_success
@@ -205,6 +229,38 @@ function start_container() {
 
   $PODMAN start "$container_name" >/dev/null \
     || fail "Podman couldn't start the container '$container_name'"
+}
+
+
+# Checks if a toolbox container started
+#
+# Parameters:
+# ===========
+# - container_name - name of the container
+function container_started() {
+  local container_name
+  container_name="$1"
+
+  run $PODMAN start $container_name
+
+  container_initialized=0
+
+  for TRIES in 1 2 3 4 5
+  do
+    run $PODMAN logs $container_name
+    container_output=$output
+    # Look for last line of the container startup log
+    run grep 'Listening to file system and ticker events' <<< $container_output
+    if [[ "$status" -eq 0 ]]; then
+      container_initialized=1
+      break
+    fi
+    sleep 1
+  done
+
+  echo $container_output >2
+
+  echo $container_initialized
 }
 
 

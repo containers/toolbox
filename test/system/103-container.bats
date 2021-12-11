@@ -5,7 +5,7 @@ load 'libs/bats-assert/load'
 load 'libs/helpers'
 
 setup() {
-  check_xdg_runtime_dir
+  _setup_environment
   cleanup_containers
 }
 
@@ -19,23 +19,30 @@ teardown() {
 
   create_default_container
 
-  run $PODMAN start $CONTAINER_NAME
+  res="$(container_started $CONTAINER_NAME)"
 
-  CONTAINER_INITIALIZED=0
-
-  for TRIES in 1 2 3 4 5
-  do
-    run $PODMAN logs $CONTAINER_NAME
-    CONTAINER_OUTPUT=$output
-    run grep 'Listening to file system and ticker events' <<< $CONTAINER_OUTPUT
-    if [[ "$status" -eq 0 ]]; then
-      CONTAINER_INITIALIZED=1
-      break
-    fi
-    sleep 1
-  done
-
-  echo $CONTAINER_OUTPUT
-  assert [ "$CONTAINER_INITIALIZED" -eq 1 ]
+  assert [ "$res" -eq 1 ]
 }
 
+@test "container(Fedora Rawhide): Containers with supported versions start without issues" {
+  local os_release="$(find_os_release)"
+  local system_id="$(get_system_id)"
+  local system_version="$(get_system_version)"
+  local rawhide_res="$(awk '/rawhide/' $os_release)"
+
+  if [ "$system_id" != "fedora" ] || [ -z "$rawhide_res" ]; then
+    skip "This test is only for Fedora Rawhide"
+  fi
+
+  create_distro_container "$system_id" "$system_version" latest
+  res1="$(container_started latest)"
+  assert [ "$res1" -eq 1 ]
+
+  create_distro_container "$system_id" "$((system_version-1))" second
+  res2="$(container_started second)"
+  assert [ "$res2" -eq 1 ]
+
+  create_distro_container "$system_id" "$((system_version-2))" third
+  res3="$(container_started third)"
+  assert [ "$res3" -eq 1 ]
+}

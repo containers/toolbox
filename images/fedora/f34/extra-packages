@@ -20,7 +20,6 @@ less
 lsof
 man-db
 man-pages
-mlocate
 mtr
 nano-default-editor
 nss-mdns
@@ -36,6 +35,7 @@ time
 traceroute
 tree
 unzip
+util-linux
 vte-profile
 wget
 which

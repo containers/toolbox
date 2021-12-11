@@ -264,6 +264,24 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	if utils.PathExists("/usr/lib/rpm/macros.d") {
+		logrus.Debug("Configuring RPM to ignore bind mounts")
+
+		var builder strings.Builder
+		fmt.Fprintf(&builder, "# Written by Toolbox\n")
+		fmt.Fprintf(&builder, "# https://github.com/containers/toolbox\n")
+		fmt.Fprintf(&builder, "\n")
+		fmt.Fprintf(&builder, "%%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt\n")
+
+		rpmConfigString := builder.String()
+		rpmConfigBytes := []byte(rpmConfigString)
+		if err := ioutil.WriteFile("/usr/lib/rpm/macros.d/macros.toolbox",
+			rpmConfigBytes,
+			0644); err != nil {
+			return fmt.Errorf("failed to configure RPM to ignore bind mounts: %w", err)
+		}
+	}
+
 	logrus.Debug("Setting up daily ticker")
 
 	daily, err := time.ParseDuration("24h")
@@ -350,7 +368,7 @@ func initContainerHelp(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if err := utils.ShowManual("toolbox-init-container"); err != nil {
+	if err := showManual("toolbox-init-container"); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}
@@ -388,7 +406,7 @@ func configureUsers(targetUserUid int,
 		}
 
 		if err := shell.Run("usermod", nil, nil, nil, usermodArgs...); err != nil {
-			return fmt.Errorf("failed to modify user %s with UID %d", targetUser, targetUserUid)
+			return fmt.Errorf("failed to modify user %s with UID %d: %w", targetUser, targetUserUid, err)
 		}
 	} else {
 		logrus.Debugf("Adding user %s with UID %d:", targetUser, targetUserUid)
@@ -408,20 +426,20 @@ func configureUsers(targetUserUid int,
 		}
 
 		if err := shell.Run("useradd", nil, nil, nil, useraddArgs...); err != nil {
-			return fmt.Errorf("failed to add user %s with UID %d", targetUser, targetUserUid)
+			return fmt.Errorf("failed to add user %s with UID %d: %w", targetUser, targetUserUid, err)
 		}
 	}
 
 	logrus.Debugf("Removing password for user %s", targetUser)
 
 	if err := shell.Run("passwd", nil, nil, nil, "--delete", targetUser); err != nil {
-		return fmt.Errorf("failed to remove password for user %s", targetUser)
+		return fmt.Errorf("failed to remove password for user %s: %w", targetUser, err)
 	}
 
 	logrus.Debug("Removing password for user root")
 
 	if err := shell.Run("passwd", nil, nil, nil, "--delete", "root"); err != nil {
-		return errors.New("failed to remove password for root")
+		return fmt.Errorf("failed to remove password for root: %w", err)
 	}
 
 	return nil

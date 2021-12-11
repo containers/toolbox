@@ -16,9 +16,14 @@
 #
 
 
-if [ "$#" -ne 4 ]; then
+if [ "$#" -ne 6 ]; then
     echo "go-build-wrapper: wrong arguments" >&2
-    echo "Usage: go-build-wrapper [SOURCE DIR] [OUTPUT DIR] [VERSION] [libc-wrappers.a]" >&2
+    echo "Usage: go-build-wrapper [SOURCE DIR]" >&2
+    echo "                        [OUTPUT DIR]" >&2
+    echo "                        [VERSION]" >&2
+    echo "                        [C COMPILER]" >&2
+    echo "                        [DYNAMIC LINKER]" >&2
+    echo "                        [MIGRATION PATH FOR COREOS/TOOLBOX]" >&2
     exit 1
 fi
 
@@ -27,5 +32,48 @@ if ! cd "$1"; then
     exit 1
 fi
 
-go build -trimpath -ldflags "-extldflags '-Wl,--wrap,pthread_sigmask $4' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3" -o "$2/toolbox"
+tags=""
+if $6; then
+    tags="-tags migration_path_for_coreos_toolbox"
+fi
+
+if ! libc_dir=$("$4" --print-file-name=libc.so); then
+    echo "go-build-wrapper: failed to read the path to libc.so" >&2
+    exit 1
+fi
+
+if ! libc_dir_canonical=$(readlink --canonicalize "$libc_dir"); then
+    echo "go-build-wrapper: failed to canonicalize the path to libc.so" >&2
+    exit 1
+fi
+
+if ! libc_dir_canonical_dirname=$(dirname "$libc_dir_canonical"); then
+    echo "go-build-wrapper: failed to read the dirname of the canonicalized path to libc.so" >&2
+    exit 1
+fi
+
+if ! dynamic_linker_basename=$(basename "$5"); then
+    echo "go-build-wrapper: failed to read the basename of dynamic linker $5" >&2
+    exit 1
+fi
+
+if ! dynamic_linker_canonical=$(readlink --canonicalize "$5"); then
+    echo "go-build-wrapper: failed to canonicalize dynamic linker $5" >&2
+    exit 1
+fi
+
+if ! dynamic_linker_canonical_dirname=$(dirname "$dynamic_linker_canonical"); then
+    echo "go-build-wrapper: failed to read the dirname of the canonicalized dynamic linker $dynamic_linker_canonical" >&2
+    exit 1
+fi
+
+dynamic_linker="/run/host$dynamic_linker_canonical_dirname/$dynamic_linker_basename"
+
+# shellcheck disable=SC2086
+go build \
+        $tags \
+        -trimpath \
+        -ldflags "-extldflags '-Wl,-dynamic-linker,$dynamic_linker -Wl,-rpath,/run/host$libc_dir_canonical_dirname' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3" \
+        -o "$2/toolbox"
+
 exit "$?"
