@@ -382,12 +382,14 @@ func validateSubIDFile(path string) (bool, error) {
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
 
-	prefix := currentUser.Username + ":"
+	prefixes := []string{currentUser.Username + ":", currentUser.Uid + ":"}
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.HasPrefix(line, prefix) {
-			return true, nil
+		for _, prefix := range prefixes {
+			if strings.HasPrefix(line, prefix) {
+				return true, nil
+			}
 		}
 	}
 
