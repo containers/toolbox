@@ -1,4 +1,4 @@
-![Toolbox logo](data/gfx/powerup.gif)
+![Contributing](data/gfx/CONTRIBUTING.gif)
 
 # Contributing to Toolbox
 
