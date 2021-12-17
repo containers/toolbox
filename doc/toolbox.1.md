@@ -40,6 +40,26 @@ access to the user's home directory, the Wayland and X11 sockets, networking
 (including Avahi), removable devices (like USB sticks), systemd journal, SSH
 agent, D-Bus, ulimits, /dev and the udev database, etc..
 
+## Supported operating system distributions
+
+By default, Toolbox tries to use an image matching the host operating system
+distribution for creating containers. If the host is not supported, then it
+falls back to a Fedora image. Supported host operating systems are:
+
+* Fedora
+* Red Hat Enterprise Linux >= 8.5
+
+However, it's possible to create containers for a different distribution
+through the use of the `--distro` and `--release` options that are accepted by
+the relevant commands, or their counterparts in the configuration file. The
+`--distro` flag specifies the name of the distribution, and `--release`
+specifies its version. Supported combinations are:
+
+Distro |Release
+-------|----------
+fedora |\<release\> or f\<release\> eg., 35 or f35
+rhel   |\<major\>.\<minor\> eg., 8.5
+
 ## GLOBAL OPTIONS ##
 
 The following options are understood:
