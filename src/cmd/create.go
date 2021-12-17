@@ -192,7 +192,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		return errors.New(errMsg)
 	}
 
-	pulled, err := pullImage(image, release)
+	pulled, err := pullImage(image)
 	if err != nil {
 		return err
 	}
@@ -651,7 +651,7 @@ func isPathReadWrite(path string) (bool, error) {
 	return false, nil
 }
 
-func pullImage(image, release string) (bool, error) {
+func pullImage(image string) (bool, error) {
 	if ok := utils.ImageReferenceCanBeID(image); ok {
 		logrus.Debugf("Looking for image %s", image)
 
@@ -677,7 +677,7 @@ func pullImage(image, release string) (bool, error) {
 		imageFull = image
 	} else {
 		var err error
-		imageFull, err = utils.GetFullyQualifiedImageFromDistros(image, release)
+		imageFull, err = utils.GetFullyQualifiedImageFromDistros(image)
 		if err != nil {
 			return false, fmt.Errorf("image %s not found in local storage and known registries", image)
 		}

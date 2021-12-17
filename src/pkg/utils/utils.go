@@ -275,7 +275,7 @@ func GetEnvOptionsForPreservedVariables() []string {
 	return envOptions
 }
 
-func GetFullyQualifiedImageFromDistros(image, release string) (string, error) {
+func GetFullyQualifiedImageFromDistros(image string) (string, error) {
 	logrus.Debugf("Resolving fully qualified name for image %s from known registries", image)
 
 	if ImageReferenceHasDomain(image) {
@@ -285,6 +285,11 @@ func GetFullyQualifiedImageFromDistros(image, release string) (string, error) {
 	basename := ImageReferenceGetBasename(image)
 	if basename == "" {
 		return "", fmt.Errorf("failed to get the basename of image %s", image)
+	}
+
+	release := ImageReferenceGetTag(image)
+	if release == "" {
+		return "", fmt.Errorf("failed to get the release of image %s", image)
 	}
 
 	for _, distroObj := range supportedDistros {
