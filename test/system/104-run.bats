@@ -48,6 +48,44 @@ teardown() {
   assert_line --index 2 "Run 'toolbox --help' for usage."
 }
 
+@test "run: Try to run a command in a container based on unsupported distribution" {
+  local distro="foo"
+
+  run $TOOLBOX -y run -d "$distro" ls
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--distro'"
+  # Distro names are in a hashtable and thus the order can change
+  assert_line --index 1 --regexp "Supported values are: (.?(fedora|rhel))+"
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "run: Try to run a command in a container based on Fedora but with wrong version" {
+  run $TOOLBOX run -d fedora -r foobar
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "Supported values for distribution fedora are in format: <release>/f<release>"
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "run: Try to run a command in a container based on non-default distro without providing a version" {
+  local distro="fedora"
+  local system_id="$(get_system_id)"
+
+  if [ "$system_id" = "fedora" ]; then
+    distro="rhel"
+  fi
+
+  run $TOOLBOX run -d "$distro" ls
+
+  assert_failure
+  assert_line --index 0 "Error: release not found for non-default distribution $distro"
+  assert [ ${#lines[@]} -eq 1 ]
+}
+
 @test "run: Run echo 'Hello World' inside of the default container" {
   create_default_container
 
