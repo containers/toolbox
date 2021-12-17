@@ -6,6 +6,8 @@ project(
   meson_version: '>= 0.58.0',
 )
 
+fs = import('fs')
+
 cc = meson.get_compiler('c')
 if not cc.has_argument('-print-file-name=libc.so')
   error('C compiler does not support the -print-file-name argument.')
@@ -22,9 +24,12 @@ migration_path_for_coreos_toolbox = get_option('migration_path_for_coreos_toolbo
 profiledir = get_option('profile_dir')
 
 tmpfilesdir = get_option('tmpfiles_dir')
-if tmpfilesdir == ''
+if tmpfilesdir == '' or not fs.exists('/run/.containerenv')
   systemd_dep = dependency('systemd')
-  tmpfilesdir = systemd_dep.get_variable(pkgconfig: 'tmpfilesdir')
+
+  if tmpfilesdir == ''
+    tmpfilesdir = systemd_dep.get_variable(pkgconfig: 'tmpfilesdir')
+  endif
 endif
 
 if bash_completion.found()
@@ -65,3 +70,5 @@ subdir('data')
 subdir('doc')
 subdir('profile.d')
 subdir('src')
+
+meson.add_install_script('meson_post_install.py')

@@ -52,10 +52,3 @@
       args:
         chdir: '{{ zuul.project.src_dir }}'
         creates: /usr/local/bin/toolbox
-
-    - name: Setup environment
-      become: yes
-      command:
-        cmd: systemd-tmpfiles --create
-        creates: /run/media
-        creates: /run/host
