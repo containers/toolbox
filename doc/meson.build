@@ -16,6 +16,9 @@ manuals = {
     'toolbox-rmi',
     'toolbox-run',
   ],
+  '5': [
+    'toolbox.conf',
+  ]
 }
 
 foreach section, pages: manuals

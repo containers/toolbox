@@ -102,6 +102,12 @@ Remove one or more toolbox images.
 
 Run a command in an existing toolbox container.
 
+## FILES ##
+
+**toolbox.conf(5)**
+
+Toolbox configuration file.
+
 ## SEE ALSO
 
 `podman(1)`, https://github.com/containers/toolbox
