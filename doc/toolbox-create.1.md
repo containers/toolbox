@@ -82,7 +82,8 @@ confusion.
 **--distro** DISTRO, **-d** DISTRO
 
 Create a toolbox container for a different operating system DISTRO than the
-host. Cannot be used with `--image`.
+host. Cannot be used with `--image`. Has to be coupled with `--release` unless
+the selected DISTRO matches the host.
 
 **--image** NAME, **-i** NAME
 

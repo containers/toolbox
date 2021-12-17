@@ -34,7 +34,8 @@ entirely customized containers created from custom-built images.
 **--distro** DISTRO, **-d** DISTRO
 
 Run command inside a toolbox container for a different operating system DISTRO
-than the host.
+than the host. Has to be coupled with `--release` unless the selected system
+matches the host system.
 
 **--release** RELEASE, **-r** RELEASE
 
