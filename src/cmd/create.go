@@ -138,17 +138,23 @@ func create(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	var release string
-	if createFlags.release != "" {
+	distro, err := utils.ResolveDistro(createFlags.distro)
+	if err != nil {
+		err := createErrorInvalidDistro()
+		return err
+	}
+
+	release := createFlags.release
+	if release != "" {
 		var err error
-		release, err = utils.ParseRelease(createFlags.distro, createFlags.release)
+		release, err = utils.ParseRelease(distro, release)
 		if err != nil {
-			err := createErrorInvalidRelease()
+			err := createErrorInvalidRelease(distro)
 			return err
 		}
 	}
 
-	image, release, err := utils.ResolveImageName(createFlags.distro, createFlags.image, release)
+	image, release, err := utils.ResolveImageName(distro, createFlags.image, release)
 	if err != nil {
 		return err
 	}

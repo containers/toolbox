@@ -20,8 +20,44 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestGetReleaseFormat(t *testing.T) {
+	testCases := []struct {
+		name     string
+		distro   string
+		expected string
+	}{
+		{
+			"Unknown distro",
+			"foobar",
+			"",
+		},
+		{
+			"Known distro (fedora)",
+			"fedora",
+			supportedDistros["fedora"].ReleaseFormat,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			res := GetReleaseFormat(tc.distro)
+			assert.Equal(t, tc.expected, res)
+		})
+	}
+}
+
+func TestGetSupportedDistros(t *testing.T) {
+	refDistros := []string{"fedora", "rhel"}
+
+	distros := GetSupportedDistros()
+	for _, d := range distros {
+		assert.Contains(t, refDistros, d)
+	}
+}
 
 func TestImageReferenceCanBeID(t *testing.T) {
 	testCases := []struct {
@@ -70,6 +106,92 @@ func TestImageReferenceCanBeID(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ok := ImageReferenceCanBeID(tc.ref)
 			assert.Equal(t, tc.ok, ok)
+		})
+	}
+}
+
+func TestIsDistroSupport(t *testing.T) {
+	testCases := []struct {
+		name   string
+		distro string
+		ok     bool
+	}{
+		{
+			"Unsupported distro",
+			"foobar",
+			false,
+		},
+		{
+			"Supported distro (fedora)",
+			"fedora",
+			true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			res := IsDistroSupported(tc.distro)
+			assert.Equal(t, tc.ok, res)
+		})
+	}
+}
+
+func TestResolveDistro(t *testing.T) {
+	testCases := []struct {
+		name        string
+		distro      string
+		expected    string
+		configValue string
+		err         bool
+	}{
+		{
+			"Default - no distro provided; config unset",
+			"",
+			distroDefault,
+			"",
+			false,
+		},
+		{
+			"Default - no distro provided; config set",
+			"",
+			"rhel",
+			"rhel",
+			false,
+		},
+		{
+			"Fedora",
+			"fedora",
+			"fedora",
+			"",
+			false,
+		},
+		{
+			"RHEL",
+			"rhel",
+			"rhel",
+			"",
+			false,
+		},
+		{
+			"FooBar; wrong distro",
+			"foobar",
+			"",
+			"",
+			true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.configValue != "" {
+				viper.Set("general.distro", tc.configValue)
+			}
+
+			res, err := ResolveDistro(tc.distro)
+			assert.Equal(t, tc.expected, res)
+			if tc.err {
+				assert.NotNil(t, err)
+			}
 		})
 	}
 }

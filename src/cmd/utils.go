@@ -23,6 +23,8 @@ import (
 	"os/exec"
 	"strings"
 	"syscall"
+
+	"github.com/containers/toolbox/pkg/utils"
 )
 
 // askForConfirmation prints prompt to stdout and waits for response from the
@@ -69,9 +71,20 @@ func createErrorContainerNotFound(container string) error {
 	return errors.New(errMsg)
 }
 
-func createErrorInvalidRelease() error {
+func createErrorInvalidDistro() error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "invalid argument for '--distro'\n")
+	fmt.Fprintf(&builder, "Supported values are: %s\n", strings.Join(utils.GetSupportedDistros(), " "))
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
+func createErrorInvalidRelease(distro string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "invalid argument for '--release'\n")
+	fmt.Fprintf(&builder, "Supported values for distribution %s are in format: %s\n", distro, utils.GetReleaseFormat(distro))
 	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
 
 	errMsg := builder.String()

@@ -44,6 +44,7 @@ type Distro struct {
 	ContainerNamePrefix    string
 	ImageBasename          string
 	ParseRelease           ParseReleaseFunc
+	ReleaseFormat          string
 	Registry               string
 	Repository             string
 	RepositoryNeedsRelease bool
@@ -58,6 +59,10 @@ const (
 	// Based on the nameRegex value in:
 	// https://github.com/containers/libpod/blob/master/libpod/options.go
 	ContainerNameRegexp = "[a-zA-Z0-9][a-zA-Z0-9_.-]*"
+)
+
+var (
+	ErrUnsupportedDistro = errors.New("linux distribution is not supported")
 )
 
 var (
@@ -98,6 +103,7 @@ var (
 			"fedora-toolbox",
 			"fedora-toolbox",
 			parseReleaseFedora,
+			"<release>/f<release>",
 			"registry.fedoraproject.org",
 			"",
 			false,
@@ -106,6 +112,7 @@ var (
 			"rhel-toolbox",
 			"toolbox",
 			parseReleaseRHEL,
+			"<major.minor>",
 			"registry.access.redhat.com",
 			"ubi8",
 			false,
@@ -407,6 +414,20 @@ func GetMountOptions(target string) (string, error) {
 	return mountOptions, nil
 }
 
+// GetReleaseFormat returns the format string signifying supported release
+// version formats.
+//
+// distro should be value found under ID in os-release.
+//
+// If distro is unsupported an empty string is returned.
+func GetReleaseFormat(distro string) string {
+	if !IsDistroSupported(distro) {
+		return ""
+	}
+
+	return supportedDistros[distro].ReleaseFormat
+}
+
 func GetRuntimeDirectory(targetUser *user.User) (string, error) {
 	gid, err := strconv.Atoi(targetUser.Gid)
 	if err != nil {
@@ -446,12 +467,29 @@ func GetRuntimeDirectory(targetUser *user.User) (string, error) {
 	return toolboxRuntimeDirectory, nil
 }
 
+// GetSupportedDistros returns a list of supported distributions
+func GetSupportedDistros() []string {
+	var distros []string
+	for d := range supportedDistros {
+		distros = append(distros, d)
+	}
+	return distros
+}
+
 // HumanDuration accepts a Unix time value and converts it into a human readable
 // string.
 //
 // Examples: "5 minutes ago", "2 hours ago", "3 days ago"
 func HumanDuration(duration int64) string {
 	return units.HumanDuration(time.Since(time.Unix(duration, 0))) + " ago"
+}
+
+// IsDistroSupported signifies if a distribution has a toolbx image for it.
+//
+// distro should be value found under ID in os-release.
+func IsDistroSupported(distro string) bool {
+	_, ok := supportedDistros[distro]
+	return ok
 }
 
 // ImageReferenceCanBeID checks if 'image' might be the ID of an image
@@ -598,6 +636,11 @@ func ShortID(id string) string {
 	return id
 }
 
+// ParseRelease assesses if the requested version of a distribution is in
+// the correct format.
+//
+// If distro is an empty string, a default value (value under the
+// 'general.distro' key in a config file or 'fedora') is assumed.
 func ParseRelease(distro, release string) (string, error) {
 	if distro == "" {
 		distro = distroDefault
@@ -710,6 +753,33 @@ func ResolveContainerName(container, image, release string) (string, error) {
 	logrus.Debugf("Container: '%s'", container)
 
 	return container, nil
+}
+
+// ResolveDistro assess if the requested distribution is supported and provides
+// a default value if none is requested.
+//
+// If distro is empty, and the "general.distro" key in a config file is set,
+// the value is read from the config file. If the key is not set, the default
+// value ('fedora') is used instead.
+func ResolveDistro(distro string) (string, error) {
+	logrus.Debug("Resolving distribution")
+	logrus.Debugf("Distribution: %s", distro)
+
+	if distro == "" {
+		distro = distroDefault
+		if viper.IsSet("general.distro") {
+			distro = viper.GetString("general.distro")
+		}
+	}
+
+	if !IsDistroSupported(distro) {
+		return "", ErrUnsupportedDistro
+	}
+
+	logrus.Debug("Resolved distribution")
+	logrus.Debugf("Distribution: %s", distro)
+
+	return distro, nil
 }
 
 // ResolveImageName standardizes the name of an image.
