@@ -4,28 +4,33 @@ go_md2man_command = [
   '-out', '@OUTPUT@',
 ]
 
-manuals = [
-  'toolbox.1',
-  'toolbox-create.1',
-  'toolbox-enter.1',
-  'toolbox-init-container.1',
-  'toolbox-help.1',
-  'toolbox-list.1',
-  'toolbox-rm.1',
-  'toolbox-rmi.1',
-  'toolbox-run.1',
-]
+manuals = {
+  '1': [
+    'toolbox',
+    'toolbox-create',
+    'toolbox-enter',
+    'toolbox-init-container',
+    'toolbox-help',
+    'toolbox-list',
+    'toolbox-rm',
+    'toolbox-rmi',
+    'toolbox-run',
+  ],
+}
 
-foreach manual: manuals
-  input = manual + '.md'
-  output = manual
+foreach section, pages: manuals
+  foreach page: pages
+    output = page + '.' + section
+    input = output + '.md'
+    sectiondir = 'man' + section
 
-  custom_target(
-    output,
-    command: go_md2man_command,
-    input: input,
-    install: true,
-    install_dir: join_paths(get_option('mandir'), 'man1'),
-    output: output,
-  )
+    custom_target(
+      output,
+      command: go_md2man_command,
+      input: input,
+      install: true,
+      install_dir: join_paths(get_option('mandir'), sectiondir),
+      output: output,
+    )
+  endforeach
 endforeach
