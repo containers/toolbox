@@ -38,7 +38,7 @@
 - job:
     name: system-test-fedora-rawhide
     description: Run Toolbox's system tests in Fedora Rawhide
-    timeout: 1320
+    timeout: 2700
     files: *system_test_files
     nodeset:
       nodes:
