@@ -47,21 +47,37 @@
     pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test.yaml
 
+- job:
+    name: system-test-centos-8
+    description: Run Toolbox's system tests in CentOS 8
+    timeout: 1200
+    files: *system_test_files
+    nodeset:
+      nodes:
+        - name: ci-node-c8
+          label: cloud-centos-8
+    pre-run: playbooks/setup-env.yaml
+    run: playbooks/system-test.yaml
+
+
 - project:
     periodic:
       jobs:
         - system-test-fedora-34
         - system-test-fedora-35
         - system-test-fedora-rawhide
+        - system-test-centos-8
     check:
       jobs:
         - unit-test
         - system-test-fedora-34
         - system-test-fedora-35
         - system-test-fedora-rawhide
+        - system-test-centos-8
     gate:
       jobs:
         - unit-test
         - system-test-fedora-34
         - system-test-fedora-35
         - system-test-fedora-rawhide
+        - system-test-centos-8
