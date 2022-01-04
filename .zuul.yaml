@@ -2,7 +2,7 @@
 - job:
     name: unit-test
     description: Run Toolbox's unit tests declared in Meson
-    timeout: 300
+    timeout: 600
     files: ['playbooks/*', 'src/*', 'meson.build', 'meson_options.txt', '.zuul.yaml']
     nodeset:
       nodes:
