@@ -50,18 +50,18 @@
 - project:
     periodic:
       jobs:
-        - system-test-fedora-34
-        - system-test-fedora-35
         - system-test-fedora-rawhide
+        - system-test-fedora-35
+        - system-test-fedora-34
     check:
       jobs:
         - unit-test
-        - system-test-fedora-34
-        - system-test-fedora-35
         - system-test-fedora-rawhide
+        - system-test-fedora-35
+        - system-test-fedora-34
     gate:
       jobs:
         - unit-test
-        - system-test-fedora-34
-        - system-test-fedora-35
         - system-test-fedora-rawhide
+        - system-test-fedora-35
+        - system-test-fedora-34
