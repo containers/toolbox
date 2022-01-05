@@ -82,7 +82,10 @@ confusion.
 **--distro** DISTRO, **-d** DISTRO
 
 Create a toolbox container for a different operating system DISTRO than the
-host. Cannot be used with `--image`.
+host. Cannot be used with `--image`. NOTE: This is currently broken. If an
+invalid DISTRO is passed together with the --release option, then it might
+simply download a different distro, for example Fedora of the corresponding
+release.
 
 **--image** NAME, **-i** NAME
 
