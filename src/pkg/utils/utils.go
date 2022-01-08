@@ -104,7 +104,7 @@ var (
 		},
 		"rhel": {
 			"rhel-toolbox",
-			"ubi",
+			"toolbox",
 			parseReleaseRHEL,
 			"registry.access.redhat.com",
 			"ubi8",
