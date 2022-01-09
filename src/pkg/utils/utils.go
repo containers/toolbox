@@ -573,6 +573,26 @@ func SetUpConfiguration() error {
 		}
 	}
 
+    if viper.IsSet("general.image") && (viper.IsSet("general.distro") || viper.IsSet("general.release")) {
+        logrus.Debugf("Setting up configuration: key 'general.image' is mutually exclusive with keys 'general.distro' and 'general.release'")
+        return errors.New("incompatible configuration keys")
+    }
+
+    if viper.IsSet("general.distro") {
+        if !IsDistroSupported(viper.GetString("general.distro")) {
+            logrus.Debugf("Setting up configuration: unsupported value under key 'general.distro'")
+            return errors.New("unsupported distribution")
+        }
+    }
+
+    if viper.IsSet("general.release") {
+        _, err := ParseRelease("", viper.GetString("general.release"))
+        if err != nil {
+            logrus.Debugf("Setting up configuration: incorrect release number: %s", err)
+            return errors.New("incorrect release number")
+        }
+    }
+
 	image, release, err := ResolveImageName("", "", "")
 	if err != nil {
 		logrus.Debugf("Setting up configuration: failed to resolve image name: %s", err)
