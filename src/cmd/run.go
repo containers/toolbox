@@ -364,8 +364,6 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 			return nil
 		}
 	}
-
-	panic("code should not be reached")
 }
 
 func runHelp(cmd *cobra.Command, args []string) {
@@ -476,12 +474,11 @@ func getEntryPointAndPID(container string) (string, int, error) {
 
 	var entryPointPIDInt int
 
-	switch entryPointPID.(type) {
+	switch entryPointPID := entryPointPID.(type) {
 	case float64:
-		entryPointPIDFloat := entryPointPID.(float64)
-		entryPointPIDInt = int(entryPointPIDFloat)
+		entryPointPIDInt = int(entryPointPID)
 	case int:
-		entryPointPIDInt = entryPointPID.(int)
+		entryPointPIDInt = entryPointPID
 	default:
 		return "", 0, fmt.Errorf("failed to inspect entry point PID of container %s", container)
 	}

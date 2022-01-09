@@ -85,7 +85,10 @@ func init() {
 		"home",
 		"",
 		"Create a user inside the toolbox container whose login directory is HOME")
-	initContainerCmd.MarkFlagRequired("home")
+	err := initContainerCmd.MarkFlagRequired("home")
+	if err != nil {
+		panic("Could not mark flag --home as required")
+	}
 
 	flags.BoolVar(&initContainerFlags.homeLink,
 		"home-link",
@@ -108,19 +111,28 @@ func init() {
 		"shell",
 		"",
 		"Create a user inside the toolbox container whose login shell is SHELL")
-	initContainerCmd.MarkFlagRequired("shell")
+	err = initContainerCmd.MarkFlagRequired("shell")
+	if err != nil {
+		panic("Could not mark flag --shell as required")
+	}
 
 	flags.IntVar(&initContainerFlags.uid,
 		"uid",
 		0,
 		"Create a user inside the toolbox container whose numerical user ID is UID")
-	initContainerCmd.MarkFlagRequired("uid")
+	err = initContainerCmd.MarkFlagRequired("uid")
+	if err != nil {
+		panic("Could not mark flag --uid as required")
+	}
 
 	flags.StringVar(&initContainerFlags.user,
 		"user",
 		"",
 		"Create a user inside the toolbox container whose login name is USER")
-	initContainerCmd.MarkFlagRequired("user")
+	err = initContainerCmd.MarkFlagRequired("user")
+	if err != nil {
+		panic("Could not mark flag --user as required")
+	}
 
 	initContainerCmd.SetHelpFunc(initContainerHelp)
 	rootCmd.AddCommand(initContainerCmd)
@@ -349,8 +361,6 @@ func initContainer(cmd *cobra.Command, args []string) error {
 			logrus.Warnf("Received an error from the file system watcher: %v", err)
 		}
 	}
-
-	return nil
 }
 
 func initContainerHelp(cmd *cobra.Command, args []string) {
