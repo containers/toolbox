@@ -250,7 +250,7 @@ func GetContainerNamePrefixForImage(image string) (string, error) {
 
 func getDefaultImageForDistro(distro, release string) string {
 	if !IsDistroSupported(distro) {
-		distro = "fedora"
+		distro = distroDefault
 	}
 
 	distroObj, supportedDistro := supportedDistros[distro]
@@ -647,7 +647,7 @@ func ParseRelease(distro, release string) (string, error) {
 	}
 
 	if !IsDistroSupported(distro) {
-		distro = "fedora"
+		distro = distroDefault
 	}
 
 	distroObj, supportedDistro := supportedDistros[distro]
