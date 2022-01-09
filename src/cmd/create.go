@@ -31,7 +31,7 @@ import (
 	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 const (
@@ -445,7 +445,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 
 	stdoutFd := os.Stdout.Fd()
 	stdoutFdInt := int(stdoutFd)
-	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel && terminal.IsTerminal(stdoutFdInt) {
+	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel && term.IsTerminal(stdoutFdInt) {
 		s.Prefix = fmt.Sprintf("Creating container %s: ", container)
 		s.Writer = os.Stdout
 		s.Start()
@@ -627,30 +627,6 @@ func getServiceSocket(serviceName string, unitName string) (string, error) {
 	return "", fmt.Errorf("failed to find a SOCK_STREAM socket for %s", unitName)
 }
 
-func isPathReadWrite(path string) (bool, error) {
-	logrus.Debugf("Checking if %s is mounted read-only or read-write", path)
-
-	mountPoint, err := utils.GetMountPoint(path)
-	if err != nil {
-		return false, fmt.Errorf("failed to get the mount-point of %s: %s", path, err)
-	}
-
-	logrus.Debugf("Mount-point of %s is %s", path, mountPoint)
-
-	mountFlags, err := utils.GetMountOptions(mountPoint)
-	if err != nil {
-		return false, fmt.Errorf("failed to get the mount options of %s: %s", mountPoint, err)
-	}
-
-	logrus.Debugf("Mount flags of %s on the host are %s", path, mountFlags)
-
-	if !strings.Contains(mountFlags, "ro") {
-		return true, nil
-	}
-
-	return false, nil
-}
-
 func pullImage(image, release string) (bool, error) {
 	if ok := utils.ImageReferenceCanBeID(image); ok {
 		logrus.Debugf("Looking for image %s", image)
@@ -718,7 +694,7 @@ func pullImage(image, release string) (bool, error) {
 
 	stdoutFd := os.Stdout.Fd()
 	stdoutFdInt := int(stdoutFd)
-	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel && terminal.IsTerminal(stdoutFdInt) {
+	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel && term.IsTerminal(stdoutFdInt) {
 		s := spinner.New(spinner.CharSets[9], 500*time.Millisecond)
 		s.Prefix = fmt.Sprintf("Pulling %s: ", imageFull)
 		s.Writer = os.Stdout
