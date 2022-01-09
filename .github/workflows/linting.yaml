@@ -22,4 +22,3 @@ jobs:
         with:
           version: latest
           working-directory: ./src
-          only-new-issues: true
