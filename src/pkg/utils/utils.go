@@ -249,7 +249,7 @@ func GetContainerNamePrefixForImage(image string) (string, error) {
 }
 
 func getDefaultImageForDistro(distro, release string) string {
-	if _, supportedDistro := supportedDistros[distro]; !supportedDistro {
+	if !IsDistroSupported(distro) {
 		distro = "fedora"
 	}
 
@@ -643,13 +643,10 @@ func ShortID(id string) string {
 // 'general.distro' key in a config file or 'fedora') is assumed.
 func ParseRelease(distro, release string) (string, error) {
 	if distro == "" {
-		distro = distroDefault
-		if viper.IsSet("general.distro") {
-			distro = viper.GetString("general.distro")
-		}
+		distro, _ = ResolveDistro(distro)
 	}
 
-	if _, supportedDistro := supportedDistros[distro]; !supportedDistro {
+	if !IsDistroSupported(distro) {
 		distro = "fedora"
 	}
 
@@ -796,10 +793,7 @@ func ResolveImageName(distroCLI, imageCLI, releaseCLI string) (string, string, e
 	distro, image, release := distroCLI, imageCLI, releaseCLI
 
 	if distroCLI == "" {
-		distro = distroDefault
-		if viper.IsSet("general.distro") {
-			distro = viper.GetString("general.distro")
-		}
+		distro, _ = ResolveDistro(distroCLI)
 	}
 
 	if distro != distroDefault && releaseCLI == "" && !viper.IsSet("general.release") {
