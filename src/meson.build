@@ -1,6 +1,8 @@
 go_build_wrapper_file = files('go-build-wrapper')
 go_build_wrapper_program = find_program('go-build-wrapper')
 
+meson_go_fmt_program = find_program('meson_go_fmt.py')
+
 sources = files(
   'toolbox.go',
   'cmd/create.go',
@@ -66,4 +68,5 @@ if shellcheck.found()
   test('shellcheck go-build-wrapper', shellcheck, args: [go_build_wrapper_file])
 endif
 
+test('go fmt', meson_go_fmt_program, args: [meson.current_source_dir()])
 test('toolbox go unit tests', go, args: ['test', '-v', './...'], workdir: meson.current_source_dir())
