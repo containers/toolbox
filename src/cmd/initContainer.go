@@ -58,6 +58,7 @@ var (
 		{"/run/systemd/resolve", "/run/host/run/systemd/resolve", ""},
 		{"/run/systemd/sessions", "/run/host/run/systemd/sessions", ""},
 		{"/run/udev/data", "/run/host/run/udev/data", ""},
+		{"/run/udev/tags", "/run/host/run/udev/tags", ""},
 		{"/tmp", "/run/host/tmp", "rslave"},
 		{"/var/lib/flatpak", "/run/host/var/lib/flatpak", "ro"},
 		{"/var/lib/libvirt", "/run/host/var/lib/libvirt", ""},
