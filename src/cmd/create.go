@@ -123,7 +123,7 @@ func init() {
 func create(cmd *cobra.Command, args []string) error {
 	// This regex filters out strings which are not valid hostnames, according to RFC-1123.
 	// Source: https://stackoverflow.com/a/106223
-	var hostnameRegexp = regexp.MustCompile("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])$")
+	var hostnameRegexp = regexp.MustCompile(`^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])$`)
 
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
