@@ -5,6 +5,7 @@ toolbox\-create - Create a new toolbox container
 
 ## SYNOPSIS
 **toolbox create** [*--distro DISTRO* | *-d DISTRO*]
+               [*--hostname HOSTNAME*]
                [*--image NAME* | *-i NAME*]
                [*--release RELEASE* | *-r RELEASE*]
                [*CONTAINER*]
@@ -84,6 +85,11 @@ confusion.
 Create a toolbox container for a different operating system DISTRO than the
 host. Cannot be used with `--image`. Has to be coupled with `--release` unless
 the selected DISTRO matches the host.
+
+**--hostname** HOSTNAME
+
+Initializes the netowork hostname of the toolbox container to the specified value.
+If not specified, this will default to **toolbox**.
 
 **--image** NAME, **-i** NAME
 
