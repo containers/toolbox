@@ -203,7 +203,7 @@ func runCommand(container string,
 				return nil
 			}
 
-			if err := createContainer(container, image, release, false); err != nil {
+			if err := createContainer(container, image, release, "", false); err != nil {
 				return err
 			}
 		} else if containersCount == 1 && defaultContainer {
