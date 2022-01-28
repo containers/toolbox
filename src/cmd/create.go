@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -45,6 +46,7 @@ var (
 		authFile  string
 		container string
 		distro    string
+		hostname  string
 		image     string
 		release   string
 	}
@@ -85,6 +87,12 @@ func init() {
 		"",
 		"Create a toolbox container for a different operating system distribution than the host")
 
+	flags.StringVarP(&createFlags.hostname,
+		"hostname",
+		"",
+		"",
+		"Set the container's hostname (defaults to 'toolbox')")
+
 	flags.StringVarP(&createFlags.image,
 		"image",
 		"i",
@@ -113,6 +121,10 @@ func init() {
 }
 
 func create(cmd *cobra.Command, args []string) error {
+	// This regex filters out strings which are not valid hostnames, according to RFC-1123.
+	// Source: https://stackoverflow.com/a/106223
+	var hostnameRegexp = regexp.MustCompile("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])$")
+
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
 			return errors.New("this is not a toolbox container")
@@ -155,8 +167,13 @@ func create(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	if cmd.Flag("hostname").Changed && !hostnameRegexp.MatchString(cmd.Flag("hostname").Value.String()) {
+		return errors.New("invalid hostname")
+	}
+
 	var container string
 	var containerArg string
+	var hostname = cmd.Flag("hostname").Value.String()
 
 	if len(args) != 0 {
 		container = args[0]
@@ -176,14 +193,14 @@ func create(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := createContainer(container, image, release, true); err != nil {
+	if err := createContainer(container, image, release, hostname, true); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createContainer(container, image, release string, showCommandToEnter bool) error {
+func createContainer(container, image, release string, hostname string, showCommandToEnter bool) error {
 	if container == "" {
 		panic("container not specified")
 	}
@@ -194,6 +211,10 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 
 	if release == "" {
 		panic("release not specified")
+	}
+
+	if hostname == "" {
+		hostname = "toolbox"
 	}
 
 	enterCommand := getEnterCommand(container)
@@ -410,7 +431,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	createArgs = append(createArgs, xdgRuntimeDirEnv...)
 
 	createArgs = append(createArgs, []string{
-		"--hostname", "toolbox",
+		"--hostname", hostname,
 		"--ipc", "host",
 		"--label", "com.github.containers.toolbox=true",
 	}...)
