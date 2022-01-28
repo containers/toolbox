@@ -71,6 +71,25 @@ teardown() {
   assert_output --regexp "Created[[:blank:]]+fedora-toolbox-32"
 }
 
+@test "create: Create a container with a custom hostname ('test.host-name.local')" {
+  run $TOOLBOX -y create --hostname test.host-name.local
+
+  assert_success
+  assert_output --partial "Enter with: toolbox enter"
+
+  run $TOOLBOX -y run -- hostname
+
+  assert_success
+  assert_output --partial "test.host-name.local"
+}
+
+@test "create: Create a container with an invalid hostname ('test.host-name.local.')" {
+  run $TOOLBOX -y create --hostname test.host-name.local.
+
+  assert_failure
+  assert_line --index 0 "Error: invalid hostname"
+}
+
 @test "create: Try to create a container based on non-existent image" {
   run $TOOLBOX -y create -i foo.org/bar
 
