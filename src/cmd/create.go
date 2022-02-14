@@ -403,6 +403,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	createArgs := []string{
 		"--log-level", logLevelString,
 		"create",
+		"--cgroupns", "host",
 		"--dns", "none",
 		"--env", toolboxPathEnvArg,
 	}
