@@ -57,6 +57,7 @@ var (
 		{"/run/systemd/journal", "/run/host/run/systemd/journal", ""},
 		{"/run/systemd/resolve", "/run/host/run/systemd/resolve", ""},
 		{"/run/systemd/sessions", "/run/host/run/systemd/sessions", ""},
+		{"/run/systemd/system", "/run/host/run/systemd/system", ""},
 		{"/run/udev/data", "/run/host/run/udev/data", ""},
 		{"/run/udev/tags", "/run/host/run/udev/tags", ""},
 		{"/tmp", "/run/host/tmp", "rslave"},
