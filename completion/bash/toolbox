@@ -10,6 +10,16 @@ __toolbox_distros() {
   echo "rhel"
 }
 
+__toolbox_colors() {
+    echo "red"
+    echo "green"
+    echo "orange"
+    echo "blue"
+    echo "purple"
+    echo "white"
+    echo "grey"
+}
+
 __toolbox_images() {
   toolbox list -i 2>/dev/null | tail -n +2 2>/dev/null | cut -d " " -f 3 2>/dev/null
 }
@@ -23,7 +33,7 @@ __toolbox() {
   local log_levels="debug info warn error fatal panic"
 
   declare -A options
-  local options=([create]="--distro --image --release" \
+  local options=([create]="--distro --image --release --color" \
                  [enter]="--distro --release" \
                  [help]="$commands" \
                  [init-container]="--home --home-link --monitor-host --shell --uid --user" \
@@ -66,6 +76,10 @@ __toolbox() {
       ;;
     --distro | -d)
       mapfile -t COMPREPLY < <(compgen -W "$(__toolbox_distros)" -- "$2")
+      return 0
+      ;;
+    --color | -C)
+      mapfile -t COMPREPLY < <(compgen -W "$(__toolbox_colors)" -- "$2")
       return 0
       ;;
     --image | -i)

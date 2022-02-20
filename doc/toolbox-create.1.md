@@ -100,6 +100,10 @@ remote registry.
 Create a toolbox container for a different operating system RELEASE than the
 host. Cannot be used with `--image`.
 
+**--color** COLOR, **-C** COLOR
+
+Create a toolbox with different dot color that is displayed while you are inside toolbox. Possible values are: red, green, orange, blue, purple, white, grey
+
 ## EXAMPLES
 
 ### Create a toolbox container using the default image matching the host OS

@@ -46,6 +46,7 @@ var (
 		distro    string
 		image     string
 		release   string
+		color     string
 	}
 
 	createToolboxShMounts = []struct {
@@ -61,6 +62,16 @@ var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a new toolbox container",
 	RunE:  create,
+}
+
+var colors = map[string]int{
+	"red":    31,
+	"green":  32,
+	"orange": 33,
+	"blue":   34,
+	"purple": 35,
+	"white":  1,
+	"grey":   90,
 }
 
 func init() {
@@ -90,6 +101,12 @@ func init() {
 		"",
 		"Create a toolbox container for a different operating system release than the host")
 
+	flags.StringVarP(&createFlags.color,
+		"color",
+		"C",
+		"purple",
+		"Change the color of the dot displayed inside toolbox")
+
 	createCmd.SetHelpFunc(createHelp)
 	rootCmd.AddCommand(createCmd)
 }
@@ -113,6 +130,17 @@ func create(cmd *cobra.Command, args []string) error {
 
 	if cmd.Flag("image").Changed && cmd.Flag("release").Changed {
 		return errors.New("options --image and --release cannot be used together")
+	}
+
+	var colorFlag = cmd.Flag("color")
+
+	selectedColor, supportedColor := colors[colorFlag.Value.String()]
+	if !supportedColor {
+		supportedColors := make([]string, 0, len(colors))
+		for supportedColor := range colors {
+			supportedColors = append(supportedColors, supportedColor)
+		}
+		return errors.New("this color is not supported. Supported colors are " + strings.Join(supportedColors, ","))
 	}
 
 	var container string
@@ -158,14 +186,14 @@ func create(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := createContainer(container, image, release, true); err != nil {
+	if err := createContainer(container, image, release, true, selectedColor); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createContainer(container, image, release string, showCommandToEnter bool) error {
+func createContainer(container, image, release string, showCommandToEnter bool, color int) error {
 	if container == "" {
 		panic("container not specified")
 	}
@@ -419,6 +447,10 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		"--volume", homeDirMountArg,
 		"--volume", toolboxPathMountArg,
 		"--volume", runtimeDirectoryMountArg,
+	}...)
+
+	createArgs = append(createArgs, []string{
+		"-e", fmt.Sprintf("TOOLBOX_COLOR=%d", color),
 	}...)
 
 	createArgs = append(createArgs, avahiSocketMount...)

@@ -39,8 +39,8 @@ fi
 
 if [ -f /run/.containerenv ] \
    && [ -f /run/.toolboxenv ]; then
-    [ "${BASH_VERSION:-}" != "" ] && PS1=$(printf "\[\033[35m\]⬢\[\033[0m\]%s" "[\u@\h \W]\\$ ")
-    [ "${ZSH_VERSION:-}" != "" ] && PS1=$(printf "\033[35m⬢\033[0m%s" "[%n@%m]%~%# ")
+    [ "${BASH_VERSION:-}" != "" ] && PS1=$(printf "\[\033[${TOOLBOX_COLOR:-35}m\]⬢\[\033[0m\]%s" "[\u@\h \W]\\$ ")
+    [ "${ZSH_VERSION:-}" != "" ] && PS1=$(printf "\033[${TOOLBOX_COLOR:-35}m⬢\033[0m%s" "[%n@%m]%~%# ")
 
     if ! [ -f "$toolbox_welcome_stub" ]; then
         echo ""
