@@ -89,6 +89,10 @@ function _pull_and_cache_distro_image() {
     image_archive="${image_archive}-${version}"
   fi
 
+  if [[ -d ${IMAGE_CACHE_DIR}/${image_archive} ]] ; then
+    return 0
+  fi
+
   for ((i = ${num_of_retries}; i > 0; i--)); do
     run $PODMAN pull ${image}
 
