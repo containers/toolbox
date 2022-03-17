@@ -22,23 +22,6 @@ and consistency. The libraries are [bats-support](https://github.com/bats-core/b
 and [bats-assert](https://github.com/bats-core/bats-assert). These libraries are
 provided as git submodules in the `libs` directory. Make sure both are present.
 
-## Convention
-
-- All tests should follow the nomenclature: `[command]: <test description>...`
-- When the test is expected to fail, start the test description with "Try
-  to..."
-- When the test is to give a non obvious output, it should be put in parenthesis
-  at the end of the title
-
-Examples:
-
-* `@test "create: Create the default container"`
-* `@test "rm: Try to remove a non-existent container"`
-
-- All the tests start with a clean system (no images or containers) to make sure
-  that there are no dependencies between tests and they are really isolated. Use
-  the `setup()` and `teardown()` functions for that purpose.
-
 ## How to run the tests
 
 First, make sure you have all the dependencies installed.
@@ -60,3 +43,24 @@ suite could look something like this: `PODMAN=/usr/libexec/podman TOOLBOX=./tool
 When running the tests, make sure the `test suite: [job]` jobs are successful.
 These jobs set up the whole environment and are a strict requirement for other
 jobs to run correctly.
+
+## Writing tests
+
+### Naming convention
+
+- All tests should follow the nomenclature: `[command]: <test description>...`
+- When the test is expected to fail, start the test description with "Try
+  to..."
+- When the test is to give a non obvious output, it should be put in parenthesis
+  at the end of the title
+
+Examples:
+
+* `@test "create: Create the default container"`
+* `@test "rm: Try to remove a non-existent container"`
+
+### Test case environment
+
+- All the tests start with a clean system (no images or containers) to make sure
+  that there are no dependencies between tests and they are really isolated. Use
+  the `setup()` and `teardown()` functions for that purpose.
