@@ -22,7 +22,8 @@ declare -Ag IMAGES=([busybox]="quay.io/toolbox_tests/busybox" \
 
 
 function cleanup_all() {
-  $PODMAN system reset --force >/dev/null
+  $PODMAN rm --all --force >/dev/null
+  $PODMAN rmi --all --force >/dev/null
 }
 
 
@@ -45,6 +46,8 @@ function _setup_containers_storage() {
 
 
 function _clean_temporary_storage() {
+  $PODMAN system reset -f
+
   rm -rf ${ROOTLESS_PODMAN_STORE_DIR}
   rm -rf ${PODMAN_STORE_CONFIG_FILE}
   rm -rf ${TEMP_STORAGE_DIR}
