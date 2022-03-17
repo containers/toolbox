@@ -46,6 +46,11 @@ jobs to run correctly.
 
 ## Writing tests
 
+### Environmental variables
+
+- Inspect top part of `libs/helpers.bats` for a list of helper environmental
+  variables
+
 ### Naming convention
 
 - All tests should follow the nomenclature: `[command]: <test description>...`
