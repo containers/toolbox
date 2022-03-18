@@ -19,9 +19,8 @@ teardown() {
 
   create_default_container
 
-  res="$(container_started $CONTAINER_NAME)"
-
-  assert [ "$res" -eq 1 ]
+  run container_started $CONTAINER_NAME
+  assert_success
 }
 
 @test "container(Fedora Rawhide): Containers with supported versions start without issues" {
@@ -35,14 +34,14 @@ teardown() {
   fi
 
   create_distro_container "$system_id" "$system_version" latest
-  res1="$(container_started latest)"
-  assert [ "$res1" -eq 1 ]
+  run container_started latest
+  assert_success
 
   create_distro_container "$system_id" "$((system_version-1))" second
-  res2="$(container_started second)"
-  assert [ "$res2" -eq 1 ]
+  run container_started second
+  assert_success
 
   create_distro_container "$system_id" "$((system_version-2))" third
-  res3="$(container_started third)"
-  assert [ "$res3" -eq 1 ]
+  run container_started third
+  assert_success
 }

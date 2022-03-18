@@ -248,13 +248,19 @@ function start_container() {
 # Parameters:
 # ===========
 # - container_name - name of the container
+#
+# Returns:
+# ========
+# - 0 - container has not started
+# - 1 - container has started
 function container_started() {
   local container_name
   container_name="$1"
 
   run $PODMAN start $container_name
 
-  container_initialized=0
+  # Used as a return value
+  container_initialized=1
 
   for TRIES in 1 2 3 4 5
   do
@@ -263,15 +269,13 @@ function container_started() {
     # Look for last line of the container startup log
     run grep 'Listening to file system and ticker events' <<< $container_output
     if [[ "$status" -eq 0 ]]; then
-      container_initialized=1
+      container_initialized=0
       break
     fi
     sleep 1
   done
 
-  echo $container_output >2
-
-  echo $container_initialized
+  return $container_initialized
 }
 
 
