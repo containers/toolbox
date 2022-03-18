@@ -8,12 +8,12 @@ readonly TEMP_STORAGE_DIR="${TEMP_BASE_DIR}/system-test-storage"
 
 readonly IMAGE_CACHE_DIR="${BATS_RUN_TMPDIR}/image-cache"
 readonly ROOTLESS_PODMAN_STORE_DIR="${TEMP_STORAGE_DIR}/storage"
-readonly PODMAN_STORE_CONFIG_FILE="${TEMP_STORAGE_DIR}/store.conf"
+readonly PODMAN_STORE_CONFIG_FILE="${TEMP_STORAGE_DIR}/storage.conf"
 
 # Podman and Toolbox commands to run
-readonly PODMAN=${PODMAN:-podman}
-readonly TOOLBOX=${TOOLBOX:-toolbox}
-readonly SKOPEO=$(command -v skopeo)
+readonly PODMAN=${PODMAN:-$(command -v podman)}
+readonly TOOLBOX=${TOOLBOX:-$(command -v toolbox)}
+readonly SKOPEO=${SKOPEO:-$(command -v skopeo)}
 
 # Images
 declare -Ag IMAGES=([busybox]="quay.io/toolbox_tests/busybox" \
@@ -32,11 +32,11 @@ function cleanup_containers() {
 
 
 function _setup_environment() {
-  _setup_containers_store
+  _setup_containers_storage
   check_xdg_runtime_dir
 }
 
-function _setup_containers_store() {
+function _setup_containers_storage() {
   mkdir -p ${TEMP_STORAGE_DIR}
   # Setup a storage config file for PODMAN
   echo -e "[storage]\n  driver = \"overlay\"\n  rootless_storage_path = \"${ROOTLESS_PODMAN_STORE_DIR}\"\n" > ${PODMAN_STORE_CONFIG_FILE}
@@ -45,6 +45,8 @@ function _setup_containers_store() {
 
 
 function _clean_temporary_storage() {
+  rm -rf ${ROOTLESS_PODMAN_STORE_DIR}
+  rm -rf ${PODMAN_STORE_CONFIG_FILE}
   rm -rf ${TEMP_STORAGE_DIR}
 }
 
@@ -120,7 +122,7 @@ function _clean_cached_images() {
 
 
 # Copies an image from local storage to Podman's image store
-# 
+#
 # Call before creating any container. Network failures are not nice.
 #
 # An image has to be cached first. See _pull_and_cache_distro_image()
@@ -300,37 +302,37 @@ function find_os_release() {
 
 # Returns the content of field ID in os-release
 function get_system_id() {
-    local os_release
+  local os_release
 
-    os_release="$(find_os_release)"
+  os_release="$(find_os_release)"
 
-    if [[ -z "$os_release" ]]; then
-        echo ""
-        return
-    fi
+  if [[ -z "$os_release" ]]; then
+    echo ""
+    return
+  fi
 
-    echo $(awk -F= '/ID/ {print $2}' $os_release | head -n 1)
+  echo $(awk -F= '/ID/ {print $2}' $os_release | head -n 1)
 }
 
 
 # Returns the content of field VERSION_ID in os-release
 function get_system_version() {
-    local os_release
+  local os_release
 
-    os_release="$(find_os_release)"
+  os_release="$(find_os_release)"
 
-    if [[ -z "$os_release" ]]; then
-        echo ""
-        return
-    fi
+  if [[ -z "$os_release" ]]; then
+    echo ""
+    return
+  fi
 
-    echo $(awk -F= '/VERSION_ID/ {print $2}' $os_release | head -n 1)
+  echo $(awk -F= '/VERSION_ID/ {print $2}' $os_release | head -n 1)
 }
 
 
 # Setup the XDG_RUNTIME_DIR variable if not set
 function check_xdg_runtime_dir() {
-    if [[ -z "${XDG_RUNTIME_DIR}" ]]; then
-        export XDG_RUNTIME_DIR="/run/user/${UID}"
-    fi
+  if [[ -z "${XDG_RUNTIME_DIR}" ]]; then
+    export XDG_RUNTIME_DIR="/run/user/${UID}"
+  fi
 }
