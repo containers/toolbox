@@ -8,6 +8,7 @@ readonly TEMP_STORAGE_DIR="${TEMP_BASE_DIR}/system-test-storage"
 
 readonly IMAGE_CACHE_DIR="${BATS_RUN_TMPDIR}/image-cache"
 readonly ROOTLESS_PODMAN_STORE_DIR="${TEMP_STORAGE_DIR}/storage"
+readonly ROOTLESS_PODMAN_RUNROOT_DIR="${TEMP_STORAGE_DIR}/runroot"
 readonly PODMAN_STORE_CONFIG_FILE="${TEMP_STORAGE_DIR}/storage.conf"
 
 # Podman and Toolbox commands to run
@@ -40,7 +41,7 @@ function _setup_environment() {
 function _setup_containers_storage() {
   mkdir -p ${TEMP_STORAGE_DIR}
   # Setup a storage config file for PODMAN
-  echo -e "[storage]\n  driver = \"overlay\"\n  rootless_storage_path = \"${ROOTLESS_PODMAN_STORE_DIR}\"\n" > ${PODMAN_STORE_CONFIG_FILE}
+  echo -e "[storage]\n  driver = \"overlay\"\n  rootless_storage_path = \"${ROOTLESS_PODMAN_STORE_DIR}\"\n  runroot = \"${ROOTLESS_PODMAN_RUNROOT_DIR}\"\n" > ${PODMAN_STORE_CONFIG_FILE}
   export CONTAINERS_STORAGE_CONF=${PODMAN_STORE_CONFIG_FILE}
 }
 
@@ -49,6 +50,7 @@ function _clean_temporary_storage() {
   $PODMAN system reset -f
 
   rm -rf ${ROOTLESS_PODMAN_STORE_DIR}
+  rm -rf ${ROOTLESS_PODMAN_RUNROOT_DIR}
   rm -rf ${PODMAN_STORE_CONFIG_FILE}
   rm -rf ${TEMP_STORAGE_DIR}
 }
