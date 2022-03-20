@@ -26,6 +26,7 @@ import (
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
+	"github.com/mattn/go-isatty"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -453,9 +454,12 @@ func constructExecArgs(container string,
 
 	execArgs = append(execArgs, detachKeys...)
 
+	if isatty.IsTerminal(os.Stdin.Fd()) && isatty.IsTerminal(os.Stdout.Fd()) {
+		execArgs = append(execArgs, "--tty")
+	}
+
 	execArgs = append(execArgs, []string{
 		"--interactive",
-		"--tty",
 		"--user", currentUser.Username,
 		"--workdir", workDir,
 	}...)
