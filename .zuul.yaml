@@ -7,7 +7,7 @@
     nodeset:
       nodes:
         - name: ci-node-34
-          label: cloud-fedora-34-small
+          label: cloud-fedora-34
     pre-run: playbooks/setup-env.yaml
     run: playbooks/unit-test.yaml
 
@@ -29,7 +29,7 @@
     nodeset:
       nodes:
         - name: ci-node-rawhide
-          label: cloud-fedora-rawhide-small
+          label: cloud-fedora-rawhide
     pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test.yaml
 
@@ -41,7 +41,7 @@
     nodeset:
       nodes:
         - name: ci-node-35
-          label: cloud-fedora-35-small
+          label: cloud-fedora-35
     pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test.yaml
 
@@ -53,7 +53,7 @@
     nodeset:
       nodes:
         - name: ci-node-34
-          label: cloud-fedora-34-small
+          label: cloud-fedora-34
     pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test.yaml
 
