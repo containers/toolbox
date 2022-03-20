@@ -20,6 +20,7 @@
       'playbooks/*',
       'profile.d/*',
       'src/*',
+      'test/*',
       'meson.build',
       'meson_options.txt',
       'meson_post_install.py',
