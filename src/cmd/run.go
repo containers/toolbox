@@ -325,7 +325,7 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 			logrus.Debugf("%s", arg)
 		}
 
-		exitCode, err := shell.RunWithExitCode("podman", os.Stdin, os.Stdout, nil, execArgs...)
+		exitCode, err := shell.RunWithExitCode("podman", os.Stdin, os.Stdout, os.Stderr, execArgs...)
 
 		if emitEscapeSequence {
 			fmt.Printf("\033]777;container;pop;;;%s\033\\", currentUser.Uid)
