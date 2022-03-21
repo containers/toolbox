@@ -1,5 +1,4 @@
-go_build_wrapper_file = files('go-build-wrapper')
-go_build_wrapper_program = find_program('go-build-wrapper')
+go_build_wrapper_program = find_program('go-build-wrapper.py')
 
 meson_go_fmt_program = find_program('meson_go_fmt.py')
 
@@ -64,10 +63,6 @@ toolbox = custom_target(
   install_dir: get_option('bindir'),
   output: 'toolbox',
 )
-
-if shellcheck.found()
-  test('shellcheck go-build-wrapper', shellcheck, args: [go_build_wrapper_file])
-endif
 
 test('go fmt', meson_go_fmt_program, args: [meson.current_source_dir()])
 test('toolbox go unit tests',
