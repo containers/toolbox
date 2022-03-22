@@ -16,6 +16,7 @@
 #
 
 import os
+import shlex
 import subprocess
 import sys
 
@@ -50,14 +51,15 @@ def alter_dynamic_linker_path(dynamic_linker):
     return f'/run/host{dynamic_linker_canonical_dirname}/{dynamic_linker_basename}'
 
 
-if len(sys.argv) != 7:
+if len(sys.argv) != 8:
     print('{}: wrong arguments'.format(prog_name), file=sys.stderr)
     print('''Usage: {} [SOURCE DIR]
-                               [OUTPUT DIR]
-                               [VERSION]
-                               [C COMPILER]
-                               [DYNAMIC LINKER]
-                               [MIGRATION PATH FORCOREOS/TOOLBOX]'''.format(prog_name), file=sys.stderr)
+                           [OUTPUT DIR]
+                           [VERSION]
+                           [C COMPILER]
+                           [DYNAMIC LINKER]
+                           [MIGRATION PATH FORCOREOS/TOOLBOX]
+                           [BUILD FLAGS]'''.format(prog_name), file=sys.stderr)
     sys.exit(1)
 
 source_dir = sys.argv[1]
@@ -67,6 +69,7 @@ cc = sys.argv[4]
 dynamic_linker = sys.argv[5]
 # Boolean is passed from Meson as a string
 coreos_migration = True if sys.argv[6] == "true" else False
+build_flags = sys.argv[7]
 
 try:
     os.chdir(source_dir)
@@ -93,6 +96,9 @@ build_cmd = [
 
 if coreos_migration:
     build_cmd.extend(['-tags', 'migration_path_for_coreos_toolbox'])
+
+if build_flags:
+    build_cmd.extend(shlex.split(build_flags))
 
 build_cmd.extend([
     '-ldflags',

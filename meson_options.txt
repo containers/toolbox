@@ -24,3 +24,9 @@ option(
   type: 'boolean',
   value: true,
 )
+
+option(
+  'go_build_flags',
+  description: 'Options passed to \'go build\' during build',
+  type: 'string',
+)

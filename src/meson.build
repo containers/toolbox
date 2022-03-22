@@ -57,6 +57,7 @@ toolbox = custom_target(
     cc.cmd_array().get(-1),
     dynamic_linker,
     migration_path_for_coreos_toolbox.to_string(),
+    get_option('go_build_flags'),
   ],
   input: sources,
   install: true,
