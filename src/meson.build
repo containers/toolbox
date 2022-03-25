@@ -47,7 +47,7 @@ endif
 
 message('Host machine dynamic linker:', dynamic_linker)
 
-custom_target(
+toolbox = custom_target(
   'toolbox',
   build_by_default: true,
   command: [
@@ -70,4 +70,9 @@ if shellcheck.found()
 endif
 
 test('go fmt', meson_go_fmt_program, args: [meson.current_source_dir()])
-test('toolbox go unit tests', go, args: ['test', '-v', './...'], workdir: meson.current_source_dir())
+test('toolbox go unit tests',
+  go,
+  args: ['test', '-v', './...'],
+  depends: toolbox,
+  workdir: meson.current_source_dir()
+)
