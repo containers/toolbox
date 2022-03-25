@@ -37,33 +37,11 @@ if not skopeo.found()
     message('Running system tests requires Skopeo for OCI image manipulation.')
 endif
 
-install_subdir(
-  'test',
-  install_dir: join_paths(get_option('datadir'), meson.project_name()),
-  exclude_files: [
-    'system/libs/bats-assert/.git',
-    'system/libs/bats-assert/.gitignore',
-    'system/libs/bats-assert/.travis.yml',
-    'system/libs/bats-assert/package.json',
-    'system/libs/bats-support/.git',
-    'system/libs/bats-support/.gitignore',
-    'system/libs/bats-support/.travis.yml',
-    'system/libs/bats-support/package.json'
-    ],
-  exclude_directories: [
-    'system/libs/bats-assert/.git',
-    'system/libs/bats-assert/script',
-    'system/libs/bats-assert/test',
-    'system/libs/bats-support/.git',
-    'system/libs/bats-support/script',
-    'system/libs/bats-support/test'
-  ]
-)
-
 subdir('data')
 subdir('doc')
 subdir('profile.d')
 subdir('src')
+subdir('test')
 if get_option('install_completions')
   subdir('completion')
 endif

@@ -68,12 +68,16 @@ if ! dynamic_linker_canonical_dirname=$(dirname "$dynamic_linker_canonical"); th
 fi
 
 dynamic_linker="/run/host$dynamic_linker_canonical_dirname/$dynamic_linker_basename"
+rpath="/run/host$libc_dir_canonical_dirname"
+
+# Write overriden binary values to a file for testing
+echo "${dynamic_linker} ${rpath}" > "$2/go-build-overrides"
 
 # shellcheck disable=SC2086
 go build \
         $tags \
         -trimpath \
-        -ldflags "-extldflags '-Wl,-dynamic-linker,$dynamic_linker -Wl,-rpath,/run/host$libc_dir_canonical_dirname' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3" \
+        -ldflags "-extldflags '-Wl,-dynamic-linker,$dynamic_linker -Wl,-rpath,$rpath' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3" \
         -o "$2/toolbox"
 
 exit "$?"
