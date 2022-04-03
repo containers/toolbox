@@ -32,6 +32,7 @@ var (
 		container string
 		distro    string
 		release   string
+		once      bool
 	}
 )
 
@@ -62,6 +63,11 @@ func init() {
 		"r",
 		"",
 		"Enter a toolbox container for a different operating system release than the host")
+
+	flags.BoolVar(&enterFlags.once,
+		"once",
+		false,
+		"Don't automatically enter the toolbox for future terminals")
 
 	if err := enterCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
 		logrus.Panicf("failed to register flag completion function: %v", err)
@@ -161,7 +167,7 @@ func enter(cmd *cobra.Command, args []string) error {
 	var emitEscapeSequence bool
 
 	if hostID == "fedora" && (hostVariantID == "silverblue" || hostVariantID == "workstation") {
-		emitEscapeSequence = true
+		emitEscapeSequence = !enterFlags.once
 	}
 
 	if err := runCommand(container,
