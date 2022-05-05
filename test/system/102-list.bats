@@ -62,14 +62,14 @@ teardown() {
   run $TOOLBOX list --images
 
   assert_success
-  assert_output --partial "$(get_system_id)-toolbox:$(get_system_version)"
+  assert_output --partial "$(toolbx_default_image_name)"
   assert_output --partial "fedora-toolbox:32"
 
   # Check containers
   run $TOOLBOX list --containers
 
   assert_success
-  assert_output --partial "$(get_system_id)-toolbox-$(get_system_version)"
+  assert_output --partial "$(toolbx_default_container_name)"
   assert_output --partial "non-default-one"
   assert_output --partial "non-default-two"
 
@@ -77,9 +77,9 @@ teardown() {
   run $TOOLBOX list
 
   assert_success
-  assert_output --partial "$(get_system_id)-toolbox:$(get_system_version)"
+  assert_output --partial "$(toolbx_default_image_name)"
   assert_output --partial "fedora-toolbox:32"
-  assert_output --partial "$(get_system_id)-toolbox-$(get_system_version)"
+  assert_output --partial "$(toolbx_default_container_name)"
   assert_output --partial "non-default-one"
   assert_output --partial "non-default-two"
 }

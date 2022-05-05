@@ -22,7 +22,7 @@ teardown() {
 }
 
 @test "enter: Try to enter the default container with more than 1 other containers present" {
-  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+  local default_container_name="$(toolbx_default_container_name)"
 
   create_container first
   create_container second

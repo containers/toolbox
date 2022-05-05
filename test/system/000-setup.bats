@@ -8,8 +8,10 @@ load 'libs/helpers'
     local system_version="$(get_system_version)"
 
     _setup_environment
+
     # Cache the default image for the system
-    _pull_and_cache_distro_image "$system_id" "$system_version" || false
+    _pull_and_cache_image "$(toolbx_default_image)"
+
     # Cache all images that will be needed during the tests
     _pull_and_cache_distro_image fedora 32 || false
     _pull_and_cache_distro_image busybox || false
