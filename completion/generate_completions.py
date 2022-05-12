@@ -22,7 +22,8 @@ import sys
 
 if len(sys.argv) != 3:
     print('{}: wrong arguments'.format(sys.argv[0]), file=sys.stderr)
-    print('Usage: {} [SOURCE DIR] [COMPLETION TYPE]'.format(sys.argv[0]), file=sys.stderr)
+    print('Usage: {} [SOURCE DIR] [COMPLETION TYPE]'.format(
+        sys.argv[0]), file=sys.stderr)
     print()
     print("SOURCE DIR is path to the Toolbox Go source code")
     print("COMPLETION TYPE is either 'bash', 'zsh' or 'fish'")
@@ -33,9 +34,11 @@ completion_type = sys.argv[2]
 
 try:
     os.chdir(source_dir)
-    output = subprocess.run(['go', 'run', '.', 'completion', completion_type], check=True)
+    output = subprocess.run(
+        ['go', 'run', '.', '__completion', completion_type], check=True)
 except subprocess.CalledProcessError as e:
-    print('{}: go run returned non-zero exit status {}'.format(sys.argv[0], e.returncode), file=sys.stderr)
+    print('{}: go run returned non-zero exit status {}'.format(
+        sys.argv[0], e.returncode), file=sys.stderr)
     sys.exit(e.returncode)
 
 sys.exit(0)
