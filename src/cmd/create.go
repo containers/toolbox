@@ -45,6 +45,7 @@ var (
 		authFile  string
 		container string
 		distro    string
+		hostname  string
 		image     string
 		release   string
 	}
@@ -84,6 +85,12 @@ func init() {
 		"d",
 		"",
 		"Create a toolbox container for a different operating system distribution than the host")
+
+	flags.StringVar(&createFlags.hostname,
+		"hostname",
+		"h",
+		"toolbox",
+		"Assign a custom hostname to the toolbox container")
 
 	flags.StringVarP(&createFlags.image,
 		"image",
@@ -419,7 +426,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	createArgs = append(createArgs, xdgRuntimeDirEnv...)
 
 	createArgs = append(createArgs, []string{
-		"--hostname", "toolbox",
+		"--hostname", hostname,
 		"--ipc", "host",
 		"--label", "com.github.containers.toolbox=true",
 	}...)
