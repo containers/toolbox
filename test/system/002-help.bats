@@ -21,6 +21,11 @@ load 'libs/helpers.bash'
 
 setup() {
   _setup_environment
+  cleanup_all
+}
+
+teardown() {
+  cleanup_all
 }
 
 @test "help: Smoke test" {
@@ -121,8 +126,34 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
+@test "help: Try unknown command (forwarded to host)" {
+  create_default_container
+
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox foo
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: unknown command \"foo\" for \"toolbox\""
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
 @test "help: Try unknown flag" {
   run --keep-empty-lines --separate-stderr "$TOOLBX" --foo
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
+@test "help: Try unknown flag (forwarded to host)" {
+  create_default_container
+
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -143,8 +174,34 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
+@test "help: Try 'create' with unknown flag (forwarded to host)" {
+  create_default_container
+
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox create --foo
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
 @test "help: Try 'enter' with unknown flag" {
   run --keep-empty-lines --separate-stderr "$TOOLBX" enter --foo
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
+@test "help: Try 'enter' with unknown flag (forwarded to host)" {
+  create_default_container
+
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox enter --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -165,8 +222,34 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
+@test "help: Try 'help' with unknown flag (forwarded to host)" {
+  create_default_container
+
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox help --foo
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
 @test "help: Try 'init-container' with unknown flag" {
   run --keep-empty-lines --separate-stderr "$TOOLBX" init-container --foo
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
+@test "help: Try 'init-container' with unknown flag (forwarded to host)" {
+  create_default_container
+
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox init-container --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -187,8 +270,34 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
+@test "help: Try 'list' with unknown flag (forwarded to host)" {
+  create_default_container
+
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox list --foo
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
 @test "help: Try 'rm' with unknown flag" {
   run --keep-empty-lines --separate-stderr "$TOOLBX" rm --foo
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
+@test "help: Try 'rm' with unknown flag (forwarded to host)" {
+  create_default_container
+
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox rm --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -209,8 +318,34 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
+@test "help: Try 'rmi' with unknown flag (forwarded to host)" {
+  create_default_container
+
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox rmi --foo
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
 @test "help: Try 'run' with unknown flag" {
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --foo
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
+@test "help: Try 'run' with unknown flag (forwarded to host)" {
+  create_default_container
+
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox run --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
