@@ -32,9 +32,9 @@ teardown() {
 @test "create: Try with an invalid custom name (using positional argument, forwarded to host)" {
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox create "ßpeci@l.N@m€"
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox create "ßpeci@l.N@m€"
 
-  assert_success
+  assert_failure
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for 'CONTAINER'"
@@ -46,9 +46,9 @@ teardown() {
 @test "create: Try with an invalid custom name (using option --container, forwarded to host)" {
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox create --container "ßpeci@l.N@m€"
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox create --container "ßpeci@l.N@m€"
 
-  assert_success
+  assert_failure
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--container'"
@@ -62,9 +62,9 @@ teardown() {
 
   local distro="foo"
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox create --distro "$distro"
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox create --distro "$distro"
 
-  assert_success
+  assert_failure
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--distro'"

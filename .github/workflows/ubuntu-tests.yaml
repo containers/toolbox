@@ -158,7 +158,8 @@ jobs:
             test/system/201-ipc.bats \
             test/system/203-network.bats \
             test/system/220-environment-variables.bats \
-            test/system/501-create.bats
+            test/system/501-create.bats \
+            test/system/505-enter.bats
         env:
           SHELL: /bin/bash
           TMPDIR: /var/tmp

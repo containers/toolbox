@@ -80,11 +80,8 @@ func enter(cmd *cobra.Command, args []string) error {
 			return errors.New("this is not a Toolbx container")
 		}
 
-		if _, err := utils.ForwardToHost(); err != nil {
-			return err
-		}
-
-		return nil
+		exitCode, err := utils.ForwardToHost()
+		return &exitError{exitCode, err}
 	}
 
 	var container string

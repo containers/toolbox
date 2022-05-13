@@ -29,12 +29,12 @@ teardown() {
   cleanup_all
 }
 
-@test "run: Try an unsupported distribution (forwarded to host)" {
+@test "enter: Try an unsupported distribution (forwarded to host)" {
   create_default_container
 
   local distro="foo"
 
-  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox run --distro "$distro" ls
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox enter --distro "$distro"
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
