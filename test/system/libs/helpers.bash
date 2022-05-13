@@ -30,13 +30,13 @@ declare -Ag IMAGES=([busybox]="quay.io/toolbox_tests/busybox" \
 
 
 function cleanup_all() {
-  $PODMAN rm --all --force >/dev/null
-  $PODMAN rmi --all --force >/dev/null
+  $PODMAN rm --all --force
+  $PODMAN rmi --all --force
 }
 
 
 function cleanup_containers() {
-  $PODMAN rm --all --force >/dev/null
+  $PODMAN rm --all --force
 }
 
 
@@ -306,7 +306,7 @@ function create_distro_container() {
 
   pull_distro_image ${distro} ${version}
 
-  $TOOLBOX --assumeyes create --container "${container_name}" --distro "${distro}" --release "${version}" >/dev/null \
+  $TOOLBOX --assumeyes create --container "${container_name}" --distro "${distro}" --release "${version}" \
     || fail "Toolbox couldn't create container '$container_name'"
 }
 
@@ -329,7 +329,7 @@ function create_container() {
 function create_default_container() {
   pull_default_image
 
-  $TOOLBOX --assumeyes create >/dev/null \
+  $TOOLBOX --assumeyes create \
     || fail "Toolbox couldn't create default container"
 }
 
@@ -338,7 +338,7 @@ function start_container() {
   local container_name
   container_name="$1"
 
-  $PODMAN start "$container_name" >/dev/null \
+  $PODMAN start "$container_name" \
     || fail "Podman couldn't start the container '$container_name'"
 }
 
@@ -384,9 +384,9 @@ function stop_container() {
   container_name="$1"
 
   # Make sure the container is running before trying to stop it
-  $PODMAN start "$container_name" >/dev/null \
+  $PODMAN start "$container_name" \
     || fail "Podman couldn't start the container '$container_name'"
-  $PODMAN stop "$container_name" >/dev/null \
+  $PODMAN stop "$container_name" \
     || fail "Podman couldn't stop the container '$container_name'"
 }
 
