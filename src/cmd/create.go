@@ -45,6 +45,7 @@ var (
 		authFile  string
 		container string
 		distro    string
+		hostname  string
 		image     string
 		release   string
 	}
@@ -84,6 +85,12 @@ func init() {
 		"d",
 		"",
 		"Create a toolbox container for a different operating system distribution than the host")
+
+	flags.StringVarP(&createFlags.hostname,
+		"hostname",
+		"h",
+		"toolbox",
+		"Assign a custom hostname to the toolbox container")
 
 	flags.StringVarP(&createFlags.image,
 		"image",
@@ -159,6 +166,12 @@ func create(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	var hostname string
+
+	if createFlags.hostname != "" {
+		hostname = createFlags.hostname
+	}
+
 	distro, err := utils.ResolveDistro(createFlags.distro)
 	if err != nil {
 		err := createErrorInvalidDistro()
@@ -185,14 +198,14 @@ func create(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := createContainer(container, image, release, true); err != nil {
+	if err := createContainer(container, hostname, image, release, true); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createContainer(container, image, release string, showCommandToEnter bool) error {
+func createContainer(container, hostname, image, release string, showCommandToEnter bool) error {
 	if container == "" {
 		panic("container not specified")
 	}
@@ -419,7 +432,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	createArgs = append(createArgs, xdgRuntimeDirEnv...)
 
 	createArgs = append(createArgs, []string{
-		"--hostname", "toolbox",
+		"--hostname", hostname,
 		"--ipc", "host",
 		"--label", "com.github.containers.toolbox=true",
 	}...)
