@@ -166,3 +166,14 @@ teardown() {
   assert_line --index 2 "Error: failed to invoke command /etc in container $(get_latest_container_name)"
   assert [ ${#lines[@]} -eq 3 ]
 }
+
+@test "run: Try to run a Toolbx command from a container (check error message propagation)" {
+  create_default_container
+
+  run $TOOLBOX run toolbox foo
+
+  assert_failure
+  assert [ $status -eq 1 ]
+  assert_line --index 0 "Error: unknown command \"foo\" for \"toolbox\""
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+}
