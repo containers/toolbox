@@ -177,3 +177,12 @@ teardown() {
   assert_line --index 0 "Error: unknown command \"foo\" for \"toolbox\""
   assert_line --index 1 "Run 'toolbox --help' for usage."
 }
+
+@test "run: Run command exiting with non-zero code in a toolbx from within a toolbx" {
+  create_default_container
+
+  run $TOOLBOX run toolbox run /bin/sh -c "exit 42"
+  assert_failure
+  assert [ $status -eq 42 ]
+  assert_output ""
+}
