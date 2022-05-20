@@ -35,7 +35,7 @@ var completionCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		switch args[0] {
 		case "bash":
-			if err := cmd.Root().GenBashCompletion(os.Stdout); err != nil {
+			if err := cmd.Root().GenBashCompletionV2(os.Stdout, true); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %v", err)
 			}
 		case "zsh":
