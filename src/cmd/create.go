@@ -100,10 +100,13 @@ func init() {
 	createCmd.SetHelpFunc(createHelp)
 
 	if err := createCmd.RegisterFlagCompletionFunc("distro", completionDistroNames); err != nil {
-		logrus.Panicf("failed to register flag completion function: %v", err)
+		panicMsg := fmt.Sprintf("failed to register flag completion function: %v", err)
+		panic(panicMsg)
 	}
+
 	if err := createCmd.RegisterFlagCompletionFunc("image", completionImageNames); err != nil {
-		logrus.Panicf("failed to register flag completion function: %v", err)
+		panicMsg := fmt.Sprintf("failed to register flag completion function: %v", err)
+		panic(panicMsg)
 	}
 
 	rootCmd.AddCommand(createCmd)

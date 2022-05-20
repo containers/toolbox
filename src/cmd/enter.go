@@ -22,7 +22,6 @@ import (
 	"os"
 
 	"github.com/containers/toolbox/pkg/utils"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -63,10 +62,12 @@ func init() {
 		"Enter a toolbox container for a different operating system release than the host")
 
 	if err := enterCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
-		logrus.Panicf("failed to register flag completion function: %v", err)
+		panicMsg := fmt.Sprintf("failed to register flag completion function: %v", err)
+		panic(panicMsg)
 	}
 	if err := enterCmd.RegisterFlagCompletionFunc("distro", completionDistroNames); err != nil {
-		logrus.Panicf("failed to register flag completion function: %v", err)
+		panicMsg := fmt.Sprintf("failed to register flag completion function: %v", err)
+		panic(panicMsg)
 	}
 
 	enterCmd.SetHelpFunc(enterHelp)

@@ -74,10 +74,12 @@ func init() {
 	runCmd.SetHelpFunc(runHelp)
 
 	if err := runCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
-		logrus.Panicf("failed to register flag completion function: %v", err)
+		panicMsg := fmt.Sprintf("failed to register flag completion function: %v", err)
+		panic(panicMsg)
 	}
 	if err := runCmd.RegisterFlagCompletionFunc("distro", completionDistroNames); err != nil {
-		logrus.Panicf("failed to register flag completion function: %v", err)
+		panicMsg := fmt.Sprintf("failed to register flag completion function: %v", err)
+		panic(panicMsg)
 	}
 
 	rootCmd.AddCommand(runCmd)
