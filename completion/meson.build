@@ -27,7 +27,7 @@ completion_zsh = custom_target('zsh-completion',
   command: [generate_completions_program, meson.global_source_root() / 'src', 'zsh'],
   depends: [toolbox],
   install: true,
-  install_dir: get_option('datadir') / 'zsh' / 'site_functions',
+  install_dir: get_option('datadir') / 'zsh' / 'site-functions',
   output: '_toolbox')
 
 completion_fish = custom_target('fish-completion',
