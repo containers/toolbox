@@ -17,6 +17,7 @@ endif
 completion_bash = custom_target('bash-completion',
   capture: true,
   command: [generate_completions_program, meson.global_source_root() / 'src', 'bash'],
+  depends: [toolbox],
   install: true,
   install_dir: bash_comp_dir,
   output: 'toolbox')
@@ -24,6 +25,7 @@ completion_bash = custom_target('bash-completion',
 completion_zsh = custom_target('zsh-completion',
   capture: true,
   command: [generate_completions_program, meson.global_source_root() / 'src', 'zsh'],
+  depends: [toolbox],
   install: true,
   install_dir: get_option('datadir') / 'zsh' / 'site_functions',
   output: '_toolbox')
@@ -31,6 +33,7 @@ completion_zsh = custom_target('zsh-completion',
 completion_fish = custom_target('fish-completion',
   capture: true,
   command: [generate_completions_program, meson.global_source_root() / 'src', 'fish'],
+  depends: [toolbox],
   install: true,
   install_dir: fish_comp_dir,
   output: 'toolbox.fish')

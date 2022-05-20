@@ -48,7 +48,7 @@ endif
 
 message('Host machine dynamic linker:', dynamic_linker)
 
-custom_target(
+toolbox = custom_target(
   'toolbox',
   build_by_default: true,
   command: [
