@@ -26,7 +26,7 @@ import (
 )
 
 var completionCmd = &cobra.Command{
-	Use:                   "__completion",
+	Use:                   "completion",
 	Short:                 "Generate completion script",
 	Hidden:                true,
 	DisableFlagsInUseLine: true,
