@@ -117,8 +117,7 @@ function _pull_and_cache_distro_image() {
   done
 
   if ! $cached; then
-    echo "Failed to cache image ${image} to ${IMAGE_CACHE_DIR}/${image_archive}"
-    assert_success
+    fail "Failed to cache image ${image} to ${IMAGE_CACHE_DIR}/${image_archive}"
   fi
 
   cleanup_all
@@ -258,14 +257,13 @@ function pull_distro_image() {
   # No need to copy if the image is already available in Podman
   run $PODMAN image exists ${image}
   if [[ "$status" -eq 0 ]]; then
-    return
+    return 0
   fi
 
   # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
   run $SKOPEO copy "dir:${IMAGE_CACHE_DIR}/${image_archive}" "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]${image}"
   if [ "$status" -ne 0 ]; then
-    echo "Failed to load image ${image} from cache ${IMAGE_CACHE_DIR}/${image_archive}"
-    assert_success
+    fail "Failed to load image ${image} from cache ${IMAGE_CACHE_DIR}/${image_archive}"
   fi
 
   $PODMAN images
