@@ -75,7 +75,7 @@ function _clean_temporary_storage() {
 function _pull_and_cache_distro_image() {
   local num_of_retries=5
   local timeout=10
-  local pulled=false
+  local cached=false
   local distro
   local version
   local image
@@ -100,29 +100,23 @@ function _pull_and_cache_distro_image() {
     return 0
   fi
 
+  if [ ! -d ${IMAGE_CACHE_DIR} ]; then
+    run mkdir -p ${IMAGE_CACHE_DIR}
+    assert_success
+  fi
+
   for ((i = ${num_of_retries}; i > 0; i--)); do
-    run $PODMAN pull ${image}
+    run $SKOPEO copy --dest-compress docker://${image} dir:${IMAGE_CACHE_DIR}/${image_archive}
 
     if [ "$status" -eq 0 ]; then
-      pulled=true
+      cached=true
       break
     fi
 
     sleep $timeout
   done
 
-  if ! $pulled; then
-    echo "Failed to pull image ${image}"
-    assert_success
-  fi
-
-  if [ ! -d ${IMAGE_CACHE_DIR} ]; then
-    mkdir -p ${IMAGE_CACHE_DIR}
-  fi
-
-  run $SKOPEO copy --dest-compress containers-storage:${image} dir:${IMAGE_CACHE_DIR}/${image_archive}
-
-  if [ "$status" -ne 0 ]; then
+  if ! $cached; then
     echo "Failed to cache image ${image} to ${IMAGE_CACHE_DIR}/${image_archive}"
     assert_success
   fi
