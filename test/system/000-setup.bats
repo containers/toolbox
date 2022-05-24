@@ -1,11 +1,17 @@
 #!/usr/bin/env bats
 
+load 'libs/bats-support/load'
+load 'libs/bats-assert/load'
 load 'libs/helpers'
 
 @test "test suite: Setup" {
     local os_release="$(find_os_release)"
     local system_id="$(get_system_id)"
     local system_version="$(get_system_version)"
+
+    assert [ -n "$os_release" ]
+    assert [ -n "$system_id" ]
+    assert [ -n "$system_version" ]
 
     _setup_environment
     # Cache the default image for the system

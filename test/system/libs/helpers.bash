@@ -406,7 +406,7 @@ function find_os_release() {
   elif [[ -f "/usr/lib/os-release" ]]; then
     echo "/usr/lib/os-release"
   else
-    echo ""
+    fail "os-release was not found"
   fi
 }
 
@@ -418,8 +418,7 @@ function get_system_id() {
   os_release="$(find_os_release)"
 
   if [[ -z "$os_release" ]]; then
-    echo ""
-    return
+    return 1
   fi
 
   echo $(awk -F= '/ID/ {print $2}' $os_release | head -n 1)
@@ -433,8 +432,7 @@ function get_system_version() {
   os_release="$(find_os_release)"
 
   if [[ -z "$os_release" ]]; then
-    echo ""
-    return
+    return 1
   fi
 
   echo $(awk -F= '/VERSION_ID/ {print $2}' $os_release | head -n 1)

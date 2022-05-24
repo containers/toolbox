@@ -153,6 +153,8 @@ teardown() {
   local distro="fedora"
   local system_id="$(get_system_id)"
 
+  assert [ -n "$system_id" ]
+
   if [ "$system_id" = "fedora" ]; then
     distro="rhel"
   fi
