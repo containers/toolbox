@@ -17,7 +17,7 @@
 
 missing_dependencies=false
 
-if [ -f test/system/libs/bats-assert/load.bash ] && [ -f test/system/libs/bats-support/load.bash ]; then
+if [ -f libs/bats-assert/load.bash ] && [ -f libs/bats-support/load.bash ]; then
   load 'libs/helpers'
 else
   missing_dependencies=true
