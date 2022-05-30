@@ -19,7 +19,12 @@
   tasks:
     - include_tasks: build.yaml
 
-    - name: Test
-      command: meson test -C builddir --verbose
+    - name: Linting tests
+      command: meson test -C builddir --verbose --suite linting
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+
+    - name: Unit tests
+      command: meson test -C builddir --verbose --suite unit
       args:
         chdir: '{{ zuul.project.src_dir }}'
