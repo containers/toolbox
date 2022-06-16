@@ -6,6 +6,7 @@ toolbox\-run - Run a command in an existing toolbox container
 ## SYNOPSIS
 **toolbox run** [*--container NAME* | *-c NAME*]
             [*--distro DISTRO* | *-d DISTRO*]
+            [*--preserve-fds N*]
             [*--release RELEASE* | *-r RELEASE*]
             [*COMMAND*]
 
@@ -36,6 +37,11 @@ entirely customized containers created from custom-built images.
 Run command inside a toolbox container for a different operating system DISTRO
 than the host. Has to be coupled with `--release` unless the selected DISTRO
 matches the host system.
+
+**--preserve-fds** N
+
+Pass down to command N additional file descriptors (in addition to 0, 1,
+2). The total number of file descriptors will be 3+N.
 
 **--release** RELEASE, **-r** RELEASE
 

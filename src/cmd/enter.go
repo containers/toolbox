@@ -144,6 +144,7 @@ func enter(cmd *cobra.Command, args []string) error {
 		defaultContainer,
 		image,
 		release,
+		0,
 		command,
 		emitEscapeSequence,
 		true,

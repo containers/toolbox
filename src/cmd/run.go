@@ -34,9 +34,10 @@ import (
 
 var (
 	runFlags struct {
-		container string
-		distro    string
-		release   string
+		container   string
+		distro      string
+		preserveFDs uint
+		release     string
 	}
 
 	runFallbackCommands = [][]string{{"/bin/bash", "-l"}}
@@ -65,6 +66,11 @@ func init() {
 		"d",
 		"",
 		"Run command inside a toolbox container for a different operating system distribution than the host")
+
+	flags.UintVar(&runFlags.preserveFDs,
+		"preserve-fds",
+		0,
+		"Pass down to command N additional file descriptors (in addition to 0, 1, 2)")
 
 	flags.StringVarP(&runFlags.release,
 		"release",
@@ -134,6 +140,7 @@ func run(cmd *cobra.Command, args []string) error {
 		defaultContainer,
 		image,
 		release,
+		runFlags.preserveFDs,
 		command,
 		false,
 		false,
@@ -156,6 +163,7 @@ func run(cmd *cobra.Command, args []string) error {
 func runCommand(container string,
 	defaultContainer bool,
 	image, release string,
+	preserveFDs uint,
 	command []string,
 	emitEscapeSequence, fallbackToBash, pedantic bool) error {
 	if !pedantic {
@@ -277,14 +285,21 @@ func runCommand(container string,
 
 	logrus.Debugf("Container %s is initialized", container)
 
-	if err := runCommandWithFallbacks(container, command, emitEscapeSequence, fallbackToBash); err != nil {
+	if err := runCommandWithFallbacks(container,
+		preserveFDs,
+		command,
+		emitEscapeSequence,
+		fallbackToBash); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func runCommandWithFallbacks(container string, command []string, emitEscapeSequence, fallbackToBash bool) error {
+func runCommandWithFallbacks(container string,
+	preserveFDs uint,
+	command []string,
+	emitEscapeSequence, fallbackToBash bool) error {
 	logrus.Debug("Checking if 'podman exec' supports disabling the detach keys")
 
 	var detachKeysSupported bool
@@ -295,6 +310,7 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 	}
 
 	envOptions := utils.GetEnvOptionsForPreservedVariables()
+	preserveFDsString := fmt.Sprint(preserveFDs)
 
 	var stderr io.Writer
 	var ttyNeeded bool
@@ -320,6 +336,7 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 
 	for {
 		execArgs := constructExecArgs(container,
+			preserveFDsString,
 			command,
 			detachKeysSupported,
 			envOptions,
@@ -459,7 +476,7 @@ func constructCapShArgs(command []string, useLoginShell bool) []string {
 	return capShArgs
 }
 
-func constructExecArgs(container string,
+func constructExecArgs(container, preserveFDs string,
 	command []string,
 	detachKeysSupported bool,
 	envOptions []string,
@@ -483,6 +500,7 @@ func constructExecArgs(container string,
 
 	execArgs = append(execArgs, []string{
 		"--interactive",
+		"--preserve-fds", preserveFDs,
 	}...)
 
 	if ttyNeeded {

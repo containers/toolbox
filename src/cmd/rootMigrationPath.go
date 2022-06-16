@@ -92,6 +92,7 @@ func rootRunImpl(cmd *cobra.Command, args []string) error {
 		true,
 		image,
 		release,
+		0,
 		command,
 		emitEscapeSequence,
 		true,
