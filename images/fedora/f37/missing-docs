@@ -1,6 +1,7 @@
 acl
 bash
 curl
+findutils
 gawk
 grep
 gzip
@@ -11,5 +12,6 @@ pam
 python3
 rpm
 sed
+sudo
 systemd
 tar
