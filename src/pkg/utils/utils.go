@@ -586,13 +586,7 @@ func SetUpConfiguration() error {
 		}
 	}
 
-	image, release, err := ResolveImageName("", "", "")
-	if err != nil {
-		logrus.Debugf("Setting up configuration: failed to resolve image name: %s", err)
-		return errors.New("failed to resolve image name")
-	}
-
-	container, err := ResolveContainerName("", image, release)
+	container, _, _, err := ResolveContainerAndImageNames("", "", "", "")
 	if err != nil {
 		logrus.Debugf("Setting up configuration: failed to resolve container name: %s", err)
 		return errors.New("failed to resolve container name")
@@ -697,41 +691,15 @@ func IsInsideToolboxContainer() bool {
 	return PathExists("/run/.toolboxenv")
 }
 
-// ResolveContainerName standardizes the name of a container
-//
-// If no container name is specified then the name of the image will be used.
-func ResolveContainerName(container, image, release string) (string, error) {
-	logrus.Debug("Resolving container name")
-	logrus.Debugf("Container: '%s'", container)
-	logrus.Debugf("Image: '%s'", image)
-	logrus.Debugf("Release: '%s'", release)
-
-	if container == "" {
-		var err error
-		container, err = getContainerNamePrefixForImage(image)
-		if err != nil {
-			return "", err
-		}
-
-		tag := ImageReferenceGetTag(image)
-		if tag != "" {
-			container = container + "-" + tag
-		}
-	}
-
-	logrus.Debug("Resolved container name")
-	logrus.Debugf("Container: '%s'", container)
-
-	return container, nil
-}
-
-// ResolveImageName standardizes the name of an image.
+// ResolveContainerAndImageNames takes care of standardizing names of containers and images.
 //
 // If no image name is specified then the base image will reflect the platform of the host (even the version).
+// If no container name is specified then the name of the image will be used.
 //
 // If the host system is unknown then the base image will be 'fedora-toolbox' with a default version
-func ResolveImageName(distroCLI, imageCLI, releaseCLI string) (string, string, error) {
-	logrus.Debug("Resolving image name")
+func ResolveContainerAndImageNames(container, distroCLI, imageCLI, releaseCLI string) (string, string, string, error) {
+	logrus.Debug("Resolving container and image names")
+	logrus.Debugf("Container: '%s'", container)
 	logrus.Debugf("Distribution (CLI): '%s'", distroCLI)
 	logrus.Debugf("Image (CLI): '%s'", imageCLI)
 	logrus.Debugf("Release (CLI): '%s'", releaseCLI)
@@ -746,7 +714,7 @@ func ResolveImageName(distroCLI, imageCLI, releaseCLI string) (string, string, e
 	}
 
 	if distro != distroDefault && releaseCLI == "" && !viper.IsSet("general.release") {
-		return "", "", fmt.Errorf("release not found for non-default distribution %s", distro)
+		return "", "", "", fmt.Errorf("release not found for non-default distribution %s", distro)
 	}
 
 	if releaseCLI == "" {
@@ -780,9 +748,23 @@ func ResolveImageName(distroCLI, imageCLI, releaseCLI string) (string, string, e
 		}
 	}
 
-	logrus.Debug("Resolved image name")
+	if container == "" {
+		var err error
+		container, err = getContainerNamePrefixForImage(image)
+		if err != nil {
+			return "", "", "", err
+		}
+
+		tag := ImageReferenceGetTag(image)
+		if tag != "" {
+			container = container + "-" + tag
+		}
+	}
+
+	logrus.Debug("Resolved container and image names")
+	logrus.Debugf("Container: '%s'", container)
 	logrus.Debugf("Image: '%s'", image)
 	logrus.Debugf("Release: '%s'", release)
 
-	return image, release, nil
+	return container, image, release, nil
 }

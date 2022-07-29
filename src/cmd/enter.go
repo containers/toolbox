@@ -119,12 +119,7 @@ func enter(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	image, release, err := utils.ResolveImageName(enterFlags.distro, "", release)
-	if err != nil {
-		return err
-	}
-
-	container, err = utils.ResolveContainerName(container, image, release)
+	container, image, release, err := utils.ResolveContainerAndImageNames(container, enterFlags.distro, "", release)
 	if err != nil {
 		return err
 	}
