@@ -50,8 +50,10 @@ type Distro struct {
 }
 
 const (
-	idTruncLength          = 12
-	releaseDefaultFallback = "34"
+	containerNamePrefixFallback = "fedora-toolbox"
+	distroFallback              = "fedora"
+	idTruncLength               = 12
+	releaseFallback             = "34"
 )
 
 const (
@@ -61,9 +63,9 @@ const (
 )
 
 var (
-	containerNamePrefixDefault = "fedora-toolbox"
+	containerNamePrefixDefault string
 
-	distroDefault = "fedora"
+	distroDefault string
 
 	preservedEnvironmentVariables = []string{
 		"COLORTERM",
@@ -118,7 +120,9 @@ var (
 )
 
 func init() {
-	releaseDefault = releaseDefaultFallback
+	containerNamePrefixDefault = containerNamePrefixFallback
+	distroDefault = distroFallback
+	releaseDefault = releaseFallback
 
 	hostID, err := GetHostID()
 	if err == nil {
@@ -247,7 +251,7 @@ func getDefaultImageForDistro(distro, release string) string {
 	}
 
 	if _, supportedDistro := supportedDistros[distro]; !supportedDistro {
-		distro = "fedora"
+		distro = distroFallback
 	}
 
 	distroObj, supportedDistro := supportedDistros[distro]
@@ -614,7 +618,7 @@ func ParseRelease(distro, release string) (string, error) {
 	}
 
 	if _, supportedDistro := supportedDistros[distro]; !supportedDistro {
-		distro = "fedora"
+		distro = distroFallback
 	}
 
 	distroObj, supportedDistro := supportedDistros[distro]
