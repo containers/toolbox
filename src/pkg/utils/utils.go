@@ -623,8 +623,8 @@ func ParseRelease(distro, release string) (string, error) {
 		panic(panicMsg)
 	}
 
-	parseRelease := distroObj.ParseRelease
-	release, err := parseRelease(release)
+	parseReleaseImpl := distroObj.ParseRelease
+	release, err := parseReleaseImpl(release)
 	return release, err
 }
 
