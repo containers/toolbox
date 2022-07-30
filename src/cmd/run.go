@@ -102,13 +102,8 @@ func run(cmd *cobra.Command, args []string) error {
 		defaultContainer = false
 
 		if !utils.IsContainerNameValid(runFlags.container) {
-			var builder strings.Builder
-			fmt.Fprintf(&builder, "invalid argument for '--container'\n")
-			fmt.Fprintf(&builder, "Container names must match '%s'\n", utils.ContainerNameRegexp)
-			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-			errMsg := builder.String()
-			return errors.New(errMsg)
+			err := createErrorInvalidContainer("--container")
+			return err
 		}
 	}
 
