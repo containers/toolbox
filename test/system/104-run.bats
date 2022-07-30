@@ -48,6 +48,16 @@ teardown() {
   assert_line --index 2 "Run 'toolbox --help' for usage."
 }
 
+@test "run: Try to run a command in a container based on unsupported distribution" {
+  local distro="foo"
+
+  run $TOOLBOX --assumeyes run --distro "$distro" ls
+
+  assert_failure
+  assert_line --index 0 "Error: distribution $distro is unsupported"
+  assert [ ${#lines[@]} -eq 1 ]
+}
+
 @test "run: Try to run a command in a container based on Fedora but with wrong version" {
   run $TOOLBOX run -d fedora -r foobar ls
 

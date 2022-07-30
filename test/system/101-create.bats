@@ -71,6 +71,16 @@ teardown() {
   assert_output --regexp "Created[[:blank:]]+fedora-toolbox-32"
 }
 
+@test "create: Try to create a container based on unsupported distribution" {
+  local distro="foo"
+
+  run $TOOLBOX --assumeyes create --distro "$distro"
+
+  assert_failure
+  assert_line --index 0 "Error: distribution $distro is unsupported"
+  assert [ ${#lines[@]} -eq 1 ]
+}
+
 @test "create: Try to create a container based on non-existent image" {
   run $TOOLBOX -y create -i foo.org/bar
 

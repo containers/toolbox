@@ -250,10 +250,6 @@ func getDefaultImageForDistro(distro, release string) string {
 		panic("distro not specified")
 	}
 
-	if _, supportedDistro := supportedDistros[distro]; !supportedDistro {
-		distro = distroFallback
-	}
-
 	distroObj, supportedDistro := supportedDistros[distro]
 	if !supportedDistro {
 		panicMsg := fmt.Sprintf("failed to find %s in the list of supported distributions", distro)
@@ -715,6 +711,10 @@ func ResolveContainerAndImageNames(container, distroCLI, imageCLI, releaseCLI st
 		if viper.IsSet("general.distro") {
 			distro = viper.GetString("general.distro")
 		}
+	}
+
+	if _, ok := supportedDistros[distro]; !ok {
+		return "", "", "", fmt.Errorf("distribution %s is unsupported", distro)
 	}
 
 	if distro != distroDefault && releaseCLI == "" && !viper.IsSet("general.release") {
