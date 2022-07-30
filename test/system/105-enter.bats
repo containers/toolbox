@@ -69,8 +69,43 @@ teardown() {
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
-  assert_line --index 1 "Run 'toolbox --help' for usage."
-  assert [ ${#lines[@]} -eq 2 ]
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+
+  run $TOOLBOX enter --distro fedora --release -3
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "enter: Try to enter a container based on RHEL but with wrong version" {
+  run $TOOLBOX enter --distro rhel --release 8
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+
+  run $TOOLBOX enter --distro rhel --release 8.2foo
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+
+  run $TOOLBOX enter --distro rhel --release -2.1
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive number."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
 }
 
 @test "enter: Try to enter a container based on non-default distro without providing a version" {

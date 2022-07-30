@@ -114,7 +114,8 @@ func run(cmd *cobra.Command, args []string) error {
 		var err error
 		release, err = utils.ParseRelease(runFlags.distro, runFlags.release)
 		if err != nil {
-			err := createErrorInvalidRelease()
+			hint := err.Error()
+			err := createErrorInvalidRelease(hint)
 			return err
 		}
 	}

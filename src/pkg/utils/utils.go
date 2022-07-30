@@ -635,11 +635,12 @@ func parseReleaseFedora(release string) (string, error) {
 
 	releaseN, err := strconv.Atoi(release)
 	if err != nil {
-		return "", err
+		logrus.Debugf("Parsing release %s as an integer failed: %s", release, err)
+		return "", errors.New("The release must be a positive integer.")
 	}
 
 	if releaseN <= 0 {
-		return "", errors.New("release must be a positive integer")
+		return "", errors.New("The release must be a positive integer.")
 	}
 
 	return release, nil
@@ -647,16 +648,17 @@ func parseReleaseFedora(release string) (string, error) {
 
 func parseReleaseRHEL(release string) (string, error) {
 	if i := strings.IndexRune(release, '.'); i == -1 {
-		return "", errors.New("release must have a '.'")
+		return "", errors.New("The release must be in the '<major>.<minor>' format.")
 	}
 
 	releaseN, err := strconv.ParseFloat(release, 32)
 	if err != nil {
-		return "", err
+		logrus.Debugf("Parsing release %s as a float failed: %s", release, err)
+		return "", errors.New("The release must be in the '<major>.<minor>' format.")
 	}
 
 	if releaseN <= 0 {
-		return "", errors.New("release must be a positive number")
+		return "", errors.New("The release must be a positive number.")
 	}
 
 	return release, nil

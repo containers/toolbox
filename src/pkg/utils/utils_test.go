@@ -17,7 +17,6 @@
 package utils
 
 import (
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -103,14 +102,14 @@ func TestParseRelease(t *testing.T) {
 			inputDistro:  "fedora",
 			inputRelease: "-3",
 			ok:           false,
-			errMsg:       "release must be a positive integer",
+			errMsg:       "The release must be a positive integer.",
 		},
 		{
 			name:         "Fedora; foo; invalid; non-numeric",
 			inputDistro:  "fedora",
 			inputRelease: "foo",
 			ok:           false,
-			err:          strconv.ErrSyntax,
+			errMsg:       "The release must be a positive integer.",
 		},
 		{
 			name:         "RHEL; 8.3; valid",
@@ -131,21 +130,21 @@ func TestParseRelease(t *testing.T) {
 			inputDistro:  "rhel",
 			inputRelease: "8",
 			ok:           false,
-			errMsg:       "release must have a '.'",
+			errMsg:       "The release must be in the '<major>.<minor>' format.",
 		},
 		{
 			name:         "RHEL; 8.2foo; invalid; non-float",
 			inputDistro:  "rhel",
 			inputRelease: "8.2foo",
 			ok:           false,
-			err:          strconv.ErrSyntax,
+			errMsg:       "The release must be in the '<major>.<minor>' format.",
 		},
 		{
 			name:         "RHEL; -2.1; invalid; less than 0",
 			inputDistro:  "rhel",
 			inputRelease: "-2.1",
 			ok:           false,
-			errMsg:       "release must be a positive number",
+			errMsg:       "The release must be a positive number.",
 		},
 	}
 
