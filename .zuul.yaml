@@ -6,8 +6,8 @@
     files: ['playbooks/*', 'src/*', 'meson.build', 'meson_options.txt', 'meson_post_install.py', '.zuul.yaml']
     nodeset:
       nodes:
-        - name: ci-node-34
-          label: cloud-fedora-34
+        - name: ci-node-36
+          label: cloud-fedora-36
     pre-run: playbooks/setup-env.yaml
     run: playbooks/unit-test.yaml
 
@@ -57,36 +57,21 @@
     pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test.yaml
 
-- job:
-    name: system-test-fedora-34
-    description: Run Toolbox's system tests in Fedora 34
-    timeout: 1200
-    files: *system_test_files
-    nodeset:
-      nodes:
-        - name: ci-node-34
-          label: cloud-fedora-34
-    pre-run: playbooks/setup-env.yaml
-    run: playbooks/system-test.yaml
-
 - project:
     periodic:
       jobs:
         - system-test-fedora-rawhide
         - system-test-fedora-36
         - system-test-fedora-35
-        - system-test-fedora-34
     check:
       jobs:
         - unit-test
         - system-test-fedora-rawhide
         - system-test-fedora-36
         - system-test-fedora-35
-        - system-test-fedora-34
     gate:
       jobs:
         - unit-test
         - system-test-fedora-rawhide
         - system-test-fedora-36
         - system-test-fedora-35
-        - system-test-fedora-34
