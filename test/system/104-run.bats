@@ -145,7 +145,7 @@ teardown() {
 
   create_default_container
 
-  run $TOOLBOX run $cmd
+  run -127 $TOOLBOX run $cmd
 
   assert_failure
   assert [ $status -eq 127 ]
