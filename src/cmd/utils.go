@@ -81,20 +81,9 @@ func createErrorInvalidContainer(containerArg string) error {
 	return errors.New(errMsg)
 }
 
-func createErrorInvalidDistro() error {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "invalid argument for '--distro'\n")
-	fmt.Fprintf(&builder, "Supported values are: %s\n", strings.Join(utils.GetSupportedDistros(), " "))
-	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
-
-	errMsg := builder.String()
-	return errors.New(errMsg)
-}
-
-func createErrorInvalidRelease(distro string) error {
+func createErrorInvalidRelease() error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "invalid argument for '--release'\n")
-	fmt.Fprintf(&builder, "Supported values for distribution %s are in format: %s\n", distro, utils.GetReleaseFormat(distro))
 	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
 
 	errMsg := builder.String()

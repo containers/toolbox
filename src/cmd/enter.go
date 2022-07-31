@@ -107,25 +107,19 @@ func enter(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	distro, err := utils.ResolveDistro(enterFlags.distro)
-	if err != nil {
-		err := createErrorInvalidDistro()
-		return err
-	}
-
-	release := enterFlags.release
-	if release != "" {
+	var release string
+	if enterFlags.release != "" {
 		defaultContainer = false
 
 		var err error
-		release, err = utils.ParseRelease(distro, release)
+		release, err = utils.ParseRelease(enterFlags.distro, enterFlags.release)
 		if err != nil {
-			err := createErrorInvalidRelease(distro)
+			err := createErrorInvalidRelease()
 			return err
 		}
 	}
 
-	image, release, err := utils.ResolveImageName(distro, "", release)
+	image, release, err := utils.ResolveImageName(enterFlags.distro, "", release)
 	if err != nil {
 		return err
 	}

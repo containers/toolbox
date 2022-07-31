@@ -107,20 +107,14 @@ func run(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	distro, err := utils.ResolveDistro(runFlags.distro)
-	if err != nil {
-		err := createErrorInvalidDistro()
-		return err
-	}
-
-	release := runFlags.release
-	if release != "" {
+	var release string
+	if runFlags.release != "" {
 		defaultContainer = false
 
 		var err error
-		release, err = utils.ParseRelease(distro, release)
+		release, err = utils.ParseRelease(runFlags.distro, runFlags.release)
 		if err != nil {
-			err := createErrorInvalidRelease(distro)
+			err := createErrorInvalidRelease()
 			return err
 		}
 	}
@@ -136,7 +130,7 @@ func run(cmd *cobra.Command, args []string) error {
 
 	command := args
 
-	image, release, err := utils.ResolveImageName(distro, "", release)
+	image, release, err := utils.ResolveImageName(runFlags.distro, "", release)
 	if err != nil {
 		return err
 	}

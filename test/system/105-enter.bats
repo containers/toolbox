@@ -54,27 +54,13 @@ teardown() {
   assert_line --index 2 "Run 'toolbox --help' for usage."
 }
 
-@test "enter: Try to enter a container based on unsupported distribution" {
-  local distro="foo"
-
-  run $TOOLBOX -y enter -d "$distro"
-
-  assert_failure
-  assert_line --index 0 "Error: invalid argument for '--distro'"
-  # Distro names are in a hashtable and thus the order can change
-  assert_line --index 1 --regexp "Supported values are: (.?(fedora|rhel))+"
-  assert_line --index 2 "Run 'toolbox --help' for usage."
-  assert [ ${#lines[@]} -eq 3 ]
-}
-
 @test "enter: Try to enter a container based on Fedora but with wrong version" {
   run $TOOLBOX enter -d fedora -r foobar
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
-  assert_line --index 1 "Supported values for distribution fedora are in format: <release>/f<release>"
-  assert_line --index 2 "Run 'toolbox --help' for usage."
-  assert [ ${#lines[@]} -eq 3 ]
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 2 ]
 }
 
 @test "enter: Try to enter a container based on non-default distro without providing a version" {

@@ -80,27 +80,13 @@ teardown() {
   assert_line --index 2 "Use 'toolbox --verbose ...' for further details."
 }
 
-@test "create: Try to create a container based on unsupported distribution" {
-  local distro="foo"
-
-  run $TOOLBOX -y create -d "$distro"
-
-  assert_failure
-  assert_line --index 0 "Error: invalid argument for '--distro'"
-  # Distro names are in a hashtable and thus the order can change
-  assert_line --index 1 --regexp "Supported values are: (.?(fedora|rhel))+"
-  assert_line --index 2 "Run 'toolbox --help' for usage."
-  assert [ ${#lines[@]} -eq 3 ]
-}
-
 @test "create: Try to create a container based on Fedora but with wrong version" {
   run $TOOLBOX -y create -d fedora -r foobar
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
-  assert_line --index 1 "Supported values for distribution fedora are in format: <release>/f<release>"
-  assert_line --index 2 "Run 'toolbox --help' for usage."
-  assert [ ${#lines[@]} -eq 3 ]
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 2 ]
 }
 
 @test "create: Try to create a container based on non-default distribution without providing version" {
