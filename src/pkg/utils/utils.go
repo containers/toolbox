@@ -249,6 +249,10 @@ func GetContainerNamePrefixForImage(image string) (string, error) {
 }
 
 func getDefaultImageForDistro(distro, release string) string {
+	if distro == "" {
+		panic("distro not specified")
+	}
+
 	if !IsDistroSupported(distro) {
 		distro = distroDefault
 	}
