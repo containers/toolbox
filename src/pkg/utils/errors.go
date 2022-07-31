@@ -31,6 +31,11 @@ type DistroError struct {
 	Err    error
 }
 
+type ImageError struct {
+	Image string
+	Err   error
+}
+
 type ParseReleaseError struct {
 	Hint string
 }
@@ -50,6 +55,15 @@ func (err *DistroError) Error() string {
 }
 
 func (err *DistroError) Unwrap() error {
+	return err.Err
+}
+
+func (err *ImageError) Error() string {
+	errMsg := fmt.Sprintf("%s: %s", err.Image, err.Err)
+	return errMsg
+}
+
+func (err *ImageError) Unwrap() error {
 	return err.Err
 }
 

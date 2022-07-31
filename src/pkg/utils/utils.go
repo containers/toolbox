@@ -125,6 +125,8 @@ var (
 	ErrDistroUnsupported = errors.New("distribution is unsupported")
 
 	ErrDistroWithoutRelease = errors.New("non-default distribution must specify release")
+
+	ErrImageWithoutBasename = errors.New("image does not have a basename")
 )
 
 func init() {
@@ -239,7 +241,7 @@ func GetCgroupsVersion() (int, error) {
 func getContainerNamePrefixForImage(image string) (string, error) {
 	basename := ImageReferenceGetBasename(image)
 	if basename == "" {
-		return "", fmt.Errorf("failed to get the basename of image %s", image)
+		return "", &ImageError{image, ErrImageWithoutBasename}
 	}
 
 	for _, distroObj := range supportedDistros {

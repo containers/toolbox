@@ -112,6 +112,16 @@ func createErrorInvalidImageForContainerName(container string) error {
 	return errors.New(errMsg)
 }
 
+func createErrorInvalidImageWithoutBasename() error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "invalid argument for '--image'\n")
+	fmt.Fprintf(&builder, "Images must have basenames.\n")
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
 func createErrorInvalidRelease(hint string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "invalid argument for '--release'\n")
@@ -143,6 +153,7 @@ func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI,
 	if err != nil {
 		var errContainer *utils.ContainerError
 		var errDistro *utils.DistroError
+		var errImage *utils.ImageError
 		var errParseRelease *utils.ParseReleaseError
 
 		if errors.As(err, &errContainer) {
@@ -167,6 +178,14 @@ func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI,
 				return "", "", "", err
 			} else if errors.Is(err, utils.ErrDistroWithoutRelease) {
 				err := createErrorDistroWithoutRelease(errDistro.Distro)
+				return "", "", "", err
+			} else {
+				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
+				panic(panicMsg)
+			}
+		} else if errors.As(err, &errImage) {
+			if errors.Is(err, utils.ErrImageWithoutBasename) {
+				err := createErrorInvalidImageWithoutBasename()
 				return "", "", "", err
 			} else {
 				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
