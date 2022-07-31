@@ -100,27 +100,18 @@ func enter(cmd *cobra.Command, args []string) error {
 
 	if container != "" {
 		defaultContainer = false
-
-		if !utils.IsContainerNameValid(container) {
-			err := createErrorInvalidContainer(containerArg)
-			return err
-		}
 	}
 
-	var release string
 	if enterFlags.release != "" {
 		defaultContainer = false
-
-		var err error
-		release, err = utils.ParseRelease(enterFlags.distro, enterFlags.release)
-		if err != nil {
-			hint := err.Error()
-			err := createErrorInvalidRelease(hint)
-			return err
-		}
 	}
 
-	container, image, release, err := utils.ResolveContainerAndImageNames(container, enterFlags.distro, "", release)
+	container, image, release, err := resolveContainerAndImageNames(container,
+		containerArg,
+		enterFlags.distro,
+		"",
+		enterFlags.release)
+
 	if err != nil {
 		return err
 	}

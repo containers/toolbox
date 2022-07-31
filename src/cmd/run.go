@@ -100,24 +100,10 @@ func run(cmd *cobra.Command, args []string) error {
 
 	if runFlags.container != "" {
 		defaultContainer = false
-
-		if !utils.IsContainerNameValid(runFlags.container) {
-			err := createErrorInvalidContainer("--container")
-			return err
-		}
 	}
 
-	var release string
 	if runFlags.release != "" {
 		defaultContainer = false
-
-		var err error
-		release, err = utils.ParseRelease(runFlags.distro, runFlags.release)
-		if err != nil {
-			hint := err.Error()
-			err := createErrorInvalidRelease(hint)
-			return err
-		}
 	}
 
 	if len(args) == 0 {
@@ -131,7 +117,12 @@ func run(cmd *cobra.Command, args []string) error {
 
 	command := args
 
-	container, image, release, err := utils.ResolveContainerAndImageNames(runFlags.container, runFlags.distro, "", release)
+	container, image, release, err := resolveContainerAndImageNames(runFlags.container,
+		"--container",
+		runFlags.distro,
+		"",
+		runFlags.release)
+
 	if err != nil {
 		return err
 	}

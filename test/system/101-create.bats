@@ -56,6 +56,19 @@ teardown() {
   assert_line --index 2 "Run 'toolbox --help' for usage."
 }
 
+@test "create: Try to create a container with invalid custom image ('ßpeci@l.Nam€')" {
+  local image="ßpeci@l.Nam€"
+
+  run $TOOLBOX create --image "$image"
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--image'"
+  assert_line --index 1 "Container name $image generated from image is invalid."
+  assert_line --index 2 "Container names must match '[a-zA-Z0-9][a-zA-Z0-9_.-]*'."
+  assert_line --index 3 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 4 ]
+}
+
 @test "create: Create a container with a distro and release options ('fedora'; f32)" {
   pull_distro_image fedora 32
 

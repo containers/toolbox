@@ -81,6 +81,17 @@ func createErrorInvalidContainer(containerArg string) error {
 	return errors.New(errMsg)
 }
 
+func createErrorInvalidImageForContainerName(container string) error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "invalid argument for '--image'\n")
+	fmt.Fprintf(&builder, "Container name %s generated from image is invalid.\n", container)
+	fmt.Fprintf(&builder, "Container names must match '%s'.\n", utils.ContainerNameRegexp)
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
 func createErrorInvalidRelease(hint string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "invalid argument for '--release'\n")
@@ -99,6 +110,45 @@ func getUsageForCommonCommands() string {
 
 	usage := builder.String()
 	return usage
+}
+
+func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI, releaseCLI string) (
+	string, string, string, error,
+) {
+	container, image, release, err := utils.ResolveContainerAndImageNames(container,
+		distroCLI,
+		imageCLI,
+		releaseCLI)
+
+	if err != nil {
+		var errContainer *utils.ContainerError
+		var errParseRelease *utils.ParseReleaseError
+
+		if errors.As(err, &errContainer) {
+			if errors.Is(err, utils.ErrContainerNameInvalid) {
+				if containerArg == "" {
+					panicMsg := fmt.Sprintf("unexpected %T without containerArg: %s", err, err)
+					panic(panicMsg)
+				}
+
+				err := createErrorInvalidContainer(containerArg)
+				return "", "", "", err
+			} else if errors.Is(err, utils.ErrContainerNameFromImageInvalid) {
+				err := createErrorInvalidImageForContainerName(errContainer.Container)
+				return "", "", "", err
+			} else {
+				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
+				panic(panicMsg)
+			}
+		} else if errors.As(err, &errParseRelease) {
+			err := createErrorInvalidRelease(errParseRelease.Hint)
+			return "", "", "", err
+		} else {
+			return "", "", "", err
+		}
+	}
+
+	return container, image, release, nil
 }
 
 // showManual tries to open the specified manual page using man on stdout

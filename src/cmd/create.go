@@ -147,28 +147,12 @@ func create(cmd *cobra.Command, args []string) error {
 		containerArg = "--container"
 	}
 
-	if container != "" {
-		if !utils.IsContainerNameValid(container) {
-			err := createErrorInvalidContainer(containerArg)
-			return err
-		}
-	}
-
-	var release string
-	if createFlags.release != "" {
-		var err error
-		release, err = utils.ParseRelease(createFlags.distro, createFlags.release)
-		if err != nil {
-			hint := err.Error()
-			err := createErrorInvalidRelease(hint)
-			return err
-		}
-	}
-
-	container, image, release, err := utils.ResolveContainerAndImageNames(container,
+	container, image, release, err := resolveContainerAndImageNames(container,
+		containerArg,
 		createFlags.distro,
 		createFlags.image,
-		release)
+		createFlags.release)
+
 	if err != nil {
 		return err
 	}

@@ -150,7 +150,7 @@ func TestParseRelease(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			release, err := ParseRelease(tc.inputDistro, tc.inputRelease)
+			release, err := parseRelease(tc.inputDistro, tc.inputRelease)
 
 			if tc.ok {
 				assert.NoError(t, err)

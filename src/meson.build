@@ -20,6 +20,7 @@ sources = files(
   'cmd/utils.go',
   'pkg/podman/podman.go',
   'pkg/shell/shell.go',
+  'pkg/utils/errors.go',
   'pkg/utils/utils.go',
   'pkg/version/version.go',
 )

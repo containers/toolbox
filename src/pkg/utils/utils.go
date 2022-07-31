@@ -117,6 +117,10 @@ var (
 
 var (
 	ContainerNameDefault string
+
+	ErrContainerNameFromImageInvalid = errors.New("container name generated from image is invalid")
+
+	ErrContainerNameInvalid = errors.New("container name is invalid")
 )
 
 func init() {
@@ -605,16 +609,9 @@ func ShortID(id string) string {
 	return id
 }
 
-func ParseRelease(distro, release string) (string, error) {
+func parseRelease(distro, release string) (string, error) {
 	if distro == "" {
-		distro = distroDefault
-		if viper.IsSet("general.distro") {
-			distro = viper.GetString("general.distro")
-		}
-	}
-
-	if _, supportedDistro := supportedDistros[distro]; !supportedDistro {
-		distro = distroFallback
+		panic("distro not specified")
 	}
 
 	distroObj, supportedDistro := supportedDistros[distro]
@@ -636,11 +633,11 @@ func parseReleaseFedora(release string) (string, error) {
 	releaseN, err := strconv.Atoi(release)
 	if err != nil {
 		logrus.Debugf("Parsing release %s as an integer failed: %s", release, err)
-		return "", errors.New("The release must be a positive integer.")
+		return "", &ParseReleaseError{"The release must be a positive integer."}
 	}
 
 	if releaseN <= 0 {
-		return "", errors.New("The release must be a positive integer.")
+		return "", &ParseReleaseError{"The release must be a positive integer."}
 	}
 
 	return release, nil
@@ -648,17 +645,17 @@ func parseReleaseFedora(release string) (string, error) {
 
 func parseReleaseRHEL(release string) (string, error) {
 	if i := strings.IndexRune(release, '.'); i == -1 {
-		return "", errors.New("The release must be in the '<major>.<minor>' format.")
+		return "", &ParseReleaseError{"The release must be in the '<major>.<minor>' format."}
 	}
 
 	releaseN, err := strconv.ParseFloat(release, 32)
 	if err != nil {
 		logrus.Debugf("Parsing release %s as a float failed: %s", release, err)
-		return "", errors.New("The release must be in the '<major>.<minor>' format.")
+		return "", &ParseReleaseError{"The release must be in the '<major>.<minor>' format."}
 	}
 
 	if releaseN <= 0 {
-		return "", errors.New("The release must be a positive number.")
+		return "", &ParseReleaseError{"The release must be a positive number."}
 	}
 
 	return release, nil
@@ -730,6 +727,11 @@ func ResolveContainerAndImageNames(container, distroCLI, imageCLI, releaseCLI st
 		}
 	}
 
+	release, err := parseRelease(distro, release)
+	if err != nil {
+		return "", "", "", err
+	}
+
 	if imageCLI == "" {
 		image = getDefaultImageForDistro(distro, release)
 
@@ -764,6 +766,14 @@ func ResolveContainerAndImageNames(container, distroCLI, imageCLI, releaseCLI st
 		tag := ImageReferenceGetTag(image)
 		if tag != "" {
 			container = container + "-" + tag
+		}
+
+		if !IsContainerNameValid(container) {
+			return "", "", "", &ContainerError{container, image, ErrContainerNameFromImageInvalid}
+		}
+	} else {
+		if !IsContainerNameValid(container) {
+			return "", "", "", &ContainerError{container, "", ErrContainerNameInvalid}
 		}
 	}
 

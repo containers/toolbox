@@ -60,7 +60,7 @@ func rootRunImpl(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	container, image, release, err := utils.ResolveContainerAndImageNames("", "", "", "")
+	container, image, release, err := resolveContainerAndImageNames("", "", "", "", "")
 	if err != nil {
 		return err
 	}
