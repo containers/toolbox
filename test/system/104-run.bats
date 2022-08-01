@@ -62,7 +62,7 @@ teardown() {
 }
 
 @test "run: Try to run a command in a container based on Fedora but with wrong version" {
-  run $TOOLBOX run -d fedora -r foobar
+  run $TOOLBOX run -d fedora -r foobar ls
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
