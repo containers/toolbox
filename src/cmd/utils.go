@@ -71,10 +71,30 @@ func createErrorContainerNotFound(container string) error {
 	return errors.New(errMsg)
 }
 
+func createErrorDistroWithoutRelease(distro string) error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "option '--release' is needed\n")
+	fmt.Fprintf(&builder, "Distribution %s doesn't match the host.\n", distro)
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
 func createErrorInvalidContainer(containerArg string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "invalid argument for '%s'\n", containerArg)
 	fmt.Fprintf(&builder, "Container names must match '%s'.\n", utils.ContainerNameRegexp)
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
+func createErrorInvalidDistro(distro string) error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "invalid argument for '--distro'\n")
+	fmt.Fprintf(&builder, "Distribution %s is unsupported.\n", distro)
 	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
 
 	errMsg := builder.String()
@@ -122,6 +142,7 @@ func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI,
 
 	if err != nil {
 		var errContainer *utils.ContainerError
+		var errDistro *utils.DistroError
 		var errParseRelease *utils.ParseReleaseError
 
 		if errors.As(err, &errContainer) {
@@ -135,6 +156,17 @@ func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI,
 				return "", "", "", err
 			} else if errors.Is(err, utils.ErrContainerNameFromImageInvalid) {
 				err := createErrorInvalidImageForContainerName(errContainer.Container)
+				return "", "", "", err
+			} else {
+				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
+				panic(panicMsg)
+			}
+		} else if errors.As(err, &errDistro) {
+			if errors.Is(err, utils.ErrDistroUnsupported) {
+				err := createErrorInvalidDistro(errDistro.Distro)
+				return "", "", "", err
+			} else if errors.Is(err, utils.ErrDistroWithoutRelease) {
+				err := createErrorDistroWithoutRelease(errDistro.Distro)
 				return "", "", "", err
 			} else {
 				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)

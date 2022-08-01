@@ -121,6 +121,10 @@ var (
 	ErrContainerNameFromImageInvalid = errors.New("container name generated from image is invalid")
 
 	ErrContainerNameInvalid = errors.New("container name is invalid")
+
+	ErrDistroUnsupported = errors.New("distribution is unsupported")
+
+	ErrDistroWithoutRelease = errors.New("non-default distribution must specify release")
 )
 
 func init() {
@@ -713,11 +717,11 @@ func ResolveContainerAndImageNames(container, distroCLI, imageCLI, releaseCLI st
 	}
 
 	if _, ok := supportedDistros[distro]; !ok {
-		return "", "", "", fmt.Errorf("distribution %s is unsupported", distro)
+		return "", "", "", &DistroError{distro, ErrDistroUnsupported}
 	}
 
 	if distro != distroDefault && releaseCLI == "" && !viper.IsSet("general.release") {
-		return "", "", "", fmt.Errorf("release not found for non-default distribution %s", distro)
+		return "", "", "", &DistroError{distro, ErrDistroWithoutRelease}
 	}
 
 	if releaseCLI == "" {

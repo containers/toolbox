@@ -90,8 +90,10 @@ teardown() {
   run $TOOLBOX --assumeyes create --distro "$distro"
 
   assert_failure
-  assert_line --index 0 "Error: distribution $distro is unsupported"
-  assert [ ${#lines[@]} -eq 1 ]
+  assert_line --index 0 "Error: invalid argument for '--distro'"
+  assert_line --index 1 "Distribution $distro is unsupported."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
 }
 
 @test "create: Try to create a container based on non-existent image" {
@@ -158,8 +160,10 @@ teardown() {
   run $TOOLBOX -y create -d "$distro"
 
   assert_failure
-  assert_line --index 0 "Error: release not found for non-default distribution $distro"
-  assert [ ${#lines[@]} -eq 1 ]
+  assert_line --index 0 "Error: option '--release' is needed"
+  assert_line --index 1 "Distribution $distro doesn't match the host."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
 }
 
 @test "create: Try to create a container and pass a non-existent file to the --authfile option" {

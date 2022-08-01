@@ -26,6 +26,11 @@ type ContainerError struct {
 	Err       error
 }
 
+type DistroError struct {
+	Distro string
+	Err    error
+}
+
 type ParseReleaseError struct {
 	Hint string
 }
@@ -36,6 +41,15 @@ func (err *ContainerError) Error() string {
 }
 
 func (err *ContainerError) Unwrap() error {
+	return err.Err
+}
+
+func (err *DistroError) Error() string {
+	errMsg := fmt.Sprintf("%s: %s", err.Distro, err.Err)
+	return errMsg
+}
+
+func (err *DistroError) Unwrap() error {
 	return err.Err
 }
 
