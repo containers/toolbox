@@ -74,7 +74,7 @@ func createErrorContainerNotFound(container string) error {
 func createErrorInvalidContainer(containerArg string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "invalid argument for '%s'\n", containerArg)
-	fmt.Fprintf(&builder, "Container names must match '%s'\n", utils.ContainerNameRegexp)
+	fmt.Fprintf(&builder, "Container names must match '%s'.\n", utils.ContainerNameRegexp)
 	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
 
 	errMsg := builder.String()

@@ -43,7 +43,7 @@ teardown() {
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for 'CONTAINER'"
-  assert_line --index 1 "Container names must match '[a-zA-Z0-9][a-zA-Z0-9_.-]*'"
+  assert_line --index 1 "Container names must match '[a-zA-Z0-9][a-zA-Z0-9_.-]*'."
   assert_line --index 2 "Run 'toolbox --help' for usage."
 }
 
@@ -52,7 +52,7 @@ teardown() {
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--container'"
-  assert_line --index 1 "Container names must match '[a-zA-Z0-9][a-zA-Z0-9_.-]*'"
+  assert_line --index 1 "Container names must match '[a-zA-Z0-9][a-zA-Z0-9_.-]*'."
   assert_line --index 2 "Run 'toolbox --help' for usage."
 }
 
