@@ -235,6 +235,77 @@ func getImages() ([]toolboxImage, error) {
 }
 
 func listOutput(images []toolboxImage, containers []toolboxContainer) {
+	if len(containers) != 0 {
+		const boldGreenColor = "\033[1;32m"
+		const defaultColor = "\033[0;00m" // identical to resetColor, but same length as boldGreenColor
+		const boldDefaultColor = "\033[1m"
+		const resetColor = "\033[0m"
+
+		stdoutFd := os.Stdout.Fd()
+		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+
+		if isatty.IsTerminal(stdoutFd) {
+			fmt.Fprintf(writer, "%s", defaultColor)
+		}
+
+		fmt.Fprintf(writer, "%s", boldDefaultColor)
+		fmt.Fprintf(writer, "Toolboxes\n")
+
+		for _, container := range containers {
+			isRunning := false
+			if podman.CheckVersion("2.0.0") {
+				isRunning = container.Status == "running"
+			}
+
+			if isatty.IsTerminal(stdoutFd) {
+				var color string
+				if isRunning {
+					color = boldGreenColor
+				} else {
+					color = defaultColor
+				}
+
+				fmt.Fprintf(writer, "%s", color)
+			}
+			fmt.Fprintf(writer, "\t%s", container.Names[0])
+
+			if isatty.IsTerminal(stdoutFd) {
+				fmt.Fprintf(writer, "%s", resetColor)
+			}
+
+			fmt.Fprintf(writer, "\n")
+		}
+
+		writer.Flush()
+	}
+
+	if len(images) != 0 {
+		const boldDefaultColor = "\033[1m"
+		const defaultColor = "\033[0;00m"
+
+		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+
+		fmt.Fprintf(writer, "%s", boldDefaultColor)
+		fmt.Fprintf(writer, "Images\n")
+
+		for _, image := range images {
+			imageName := "<none>"
+			if len(image.Names) != 0 {
+				imageName = image.Names[0]
+			}
+			fmt.Fprintf(writer, "%s", defaultColor)
+			fmt.Fprintf(writer, "\t%s", imageName)
+			fmt.Fprintf(writer, "\n")
+		}
+		writer.Flush()
+	}
+
+	// if len(images) != 0 && len(containers) != 0 {
+	// 	fmt.Println()
+	// }
+}
+
+func listOutputDetailed(images []toolboxImage, containers []toolboxContainer) {
 	if len(images) != 0 {
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
