@@ -292,23 +292,36 @@ func listOutput(images []toolboxImage, containers []toolboxContainer) {
 
 	if len(images) != 0 {
 		const boldDefaultColor = "\033[1m"
-		const defaultColor = "\033[0;00m"
+		const resetColor = "\033[0m"
 
+		stdoutFd := os.Stdout.Fd()
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+
+		if isatty.IsTerminal(stdoutFd) {
+			fmt.Fprintf(writer, "%s", resetColor)
+		}
 
 		fmt.Fprintf(writer, "%s", boldDefaultColor)
 		fmt.Fprintf(writer, "Images\n")
 
 		for _, image := range images {
+			if isatty.IsTerminal(stdoutFd) {
+				fmt.Fprintf(writer, "%s", resetColor)
+			}
+
 			imageName := "<none>"
 			if len(image.Names) != 0 {
 				imageName = image.Names[0]
 			}
-			fmt.Fprintf(writer, "%s", defaultColor)
-			fmt.Fprintf(writer, "\t%s", imageName)
-			fmt.Fprintf(writer, "\n")
+
+			fmt.Fprintf(writer, "\t%s\n", imageName)
 		}
+
 		writer.Flush()
+	}
+
+	if len(images) == 0 && len(containers) == 0 {
+		fmt.Println()
 	}
 }
 
@@ -328,7 +341,10 @@ func listOutputDetailed(images []toolboxImage, containers []toolboxContainer) {
 
 		fmt.Fprintf(writer, "%s", boldDefaultColor)
 		fmt.Fprintf(writer, "Toolboxes\n")
-		fmt.Fprintf(writer, "%s", defaultColor)
+
+		if isatty.IsTerminal(stdoutFd) {
+			fmt.Fprintf(writer, "%s", defaultColor)
+		}
 
 		fmt.Fprintf(writer,
 			"\t%s\t%s\t%s\t%s\t%s",
@@ -379,22 +395,32 @@ func listOutputDetailed(images []toolboxImage, containers []toolboxContainer) {
 	}
 
 	if len(images) != 0 {
-		const defaultColor = "\033[0;00m" // identical to resetColor, but same length as boldGreenColor
 		const boldDefaultColor = "\033[1m"
+		const resetColor = "\033[0m"
 
+		stdoutFd := os.Stdout.Fd()
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+
+		if isatty.IsTerminal(stdoutFd) {
+			fmt.Fprintf(writer, "%s", resetColor)
+		}
 
 		fmt.Fprintf(writer, "%s", boldDefaultColor)
 		fmt.Fprintf(writer, "Images\n")
-		fmt.Fprintf(writer, "%s", defaultColor)
+
+		fmt.Fprintf(writer, "%s", resetColor)
 		fmt.Fprintf(writer, "\t%s\t%s\t%s\n", "Name", "Image ID", "Created")
 
 		for _, image := range images {
+			if isatty.IsTerminal(stdoutFd) {
+				fmt.Fprintf(writer, "%s", resetColor)
+			}
+
 			imageName := "<none>"
 			if len(image.Names) != 0 {
 				imageName = image.Names[0]
 			}
-			fmt.Fprintf(writer, "%s", defaultColor)
+
 			fmt.Fprintf(writer, "\t%s\t%s\t%s\n",
 				imageName,
 				utils.ShortID(image.ID),
@@ -404,7 +430,7 @@ func listOutputDetailed(images []toolboxImage, containers []toolboxContainer) {
 		writer.Flush()
 	}
 
-	if len(images) != 0 && len(containers) != 0 {
+	if len(images) == 0 && len(containers) == 0 {
 		fmt.Println()
 	}
 }
