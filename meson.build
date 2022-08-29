@@ -33,6 +33,12 @@ if tmpfilesdir == '' or not fs.exists('/run/.containerenv')
   endif
 endif
 
+toolbox = files('toolbox')
+
+if shellcheck.found()
+  test('shellcheck', shellcheck, args: [toolbox])
+endif
+
 if not skopeo.found()
     message('Running system tests requires Skopeo for OCI image manipulation.')
 endif
