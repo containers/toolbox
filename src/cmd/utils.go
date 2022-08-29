@@ -61,6 +61,49 @@ func askForConfirmation(prompt string) bool {
 	return retVal
 }
 
+func createErrorConfiguration(file string) error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "failed to read file %s\n", file)
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
+func createErrorConfigurationIsDirectory(file string) error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "failed to read file %s\n", file)
+	fmt.Fprintf(&builder, "Configuration file must be a regular file.\n")
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
+func createErrorConfigurationPermission(file string) error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "failed to read file %s\n", file)
+	fmt.Fprintf(&builder, "Configuration file must be readable.\n")
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
+func createErrorConfigurationSyntax(file string) error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "failed to parse file %s\n", file)
+	fmt.Fprintf(&builder, "Configuration file must be valid TOML.\n")
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
+func createErrorConfigurationUserConfigDir() error {
+	return errors.New("neither $XDG_CONFIG_HOME nor $HOME are defined")
+}
+
 func createErrorContainerNotFound(container string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "container %s not found\n", container)
@@ -74,6 +117,16 @@ func createErrorContainerNotFound(container string) error {
 func createErrorDistroWithoutReleaseForCLI(distro string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "option '--release' is needed\n")
+	fmt.Fprintf(&builder, "Distribution %s doesn't match the host.\n", distro)
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
+func createErrorDistroWithoutReleaseForConfig(distro string) error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "option 'release' is needed in configuration file\n")
 	fmt.Fprintf(&builder, "Distribution %s doesn't match the host.\n", distro)
 	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
 
@@ -101,10 +154,31 @@ func createErrorInvalidDistroForCLI(distro string) error {
 	return errors.New(errMsg)
 }
 
+func createErrorInvalidDistroForConfig(distro string) error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "invalid argument for 'distro' in configuration file\n")
+	fmt.Fprintf(&builder, "Distribution %s is unsupported.\n", distro)
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
 func createErrorInvalidImageForContainerNameForCLI(container string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "invalid argument for '--image'\n")
 	fmt.Fprintf(&builder, "Container name %s generated from image is invalid.\n", container)
+	fmt.Fprintf(&builder, "Container names must match '%s'.\n", utils.ContainerNameRegexp)
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
+func createErrorInvalidImageForContainerNameForConfig() error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "invalid argument for 'image' in configuration file\n")
+	fmt.Fprintf(&builder, "Image gives an invalid container name.\n")
 	fmt.Fprintf(&builder, "Container names must match '%s'.\n", utils.ContainerNameRegexp)
 	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
 
@@ -122,9 +196,29 @@ func createErrorInvalidImageWithoutBasenameForCLI() error {
 	return errors.New(errMsg)
 }
 
+func createErrorInvalidImageWithoutBasenameForConfig() error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "invalid argument for 'image' in configuration file\n")
+	fmt.Fprintf(&builder, "Images must have basenames.\n")
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
 func createErrorInvalidReleaseForCLI(hint string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "invalid argument for '--release'\n")
+	fmt.Fprintf(&builder, "%s\n", hint)
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
+func createErrorInvalidReleaseForConfig(hint string) error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "invalid argument for 'release'\n")
 	fmt.Fprintf(&builder, "%s\n", hint)
 	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
 
@@ -200,6 +294,76 @@ func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI,
 	}
 
 	return container, image, release, nil
+}
+
+func setUpConfiguration() error {
+	if err := utils.SetUpConfiguration(); err != nil {
+		if errors.Is(err, utils.ErrContainerNameInvalid) {
+			panicMsg := fmt.Sprintf("invalid container when reading configuration: %s", err)
+			panic(panicMsg)
+		}
+
+		var errConfiguration *utils.ConfigurationError
+		var errContainer *utils.ContainerError
+		var errDistro *utils.DistroError
+		var errImage *utils.ImageError
+		var errParseRelease *utils.ParseReleaseError
+
+		if errors.As(err, &errConfiguration) {
+			EISDIR := errors.New("is a directory")
+
+			if errors.Is(err, EISDIR) {
+				err := createErrorConfigurationIsDirectory(errConfiguration.File)
+				return err
+			} else if errors.Is(err, os.ErrPermission) {
+				err := createErrorConfigurationPermission(errConfiguration.File)
+				return err
+			} else if errors.Is(err, utils.ErrConfigurationSyntax) {
+				err := createErrorConfigurationSyntax(errConfiguration.File)
+				return err
+			} else if errors.Is(err, utils.ErrConfigurationUserConfigDir) {
+				err := createErrorConfigurationUserConfigDir()
+				return err
+			} else {
+				err := createErrorConfiguration(errConfiguration.File)
+				return err
+			}
+		} else if errors.As(err, &errContainer) {
+			if errors.Is(err, utils.ErrContainerNameFromImageInvalid) {
+				err := createErrorInvalidImageForContainerNameForConfig()
+				return err
+			} else {
+				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
+				panic(panicMsg)
+			}
+		} else if errors.As(err, &errDistro) {
+			if errors.Is(err, utils.ErrDistroUnsupported) {
+				err := createErrorInvalidDistroForConfig(errDistro.Distro)
+				return err
+			} else if errors.Is(err, utils.ErrDistroWithoutRelease) {
+				err := createErrorDistroWithoutReleaseForConfig(errDistro.Distro)
+				return err
+			} else {
+				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
+				panic(panicMsg)
+			}
+		} else if errors.As(err, &errImage) {
+			if errors.Is(err, utils.ErrImageWithoutBasename) {
+				err := createErrorInvalidImageWithoutBasenameForConfig()
+				return err
+			} else {
+				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
+				panic(panicMsg)
+			}
+		} else if errors.As(err, &errParseRelease) {
+			err := createErrorInvalidReleaseForConfig(errParseRelease.Hint)
+			return err
+		} else {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // showManual tries to open the specified manual page using man on stdout

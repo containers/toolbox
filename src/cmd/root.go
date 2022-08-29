@@ -174,7 +174,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := utils.SetUpConfiguration(); err != nil {
+	if err := setUpConfiguration(); err != nil {
 		return err
 	}
 
