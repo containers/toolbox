@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright © 2018 – 2021 Red Hat, Inc.
+# Copyright © 2018 – 2022 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 #
 
 # THIS IMPLEMENTATION OF TOOLBOX IS NO LONGER MAINTAINED.
-# Please, use the Go implementation instead.
+# Please, use the Go implementation instead:
+# https://containertoolbx.org/install/
 
 exec 3>/dev/null
 
@@ -2190,7 +2191,10 @@ update_container_and_image_names()
 arguments=$(save_positional_parameters "$@")
 
 echo "THIS IMPLEMENTATION OF TOOLBOX IS NO LONGER MAINTAINED."
-echo "Please, use the Go implementation instead."
+printf "Please, use the Go implementation instead: "
+# shellcheck disable=SC1003
+printf '\033]8;;https://containertoolbx.org/install/\033\\containertoolbx.org/install\033]8;;\033\\'
+printf "\n"
 echo
 
 host_id=$(get_host_id)
