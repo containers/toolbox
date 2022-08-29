@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/containers/toolbox/pkg/i18n"
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
@@ -132,8 +133,8 @@ func run(cmd *cobra.Command, args []string) error {
 
 	if len(args) == 0 {
 		var builder strings.Builder
-		fmt.Fprintf(&builder, "missing argument for \"run\"\n")
-		fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+		fmt.Fprintf(&builder, i18n.T("missing argument for \"run\"\n"))
+		fmt.Fprintf(&builder, i18n.T("Run '%s --help' for usage."), executableBase)
 
 		errMsg := builder.String()
 		return errors.New(errMsg)
@@ -218,13 +219,13 @@ func runCommand(container string,
 			}
 
 			if promptForCreate {
-				prompt := "No toolbox containers found. Create now? [y/N]"
-				shouldCreateContainer = askForConfirmation(prompt)
+				prompt := i18n.T("No toolbox containers found. Create now? [y/N]")
+				shouldCreateContainer = utils.AskForConfirmation(prompt)
 			}
 
 			if !shouldCreateContainer {
-				fmt.Printf("A container can be created later with the 'create' command.\n")
-				fmt.Printf("Run '%s --help' for usage.\n", executableBase)
+				fmt.Printf(i18n.T("A container can be created later with the 'create' command.\n"))
+				fmt.Printf(i18n.T("Run '%s --help' for usage.\n"), executableBase)
 				return nil
 			}
 

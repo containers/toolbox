@@ -1,0 +1,57 @@
+# Japanese translations for  package
+#  パッケージに対する英訳.
+# Copyright (C) 2021 THE 'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the  package.
+# Sundeep Anand <suanand@redhat.com>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: EMAIL\n"
+"POT-Creation-Date: 2021-08-16 08:23+0530\n"
+"PO-Revision-Date: 2021-08-16 07:55+0530\n"
+"Last-Translator: Sundeep Anand <suanand@redhat.com>\n"
+"Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: cmd/rm.go:88
+msgid "missing argument for \"rm\"\n"
+msgstr "\"rm\" の引数がありません \n"
+
+#: cmd/rm.go:89 cmd/rmi.go:89 cmd/run.go:121
+#, c-format
+msgid "Run '%s --help' for usage."
+msgstr "'%s --help' を実行して使用します。"
+
+#: cmd/rmi.go:88
+msgid "missing argument for \"rmi\"\n"
+msgstr "\"rmi\" の引数がありません \n"
+
+#: cmd/run.go:202
+msgid "A container can be created later with the 'create' command.\n"
+msgstr "コンテナは、後で「create」コマンドを使用して作成できます。\n"
+
+#: cmd/run.go:203
+#, c-format
+msgid "Run '%s --help' for usage.\n"
+msgstr "'%s --help' を実行して使用します。\n"
+
+#: cmd/create.go:697
+msgid "Image required to create toolbox container."
+msgstr "toolbox コンテナの作成に必要なイメージ"
+
+#: cmd/root.go:49
+msgid "Tool for containerized command line environments on Linux"
+msgstr ""
+
+#: cmd/run.go:120
+msgid "missing argument for \"run\"\n"
+msgstr "\"run\" の引数がありません \n"
+
+#: cmd/run.go:197
+msgid "No toolbox containers found. Create now? [y/N]"
+msgstr "toolbox コンテナが見つかりません。 今すぐ作成しますか？ [y/N]"

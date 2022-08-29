@@ -99,9 +99,6 @@ Here are some ideas of what you could contribute with:
 - Hack on the code and share the result - Seriously! Sometimes random ideas are
   the best.
 
-Toolbox currently does not have an infrastructure for translations. You can help
-us to set it up!
-
 # Pull Requests
 
 All pull requests are welcome! Features, bug fixes, fixing of typos, tests,

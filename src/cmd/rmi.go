@@ -22,6 +22,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/containers/toolbox/pkg/i18n"
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/spf13/cobra"
@@ -85,8 +86,8 @@ func rmi(cmd *cobra.Command, args []string) error {
 	} else {
 		if len(args) == 0 {
 			var builder strings.Builder
-			fmt.Fprintf(&builder, "missing argument for \"rmi\"\n")
-			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+			fmt.Fprintf(&builder, i18n.T("missing argument for \"rmi\"\n"))
+			fmt.Fprintf(&builder, i18n.T("Run '%s --help' for usage."), executableBase)
 
 			errMsg := builder.String()
 			return errors.New(errMsg)

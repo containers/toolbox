@@ -1,0 +1,56 @@
+# English translations for  package.
+# Copyright (C) 2021 THE 'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the  package.
+# Sundeep Anand <suanand@redhat.com>, 2021.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: EMAIL\n"
+"POT-Creation-Date: 2021-08-16 08:23+0530\n"
+"PO-Revision-Date: 2021-08-16 07:55+0530\n"
+"Last-Translator: Sundeep Anand <suanand@redhat.com>\n"
+"Language-Team: English\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: cmd/rm.go:88
+msgid "missing argument for \"rm\"\n"
+msgstr "missing argument for \"rm\"\n"
+
+#: cmd/rm.go:89 cmd/rmi.go:89 cmd/run.go:121
+#, c-format
+msgid "Run '%s --help' for usage."
+msgstr "Run '%s --help' for usage."
+
+#: cmd/rmi.go:88
+msgid "missing argument for \"rmi\"\n"
+msgstr "missing argument for \"rmi\"\n"
+
+#: cmd/run.go:202
+msgid "A container can be created later with the 'create' command.\n"
+msgstr "A container can be created later with the 'create' command.\n"
+
+#: cmd/run.go:203
+#, c-format
+msgid "Run '%s --help' for usage.\n"
+msgstr "Run '%s --help' for usage.\n"
+
+#: cmd/create.go:697
+msgid "Image required to create toolbox container."
+msgstr "Image required to create toolbox container."
+
+#: cmd/root.go:49
+msgid "Tool for containerized command line environments on Linux"
+msgstr ""
+
+#: cmd/run.go:120
+msgid "missing argument for \"run\"\n"
+msgstr "missing argument for \"run\"\n"
+
+#: cmd/run.go:197
+msgid "No toolbox containers found. Create now? [y/N]"
+msgstr "No toolbox containers found. Create now? [y/N]"
