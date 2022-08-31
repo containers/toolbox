@@ -1,0 +1,35 @@
+- name: Install requirements
+  become: yes
+  package:
+    use: dnf
+    name:
+      - ShellCheck
+      - bash-completion
+      - bats
+      - flatpak-session-helper
+      - golang
+      - golang-github-cpuguy83-md2man
+      - httpd-tools
+      - meson
+      - ninja-build
+      - openssl
+      - podman
+      - skopeo
+      - systemd
+      - udisks2
+
+- name: Setup submodules
+  shell: |
+    git submodule init
+    git submodule update
+  args:
+    chdir: '{{ zuul.project.src_dir }}'
+
+- name: Check versions of crucial packages
+  command: rpm -qa *kernel* *glibc* golang podman conmon containernetworking-plugins containers-common container-selinux crun runc fuse-overlayfs flatpak-session-helper
+
+- name: Show podman versions
+  command: podman version
+
+- name: Show podman debug information
+  command: podman info --debug
