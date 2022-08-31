@@ -231,7 +231,7 @@ func GetCgroupsVersion() (int, error) {
 	return version, nil
 }
 
-func GetContainerNamePrefixForImage(image string) (string, error) {
+func getContainerNamePrefixForImage(image string) (string, error) {
 	basename := ImageReferenceGetBasename(image)
 	if basename == "" {
 		return "", fmt.Errorf("failed to get the basename of image %s", image)
@@ -739,7 +739,7 @@ func ResolveContainerName(container, image, release string) (string, error) {
 
 	if container == "" {
 		var err error
-		container, err = GetContainerNamePrefixForImage(image)
+		container, err = getContainerNamePrefixForImage(image)
 		if err != nil {
 			return "", err
 		}
