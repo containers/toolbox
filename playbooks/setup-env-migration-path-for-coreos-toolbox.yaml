@@ -1,0 +1,11 @@
+---
+- hosts: all
+  tasks:
+    - include_tasks: dependencies.yaml
+
+    - name: Set up build directory
+      command: meson -Dmigration_path_for_coreos_toolbox=true builddir
+      args:
+        chdir: '{{ zuul.project.src_dir }}'
+
+    - include_tasks: build.yaml
