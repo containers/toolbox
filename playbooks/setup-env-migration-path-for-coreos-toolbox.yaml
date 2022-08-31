@@ -4,7 +4,7 @@
     - include_tasks: dependencies.yaml
 
     - name: Set up build directory
-      command: meson -Dmigration_path_for_coreos_toolbox=true builddir
+      command: meson -Dmigration_path_for_coreos_toolbox=true --fatal-meson-warnings builddir
       args:
         chdir: '{{ zuul.project.src_dir }}'
 
