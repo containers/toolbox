@@ -1,0 +1,12 @@
+- name: Build Toolbox
+  command: ninja -C builddir
+  args:
+    chdir: '{{ zuul.project.src_dir }}'
+    creates: builddir/src/toolbox
+
+- name: Install Toolbox
+  become: yes
+  command: ninja -C builddir install
+  args:
+    chdir: '{{ zuul.project.src_dir }}'
+    creates: /usr/local/bin/toolbox
