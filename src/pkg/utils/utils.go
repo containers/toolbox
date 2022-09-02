@@ -572,27 +572,19 @@ func SetUpConfiguration() error {
 		viper.SetConfigFile(configFile)
 
 		if err := viper.MergeInConfig(); err != nil {
-			// Seems like Viper's errors can't be examined with
-			// errors.As.
+			var errConfigFileNotFound viper.ConfigFileNotFoundError
+			var errConfigParse viper.ConfigParseError
 
-			// Seems like Viper doesn't actually throw
-			// viper.ConfigFileNotFoundError if a configuration
-			// file is not found. We still check for it for the
-			// sake of completion or in case Viper uses it in a
-			// different version.
-			_, ok := err.(viper.ConfigFileNotFoundError)
-			if ok || os.IsNotExist(err) {
+			if errors.As(err, &errConfigFileNotFound) || os.IsNotExist(err) {
 				logrus.Debugf("Setting up configuration: file %s not found", configFile)
 				continue
-			}
-
-			if _, ok := err.(viper.ConfigParseError); ok {
+			} else if errors.As(err, &errConfigParse) {
 				logrus.Debugf("Setting up configuration: failed to parse file %s: %s", configFile, err)
 				return fmt.Errorf("failed to parse file %s", configFile)
+			} else {
+				logrus.Debugf("Setting up configuration: failed to read file %s: %s", configFile, err)
+				return fmt.Errorf("failed to read file %s", configFile)
 			}
-
-			logrus.Debugf("Setting up configuration: failed to read file %s: %s", configFile, err)
-			return fmt.Errorf("failed to read file %s", configFile)
 		}
 	}
 
