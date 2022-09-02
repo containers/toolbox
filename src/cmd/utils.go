@@ -71,7 +71,7 @@ func createErrorContainerNotFound(container string) error {
 	return errors.New(errMsg)
 }
 
-func createErrorDistroWithoutRelease(distro string) error {
+func createErrorDistroWithoutReleaseForCLI(distro string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "option '--release' is needed\n")
 	fmt.Fprintf(&builder, "Distribution %s doesn't match the host.\n", distro)
@@ -91,7 +91,7 @@ func createErrorInvalidContainer(containerArg string) error {
 	return errors.New(errMsg)
 }
 
-func createErrorInvalidDistro(distro string) error {
+func createErrorInvalidDistroForCLI(distro string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "invalid argument for '--distro'\n")
 	fmt.Fprintf(&builder, "Distribution %s is unsupported.\n", distro)
@@ -101,7 +101,7 @@ func createErrorInvalidDistro(distro string) error {
 	return errors.New(errMsg)
 }
 
-func createErrorInvalidImageForContainerName(container string) error {
+func createErrorInvalidImageForContainerNameForCLI(container string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "invalid argument for '--image'\n")
 	fmt.Fprintf(&builder, "Container name %s generated from image is invalid.\n", container)
@@ -112,7 +112,7 @@ func createErrorInvalidImageForContainerName(container string) error {
 	return errors.New(errMsg)
 }
 
-func createErrorInvalidImageWithoutBasename() error {
+func createErrorInvalidImageWithoutBasenameForCLI() error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "invalid argument for '--image'\n")
 	fmt.Fprintf(&builder, "Images must have basenames.\n")
@@ -122,7 +122,7 @@ func createErrorInvalidImageWithoutBasename() error {
 	return errors.New(errMsg)
 }
 
-func createErrorInvalidRelease(hint string) error {
+func createErrorInvalidReleaseForCLI(hint string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "invalid argument for '--release'\n")
 	fmt.Fprintf(&builder, "%s\n", hint)
@@ -166,7 +166,7 @@ func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI,
 				err := createErrorInvalidContainer(containerArg)
 				return "", "", "", err
 			} else if errors.Is(err, utils.ErrContainerNameFromImageInvalid) {
-				err := createErrorInvalidImageForContainerName(errContainer.Container)
+				err := createErrorInvalidImageForContainerNameForCLI(errContainer.Container)
 				return "", "", "", err
 			} else {
 				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
@@ -174,10 +174,10 @@ func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI,
 			}
 		} else if errors.As(err, &errDistro) {
 			if errors.Is(err, utils.ErrDistroUnsupported) {
-				err := createErrorInvalidDistro(errDistro.Distro)
+				err := createErrorInvalidDistroForCLI(errDistro.Distro)
 				return "", "", "", err
 			} else if errors.Is(err, utils.ErrDistroWithoutRelease) {
-				err := createErrorDistroWithoutRelease(errDistro.Distro)
+				err := createErrorDistroWithoutReleaseForCLI(errDistro.Distro)
 				return "", "", "", err
 			} else {
 				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
@@ -185,14 +185,14 @@ func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI,
 			}
 		} else if errors.As(err, &errImage) {
 			if errors.Is(err, utils.ErrImageWithoutBasename) {
-				err := createErrorInvalidImageWithoutBasename()
+				err := createErrorInvalidImageWithoutBasenameForCLI()
 				return "", "", "", err
 			} else {
 				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
 				panic(panicMsg)
 			}
 		} else if errors.As(err, &errParseRelease) {
-			err := createErrorInvalidRelease(errParseRelease.Hint)
+			err := createErrorInvalidReleaseForCLI(errParseRelease.Hint)
 			return "", "", "", err
 		} else {
 			return "", "", "", err
