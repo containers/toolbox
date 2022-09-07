@@ -86,7 +86,8 @@ Path to a FILE with credentials for authenticating to the registry for private
 images. The FILE is usually set using `podman login`, and will be used by
 `podman pull` to get the image.
 
-The default location for FILE is `$XDG_RUNTIME_DIR/containers/auth.json`.
+The default location for FILE is `$XDG_RUNTIME_DIR/containers/auth.json` and
+its format is specified in `containers-auth.json(5)`.
 
 **--distro** DISTRO, **-d** DISTRO
 
@@ -137,4 +138,4 @@ $ toolbox create --authfile ~/auth.json --image registry.example.com/bar
 
 ## SEE ALSO
 
-`toolbox(1)`, `toolbox-init-container(1)`, `podman(1)`, `podman-create(1)`, `podman-login(1)`, `podman-pull(1)`
+`toolbox(1)`, `toolbox-init-container(1)`, `podman(1)`, `podman-create(1)`, `podman-login(1)`, `podman-pull(1)`, `containers-auth.json(5)`
