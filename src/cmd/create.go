@@ -123,11 +123,21 @@ func create(cmd *cobra.Command, args []string) error {
 	}
 
 	if cmd.Flag("distro").Changed && cmd.Flag("image").Changed {
-		return errors.New("options --distro and --image cannot be used together")
+		var builder strings.Builder
+		fmt.Fprintf(&builder, "options --distro and --image cannot be used together\n")
+		fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+		errMsg := builder.String()
+		return errors.New(errMsg)
 	}
 
 	if cmd.Flag("image").Changed && cmd.Flag("release").Changed {
-		return errors.New("options --image and --release cannot be used together")
+		var builder strings.Builder
+		fmt.Fprintf(&builder, "options --image and --release cannot be used together\n")
+		fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+		errMsg := builder.String()
+		return errors.New(errMsg)
 	}
 
 	if cmd.Flag("authfile").Changed {

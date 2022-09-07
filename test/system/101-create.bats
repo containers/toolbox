@@ -166,6 +166,28 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
+@test "create: Try to create a container using both --distro and --image" {
+  pull_distro_image fedora 32
+
+  run $TOOLBOX --assumeyes create --distro "fedora" --image fedora-toolbox:32
+
+  assert_failure
+  assert_line --index 0 "Error: options --distro and --image cannot be used together"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 2 ]
+}
+
+@test "create: Try to create a container using both --image and --release" {
+  pull_distro_image fedora 32
+
+  run $TOOLBOX --assumeyes create --image fedora-toolbox:32 --release 32
+
+  assert_failure
+  assert_line --index 0 "Error: options --image and --release cannot be used together"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 2 ]
+}
+
 @test "create: Try to create a container and pass a non-existent file to the --authfile option" {
   local file="$BATS_RUN_TMPDIR/non-existent-file"
 
