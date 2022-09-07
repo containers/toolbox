@@ -129,7 +129,7 @@ $ toolbox create --distro fedora --release f36
 $ toolbox create --image bar foo
 ```
 
-### Create a toolbox container from a custom image needing authentication
+### Create a custom toolbox container from a custom image that's private
 
 ```
 $ toolbox create --authfile ~/auth.json --image registry.example.com/bar
