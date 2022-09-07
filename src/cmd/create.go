@@ -132,7 +132,13 @@ func create(cmd *cobra.Command, args []string) error {
 
 	if cmd.Flag("authfile").Changed {
 		if !utils.PathExists(createFlags.authFile) {
-			return fmt.Errorf("file %s not found", createFlags.authFile)
+			var builder strings.Builder
+			fmt.Fprintf(&builder, "file %s not found\n", createFlags.authFile)
+			fmt.Fprintf(&builder, "'podman login' can be used to create the file.\n")
+			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+			errMsg := builder.String()
+			return errors.New(errMsg)
 		}
 	}
 

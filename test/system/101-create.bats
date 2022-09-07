@@ -172,7 +172,10 @@ teardown() {
   run $TOOLBOX create --authfile "$file"
 
   assert_failure
-  assert_output "Error: file $file not found"
+  assert_line --index 0 "Error: file $file not found"
+  assert_line --index 1 "'podman login' can be used to create the file."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
 }
 
 @test "create: Create a container based on an image from locked registry using an authentication file" {
