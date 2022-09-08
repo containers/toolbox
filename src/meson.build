@@ -50,7 +50,6 @@ message('Host machine dynamic linker:', dynamic_linker)
 
 toolbox = custom_target(
   'toolbox',
-  build_by_default: true,
   command: [
     go_build_wrapper_program,
     meson.current_source_dir(),
