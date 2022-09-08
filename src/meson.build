@@ -1,5 +1,4 @@
-go_build_wrapper_file = files('go-build-wrapper')
-go_build_wrapper_program = find_program('go-build-wrapper')
+go_build_wrapper_program = find_program('go-build-wrapper.py')
 
 meson_go_fmt_program = find_program('meson_go_fmt.py')
 
@@ -48,7 +47,7 @@ endif
 
 message('Host machine dynamic linker:', dynamic_linker)
 
-custom_target(
+toolbox = custom_target(
   'toolbox',
   build_by_default: true,
   command: [
@@ -59,6 +58,7 @@ custom_target(
     cc.cmd_array().get(-1),
     dynamic_linker,
     migration_path_for_coreos_toolbox.to_string(),
+    get_option('go_build_flags'),
   ],
   input: sources,
   install: true,
@@ -66,9 +66,10 @@ custom_target(
   output: 'toolbox',
 )
 
-if shellcheck.found()
-  test('shellcheck go-build-wrapper', shellcheck, args: [go_build_wrapper_file])
-endif
-
 test('go fmt', meson_go_fmt_program, args: [meson.current_source_dir()])
-test('toolbox go unit tests', go, args: ['test', '-v', './...'], workdir: meson.current_source_dir())
+test('toolbox go unit tests',
+  go,
+  args: ['test', '-v', './...'],
+  depends: toolbox,
+  workdir: meson.current_source_dir()
+)
