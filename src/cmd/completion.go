@@ -72,15 +72,11 @@ func completionCommands(cmd *cobra.Command, _ []string, _ string) ([]string, cob
 }
 
 func completionContainerNames(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
-	containerNames := []string{}
+	var containerNames []string
 	if containers, err := getContainers(); err == nil {
 		for _, container := range containers {
 			containerNames = append(containerNames, container.Names[0])
 		}
-	}
-
-	if len(containerNames) == 0 {
-		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
 
 	return containerNames, cobra.ShellCompDirectiveNoFileComp
@@ -91,7 +87,7 @@ func completionContainerNamesFiltered(cmd *cobra.Command, args []string, _ strin
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
 
-	containerNames := []string{}
+	var containerNames []string
 	if containers, err := getContainers(); err == nil {
 		for _, container := range containers {
 			skip := false
@@ -108,10 +104,6 @@ func completionContainerNamesFiltered(cmd *cobra.Command, args []string, _ strin
 
 			containerNames = append(containerNames, container.Names[0])
 		}
-	}
-
-	if len(containerNames) == 0 {
-		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
 
 	return containerNames, cobra.ShellCompDirectiveNoFileComp
@@ -135,7 +127,7 @@ func completionImageNames(cmd *cobra.Command, _ []string, _ string) ([]string, c
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
 
-	imageNames := []string{}
+	var imageNames []string
 	if images, err := getImages(); err == nil {
 		for _, image := range images {
 			if len(image.Names) > 0 {
@@ -146,15 +138,11 @@ func completionImageNames(cmd *cobra.Command, _ []string, _ string) ([]string, c
 		}
 	}
 
-	if len(imageNames) == 0 {
-		return nil, cobra.ShellCompDirectiveNoFileComp
-	}
-
 	return imageNames, cobra.ShellCompDirectiveNoFileComp
 }
 
 func completionImageNamesFiltered(_ *cobra.Command, args []string, _ string) ([]string, cobra.ShellCompDirective) {
-	imageNames := []string{}
+	var imageNames []string
 	if images, err := getImages(); err == nil {
 		for _, image := range images {
 			skip := false
@@ -179,10 +167,6 @@ func completionImageNamesFiltered(_ *cobra.Command, args []string, _ string) ([]
 
 			imageNames = append(imageNames, imageName)
 		}
-	}
-
-	if len(imageNames) == 0 {
-		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
 
 	return imageNames, cobra.ShellCompDirectiveNoFileComp
