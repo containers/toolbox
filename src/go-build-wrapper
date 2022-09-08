@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright © 2020 – 2021 Red Hat Inc.
+# Copyright © 2020 – 2022 Red Hat Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,10 +16,11 @@
 #
 
 
-if [ "$#" -ne 6 ]; then
+if [ "$#" -ne 7 ]; then
     echo "go-build-wrapper: wrong arguments" >&2
     echo "Usage: go-build-wrapper [SOURCE DIR]" >&2
-    echo "                        [OUTPUT DIR]" >&2
+    echo "                        [OUTPUT ROOT DIR]" >&2
+    echo "                        [OUTPUT FILE]" >&2
     echo "                        [VERSION]" >&2
     echo "                        [C COMPILER]" >&2
     echo "                        [DYNAMIC LINKER]" >&2
@@ -33,11 +34,11 @@ if ! cd "$1"; then
 fi
 
 tags=""
-if $6; then
+if $7; then
     tags="-tags migration_path_for_coreos_toolbox"
 fi
 
-if ! libc_dir=$("$4" --print-file-name=libc.so); then
+if ! libc_dir=$("$5" --print-file-name=libc.so); then
     echo "go-build-wrapper: failed to read the path to libc.so" >&2
     exit 1
 fi
@@ -52,13 +53,13 @@ if ! libc_dir_canonical_dirname=$(dirname "$libc_dir_canonical"); then
     exit 1
 fi
 
-if ! dynamic_linker_basename=$(basename "$5"); then
-    echo "go-build-wrapper: failed to read the basename of dynamic linker $5" >&2
+if ! dynamic_linker_basename=$(basename "$6"); then
+    echo "go-build-wrapper: failed to read the basename of dynamic linker $6" >&2
     exit 1
 fi
 
-if ! dynamic_linker_canonical=$(readlink --canonicalize "$5"); then
-    echo "go-build-wrapper: failed to canonicalize dynamic linker $5" >&2
+if ! dynamic_linker_canonical=$(readlink --canonicalize "$6"); then
+    echo "go-build-wrapper: failed to canonicalize dynamic linker $6" >&2
     exit 1
 fi
 
@@ -73,7 +74,7 @@ dynamic_linker="/run/host$dynamic_linker_canonical_dirname/$dynamic_linker_basen
 go build \
         $tags \
         -trimpath \
-        -ldflags "-extldflags '-Wl,-dynamic-linker,$dynamic_linker -Wl,-rpath,/run/host$libc_dir_canonical_dirname' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$3" \
-        -o "$2/toolbox"
+        -ldflags "-extldflags '-Wl,-dynamic-linker,$dynamic_linker -Wl,-rpath,/run/host$libc_dir_canonical_dirname' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$4" \
+        -o "$2/$3"
 
 exit "$?"

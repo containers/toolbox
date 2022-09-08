@@ -53,7 +53,8 @@ toolbox = custom_target(
   command: [
     go_build_wrapper_program,
     meson.current_source_dir(),
-    meson.current_build_dir(),
+    meson.project_build_root(),
+    '@OUTPUT@',
     meson.project_version(),
     cc.cmd_array().get(-1),
     dynamic_linker,
