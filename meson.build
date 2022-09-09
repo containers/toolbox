@@ -33,10 +33,10 @@ if tmpfilesdir == '' or not fs.exists('/run/.containerenv')
   endif
 endif
 
-toolbox = files('toolbox')
+toolbox_sh = files('toolbox')
 
 if shellcheck.found()
-  test('shellcheck', shellcheck, args: [toolbox])
+  test('shellcheck', shellcheck, args: [toolbox_sh])
 endif
 
 if not skopeo.found()

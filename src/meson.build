@@ -48,7 +48,7 @@ endif
 
 message('Host machine dynamic linker:', dynamic_linker)
 
-toolbox = custom_target(
+toolbox_go = custom_target(
   'toolbox',
   command: [
     go_build_wrapper_program,
