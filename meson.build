@@ -18,8 +18,8 @@ go_md2man = find_program('go-md2man')
 shellcheck = find_program('shellcheck', required: false)
 skopeo = find_program('skopeo', required: false)
 
-bash_completion = dependency('bash-completion', required: false)
-fish = dependency('fish', required: false)
+bash_completion_dep = dependency('bash-completion', required: false)
+fish_dep = dependency('fish', required: false)
 
 migration_path_for_coreos_toolbox = get_option('migration_path_for_coreos_toolbox')
 profiledir = get_option('profile_dir')
