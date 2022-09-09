@@ -18,8 +18,26 @@ go_md2man = find_program('go-md2man')
 shellcheck = find_program('shellcheck', required: false)
 skopeo = find_program('skopeo', required: false)
 
-bash_completion_dep = dependency('bash-completion', required: false)
-fish_dep = dependency('fish', required: false)
+bashcompletionsdir = get_option('bash_completions_dir')
+if bashcompletionsdir == ''
+  bash_completion_dep = dependency('bash-completion', required: false)
+  if bash_completion_dep.found()
+    bashcompletionsdir = bash_completion_dep.get_variable(pkgconfig: 'completionsdir')
+  endif
+endif
+
+fishcompletionsdir = get_option('fish_completions_dir')
+if fishcompletionsdir == ''
+  fish_completion_dep = dependency('fish', required: false)
+  if fish_completion_dep.found()
+    fishcompletionsdir = fish_completion_dep.get_variable(pkgconfig: 'completionsdir')
+  endif
+endif
+
+zshcompletionsdir = get_option('zsh_completions_dir')
+if zshcompletionsdir == ''
+  zshcompletionsdir = get_option('datadir') / 'zsh' / 'site-functions'
+endif
 
 migration_path_for_coreos_toolbox = get_option('migration_path_for_coreos_toolbox')
 profiledir = get_option('profile_dir')
@@ -70,8 +88,6 @@ subdir('data')
 subdir('doc')
 subdir('profile.d')
 subdir('src')
-if get_option('install_completions')
-  subdir('completion')
-endif
+subdir('completion')
 
 meson.add_install_script('meson_post_install.py')

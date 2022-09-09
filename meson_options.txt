@@ -1,4 +1,22 @@
 option(
+  'bash_completions_dir',
+  description: 'Directory for Bash completion scripts',
+  type: 'string',
+)
+
+option(
+  'fish_completions_dir',
+  description: 'Directory for fish completion scripts',
+  type: 'string',
+)
+
+option(
+  'zsh_completions_dir',
+  description: 'Directory for Z shell completion scripts (default=$datadir/zsh/site-functions)',
+  type: 'string',
+)
+
+option(
   'migration_path_for_coreos_toolbox',
   description: 'Offer a migration path to users of github.com/coreos/toolbox',
   type: 'boolean',
@@ -16,11 +34,4 @@ option(
   'tmpfiles_dir',
   description: 'Directory for system-wide tmpfiles.d(5) files',
   type: 'string',
-)
-
-option(
-  'install_completions',
-  description: 'Install bash, zsh and fish command completions',
-  type: 'boolean',
-  value: true,
 )
