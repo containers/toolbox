@@ -67,7 +67,7 @@ toolbox_go = custom_target(
 )
 
 if shellcheck.found()
-  test('shellcheck go-build-wrapper', shellcheck, args: [go_build_wrapper_file])
+  test('shellcheck src/go-build-wrapper', shellcheck, args: [go_build_wrapper_file])
 endif
 
 test('go fmt', meson_go_fmt_program, args: [meson.current_source_dir()])

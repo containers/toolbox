@@ -36,7 +36,7 @@ endif
 toolbox_sh = files('toolbox')
 
 if shellcheck.found()
-  test('shellcheck', shellcheck, args: [toolbox_sh])
+  test('shellcheck toolbox (deprecated)', shellcheck, args: [toolbox_sh])
 endif
 
 if not skopeo.found()
