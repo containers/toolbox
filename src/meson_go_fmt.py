@@ -25,12 +25,7 @@ if len(sys.argv) != 2:
 
 source_dir = sys.argv[1]
 
-try:
-    gofmt = subprocess.run(['gofmt', '-d', source_dir], capture_output=True, check=True)
-except subprocess.CalledProcessError as e:
-    print('{}: gofmt returned non-zero exit status {}'.format(sys.argv[0], e.returncode), file=sys.stderr)
-    sys.exit(e.returncode)
-
+gofmt = subprocess.run(['gofmt', '-d', source_dir], capture_output=True, check=True)
 if gofmt.stdout:
    diff = gofmt.stdout.decode()
    print(diff)

@@ -31,11 +31,7 @@ if len(sys.argv) != 3:
 source_dir = sys.argv[1]
 completion_type = sys.argv[2]
 
-try:
-    os.chdir(source_dir)
-    output = subprocess.run(['go', 'run', '.', 'completion', completion_type], check=True)
-except subprocess.CalledProcessError as e:
-    print('{}: go run returned non-zero exit status {}'.format(sys.argv[0], e.returncode), file=sys.stderr)
-    sys.exit(e.returncode)
+os.chdir(source_dir)
+output = subprocess.run(['go', 'run', '.', 'completion', completion_type], check=True)
 
 sys.exit(0)
