@@ -14,26 +14,32 @@ else
   message('fish not found: using', get_option('prefix') / fishcompletionsdir, 'as a fallback install directory')
 endif
 
-custom_target('bash-completion',
+custom_target(
+  'bash-completion',
   capture: true,
   command: [generate_completions_program, meson.global_source_root() / 'src', 'bash'],
   depends: [toolbox_go],
   install: true,
   install_dir: bashcompletionsdir,
-  output: 'toolbox')
+  output: 'toolbox'
+)
 
-custom_target('zsh-completion',
+custom_target(
+  'zsh-completion',
   capture: true,
   command: [generate_completions_program, meson.global_source_root() / 'src', 'zsh'],
   depends: [toolbox_go],
   install: true,
   install_dir: get_option('datadir') / 'zsh' / 'site-functions',
-  output: '_toolbox')
+  output: '_toolbox'
+)
 
-custom_target('fish-completion',
+custom_target(
+  'fish-completion',
   capture: true,
   command: [generate_completions_program, meson.global_source_root() / 'src', 'fish'],
   depends: [toolbox_go],
   install: true,
   install_dir: fishcompletionsdir,
-  output: 'toolbox.fish')
+  output: 'toolbox.fish'
+)
