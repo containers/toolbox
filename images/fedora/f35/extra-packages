@@ -20,6 +20,8 @@ less
 lsof
 man-db
 man-pages
+mesa-dri-drivers
+mesa-vulkan-drivers
 mtr
 nano-default-editor
 nss-mdns
@@ -37,6 +39,7 @@ tree
 unzip
 util-linux
 vte-profile
+vulkan-loader
 wget
 which
 words
