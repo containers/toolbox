@@ -1,0 +1,15 @@
+acl
+bash
+curl
+gawk
+grep
+gzip
+libcap
+openssl
+p11-kit
+pam
+python3
+rpm
+sed
+systemd
+tar
