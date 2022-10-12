@@ -74,4 +74,7 @@ if get_option('install_completions')
   subdir('completion')
 endif
 
-meson.add_install_script('meson_post_install.py')
+run_postinst = get_option('run_postinst')
+if run_postinst
+  meson.add_install_script('meson_post_install.py')
+endif

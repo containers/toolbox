@@ -24,3 +24,10 @@ option(
   type: 'boolean',
   value: true,
 )
+
+option(
+  'run_postinst',
+  description: 'Run meson_post_install.py (systemd-tmpfiles --create)',
+  type: 'boolean',
+  value: true,
+)
