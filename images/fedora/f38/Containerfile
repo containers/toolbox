@@ -13,6 +13,8 @@ COPY README.md /
 
 RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf
 RUN dnf -y swap coreutils-single coreutils-full
+RUN dnf -y swap glibc-minimal-langpack glibc-all-langpacks
+RUN rm /etc/rpm/macros.image-language.conf
 
 COPY missing-docs /
 RUN dnf -y reinstall $(<missing-docs)

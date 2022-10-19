@@ -7,7 +7,6 @@ findutils
 flatpak-spawn
 fpaste
 git
-glibc-all-langpacks
 gnupg
 gnupg2-smime
 gvfs-client
