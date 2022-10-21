@@ -21,7 +21,7 @@ custom_target(
   depends: [toolbox_go],
   install: true,
   install_dir: bashcompletionsdir,
-  output: 'toolbox'
+  output: 'toolbox',
 )
 
 custom_target(
@@ -31,7 +31,7 @@ custom_target(
   depends: [toolbox_go],
   install: true,
   install_dir: get_option('datadir') / 'zsh' / 'site-functions',
-  output: '_toolbox'
+  output: '_toolbox',
 )
 
 custom_target(
@@ -41,5 +41,5 @@ custom_target(
   depends: [toolbox_go],
   install: true,
   install_dir: fishcompletionsdir,
-  output: 'toolbox.fish'
+  output: 'toolbox.fish',
 )
