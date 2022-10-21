@@ -4,7 +4,7 @@
     - include_tasks: dependencies.yaml
 
     - name: Set up build directory
-      command: meson --fatal-meson-warnings builddir
+      command: meson setup --fatal-meson-warnings builddir
       args:
         chdir: '{{ zuul.project.src_dir }}'
 

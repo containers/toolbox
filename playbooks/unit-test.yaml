@@ -2,6 +2,6 @@
 - hosts: all
   tasks:
     - name: Test
-      command: ninja -C builddir test
+      command: meson test -C builddir
       args:
         chdir: '{{ zuul.project.src_dir }}'
