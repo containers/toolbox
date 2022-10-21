@@ -32,7 +32,7 @@ foreach section, pages: manuals
       command: go_md2man_command,
       input: input,
       install: true,
-      install_dir: join_paths(get_option('mandir'), sectiondir),
+      install_dir: get_option('mandir') / sectiondir,
       output: output,
     )
   endforeach

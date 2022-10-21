@@ -63,7 +63,7 @@ endif
 
 install_subdir(
   'test',
-  install_dir: join_paths(get_option('datadir'), meson.project_name()),
+  install_dir: get_option('datadir') / meson.project_name(),
   exclude_files: [
     'system/libs/bats-assert/.git',
     'system/libs/bats-assert/.gitignore',
