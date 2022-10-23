@@ -160,7 +160,7 @@ teardown() {
 @test "run: Run command exiting with zero code in the default container" {
   create_default_container
 
-  run $TOOLBOX run /bin/sh -c 'exit 0'
+  run $TOOLBOX run true
 
   assert_success
   assert_output ""
