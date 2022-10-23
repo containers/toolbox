@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2021 Red Hat Inc.
+ * Copyright © 2019 – 2022 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ import (
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
-	"github.com/mattn/go-isatty"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
 
 var (
@@ -441,7 +441,13 @@ func constructExecArgs(container string,
 
 	execArgs = append(execArgs, detachKeys...)
 
-	if isatty.IsTerminal(os.Stdin.Fd()) && isatty.IsTerminal(os.Stdout.Fd()) {
+	stdinFd := os.Stdin.Fd()
+	stdinFdInt := int(stdinFd)
+
+	stdoutFd := os.Stdout.Fd()
+	stdoutFdInt := int(stdoutFd)
+
+	if term.IsTerminal(stdinFdInt) && term.IsTerminal(stdoutFdInt) {
 		execArgs = append(execArgs, "--tty")
 	}
 
