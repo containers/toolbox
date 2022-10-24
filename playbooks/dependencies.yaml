@@ -6,6 +6,7 @@
       - ShellCheck
       - bash-completion
       - bats
+      - codespell
       - fish
       - flatpak-session-helper
       - golang

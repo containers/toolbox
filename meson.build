@@ -15,6 +15,8 @@ endif
 
 go = find_program('go')
 go_md2man = find_program('go-md2man')
+
+codespell = find_program('codespell', required: false)
 shellcheck = find_program('shellcheck', required: false)
 skopeo = find_program('skopeo', required: false)
 
@@ -52,6 +54,24 @@ if tmpfilesdir == '' or not fs.exists('/run/.containerenv')
 endif
 
 toolbox_sh = files('toolbox')
+
+if codespell.found()
+  test(
+    'codespell',
+    codespell,
+    args: [
+      '--check-filenames',
+      '--check-hidden',
+      '--context', '3',
+      '--exclude-file', meson.project_source_root() / '.codespellexcludefile',
+      '--skip', meson.project_build_root(),
+      '--skip', meson.project_source_root() / '.git',
+      '--skip', meson.project_source_root() / 'test/system/libs/bats-assert',
+      '--skip', meson.project_source_root() / 'test/system/libs/bats-support',
+      meson.project_source_root(),
+    ],
+  )
+endif
 
 if shellcheck.found()
   test('shellcheck toolbox (deprecated)', shellcheck, args: [toolbox_sh])
