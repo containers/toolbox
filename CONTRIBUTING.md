@@ -92,7 +92,7 @@ Here are some ideas of what you could contribute with:
   images. Ultimately there should be a wide variety of supported distro images.
   You can help with testing other people's image definitions or creating your
   own. **Beware**, maintainers still don't have a clear idea of how the image
-  infrustructure should look like.
+  infrastructure should look like.
 - Write documentation - Some functions in Toolbox's code don't have comments and
   it's not very clear what they do. Toolbox has it's [documentation](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/)
   hosted by Fedora. It's not very large and could use some attention.

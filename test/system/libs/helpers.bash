@@ -70,7 +70,7 @@ function _clean_temporary_storage() {
 # - distro - os-release field ID (e.g., fedora, rhel)
 # - version - os-release field VERSION_ID (e.g., 33, 34, 8.4)
 #
-# Only use during test suite setup for caching all images to be used throught
+# Only use during test suite setup for caching all images to be used throughout
 # tests.
 function _pull_and_cache_distro_image() {
   local num_of_retries=5
