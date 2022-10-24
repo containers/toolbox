@@ -461,7 +461,7 @@ func constructExecArgs(container string,
 
 	execArgs = append(execArgs, []string{
 		container,
-		"capsh", "--caps=", "--", "-c", "exec \"$@\"", "/bin/sh",
+		"capsh", "--caps=", "--", "-c", "exec \"$@\"", "bash",
 	}...)
 
 	execArgs = append(execArgs, command...)

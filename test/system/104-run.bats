@@ -184,7 +184,7 @@ teardown() {
 
   assert_failure
   assert [ $status -eq 127 ]
-  assert_line --index 0 "/bin/sh: line 1: exec: $cmd: not found"
+  assert_line --index 0 "bash: line 1: exec: $cmd: not found"
   assert_line --index 1 "Error: command $cmd not found in container $(get_latest_container_name)"
   assert [ ${#lines[@]} -eq 2 ]
 }
@@ -196,8 +196,8 @@ teardown() {
 
   assert_failure
   assert [ $status -eq 126 ]
-  assert_line --index 0 "/bin/sh: line 1: /etc: Is a directory"
-  assert_line --index 1 "/bin/sh: line 1: exec: /etc: cannot execute: Is a directory"
+  assert_line --index 0 "bash: line 1: /etc: Is a directory"
+  assert_line --index 1 "bash: line 1: exec: /etc: cannot execute: Is a directory"
   assert_line --index 2 "Error: failed to invoke command /etc in container $(get_latest_container_name)"
   assert [ ${#lines[@]} -eq 3 ]
 }
