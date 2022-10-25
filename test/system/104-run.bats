@@ -13,6 +13,21 @@ teardown() {
   cleanup_containers
 }
 
+@test "run: Ensure that a login shell is used to invoke the command" {
+  create_default_container
+
+  cp "$HOME"/.bash_profile "$HOME"/.bash_profile.orig
+  echo "echo \"~/.bash_profile read\"" >>"$HOME"/.bash_profile
+
+  run $TOOLBOX run true
+
+  mv "$HOME"/.bash_profile.orig "$HOME"/.bash_profile
+
+  assert_success
+  assert_line --index 0 "~/.bash_profile read"
+  assert [ ${#lines[@]} -eq 1 ]
+}
+
 @test "run: Try to run a command in the default container with no containers created" {
   local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
 

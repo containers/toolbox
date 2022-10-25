@@ -300,7 +300,12 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 	workDir := workingDirectory
 
 	for {
-		execArgs := constructExecArgs(container, command, detachKeysSupported, envOptions, workDir)
+		execArgs := constructExecArgs(container,
+			command,
+			detachKeysSupported,
+			envOptions,
+			fallbackToBash,
+			workDir)
 
 		if emitEscapeSequence {
 			fmt.Printf("\033]777;container;push;%s;toolbox;%s\033\\", container, currentUser.Uid)
@@ -421,8 +426,14 @@ func callFlatpakSessionHelper(container string) error {
 	return nil
 }
 
-func constructCapShArgs(command []string) []string {
-	capShArgs := []string{"capsh", "--caps=", "--", "-c", "exec \"$@\"", "bash"}
+func constructCapShArgs(command []string, useLoginShell bool) []string {
+	capShArgs := []string{"capsh", "--caps=", "--"}
+
+	if useLoginShell {
+		capShArgs = append(capShArgs, []string{"--login"}...)
+	}
+
+	capShArgs = append(capShArgs, []string{"-c", "exec \"$@\"", "bash"}...)
 	capShArgs = append(capShArgs, command...)
 
 	return capShArgs
@@ -432,6 +443,7 @@ func constructExecArgs(container string,
 	command []string,
 	detachKeysSupported bool,
 	envOptions []string,
+	fallbackToBash bool,
 	workDir string) []string {
 	var detachKeys []string
 
@@ -470,7 +482,7 @@ func constructExecArgs(container string,
 		container,
 	}...)
 
-	capShArgs := constructCapShArgs(command)
+	capShArgs := constructCapShArgs(command, !fallbackToBash)
 	execArgs = append(execArgs, capShArgs...)
 
 	return execArgs
