@@ -421,6 +421,13 @@ func callFlatpakSessionHelper(container string) error {
 	return nil
 }
 
+func constructCapShArgs(command []string) []string {
+	capShArgs := []string{"capsh", "--caps=", "--", "-c", "exec \"$@\"", "bash"}
+	capShArgs = append(capShArgs, command...)
+
+	return capShArgs
+}
+
 func constructExecArgs(container string,
 	command []string,
 	detachKeysSupported bool,
@@ -461,10 +468,10 @@ func constructExecArgs(container string,
 
 	execArgs = append(execArgs, []string{
 		container,
-		"capsh", "--caps=", "--", "-c", "exec \"$@\"", "bash",
 	}...)
 
-	execArgs = append(execArgs, command...)
+	capShArgs := constructCapShArgs(command)
+	execArgs = append(execArgs, capShArgs...)
 
 	return execArgs
 }
