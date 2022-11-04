@@ -62,7 +62,7 @@ func completionCommands(cmd *cobra.Command, _ []string, _ string) ([]string, cob
 	commandNames := []string{}
 	commands := cmd.Root().Commands()
 	for _, command := range commands {
-		if strings.Contains(command.Name(), "complet") {
+		if strings.Contains(command.Name(), "complete") {
 			continue
 		}
 		commandNames = append(commandNames, command.Name())

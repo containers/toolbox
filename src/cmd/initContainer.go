@@ -272,7 +272,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		if err := ioutil.WriteFile("/etc/krb5.conf.d/kcm_default_ccache",
 			kcmConfigBytes,
 			0644); err != nil {
-			return errors.New("failed to set KCM as the defult Kerberos credential cache")
+			return errors.New("failed to set KCM as the default Kerberos credential cache")
 		}
 	}
 

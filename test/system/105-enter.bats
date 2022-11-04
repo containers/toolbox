@@ -43,7 +43,7 @@ teardown() {
   assert_line --index 1 "Run 'toolbox --help' for usage."
 }
 
-@test "enter: Try to enter a specifc non-existent container with other containers present" {
+@test "enter: Try to enter a specific non-existent container with other containers present" {
   create_container other-container
 
   run $TOOLBOX enter wrong-container

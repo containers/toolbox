@@ -20,7 +20,7 @@ The following options are understood:
 
 **--all, -a**
 
-Remove all toolbox containers. It can be used in conjuction with `--force` as
+Remove all toolbox containers. It can be used in conjunction with `--force` as
 well.
 
 **--force, -f**

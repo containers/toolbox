@@ -20,7 +20,7 @@ The following options are understood:
 
 **--all, -a**
 
-Remove all toolbox images. It can be used in conjuction with `--force` as well.
+Remove all toolbox images. It can be used in conjunction with `--force` as well.
 
 **--force, -f**
 
