@@ -19,6 +19,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -295,6 +296,7 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 
 	envOptions := utils.GetEnvOptionsForPreservedVariables()
 
+	var stderr io.Writer
 	var ttyNeeded bool
 
 	stdinFd := os.Stdin.Fd()
@@ -305,6 +307,11 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 
 	if term.IsTerminal(stdinFdInt) && term.IsTerminal(stdoutFdInt) {
 		ttyNeeded = true
+		if logLevel := logrus.GetLevel(); logLevel >= logrus.DebugLevel {
+			stderr = os.Stderr
+		}
+	} else {
+		stderr = os.Stderr
 	}
 
 	runFallbackCommandsIndex := 0
@@ -330,7 +337,7 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 			logrus.Debugf("%s", arg)
 		}
 
-		exitCode, err := shell.RunWithExitCode("podman", os.Stdin, os.Stdout, os.Stderr, execArgs...)
+		exitCode, err := shell.RunWithExitCode("podman", os.Stdin, os.Stdout, stderr, execArgs...)
 
 		if emitEscapeSequence {
 			fmt.Printf("\033]777;container;pop;;;%s\033\\", currentUser.Uid)
