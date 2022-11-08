@@ -459,12 +459,6 @@ func constructExecArgs(container string,
 	fallbackToBash bool,
 	ttyNeeded bool,
 	workDir string) []string {
-	var detachKeys []string
-
-	if detachKeysSupported {
-		detachKeys = []string{"--detach-keys", ""}
-	}
-
 	logLevelString := podman.LogLevel.String()
 
 	execArgs := []string{
@@ -472,19 +466,28 @@ func constructExecArgs(container string,
 		"exec",
 	}
 
-	execArgs = append(execArgs, detachKeys...)
-
-	if ttyNeeded {
-		execArgs = append(execArgs, "--tty")
+	if detachKeysSupported {
+		execArgs = append(execArgs, []string{
+			"--detach-keys", "",
+		}...)
 	}
+
+	execArgs = append(execArgs, envOptions...)
 
 	execArgs = append(execArgs, []string{
 		"--interactive",
+	}...)
+
+	if ttyNeeded {
+		execArgs = append(execArgs, []string{
+			"--tty",
+		}...)
+	}
+
+	execArgs = append(execArgs, []string{
 		"--user", currentUser.Username,
 		"--workdir", workDir,
 	}...)
-
-	execArgs = append(execArgs, envOptions...)
 
 	execArgs = append(execArgs, []string{
 		container,
