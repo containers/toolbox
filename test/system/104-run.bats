@@ -58,6 +58,23 @@ teardown() {
   assert_line --index $((${#lines[@]}-1)) "Hello World"
 }
 
+@test "run: Ensure that $HOME is used as a fallback working directory" {
+  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+  create_default_container
+
+  pushd /etc/kernel
+  run --separate-stderr $TOOLBOX run pwd
+  popd
+
+  assert_success
+  assert_line --index 0 "$HOME"
+  assert [ ${#lines[@]} -eq 1 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index $((${#stderr_lines[@]}-2)) "Error: directory /etc/kernel not found in container $default_container_name"
+  assert_line --index $((${#stderr_lines[@]}-1)) "Using $HOME instead."
+  assert [ ${#stderr_lines[@]} -gt 2 ]
+}
+
 @test "run: Try to run a command in the default container with no containers created" {
   local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
 
