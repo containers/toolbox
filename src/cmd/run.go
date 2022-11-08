@@ -295,6 +295,18 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 
 	envOptions := utils.GetEnvOptionsForPreservedVariables()
 
+	var ttyNeeded bool
+
+	stdinFd := os.Stdin.Fd()
+	stdinFdInt := int(stdinFd)
+
+	stdoutFd := os.Stdout.Fd()
+	stdoutFdInt := int(stdoutFd)
+
+	if term.IsTerminal(stdinFdInt) && term.IsTerminal(stdoutFdInt) {
+		ttyNeeded = true
+	}
+
 	runFallbackCommandsIndex := 0
 	runFallbackWorkDirsIndex := 0
 	workDir := workingDirectory
@@ -305,6 +317,7 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 			detachKeysSupported,
 			envOptions,
 			fallbackToBash,
+			ttyNeeded,
 			workDir)
 
 		if emitEscapeSequence {
@@ -444,6 +457,7 @@ func constructExecArgs(container string,
 	detachKeysSupported bool,
 	envOptions []string,
 	fallbackToBash bool,
+	ttyNeeded bool,
 	workDir string) []string {
 	var detachKeys []string
 
@@ -460,13 +474,7 @@ func constructExecArgs(container string,
 
 	execArgs = append(execArgs, detachKeys...)
 
-	stdinFd := os.Stdin.Fd()
-	stdinFdInt := int(stdinFd)
-
-	stdoutFd := os.Stdout.Fd()
-	stdoutFdInt := int(stdoutFd)
-
-	if term.IsTerminal(stdinFdInt) && term.IsTerminal(stdoutFdInt) {
+	if ttyNeeded {
 		execArgs = append(execArgs, "--tty")
 	}
 
