@@ -13,6 +13,15 @@ teardown() {
   cleanup_containers
 }
 
+@test "run: Run command exiting with zero code in the default container" {
+  create_default_container
+
+  run $TOOLBOX run true
+
+  assert_success
+  assert_output ""
+}
+
 @test "run: Ensure that a login shell is used to invoke the command" {
   create_default_container
 
@@ -26,6 +35,27 @@ teardown() {
   assert_success
   assert_line --index 0 "~/.bash_profile read"
   assert [ ${#lines[@]} -eq 1 ]
+}
+
+@test "run: Run echo 'Hello World' inside of the default container" {
+  create_default_container
+
+  run $TOOLBOX --verbose run echo -n "Hello World"
+
+  assert_success
+  assert_line --index $((${#lines[@]}-1)) "Hello World"
+}
+
+@test "run: Run echo 'Hello World' inside a container after being stopped" {
+  create_container running
+
+  start_container running
+  stop_container running
+
+  run $TOOLBOX --verbose run --container running echo -n "Hello World"
+
+  assert_success
+  assert_line --index $((${#lines[@]}-1)) "Hello World"
 }
 
 @test "run: Try to run a command in the default container with no containers created" {
@@ -136,27 +166,6 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "run: Run echo 'Hello World' inside of the default container" {
-  create_default_container
-
-  run $TOOLBOX --verbose run echo -n "Hello World"
-
-  assert_success
-  assert_line --index $((${#lines[@]}-1)) "Hello World"
-}
-
-@test "run: Run echo 'Hello World' inside a container after being stopped" {
-  create_container running
-
-  start_container running
-  stop_container running
-
-  run $TOOLBOX --verbose run --container running echo -n "Hello World"
-
-  assert_success
-  assert_line --index $((${#lines[@]}-1)) "Hello World"
-}
-
 @test "run: Run sudo id inside of the default container" {
   create_default_container
 
@@ -170,15 +179,6 @@ teardown() {
 
   assert_success
   assert_output --partial "uid=0(root)"
-}
-
-@test "run: Run command exiting with zero code in the default container" {
-  create_default_container
-
-  run $TOOLBOX run true
-
-  assert_success
-  assert_output ""
 }
 
 @test "run: Run command exiting with non-zero code in the default container" {
