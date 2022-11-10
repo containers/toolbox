@@ -40,7 +40,7 @@ teardown() {
 @test "run: Run echo 'Hello World' inside of the default container" {
   create_default_container
 
-  run $TOOLBOX --verbose run echo -n "Hello World"
+  run $TOOLBOX --verbose run echo "Hello World"
 
   assert_success
   assert_line --index $((${#lines[@]}-1)) "Hello World"
@@ -52,7 +52,7 @@ teardown() {
   start_container running
   stop_container running
 
-  run $TOOLBOX --verbose run --container running echo -n "Hello World"
+  run $TOOLBOX --verbose run --container running echo "Hello World"
 
   assert_success
   assert_line --index $((${#lines[@]}-1)) "Hello World"
