@@ -58,6 +58,21 @@ teardown() {
   assert_line --index $((${#lines[@]}-1)) "Hello World"
 }
 
+@test "run: Run sudo id inside of the default container" {
+  create_default_container
+
+  output="$($TOOLBOX --verbose run sudo id 2>$BATS_TMPDIR/stderr)"
+  status="$?"
+
+  echo "# stderr"
+  cat $BATS_TMPDIR/stderr
+  echo "# stdout"
+  echo $output
+
+  assert_success
+  assert_output --partial "uid=0(root)"
+}
+
 @test "run: Ensure that $HOME is used as a fallback working directory" {
   local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
   create_default_container
@@ -181,21 +196,6 @@ teardown() {
   assert_line --index 1 "Distribution $distro doesn't match the host."
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#lines[@]} -eq 3 ]
-}
-
-@test "run: Run sudo id inside of the default container" {
-  create_default_container
-
-  output="$($TOOLBOX --verbose run sudo id 2>$BATS_TMPDIR/stderr)"
-  status="$?"
-
-  echo "# stderr"
-  cat $BATS_TMPDIR/stderr
-  echo "# stdout"
-  echo $output
-
-  assert_success
-  assert_output --partial "uid=0(root)"
 }
 
 @test "run: Run command exiting with non-zero code in the default container" {
