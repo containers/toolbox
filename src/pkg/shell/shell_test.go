@@ -100,6 +100,55 @@ func TestShellRun(t *testing.T) {
 	}
 }
 
+func TestShellRunGetOut(t *testing.T) {
+	type input struct {
+		commandName string
+		args        []string
+		loglevel    logrus.Level
+	}
+
+	type expect struct {
+		err    error
+		stdout []byte
+	}
+
+	testCases := []struct {
+		name   string
+		input  input
+		expect expect
+	}{
+		{
+			name: "OK",
+			input: input{
+				commandName: "echo",
+				args:        []string{"toolbox test"},
+			},
+			expect: expect{
+				err:    nil,
+				stdout: []byte("toolbox test\n"),
+			},
+		},
+		{
+			name: "FAIL_Unexpected_Command_Result",
+			input: input{
+				commandName: "cat",
+				args:        []string{"/bogus/file.foo"},
+			},
+			expect: expect{
+				err:    errors.New("failed to invoke cat: cat: /bogus/file.foo: No such file or directory\n"),
+				stdout: nil,
+			},
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			output, err := shell.RunGetOutput(tc.input.commandName, tc.input.args...)
+			assert.Equal(t, tc.expect.err, err)
+			assert.Equal(t, tc.expect.stdout, output)
+		})
+	}
+}
+
 func TestShellRunWithExitCode(t *testing.T) {
 	type input struct {
 		commandName string
