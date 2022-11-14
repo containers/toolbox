@@ -90,6 +90,18 @@ teardown() {
   assert [ ${#stderr_lines[@]} -gt 2 ]
 }
 
+@test "run: Pass down 1 additional file descriptor" {
+  create_default_container
+
+  # File descriptors 3 and 4 are reserved by Bats.
+  run --separate-stderr $TOOLBOX run --preserve-fds 3 readlink /proc/self/fd/5 5>/dev/null
+
+  assert_success
+  assert_line --index 0 "/dev/null"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
 @test "run: Try to run a command in the default container with no containers created" {
   local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
 
@@ -232,4 +244,19 @@ teardown() {
   assert_line --index 1 "bash: line 1: exec: /etc: cannot execute: Is a directory"
   assert_line --index 2 "Error: failed to invoke command /etc in container $(get_latest_container_name)"
   assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "run: Pass down 1 invalid file descriptor" {
+  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+  create_default_container
+
+  # File descriptors 3 and 4 are reserved by Bats.
+  run -125 --separate-stderr $TOOLBOX run --preserve-fds 3 readlink /proc/self/fd/5
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: file descriptor 5 is not available - the preserve-fds option requires that file descriptors must be passed"
+  assert_line --index 1 "Error: failed to invoke 'podman exec' in container $default_container_name"
+  assert [ ${#stderr_lines[@]} -eq 2 ]
 }
