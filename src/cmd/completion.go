@@ -17,7 +17,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -32,21 +31,17 @@ var completionCmd = &cobra.Command{
 	DisableFlagsInUseLine: true,
 	ValidArgs:             []string{"bash", "zsh", "fish"},
 	Args:                  cobra.ExactValidArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		switch args[0] {
 		case "bash":
-			if err := cmd.Root().GenBashCompletionV2(os.Stdout, true); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v", err)
-			}
+			return cmd.Root().GenBashCompletionV2(os.Stdout, true)
 		case "zsh":
-			if err := cmd.Root().GenZshCompletion(os.Stdout); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v", err)
-			}
+			return cmd.Root().GenZshCompletion(os.Stdout)
 		case "fish":
-			if err := cmd.Root().GenFishCompletion(os.Stdout, true); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v", err)
-			}
+			return cmd.Root().GenFishCompletion(os.Stdout, true)
 		}
+
+		panic("code should not be reached")
 	},
 }
 
