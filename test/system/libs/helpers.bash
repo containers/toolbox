@@ -63,23 +63,21 @@ function _clean_temporary_storage() {
 }
 
 
-# Pulls an image using Podman and saves it to a image dir using Skopeo
+# Caches an image associated with a distribution at a specific release to
+# an image dir using Skopeo
 #
 # Parameters
 # ==========
 # - distro - os-release field ID (e.g., fedora, rhel)
-# - version - os-release field VERSION_ID (e.g., 33, 34, 8.4)
+# - version - os-release field VERSION_ID (e.g., 33, 34, 8.4) (optional)
 #
 # Only use during test suite setup for caching all images to be used throught
 # tests.
 function _pull_and_cache_distro_image() {
-  local num_of_retries=5
-  local timeout=10
-  local cached=false
   local distro
-  local version
   local image
   local image_archive
+  local version
 
   distro="$1"
   version="$2"
@@ -96,17 +94,46 @@ function _pull_and_cache_distro_image() {
     image_archive="${image_archive}-${version}"
   fi
 
-  if [[ -d ${IMAGE_CACHE_DIR}/${image_archive} ]] ; then
+  _pull_and_cache_image ${image} ${image_archive}
+}
+
+
+# Caches an image to an image dir using Skopeo
+#
+# Parameters
+# ==========
+# - image - OCI image available via docker:// transport
+# - image_archive - name of the cache archive (optional)
+#
+# Only use during test suite setup for caching all images to be used throught
+# tests.
+function _pull_and_cache_image() {
+  local num_of_retries=5
+  local timeout=10
+  local cached=false
+  local image
+  local image_archive
+
+  image="$1"
+  image_archive="${image//:/-}"
+
+  if [[ $# -eq 2 ]]; then
+    image_archive="$2"
+  fi
+
+  image_archive="${IMAGE_CACHE_DIR}/${image_archive}"
+
+  if [[ -d ${image_archive} ]] ; then
     return 0
   fi
 
-  if [ ! -d ${IMAGE_CACHE_DIR} ]; then
-    run mkdir -p ${IMAGE_CACHE_DIR}
+  if [ ! -d $(dirname ${image_archive}) ]; then
+    run mkdir -p $(dirname ${image_archive})
     assert_success
   fi
 
   for ((i = ${num_of_retries}; i > 0; i--)); do
-    run $SKOPEO copy --dest-compress docker://${image} dir:${IMAGE_CACHE_DIR}/${image_archive}
+    run $SKOPEO copy --dest-compress docker://${image} dir:${image_archive}
 
     if [ "$status" -eq 0 ]; then
       cached=true
@@ -117,7 +144,7 @@ function _pull_and_cache_distro_image() {
   done
 
   if ! $cached; then
-    echo "Failed to cache image ${image} to ${IMAGE_CACHE_DIR}/${image_archive}"
+    echo "Failed to cache image ${image} to ${image_archive}"
     assert_success
   fi
 
@@ -255,28 +282,50 @@ function pull_distro_image() {
     image_archive="${image_archive}-${version}"
   fi
 
+  pull_image ${image} ${image_archive}
+}
+
+
+#
+#
+# Parameters:
+# ===========
+# - image
+# - image_archive
+function pull_image() {
+  local image
+  local image_archive
+
   # No need to copy if the image is already available in Podman
   run $PODMAN image exists ${image}
   if [[ "$status" -eq 0 ]]; then
     return
   fi
 
+  image="$1"
+  image_archive="${image//:/-}"
+
+  if [[ $# -eq 2 ]]; then
+    image_archive="$2"
+  fi
+
+  image_archive="${IMAGE_CACHE_DIR}/${image_archive}"
+
   # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
-  run $SKOPEO copy "dir:${IMAGE_CACHE_DIR}/${image_archive}" "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]${image}"
+  run $SKOPEO copy "dir:${image_archive}" "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]${image}"
   if [ "$status" -ne 0 ]; then
-    echo "Failed to load image ${image} from cache ${IMAGE_CACHE_DIR}/${image_archive}"
+    echo "Failed to load image ${image} from cache ${image_archive}"
     assert_success
   fi
 
   $PODMAN images
 }
 
-
 # Copies the system's default image to Podman's image store
 #
 # See pull_default_image() for more info.
 function pull_default_image() {
-  pull_distro_image $(get_system_id) $(get_system_version)
+	pull_image $(toolbx_default_image)
 }
 
 
@@ -315,7 +364,10 @@ function create_container() {
 
   container_name="$1"
 
-  create_distro_container $(get_system_id) $(get_system_version) $container_name
+  pull_default_image
+
+  $TOOLBOX --assumeyes create --container "${container_name}" >/dev/null \
+    || fail "Toolbox couldn't create container '${container_name}'"
 }
 
 
@@ -449,3 +501,30 @@ function check_xdg_runtime_dir() {
     export XDG_RUNTIME_DIR="/run/user/${UID}"
   fi
 }
+
+
+# Prints a value in Toolbx config
+#
+# If key does not exist, prints nothing
+#
+# Parameters:
+# ===========
+# - config-key - config key
+function toolbx_config_key() {
+  local config_key="$1"
+
+  echo $(TOOLBOX __test --type config-key "$config_key")
+}
+
+
+# Prints the default Toolbx container name
+function toolbx_default_container_name() {
+  echo $($TOOLBOX __test --type default-container-name)
+}
+
+
+# Prints the default Toolbx OCI image
+function toolbx_default_image() {
+  echo $($TOOLBOX __test --type default-image)
+}
+

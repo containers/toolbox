@@ -103,7 +103,7 @@ teardown() {
 }
 
 @test "run: Try to run a command in the default container with no containers created" {
-  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+  local default_container_name="$(toolbx_default_container_name)"
 
   run $TOOLBOX run true
 
@@ -114,7 +114,7 @@ teardown() {
 }
 
 @test "run: Try to run a command in the default container when 1 non-default container is present" {
-  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+  local default_container_name="$(toolbx_default_container_name)"
 
   create_container other-container
 

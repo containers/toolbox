@@ -15,7 +15,7 @@ teardown() {
 
 
 @test "container: Check container starts without issues" {
-  readonly CONTAINER_NAME="$(get_system_id)-toolbox-$(get_system_version)"
+  readonly CONTAINER_NAME="$(toolbx_default_container_name)"
 
   create_default_container
 
@@ -33,7 +33,9 @@ teardown() {
     skip "This test is only for Fedora Rawhide"
   fi
 
-  create_distro_container "$system_id" "$system_version" latest
+  # The default image is not cached in the same way, so requested explicitly
+  # an image the tests cached instead of relying on distro+version resolution.
+  create_container latest
   run container_started latest
   assert_success
 
