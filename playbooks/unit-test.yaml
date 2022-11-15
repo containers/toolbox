@@ -1,6 +1,8 @@
 ---
 - hosts: all
   tasks:
+    - include_tasks: build.yaml
+
     - name: Test
       command: meson test -C builddir
       args:

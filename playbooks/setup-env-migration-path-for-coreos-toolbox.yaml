@@ -7,5 +7,3 @@
       command: meson -Dmigration_path_for_coreos_toolbox=true --fatal-meson-warnings builddir
       args:
         chdir: '{{ zuul.project.src_dir }}'
-
-    - include_tasks: build.yaml

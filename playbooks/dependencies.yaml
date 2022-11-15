@@ -18,6 +18,12 @@
       - systemd
       - udisks2
 
+- name: Download Go modules
+  shell: |
+    go mod download -x
+  args:
+    chdir: '{{ zuul.project.src_dir }}/src'
+
 - name: Setup submodules
   shell: |
     git submodule init
