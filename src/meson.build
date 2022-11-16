@@ -41,6 +41,8 @@ elif cpu_family == 'x86' and endian == 'little'
   dynamic_linker = '/lib/ld-linux.so.2'
 elif cpu_family == 'x86_64' and endian == 'little'
   dynamic_linker = '/lib64/ld-linux-x86-64.so.2'
+elif cpu_family == 'riscv64' and endian == 'little'
+  dynamic_linker = '/lib/ld-linux-riscv64-lp64d.so.1'
 else
   host_machine_description = cpu_family + ' (' + endian + ' endian)'
   error('Please specify dynamic linker for:', host_machine_description)
