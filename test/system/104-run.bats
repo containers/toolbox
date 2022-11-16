@@ -108,10 +108,12 @@ teardown() {
   run --separate-stderr $TOOLBOX run true
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: container $default_container_name not found"
   assert_line --index 1 "Use the 'create' command to create a toolbox."
   assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
 @test "run: Try to run a command in the default container when 1 non-default container is present" {
@@ -122,10 +124,12 @@ teardown() {
   run --separate-stderr $TOOLBOX run true
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: container $default_container_name not found"
   assert_line --index 1 "Use the 'create' command to create a toolbox."
   assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
 @test "run: Try to run a command in a specific non-existent container" {
@@ -134,10 +138,12 @@ teardown() {
   run --separate-stderr $TOOLBOX run -c wrong-container true
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: container wrong-container not found"
   assert_line --index 1 "Use the 'create' command to create a toolbox."
   assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
 @test "run: Try to run a command in a container based on unsupported distribution" {
@@ -146,6 +152,7 @@ teardown() {
   run --separate-stderr $TOOLBOX --assumeyes run --distro "$distro" ls
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--distro'"
   assert_line --index 1 "Distribution $distro is unsupported."
@@ -157,6 +164,7 @@ teardown() {
   run --separate-stderr $TOOLBOX run -d fedora -r foobar ls
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive integer."
@@ -166,6 +174,7 @@ teardown() {
   run --separate-stderr $TOOLBOX run --distro fedora --release -3 ls
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive integer."
@@ -177,6 +186,7 @@ teardown() {
   run --separate-stderr $TOOLBOX run --distro rhel --release 8 ls
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
@@ -186,6 +196,7 @@ teardown() {
   run --separate-stderr $TOOLBOX run --distro rhel --release 8.2foo ls
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
@@ -195,6 +206,7 @@ teardown() {
   run --separate-stderr $TOOLBOX run --distro rhel --release -2.1 ls
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive number."
@@ -213,6 +225,7 @@ teardown() {
   run --separate-stderr $TOOLBOX run -d "$distro" ls
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: option '--release' is needed"
   assert_line --index 1 "Distribution $distro doesn't match the host."
@@ -238,6 +251,7 @@ teardown() {
 
   assert_failure
   assert [ $status -eq 127 ]
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "bash: line 1: exec: $cmd: not found"
   assert_line --index 1 "Error: command $cmd not found in container $(get_latest_container_name)"
@@ -251,6 +265,7 @@ teardown() {
 
   assert_failure
   assert [ $status -eq 126 ]
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "bash: line 1: /etc: Is a directory"
   assert_line --index 1 "bash: line 1: exec: /etc: cannot execute: Is a directory"
