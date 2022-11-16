@@ -250,7 +250,6 @@ teardown() {
   run -127 --separate-stderr $TOOLBOX run $cmd
 
   assert_failure
-  assert [ $status -eq 127 ]
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "bash: line 1: exec: $cmd: not found"
