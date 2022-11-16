@@ -236,9 +236,8 @@ teardown() {
 @test "run: Run command exiting with non-zero code in the default container" {
   create_default_container
 
-  run $TOOLBOX run /bin/sh -c 'exit 2'
+  run -2 $TOOLBOX run /bin/sh -c 'exit 2'
   assert_failure
-  assert [ $status -eq 2 ]
   assert_output ""
 }
 
@@ -260,10 +259,9 @@ teardown() {
 @test "run: Try to run /etc as a command in the deault container" {
   create_default_container
 
-  run --separate-stderr $TOOLBOX run /etc
+  run -126 --separate-stderr $TOOLBOX run /etc
 
   assert_failure
-  assert [ $status -eq 126 ]
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "bash: line 1: /etc: Is a directory"
