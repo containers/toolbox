@@ -82,6 +82,26 @@ teardown() {
   assert_output --partial "uid=0(root)"
 }
 
+@test "run: Ensure that /run/.containerenv exists" {
+  create_default_container
+
+  run --separate-stderr $TOOLBOX run cat /run/.containerenv
+
+  assert_success
+  assert [ ${#lines[@]} -gt 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "run: Ensure that /run/.toolboxenv exists" {
+  create_default_container
+
+  run --separate-stderr $TOOLBOX run test -f /run/.toolboxenv
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
 @test "run: Ensure that $HOME is used as a fallback working directory" {
   local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
   create_default_container
