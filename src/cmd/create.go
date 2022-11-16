@@ -474,7 +474,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		return fmt.Errorf("failed to create container %s", container)
 	}
 
-	// The spinner must be stopped before showing the 'enter' hit below.
+	// The spinner must be stopped before showing the 'enter' hint below.
 	s.Stop()
 
 	if showCommandToEnter {
