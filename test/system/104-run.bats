@@ -135,7 +135,7 @@ teardown() {
 @test "run: Try a specific non-existent container with another present" {
   create_container other-container
 
-  run --separate-stderr $TOOLBOX run -c wrong-container true
+  run --separate-stderr $TOOLBOX run --container wrong-container true
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -161,7 +161,7 @@ teardown() {
 }
 
 @test "run: Try Fedora with an invalid release" {
-  run --separate-stderr $TOOLBOX run -d fedora -r foobar ls
+  run --separate-stderr $TOOLBOX run --distro fedora --release foobar ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -222,7 +222,7 @@ teardown() {
     distro="rhel"
   fi
 
-  run --separate-stderr $TOOLBOX run -d "$distro" ls
+  run --separate-stderr $TOOLBOX run --distro "$distro" ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
