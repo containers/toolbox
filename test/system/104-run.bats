@@ -13,7 +13,7 @@ teardown() {
   cleanup_containers
 }
 
-@test "run: Run command exiting with zero code in the default container" {
+@test "run: Smoke test with true(1)" {
   create_default_container
 
   run $TOOLBOX run true
@@ -37,7 +37,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 1 ]
 }
 
-@test "run: Run echo 'Hello World' inside of the default container" {
+@test "run: 'echo \"Hello World\"' inside the default container" {
   create_default_container
 
   run $TOOLBOX --verbose run echo "Hello World"
@@ -46,7 +46,7 @@ teardown() {
   assert_line --index $((${#lines[@]}-1)) "Hello World"
 }
 
-@test "run: Run echo 'Hello World' inside a container after being stopped" {
+@test "run: 'echo \"Hello World\"' inside a restarted container" {
   create_container running
 
   start_container running
@@ -58,7 +58,7 @@ teardown() {
   assert_line --index $((${#lines[@]}-1)) "Hello World"
 }
 
-@test "run: Run sudo id inside of the default container" {
+@test "run: 'sudo id' inside the default container" {
   create_default_container
 
   output="$($TOOLBOX --verbose run sudo id 2>$BATS_TMPDIR/stderr)"
@@ -102,7 +102,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "run: Try to run a command in the default container with no containers created" {
+@test "run: Try the non-existent default container with none other present" {
   local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
 
   run --separate-stderr $TOOLBOX run true
@@ -116,7 +116,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
-@test "run: Try to run a command in the default container when 1 non-default container is present" {
+@test "run: Try the non-existent default container with another present" {
   local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
 
   create_container other-container
@@ -132,7 +132,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
-@test "run: Try to run a command in a specific non-existent container" {
+@test "run: Try a specific non-existent container with another present" {
   create_container other-container
 
   run --separate-stderr $TOOLBOX run -c wrong-container true
@@ -146,7 +146,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
-@test "run: Try to run a command in a container based on unsupported distribution" {
+@test "run: Try an unsupported distribution" {
   local distro="foo"
 
   run --separate-stderr $TOOLBOX --assumeyes run --distro "$distro" ls
@@ -160,7 +160,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
-@test "run: Try to run a command in a container based on Fedora but with wrong version" {
+@test "run: Try Fedora with an invalid release" {
   run --separate-stderr $TOOLBOX run -d fedora -r foobar ls
 
   assert_failure
@@ -182,7 +182,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
-@test "run: Try to run a command in a container based on RHEL but with wrong version" {
+@test "run: Try RHEL with an invalid release" {
   run --separate-stderr $TOOLBOX run --distro rhel --release 8 ls
 
   assert_failure
@@ -214,7 +214,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
-@test "run: Try to run a command in a container based on non-default distro without providing a version" {
+@test "run: Try a non-default distro without a release" {
   local distro="fedora"
   local system_id="$(get_system_id)"
 
@@ -233,7 +233,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
-@test "run: Run command exiting with non-zero code in the default container" {
+@test "run: Smoke test with 'exit 2'" {
   create_default_container
 
   run -2 $TOOLBOX run /bin/sh -c 'exit 2'
@@ -256,7 +256,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
-@test "run: Try to run /etc as a command in the deault container" {
+@test "run: Try /etc as a command" {
   create_default_container
 
   run -126 --separate-stderr $TOOLBOX run /etc
@@ -270,7 +270,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
-@test "run: Try to run non-existent command in the default container" {
+@test "run: Try a non-existent command" {
   local cmd="non-existent-command"
 
   create_default_container
