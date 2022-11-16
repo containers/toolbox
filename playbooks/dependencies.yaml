@@ -1,4 +1,4 @@
-- name: Install requirements
+- name: Install RPM packages
   become: yes
   package:
     use: dnf
@@ -24,7 +24,7 @@
   args:
     chdir: '{{ zuul.project.src_dir }}/src'
 
-- name: Setup submodules
+- name: Setup Git submodules
   shell: |
     git submodule init
     git submodule update
