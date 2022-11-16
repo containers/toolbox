@@ -22,6 +22,15 @@ teardown() {
   assert_output ""
 }
 
+@test "run: Smoke test with false(1)" {
+  create_default_container
+
+  run -1 $TOOLBOX run false
+
+  assert_failure
+  assert_output ""
+}
+
 @test "run: Ensure that a login shell is used to invoke the command" {
   create_default_container
 
