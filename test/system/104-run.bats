@@ -241,18 +241,18 @@ teardown() {
   assert_output ""
 }
 
-@test "run: Try to run non-existent command in the default container" {
-  local cmd="non-existent-command"
-
+@test "run: Pass down 1 invalid file descriptor" {
+  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
   create_default_container
 
-  run -127 --separate-stderr $TOOLBOX run $cmd
+  # File descriptors 3 and 4 are reserved by Bats.
+  run -125 --separate-stderr $TOOLBOX run --preserve-fds 3 readlink /proc/self/fd/5
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
-  assert_line --index 0 "bash: line 1: exec: $cmd: not found"
-  assert_line --index 1 "Error: command $cmd not found in container $(get_latest_container_name)"
+  assert_line --index 0 "Error: file descriptor 5 is not available - the preserve-fds option requires that file descriptors must be passed"
+  assert_line --index 1 "Error: failed to invoke 'podman exec' in container $default_container_name"
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
@@ -270,17 +270,17 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
-@test "run: Pass down 1 invalid file descriptor" {
-  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+@test "run: Try to run non-existent command in the default container" {
+  local cmd="non-existent-command"
+
   create_default_container
 
-  # File descriptors 3 and 4 are reserved by Bats.
-  run -125 --separate-stderr $TOOLBOX run --preserve-fds 3 readlink /proc/self/fd/5
+  run -127 --separate-stderr $TOOLBOX run $cmd
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
-  assert_line --index 0 "Error: file descriptor 5 is not available - the preserve-fds option requires that file descriptors must be passed"
-  assert_line --index 1 "Error: failed to invoke 'podman exec' in container $default_container_name"
+  assert_line --index 0 "bash: line 1: exec: $cmd: not found"
+  assert_line --index 1 "Error: command $cmd not found in container $(get_latest_container_name)"
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
