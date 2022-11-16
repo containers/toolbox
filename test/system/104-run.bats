@@ -102,6 +102,52 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+@test "run: Ensure that the default container is used" {
+  run echo "$name"
+
+  assert_success
+  assert_output ""
+
+  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+  create_default_container
+  create_container other-container
+
+  run --separate-stderr $TOOLBOX run cat /run/.containerenv
+
+  assert_success
+  assert [ ${#lines[@]} -gt 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  source <(echo "$output")
+  run echo "$name"
+
+  assert_success
+  assert_output "$default_container_name"
+}
+
+@test "run: Ensure that a specific container is used" {
+  run echo "$name"
+
+  assert_success
+  assert_output ""
+
+  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+  create_default_container
+  create_container other-container
+
+  run --separate-stderr $TOOLBOX run --container other-container cat /run/.containerenv
+
+  assert_success
+  assert [ ${#lines[@]} -gt 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  source <(echo "$output")
+  run echo "$name"
+
+  assert_success
+  assert_output "other-container"
+}
+
 @test "run: Ensure that $HOME is used as a fallback working directory" {
   local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
   create_default_container
