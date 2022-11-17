@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Red Hat Inc.
+ * Copyright © 2021 – 2022 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,24 +29,29 @@ var completionCmd = &cobra.Command{
 	Short:                 "Generate completion script",
 	Hidden:                true,
 	DisableFlagsInUseLine: true,
-	ValidArgs:             []string{"bash", "zsh", "fish"},
+	ValidArgs:             []string{"bash", "fish", "zsh"},
 	Args:                  cobra.ExactValidArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		switch args[0] {
-		case "bash":
-			return cmd.Root().GenBashCompletionV2(os.Stdout, true)
-		case "zsh":
-			return cmd.Root().GenZshCompletion(os.Stdout)
-		case "fish":
-			return cmd.Root().GenFishCompletion(os.Stdout, true)
-		}
-
-		panic("code should not be reached")
-	},
+	RunE:                  completion,
 }
 
 func init() {
 	rootCmd.AddCommand(completionCmd)
+}
+
+func completion(cmd *cobra.Command, args []string) error {
+	switch args[0] {
+	case "bash":
+		err := cmd.Root().GenBashCompletionV2(os.Stdout, true)
+		return err
+	case "fish":
+		err := cmd.Root().GenFishCompletion(os.Stdout, true)
+		return err
+	case "zsh":
+		err := cmd.Root().GenZshCompletion(os.Stdout)
+		return err
+	}
+
+	panic("code should not be reached")
 }
 
 func completionEmpty(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
