@@ -17,7 +17,7 @@
 ---
 - hosts: all
   tasks:
-    - include_tasks: dependencies.yaml
+    - include_tasks: dependencies-fedora.yaml
 
     - name: Set up build directory
       command: meson -Dmigration_path_for_coreos_toolbox=true --fatal-meson-warnings builddir
