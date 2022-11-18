@@ -3,7 +3,7 @@
     name: unit-test
     description: Run Toolbox's unit tests declared in Meson
     timeout: 600
-    files: ['playbooks/*', 'src/*', 'meson.build', 'meson_options.txt', 'meson_post_install.py', '.zuul.yaml']
+    files: ['playbooks/*', 'profile.d/*', 'src/*', 'meson.build', 'meson_options.txt', 'meson_post_install.py', '.zuul.yaml']
     nodeset:
       nodes:
         - name: ci-node-36
@@ -15,7 +15,7 @@
     name: unit-test-migration-path-for-coreos-toolbox
     description: Run Toolbox's unit tests declared in Meson when built with -Dmigration_path_for_coreos_toolbox
     timeout: 600
-    files: ['playbooks/*', 'src/*', 'meson.build', 'meson_options.txt', 'meson_post_install.py', '.zuul.yaml']
+    files: ['playbooks/*', 'profile.d/*', 'src/*', 'meson.build', 'meson_options.txt', 'meson_post_install.py', '.zuul.yaml']
     nodeset:
       nodes:
         - name: ci-node-36
