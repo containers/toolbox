@@ -1,0 +1,59 @@
+- name: Install RPM packages from CentOS Stream
+  become: yes
+  package:
+    name:
+      - bash-completion
+      - flatpak-session-helper
+      - golang
+      - httpd-tools
+      - meson
+      - ninja-build
+      - openssl
+      - podman
+      - skopeo
+      - systemd
+      - udisks2
+
+- name: Install RPM packages from CentOS Stream CodeReady Linux Builder
+  become: yes
+  package:
+    enablerepo: crb
+    name:
+      - golang-github-cpuguy83-md2man
+
+- name: Enable EPEL
+  become: yes
+  package:
+    name:
+      - epel-release
+
+- name: Install RPM packages from EPEL
+  become: yes
+  package:
+    name:
+      - ShellCheck
+      - bats
+      - codespell
+      - fish
+
+- name: Download Go modules
+  shell: |
+    go mod download -x
+  args:
+    chdir: '{{ zuul.project.src_dir }}/src'
+
+- name: Setup Git submodules
+  shell: |
+    git submodule init
+    git submodule update
+  args:
+    chdir: '{{ zuul.project.src_dir }}'
+
+- name: Check versions of crucial packages
+  command: rpm -qa ShellCheck codespell *kernel* *glibc* golang podman conmon containernetworking-plugins containers-common container-selinux crun fuse-overlayfs flatpak-session-helper
+
+- name: Show podman versions
+  command: podman version
+
+- name: Show podman debug information
+  command: podman info --debug

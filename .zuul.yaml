@@ -32,8 +32,8 @@
     timeout: 600
     nodeset:
       nodes:
-        - name: ci-node-36
-          label: cloud-fedora-36
+        - name: centos-9-stream
+          label: cloud-centos-9-stream
     pre-run: playbooks/setup-env-migration-path-for-coreos-toolbox.yaml
     run: playbooks/unit-test.yaml
 
