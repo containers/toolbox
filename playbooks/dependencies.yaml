@@ -1,7 +1,6 @@
 - name: Install RPM packages
   become: yes
   package:
-    use: dnf
     name:
       - ShellCheck
       - bash-completion
