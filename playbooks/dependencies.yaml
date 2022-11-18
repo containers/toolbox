@@ -6,6 +6,7 @@
       - ShellCheck
       - bash-completion
       - bats
+      - fish
       - flatpak-session-helper
       - golang
       - golang-github-cpuguy83-md2man
