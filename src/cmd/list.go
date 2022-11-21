@@ -35,6 +35,7 @@ type toolboxImage struct {
 	Names   []string
 	Created string
 	Labels  map[string]string
+	Size    string
 }
 
 type toolboxContainer struct {
@@ -44,12 +45,14 @@ type toolboxContainer struct {
 	Created string
 	Image   string
 	Labels  map[string]string
+	Size    string
 }
 
 var (
 	listFlags struct {
 		onlyContainers bool
 		onlyImages     bool
+		size           bool
 	}
 
 	// toolboxLabels holds labels used by containers/images that mark them as compatible with Toolbox
@@ -80,6 +83,12 @@ func init() {
 		"i",
 		false,
 		"List only toolbox images, not containers")
+
+	flags.BoolVarP(&listFlags.size,
+		"size",
+		"s",
+		false,
+		"Display size of toolbox images or containers")
 
 	listCmd.SetHelpFunc(listHelp)
 	rootCmd.AddCommand(listCmd)
@@ -132,6 +141,9 @@ func list(cmd *cobra.Command, args []string) error {
 func getContainers() ([]toolboxContainer, error) {
 	logrus.Debug("Fetching all containers")
 	args := []string{"--all", "--sort", "names"}
+	if listFlags.size {
+		args = append(args, "--size")
+	}
 	containers, err := podman.GetContainers(args...)
 	if err != nil {
 		logrus.Debugf("Fetching all containers failed: %s", err)
@@ -237,7 +249,11 @@ func getImages() ([]toolboxImage, error) {
 func listOutput(images []toolboxImage, containers []toolboxContainer) {
 	if len(images) != 0 {
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-		fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
+		if listFlags.size {
+			fmt.Fprintf(writer, "%s\t%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED", "SIZE")
+		} else {
+			fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
+		}
 
 		for _, image := range images {
 			imageName := "<none>"
@@ -245,10 +261,18 @@ func listOutput(images []toolboxImage, containers []toolboxContainer) {
 				imageName = image.Names[0]
 			}
 
-			fmt.Fprintf(writer, "%s\t%s\t%s\n",
-				utils.ShortID(image.ID),
-				imageName,
-				image.Created)
+			if listFlags.size {
+				fmt.Fprintf(writer, "%s\t%s\t%s\t%s\n",
+					utils.ShortID(image.ID),
+					imageName,
+					image.Created,
+					image.Size)
+			} else {
+				fmt.Fprintf(writer, "%s\t%s\t%s\n",
+					utils.ShortID(image.ID),
+					imageName,
+					image.Created)
+			}
 		}
 
 		writer.Flush()
@@ -271,13 +295,24 @@ func listOutput(images []toolboxImage, containers []toolboxContainer) {
 			fmt.Fprintf(writer, "%s", defaultColor)
 		}
 
-		fmt.Fprintf(writer,
-			"%s\t%s\t%s\t%s\t%s",
-			"CONTAINER ID",
-			"CONTAINER NAME",
-			"CREATED",
-			"STATUS",
-			"IMAGE NAME")
+		if listFlags.size {
+			fmt.Fprintf(writer,
+				"%s\t%s\t%s\t%s\t%s\t%s",
+				"CONTAINER ID",
+				"CONTAINER NAME",
+				"CREATED",
+				"STATUS",
+				"IMAGE NAME",
+				"SIZE")
+		} else {
+			fmt.Fprintf(writer,
+				"%s\t%s\t%s\t%s\t%s",
+				"CONTAINER ID",
+				"CONTAINER NAME",
+				"CREATED",
+				"STATUS",
+				"IMAGE NAME")
+		}
 
 		if term.IsTerminal(stdoutFdInt) {
 			fmt.Fprintf(writer, "%s", resetColor)
@@ -302,12 +337,22 @@ func listOutput(images []toolboxImage, containers []toolboxContainer) {
 				fmt.Fprintf(writer, "%s", color)
 			}
 
-			fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s",
-				utils.ShortID(container.ID),
-				container.Names[0],
-				container.Created,
-				container.Status,
-				container.Image)
+			if listFlags.size {
+				fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s\t%s",
+					utils.ShortID(container.ID),
+					container.Names[0],
+					container.Created,
+					container.Status,
+					container.Image,
+					container.Size)
+			} else {
+				fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s",
+					utils.ShortID(container.ID),
+					container.Names[0],
+					container.Created,
+					container.Status,
+					container.Image)
+			}
 
 			if term.IsTerminal(stdoutFdInt) {
 				fmt.Fprintf(writer, "%s", resetColor)
@@ -326,6 +371,7 @@ func (i *toolboxImage) UnmarshalJSON(data []byte) error {
 		Names   []string
 		Created interface{}
 		Labels  map[string]string
+		Size    float64
 	}
 
 	if err := json.Unmarshal(data, &raw); err != nil {
@@ -346,10 +392,17 @@ func (i *toolboxImage) UnmarshalJSON(data []byte) error {
 
 	i.Labels = raw.Labels
 
+	if listFlags.size {
+		i.Size = utils.HumanReadableImageSize(raw.Size)
+	} else {
+		i.Size = ""
+	}
+
 	return nil
 }
 
 func (c *toolboxContainer) UnmarshalJSON(data []byte) error {
+
 	var raw struct {
 		ID      string
 		Names   interface{}
@@ -358,6 +411,7 @@ func (c *toolboxContainer) UnmarshalJSON(data []byte) error {
 		Created interface{}
 		Image   string
 		Labels  map[string]string
+		Size    map[string]float64
 	}
 
 	if err := json.Unmarshal(data, &raw); err != nil {
@@ -401,6 +455,12 @@ func (c *toolboxContainer) UnmarshalJSON(data []byte) error {
 	}
 	c.Image = raw.Image
 	c.Labels = raw.Labels
+
+	if listFlags.size {
+		c.Size = utils.HumanReadableContainerSize(raw.Size["rwSize"], raw.Size["rootFsSize"])
+	} else {
+		c.Size = ""
+	}
 
 	return nil
 }

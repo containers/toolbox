@@ -28,6 +28,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"unicode"
 
 	"github.com/acobaugh/osrelease"
 	"github.com/containers/toolbox/pkg/shell"
@@ -781,4 +782,16 @@ func ResolveContainerAndImageNames(container, distroCLI, imageCLI, releaseCLI st
 	logrus.Debugf("Release: '%s'", release)
 
 	return container, image, release, nil
+}
+
+func HumanReadableImageSize(unixSize float64) string {
+	s := units.HumanSizeWithPrecision(unixSize, 3)
+	j := strings.LastIndexFunc(s, unicode.IsNumber)
+	return s[:j+1] + " " + s[j+1:]
+}
+
+func HumanReadableContainerSize(rawSize float64, rootSize float64) string {
+	virt := units.HumanSizeWithPrecision(rootSize, 3)
+	s := units.HumanSizeWithPrecision(rawSize, 3)
+	return fmt.Sprintf("%s (virtual %s)", s, virt)
 }

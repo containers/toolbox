@@ -23,6 +23,10 @@ List only toolbox containers, not images.
 
 List only toolbox images, not containers.
 
+**--size, -s**
+
+Display size of toolbox images or containers.
+
 ## EXAMPLES
 
 ### List all existing toolbox containers and images
