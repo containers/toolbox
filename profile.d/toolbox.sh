@@ -11,9 +11,7 @@ toolbox_welcome_stub="$toolbox_config/toolbox-welcome-shown"
 # shellcheck disable=2046
 # shellcheck disable=SC1091
 eval $(
-          if [ -f /etc/os-release ]; then
-              . /etc/os-release
-          else
+          if ! . /etc/os-release 2>/dev/null; then
               . /usr/lib/os-release
           fi
 
