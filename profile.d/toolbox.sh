@@ -26,8 +26,11 @@ if [ -f /run/ostree-booted ] \
    && [ "${ID}" = "fedora" ] \
    && { [ "${VARIANT_ID}" = "workstation" ] || [ "${VARIANT_ID}" = "silverblue" ] || [ "${VARIANT_ID}" = "kinoite" ]; }; then
     echo ""
-    # shellcheck disable=SC3059
-    echo "Welcome to Fedora ${VARIANT:-$VARIANT_ID}. This terminal is running on the"
+    _pretty='Fedora'
+    if [ -z "${VARIANT}" ] || [ -z "${VARIANT_ID}" ]; then
+      _pretty="${pretty} ${VARIANT_ID:-$VARIANT}"
+    fi
+    echo "Welcome to ${_pretty}. This terminal is running on the"
     echo "host system. You may want to try out the Toolbox for a directly"
     echo "mutable environment that allows package installation with DNF."
     echo ""
