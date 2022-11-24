@@ -96,6 +96,8 @@ if [ -f /run/.containerenv ] \
     fi
 fi
 
+unset ID
+unset VARIANT_ID
 unset toolbox_config
 unset host_welcome_stub
 unset toolbox_welcome_stub
