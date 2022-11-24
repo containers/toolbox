@@ -18,6 +18,7 @@ eval $(
           fi
 
           echo ID="$ID"
+          echo PRETTY_NAME="\"$PRETTY_NAME\""
           echo VARIANT_ID="$VARIANT_ID"
       )
 
@@ -26,10 +27,11 @@ if [ -f /run/ostree-booted ] \
    && [ "${ID}" = "fedora" ] \
    && { [ "${VARIANT_ID}" = "workstation" ] || [ "${VARIANT_ID}" = "silverblue" ] || [ "${VARIANT_ID}" = "kinoite" ]; }; then
     echo ""
-    # shellcheck disable=SC3059
-    echo "Welcome to Fedora ${VARIANT_ID^}. This terminal is running on the"
-    echo "host system. You may want to try out the Toolbox for a directly"
-    echo "mutable environment that allows package installation with DNF."
+    echo "Welcome to ${PRETTY_NAME:-Linux}."
+    echo ""
+    echo "This terminal is running on the host system. You may want to try"
+    echo "out the Toolbox for a directly mutable environment that allows "
+    echo "package installation with DNF."
     echo ""
     printf "For more information, see the "
     # shellcheck disable=SC1003
@@ -97,6 +99,7 @@ if [ -f /run/.containerenv ] \
 fi
 
 unset ID
+unset PRETTY_NAME
 unset VARIANT_ID
 unset toolbox_config
 unset host_welcome_stub
