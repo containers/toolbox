@@ -8,8 +8,8 @@ toolbox_config="$HOME/.config/toolbox"
 host_welcome_stub="$toolbox_config/host-welcome-shown"
 toolbox_welcome_stub="$toolbox_config/toolbox-welcome-shown"
 
-# shellcheck disable=2046
 # shellcheck disable=SC1091
+# shellcheck disable=SC2046
 eval $(
           if [ -f /etc/os-release ]; then
               . /etc/os-release
