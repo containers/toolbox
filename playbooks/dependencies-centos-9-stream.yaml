@@ -11,6 +11,7 @@
       - ninja-build
       - openssl
       - podman
+      - shadow-utils-subid-devel
       - skopeo
       - systemd
       - udisks2
@@ -51,7 +52,7 @@
     chdir: '{{ zuul.project.src_dir }}'
 
 - name: Check versions of crucial packages
-  command: rpm -qa ShellCheck codespell *kernel* gcc *glibc* golang podman conmon containernetworking-plugins containers-common container-selinux crun fuse-overlayfs flatpak-session-helper
+  command: rpm -qa ShellCheck codespell *kernel* gcc *glibc* golang shadow-utils-subid-devel podman conmon containernetworking-plugins containers-common container-selinux crun fuse-overlayfs flatpak-session-helper
 
 - name: Show podman versions
   command: podman version

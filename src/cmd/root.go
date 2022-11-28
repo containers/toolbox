@@ -17,7 +17,6 @@
 package cmd
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -141,17 +140,11 @@ func preRun(cmd *cobra.Command, args []string) error {
 		logrus.Debugf("Running on a cgroups v%d host", cgroupsVersion)
 
 		if currentUser.Uid != "0" {
-			logrus.Debugf("Checking if /etc/subgid and /etc/subuid have entries for user %s",
-				currentUser.Username)
+			logrus.Debugf("Looking for sub-GID and sub-UID ranges for user %s", currentUser.Username)
 
-			if _, err := validateSubIDFile("/etc/subuid"); err != nil {
-				logrus.Debugf("Checking sub-ID file /etc/subuid: %s", err)
-				return newSubIDFileError()
-			}
-
-			if _, err := validateSubIDFile("/etc/subgid"); err != nil {
-				logrus.Debugf("Checking sub-ID file /etc/subgid: %s", err)
-				return newSubIDFileError()
+			if _, err := utils.ValidateSubIDRanges(currentUser); err != nil {
+				logrus.Debugf("Looking for sub-GID and sub-UID ranges: %s", err)
+				return newSubIDError()
 			}
 		}
 	}
@@ -321,9 +314,9 @@ func migrate() error {
 	return nil
 }
 
-func newSubIDFileError() error {
+func newSubIDError() error {
 	var builder strings.Builder
-	fmt.Fprintf(&builder, "/etc/subgid and /etc/subuid don't have entries for user %s\n", currentUser.Username)
+	fmt.Fprintf(&builder, "Missing subgid and/or subuid ranges for user %s\n", currentUser.Username)
 	fmt.Fprintf(&builder, "See the podman(1), subgid(5), subuid(5) and usermod(8) manuals for more\n")
 	fmt.Fprintf(&builder, "information.")
 
@@ -392,33 +385,4 @@ func setUpLoggers() error {
 	}
 
 	return nil
-}
-
-func validateSubIDFile(path string) (bool, error) {
-	if utils.IsInsideContainer() {
-		panic("cannot validate sub-IDs inside container")
-	}
-
-	file, err := os.Open(path)
-	if err != nil {
-		return false, fmt.Errorf("failed to open: %w", err)
-	}
-
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	scanner.Split(bufio.ScanLines)
-
-	prefixes := []string{currentUser.Username + ":", currentUser.Uid + ":"}
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		for _, prefix := range prefixes {
-			if strings.HasPrefix(line, prefix) {
-				return true, nil
-			}
-		}
-	}
-
-	return false, fmt.Errorf("failed to find an entry for user %s", currentUser.Username)
 }

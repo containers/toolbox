@@ -3,6 +3,7 @@ project(
   'c',
   version: '0.0.99.3',
   license: 'ASL 2.0',
+  default_options: 'c_std=c99',
   meson_version: '>= 0.58.0',
 )
 
@@ -12,6 +13,8 @@ cc = meson.get_compiler('c')
 if not cc.has_argument('-print-file-name=libc.so')
   error('C compiler does not support the -print-file-name argument.')
 endif
+
+subid_dep = cc.find_library('subid', has_headers: ['shadow/subid.h'])
 
 go = find_program('go')
 go_md2man = find_program('go-md2man')
