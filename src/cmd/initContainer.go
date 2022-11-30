@@ -85,8 +85,7 @@ func init() {
 		"home",
 		"",
 		"Create a user inside the toolbox container whose login directory is HOME")
-	err := initContainerCmd.MarkFlagRequired("home")
-	if err != nil {
+	if err := initContainerCmd.MarkFlagRequired("home"); err != nil {
 		panic("Could not mark flag --home as required")
 	}
 
@@ -111,8 +110,7 @@ func init() {
 		"shell",
 		"",
 		"Create a user inside the toolbox container whose login shell is SHELL")
-	err = initContainerCmd.MarkFlagRequired("shell")
-	if err != nil {
+	if err := initContainerCmd.MarkFlagRequired("shell"); err != nil {
 		panic("Could not mark flag --shell as required")
 	}
 
@@ -120,8 +118,7 @@ func init() {
 		"uid",
 		0,
 		"Create a user inside the toolbox container whose numerical user ID is UID")
-	err = initContainerCmd.MarkFlagRequired("uid")
-	if err != nil {
+	if err := initContainerCmd.MarkFlagRequired("uid"); err != nil {
 		panic("Could not mark flag --uid as required")
 	}
 
@@ -129,8 +126,7 @@ func init() {
 		"user",
 		"",
 		"Create a user inside the toolbox container whose login name is USER")
-	err = initContainerCmd.MarkFlagRequired("user")
-	if err != nil {
+	if err := initContainerCmd.MarkFlagRequired("user"); err != nil {
 		panic("Could not mark flag --user as required")
 	}
 
