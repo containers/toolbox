@@ -44,6 +44,8 @@ teardown() {
   local system_version="$(get_system_version)"
   local rawhide_res="$(awk '/rawhide/' $os_release)"
 
+  assert [ -n "$os_release" ]
+
   if [ "$system_id" != "fedora" ] || [ -z "$rawhide_res" ]; then
     skip "This test is only for Fedora Rawhide"
   fi

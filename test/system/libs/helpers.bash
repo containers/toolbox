@@ -117,8 +117,7 @@ function _pull_and_cache_distro_image() {
   done
 
   if ! $cached; then
-    echo "Failed to cache image ${image} to ${IMAGE_CACHE_DIR}/${image_archive}"
-    assert_success
+    fail "Failed to cache image ${image} to ${IMAGE_CACHE_DIR}/${image_archive}"
   fi
 
   cleanup_all
@@ -258,14 +257,13 @@ function pull_distro_image() {
   # No need to copy if the image is already available in Podman
   run $PODMAN image exists ${image}
   if [[ "$status" -eq 0 ]]; then
-    return
+    return 0
   fi
 
   # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
   run $SKOPEO copy "dir:${IMAGE_CACHE_DIR}/${image_archive}" "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]${image}"
   if [ "$status" -ne 0 ]; then
-    echo "Failed to load image ${image} from cache ${IMAGE_CACHE_DIR}/${image_archive}"
-    assert_success
+    fail "Failed to load image ${image} from cache ${IMAGE_CACHE_DIR}/${image_archive}"
   fi
 
   $PODMAN images
@@ -408,7 +406,7 @@ function find_os_release() {
   elif [[ -f "/usr/lib/os-release" ]]; then
     echo "/usr/lib/os-release"
   else
-    echo ""
+    fail "os-release was not found"
   fi
 }
 
@@ -420,8 +418,7 @@ function get_system_id() {
   os_release="$(find_os_release)"
 
   if [[ -z "$os_release" ]]; then
-    echo ""
-    return
+    return 1
   fi
 
   echo $(awk -F= '/ID/ {print $2}' $os_release | head -n 1)
@@ -435,8 +432,7 @@ function get_system_version() {
   os_release="$(find_os_release)"
 
   if [[ -z "$os_release" ]]; then
-    echo ""
-    return
+    return 1
   fi
 
   echo $(awk -F= '/VERSION_ID/ {print $2}' $os_release | head -n 1)
