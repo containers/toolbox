@@ -361,6 +361,8 @@ func initContainer(cmd *cobra.Command, args []string) error {
 			logrus.Warnf("Received an error from the file system watcher: %v", err)
 		}
 	}
+
+	// code should not be reached
 }
 
 func initContainerHelp(cmd *cobra.Command, args []string) {

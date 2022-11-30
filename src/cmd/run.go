@@ -409,6 +409,8 @@ func runCommandWithFallbacks(container string,
 			return &exitError{exitCode, nil}
 		}
 	}
+
+	// code should not be reached
 }
 
 func runHelp(cmd *cobra.Command, args []string) {
