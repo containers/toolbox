@@ -72,4 +72,4 @@ endif
 
 test('go fmt', meson_go_fmt_program, args: [meson.current_source_dir()])
 test('go vet', go, args: ['vet', '-c', '3', './...'], workdir: meson.current_source_dir())
-test('go test', go, args: ['test', '-v', '-vet', 'off', './...'], workdir: meson.current_source_dir())
+test('go test', go, args: ['test', '-vet', 'off', './...'], workdir: meson.current_source_dir())
