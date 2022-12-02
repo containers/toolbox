@@ -71,4 +71,4 @@ if shellcheck.found()
 endif
 
 test('go fmt', meson_go_fmt_program, args: [meson.current_source_dir()])
-test('toolbox go unit tests', go, args: ['test', '-v', './...'], workdir: meson.current_source_dir())
+test('go test', go, args: ['test', '-v', './...'], workdir: meson.current_source_dir())
