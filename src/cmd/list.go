@@ -142,7 +142,7 @@ func getContainers() ([]toolboxContainer, error) {
 
 	for _, container := range containers {
 		var c toolboxContainer
-		var isToolboxContainer bool = false
+		var isToolboxContainer bool
 
 		containerJSON, err := json.Marshal(container)
 		if err != nil {
@@ -205,7 +205,7 @@ func getImages() ([]toolboxImage, error) {
 
 	for _, image := range images {
 		var i toolboxImage
-		var isToolboxImage bool = false
+		var isToolboxImage bool
 
 		imageJSON, err := json.Marshal(image)
 		if err != nil {
