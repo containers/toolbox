@@ -50,6 +50,7 @@ var (
 	listFlags struct {
 		onlyContainers bool
 		onlyImages     bool
+		detailed       bool
 	}
 
 	// toolboxLabels holds labels used by containers/images that mark them as compatible with Toolbox
@@ -80,6 +81,12 @@ func init() {
 		"i",
 		false,
 		"List only toolbox images, not containers")
+
+	flags.BoolVarP(&listFlags.detailed,
+		"details",
+		"d",
+		false,
+		"Display more details about existing toolbox containers and images")
 
 	listCmd.SetHelpFunc(listHelp)
 	rootCmd.AddCommand(listCmd)
@@ -125,7 +132,11 @@ func list(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	listOutput(images, containers)
+	if listFlags.detailed {
+		listOutputDetailed(images, containers)
+	} else {
+		listOutput(images, containers)
+	}
 	return nil
 }
 
@@ -235,32 +246,10 @@ func getImages() ([]toolboxImage, error) {
 }
 
 func listOutput(images []toolboxImage, containers []toolboxContainer) {
-	if len(images) != 0 {
-		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-		fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
-
-		for _, image := range images {
-			imageName := "<none>"
-			if len(image.Names) != 0 {
-				imageName = image.Names[0]
-			}
-
-			fmt.Fprintf(writer, "%s\t%s\t%s\n",
-				utils.ShortID(image.ID),
-				imageName,
-				image.Created)
-		}
-
-		writer.Flush()
-	}
-
-	if len(images) != 0 && len(containers) != 0 {
-		fmt.Println()
-	}
-
 	if len(containers) != 0 {
 		const boldGreenColor = "\033[1;32m"
 		const defaultColor = "\033[0;00m" // identical to resetColor, but same length as boldGreenColor
+		const boldDefaultColor = "\033[1m"
 		const resetColor = "\033[0m"
 
 		stdoutFd := os.Stdout.Fd()
@@ -271,13 +260,100 @@ func listOutput(images []toolboxImage, containers []toolboxContainer) {
 			fmt.Fprintf(writer, "%s", defaultColor)
 		}
 
+		fmt.Fprintf(writer, "%s", boldDefaultColor)
+		fmt.Fprintf(writer, "Toolboxes\n")
+
+		for _, container := range containers {
+			isRunning := false
+			if podman.CheckVersion("2.0.0") {
+				isRunning = container.Status == "running"
+			}
+
+			if isatty.IsTerminal(stdoutFd) {
+				var color string
+				if isRunning {
+					color = boldGreenColor
+				} else {
+					color = defaultColor
+				}
+
+				fmt.Fprintf(writer, "%s", color)
+			}
+			fmt.Fprintf(writer, "\t%s", container.Names[0])
+
+			if isatty.IsTerminal(stdoutFd) {
+				fmt.Fprintf(writer, "%s", resetColor)
+			}
+
+			fmt.Fprintf(writer, "\n")
+		}
+
+		writer.Flush()
+	}
+
+	if len(images) != 0 {
+		const boldDefaultColor = "\033[1m"
+		const resetColor = "\033[0m"
+
+		stdoutFd := os.Stdout.Fd()
+		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+
+		if isatty.IsTerminal(stdoutFd) {
+			fmt.Fprintf(writer, "%s", resetColor)
+		}
+
+		fmt.Fprintf(writer, "%s", boldDefaultColor)
+		fmt.Fprintf(writer, "Images\n")
+
+		for _, image := range images {
+			if isatty.IsTerminal(stdoutFd) {
+				fmt.Fprintf(writer, "%s", resetColor)
+			}
+
+			imageName := "<none>"
+			if len(image.Names) != 0 {
+				imageName = image.Names[0]
+			}
+
+			fmt.Fprintf(writer, "\t%s\n", imageName)
+		}
+
+		writer.Flush()
+	}
+
+	if len(images) == 0 && len(containers) == 0 {
+		fmt.Println()
+	}
+}
+
+func listOutputDetailed(images []toolboxImage, containers []toolboxContainer) {
+	if len(containers) != 0 {
+		const boldGreenColor = "\033[1;32m"
+		const defaultColor = "\033[0;00m" // identical to resetColor, but same length as boldGreenColor
+		const boldDefaultColor = "\033[1m"
+		const resetColor = "\033[0m"
+
+		stdoutFd := os.Stdout.Fd()
+		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+
+		if isatty.IsTerminal(stdoutFd) {
+			fmt.Fprintf(writer, "%s", defaultColor)
+		}
+
+		fmt.Fprintf(writer, "%s", boldDefaultColor)
+		fmt.Fprintf(writer, "Toolboxes\n")
+
+		if isatty.IsTerminal(stdoutFd) {
+			fmt.Fprintf(writer, "%s", defaultColor)
+		}
+
 		fmt.Fprintf(writer,
-			"%s\t%s\t%s\t%s\t%s",
-			"CONTAINER ID",
-			"CONTAINER NAME",
-			"CREATED",
-			"STATUS",
-			"IMAGE NAME")
+			"\t%s\t%s\t%s\t%s\t%s",
+			"Name",
+			"Container ID",
+			"Created",
+			"Status",
+			"Image")
 
 		if term.IsTerminal(stdoutFdInt) {
 			fmt.Fprintf(writer, "%s", resetColor)
@@ -302,9 +378,9 @@ func listOutput(images []toolboxImage, containers []toolboxContainer) {
 				fmt.Fprintf(writer, "%s", color)
 			}
 
-			fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s",
-				utils.ShortID(container.ID),
+			fmt.Fprintf(writer, "\t%s\t%s\t%s\t%s\t%s",
 				container.Names[0],
+				utils.ShortID(container.ID),
 				container.Created,
 				container.Status,
 				container.Image)
@@ -315,8 +391,48 @@ func listOutput(images []toolboxImage, containers []toolboxContainer) {
 
 			fmt.Fprintf(writer, "\n")
 		}
+		fmt.Fprintf(writer, "\n")
+		writer.Flush()
+	}
+
+	if len(images) != 0 {
+		const boldDefaultColor = "\033[1m"
+		const resetColor = "\033[0m"
+
+		stdoutFd := os.Stdout.Fd()
+		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+
+		if isatty.IsTerminal(stdoutFd) {
+			fmt.Fprintf(writer, "%s", resetColor)
+		}
+
+		fmt.Fprintf(writer, "%s", boldDefaultColor)
+		fmt.Fprintf(writer, "Images\n")
+
+		fmt.Fprintf(writer, "%s", resetColor)
+		fmt.Fprintf(writer, "\t%s\t%s\t%s\n", "Name", "Image ID", "Created")
+
+		for _, image := range images {
+			if isatty.IsTerminal(stdoutFd) {
+				fmt.Fprintf(writer, "%s", resetColor)
+			}
+
+			imageName := "<none>"
+			if len(image.Names) != 0 {
+				imageName = image.Names[0]
+			}
+
+			fmt.Fprintf(writer, "\t%s\t%s\t%s\n",
+				imageName,
+				utils.ShortID(image.ID),
+				image.Created)
+		}
 
 		writer.Flush()
+	}
+
+	if len(images) == 0 && len(containers) == 0 {
+		fmt.Println()
 	}
 }
 

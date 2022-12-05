@@ -23,12 +23,22 @@ List only toolbox containers, not images.
 
 List only toolbox images, not containers.
 
+**--details, -d**
+
+Display more details about existing toolbox containers and images.
+
 ## EXAMPLES
 
 ### List all existing toolbox containers and images
 
 ```
 $ toolbox list
+```
+
+### List all existing toolbox containers and images with detailed information
+
+```
+$ toolbox list --details
 ```
 
 ### List existing toolbox containers only
@@ -41,6 +51,13 @@ $ toolbox list --containers
 
 ```
 $ toolbox list --images
+```
+
+### List existing toolbox images or containers only, with detailed information
+
+```
+$ toolbox list --images --details
+$ toolbox list --containers --details
 ```
 
 ## SEE ALSO
