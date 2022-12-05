@@ -66,7 +66,7 @@ teardown() {
 @test "list: Try to list images and containers (no flag) with 3 containers and 2 images (the list should have 3 images and 2 containers)" {
   # Pull the two images
   pull_default_image
-  pull_distro_image fedora 32
+  pull_distro_image fedora 34
 
   # Create three containers
   create_default_container
@@ -78,7 +78,7 @@ teardown() {
 
   assert_success
   assert_output --partial "$(get_system_id)-toolbox:$(get_system_version)"
-  assert_output --partial "fedora-toolbox:32"
+  assert_output --partial "fedora-toolbox:34"
 
   # Check containers
   run $TOOLBOX list --containers
@@ -93,7 +93,7 @@ teardown() {
 
   assert_success
   assert_output --partial "$(get_system_id)-toolbox:$(get_system_version)"
-  assert_output --partial "fedora-toolbox:32"
+  assert_output --partial "fedora-toolbox:34"
   assert_output --partial "$(get_system_id)-toolbox-$(get_system_version)"
   assert_output --partial "non-default-one"
   assert_output --partial "non-default-two"

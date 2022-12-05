@@ -78,11 +78,11 @@ Examples:
   `localhost:50000`. The registry requires authentication. There is one account
   present: `user` (password: `user`)
 
-- The registry contains by default only one image: `fedora-toolbox:32`
+- The registry contains by default only one image: `fedora-toolbox:34`
 
-Example pull of the `fedora-toolbox:32` image:
+Example pull of the `fedora-toolbox:34` image:
 
 ```bash
 $PODMAN login --username user --password user "$DOCKER_REG_URI"
-$PODMAN pull "$DOCKER_REG_URI/fedora-toolbox:32"
+$PODMAN pull "$DOCKER_REG_URI/fedora-toolbox:34"
 ```

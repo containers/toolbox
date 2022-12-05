@@ -45,10 +45,10 @@ teardown() {
   assert_success
 }
 
-@test "create: Create a container with a custom image and name ('fedora32'; f32)" {
-  pull_distro_image fedora 32
+@test "create: Create a container with a custom image and name ('fedora34'; f34)" {
+  pull_distro_image fedora 34
 
-  run $TOOLBOX -y create -c "fedora32" -i fedora-toolbox:32
+  run $TOOLBOX -y create -c "fedora34" -i fedora-toolbox:34
 
   assert_success
 }
@@ -84,19 +84,19 @@ teardown() {
   assert [ ${#lines[@]} -eq 4 ]
 }
 
-@test "create: Create a container with a distro and release options ('fedora'; f32)" {
-  pull_distro_image fedora 32
+@test "create: Create a container with a distro and release options ('fedora'; f34)" {
+  pull_distro_image fedora 34
 
-  run $TOOLBOX -y create -d "fedora" -r f32
+  run $TOOLBOX -y create -d "fedora" -r f34
 
   assert_success
-  assert_output --partial "Created container: fedora-toolbox-32"
-  assert_output --partial "Enter with: toolbox enter fedora-toolbox-32"
+  assert_output --partial "Created container: fedora-toolbox-34"
+  assert_output --partial "Enter with: toolbox enter fedora-toolbox-34"
 
   # Make sure the container has actually been created
   run podman ps -a
 
-  assert_output --regexp "Created[[:blank:]]+fedora-toolbox-32"
+  assert_output --regexp "Created[[:blank:]]+fedora-toolbox-34"
 }
 
 @test "create: Try to create a container based on unsupported distribution" {
@@ -182,9 +182,9 @@ teardown() {
 }
 
 @test "create: Try to create a container using both --distro and --image" {
-  pull_distro_image fedora 32
+  pull_distro_image fedora 34
 
-  run $TOOLBOX --assumeyes create --distro "fedora" --image fedora-toolbox:32
+  run $TOOLBOX --assumeyes create --distro "fedora" --image fedora-toolbox:34
 
   assert_failure
   assert_line --index 0 "Error: options --distro and --image cannot be used together"
@@ -193,9 +193,9 @@ teardown() {
 }
 
 @test "create: Try to create a container using both --image and --release" {
-  pull_distro_image fedora 32
+  pull_distro_image fedora 34
 
-  run $TOOLBOX --assumeyes create --image fedora-toolbox:32 --release 32
+  run $TOOLBOX --assumeyes create --image fedora-toolbox:34 --release 34
 
   assert_failure
   assert_line --index 0 "Error: options --image and --release cannot be used together"
@@ -217,7 +217,7 @@ teardown() {
 
 @test "create: Create a container based on an image from locked registry using an authentication file" {
   local authfile="$BATS_RUN_TMPDIR/authfile"
-  local image="fedora-toolbox:32"
+  local image="fedora-toolbox:34"
 
   run $PODMAN login --authfile "$authfile" --username user --password user "$DOCKER_REG_URI"
   assert_success
@@ -235,7 +235,7 @@ teardown() {
   rm "$authfile"
 
   assert_success
-  assert_line --index 0 "Created container: fedora-toolbox-32"
-  assert_line --index 1 "Enter with: toolbox enter fedora-toolbox-32"
+  assert_line --index 0 "Created container: fedora-toolbox-34"
+  assert_line --index 1 "Enter with: toolbox enter fedora-toolbox-34"
   assert [ ${#lines[@]} -eq 2 ]
 }
