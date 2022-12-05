@@ -190,8 +190,14 @@ func listHelp(cmd *cobra.Command, args []string) {
 func getImages() ([]toolboxImage, error) {
 	logrus.Debug("Fetching all images")
 	args := []string{"--sort", "repository"}
-	images, err := podman.GetImages(args...)
+	data, err := podman.GetImagesJSON(args...)
 	if err != nil {
+		logrus.Debugf("Fetching all images failed: %s", err)
+		return nil, errors.New("failed to get images")
+	}
+
+	var images []toolboxImage
+	if err := json.Unmarshal(data, &images); err != nil {
 		logrus.Debugf("Fetching all images failed: %s", err)
 		return nil, errors.New("failed to get images")
 	}
@@ -199,23 +205,9 @@ func getImages() ([]toolboxImage, error) {
 	var toolboxImages []toolboxImage
 
 	for _, image := range images {
-		var i toolboxImage
-
-		imageJSON, err := json.Marshal(image)
-		if err != nil {
-			logrus.Errorf("failed to marshal toolbox image: %v", err)
-			continue
-		}
-
-		err = i.UnmarshalJSON(imageJSON)
-		if err != nil {
-			logrus.Errorf("failed to unmarshal toolbox image: %v", err)
-			continue
-		}
-
 		for label := range toolboxLabels {
-			if _, ok := i.Labels[label]; ok {
-				toolboxImages = append(toolboxImages, i)
+			if _, ok := image.Labels[label]; ok {
+				toolboxImages = append(toolboxImages, image)
 				break
 			}
 		}

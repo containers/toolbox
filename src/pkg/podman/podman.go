@@ -95,14 +95,14 @@ func GetContainers(args ...string) ([]map[string]interface{}, error) {
 	return containers, nil
 }
 
-// GetImages is a wrapper function around `podman images --format json` command.
+// GetImagesJSON is a wrapper function around `podman images --format json` command.
 //
 // Parameter args accepts an array of strings to be passed to the wrapped command (eg. ["-a", "--filter", "123"]).
 //
-// Returned value is a slice of dynamically unmarshalled json, so it needs to be treated properly.
+// Returned value is the JSON representing the images.
 //
 // If a problem happens during execution, first argument is nil and second argument holds the error message.
-func GetImages(args ...string) ([]map[string]interface{}, error) {
+func GetImagesJSON(args ...string) ([]byte, error) {
 	var stdout bytes.Buffer
 
 	logLevelString := LogLevel.String()
@@ -111,14 +111,8 @@ func GetImages(args ...string) ([]map[string]interface{}, error) {
 		return nil, err
 	}
 
-	output := stdout.Bytes()
-	var images []map[string]interface{}
-
-	if err := json.Unmarshal(output, &images); err != nil {
-		return nil, err
-	}
-
-	return images, nil
+	data := stdout.Bytes()
+	return data, nil
 }
 
 // GetVersion returns version of Podman in a string
