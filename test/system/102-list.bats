@@ -90,8 +90,8 @@ teardown() {
   run --keep-empty-lines --separate-stderr $TOOLBOX list --images
 
   assert_success
-  assert_line --index 1 --partial "$(get_system_id)-toolbox:$(get_system_version)"
-  assert_line --index 2 --partial "fedora-toolbox:34"
+  assert_line --index 1 --partial "fedora-toolbox:34"
+  assert_line --index 2 --partial "$(get_system_id)-toolbox:$(get_system_version)"
   assert [ ${#lines[@]} -eq 4 ]
   if check_bats_version 1.7.0; then
     assert [ ${#stderr_lines[@]} -eq 0 ]
@@ -113,8 +113,8 @@ teardown() {
   run --keep-empty-lines --separate-stderr $TOOLBOX list
 
   assert_success
-  assert_line --index 1 --partial "$(get_system_id)-toolbox:$(get_system_version)"
-  assert_line --index 2 --partial "fedora-toolbox:34"
+  assert_line --index 1 --partial "fedora-toolbox:34"
+  assert_line --index 2 --partial "$(get_system_id)-toolbox:$(get_system_version)"
   assert_line --index 5 --partial "$(get_system_id)-toolbox-$(get_system_version)"
   assert_line --index 6 --partial "non-default-one"
   assert_line --index 7 --partial "non-default-two"
@@ -136,8 +136,8 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "<none>"
-  assert_line --index 2 --partial "$default_image"
-  assert_line --index 3 --partial "fedora-toolbox:34"
+  assert_line --index 2 --partial "fedora-toolbox:34"
+  assert_line --index 3 --partial "$default_image"
   assert [ ${#lines[@]} -eq 5 ]
   if check_bats_version 1.7.0; then
     assert [ ${#stderr_lines[@]} -eq 0 ]

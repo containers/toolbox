@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sort"
 	"text/tabwriter"
 
 	"github.com/containers/toolbox/pkg/podman"
@@ -105,7 +106,7 @@ func list(cmd *cobra.Command, args []string) error {
 	var err error
 
 	if lsImages {
-		images, err = getImages()
+		images, err = getImages(false)
 		if err != nil {
 			return err
 		}
@@ -180,26 +181,41 @@ func listHelp(cmd *cobra.Command, args []string) {
 	}
 }
 
-func getImages() ([]podman.Image, error) {
+func getImages(fillNameWithID bool) ([]podman.Image, error) {
 	logrus.Debug("Fetching all images")
-	args := []string{"--sort", "repository"}
+	var args []string
 	images, err := podman.GetImages(args...)
 	if err != nil {
 		logrus.Debugf("Fetching all images failed: %s", err)
 		return nil, errors.New("failed to get images")
 	}
 
+	processed := make(map[string]struct{})
 	var toolboxImages []podman.Image
 
 	for _, image := range images {
+		if _, ok := processed[image.ID]; ok {
+			continue
+		}
+
+		processed[image.ID] = struct{}{}
+		var isToolboxImage bool
+
 		for label := range toolboxLabels {
 			if _, ok := image.Labels[label]; ok {
-				toolboxImages = append(toolboxImages, image)
+				isToolboxImage = true
 				break
 			}
 		}
+
+		if isToolboxImage {
+			flattenedImages := image.FlattenNames(fillNameWithID)
+			toolboxImages = append(toolboxImages, flattenedImages...)
+		}
+
 	}
 
+	sort.Sort(podman.ImageSlice(toolboxImages))
 	return toolboxImages, nil
 }
 
@@ -209,14 +225,13 @@ func listOutput(images []podman.Image, containers []toolboxContainer) {
 		fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
 
 		for _, image := range images {
-			imageName := "<none>"
-			if len(image.Names) != 0 {
-				imageName = image.Names[0]
+			if len(image.Names) != 1 {
+				panic("cannot list unflattened Image")
 			}
 
 			fmt.Fprintf(writer, "%s\t%s\t%s\n",
 				utils.ShortID(image.ID),
-				imageName,
+				image.Names[0],
 				image.Created)
 		}
 

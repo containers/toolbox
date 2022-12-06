@@ -70,7 +70,7 @@ func rmi(cmd *cobra.Command, args []string) error {
 	}
 
 	if rmiFlags.deleteAll {
-		toolboxImages, err := getImages()
+		toolboxImages, err := getImages(false)
 		if err != nil {
 			return err
 		}

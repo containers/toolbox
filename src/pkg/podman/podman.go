@@ -35,6 +35,8 @@ type Image struct {
 	Labels  map[string]string
 }
 
+type ImageSlice []Image
+
 var (
 	podmanVersion string
 )
@@ -42,6 +44,34 @@ var (
 var (
 	LogLevel = logrus.ErrorLevel
 )
+
+func (image *Image) FlattenNames(fillNameWithID bool) []Image {
+	var ret []Image
+
+	if len(image.Names) == 0 {
+		flattenedImage := *image
+
+		if fillNameWithID {
+			shortID := utils.ShortID(image.ID)
+			flattenedImage.Names = []string{shortID}
+		} else {
+			flattenedImage.Names = []string{"<none>"}
+		}
+
+		ret = []Image{flattenedImage}
+		return ret
+	}
+
+	ret = make([]Image, 0, len(image.Names))
+
+	for _, name := range image.Names {
+		flattenedImage := *image
+		flattenedImage.Names = []string{name}
+		ret = append(ret, flattenedImage)
+	}
+
+	return ret
+}
 
 func (image *Image) UnmarshalJSON(data []byte) error {
 	var raw struct {
@@ -70,6 +100,26 @@ func (image *Image) UnmarshalJSON(data []byte) error {
 
 	image.Labels = raw.Labels
 	return nil
+}
+
+func (images ImageSlice) Len() int {
+	return len(images)
+}
+
+func (images ImageSlice) Less(i, j int) bool {
+	if len(images[i].Names) != 1 {
+		panic("cannot sort unflattened ImageSlice")
+	}
+
+	if len(images[j].Names) != 1 {
+		panic("cannot sort unflattened ImageSlice")
+	}
+
+	return images[i].Names[0] < images[j].Names[0]
+}
+
+func (images ImageSlice) Swap(i, j int) {
+	images[i], images[j] = images[j], images[i]
 }
 
 // CheckVersion compares provided version with the version of Podman.

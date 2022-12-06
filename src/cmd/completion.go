@@ -128,13 +128,13 @@ func completionImageNames(cmd *cobra.Command, _ []string, _ string) ([]string, c
 	}
 
 	var imageNames []string
-	if images, err := getImages(); err == nil {
+	if images, err := getImages(true); err == nil {
 		for _, image := range images {
-			if len(image.Names) > 0 {
-				imageNames = append(imageNames, image.Names[0])
-			} else {
-				imageNames = append(imageNames, image.ID)
+			if len(image.Names) != 1 {
+				panic("cannot complete unflattened Image")
 			}
+
+			imageNames = append(imageNames, image.Names[0])
 		}
 	}
 
@@ -143,19 +143,16 @@ func completionImageNames(cmd *cobra.Command, _ []string, _ string) ([]string, c
 
 func completionImageNamesFiltered(_ *cobra.Command, args []string, _ string) ([]string, cobra.ShellCompDirective) {
 	var imageNames []string
-	if images, err := getImages(); err == nil {
+	if images, err := getImages(true); err == nil {
 		for _, image := range images {
 			skip := false
-			var imageName string
 
-			if len(image.Names) > 0 {
-				imageName = image.Names[0]
-			} else {
-				imageName = image.ID
+			if len(image.Names) != 1 {
+				panic("cannot complete unflattened Image")
 			}
 
 			for _, arg := range args {
-				if arg == imageName {
+				if arg == image.Names[0] {
 					skip = true
 					break
 				}
@@ -165,7 +162,7 @@ func completionImageNamesFiltered(_ *cobra.Command, args []string, _ string) ([]
 				continue
 			}
 
-			imageNames = append(imageNames, imageName)
+			imageNames = append(imageNames, image.Names[0])
 		}
 	}
 
