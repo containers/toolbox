@@ -24,8 +24,16 @@ import (
 
 	"github.com/HarryMichal/go-version"
 	"github.com/containers/toolbox/pkg/shell"
+	"github.com/containers/toolbox/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
+
+type Image struct {
+	ID      string
+	Names   []string
+	Created string
+	Labels  map[string]string
+}
 
 var (
 	podmanVersion string
@@ -34,6 +42,35 @@ var (
 var (
 	LogLevel = logrus.ErrorLevel
 )
+
+func (image *Image) UnmarshalJSON(data []byte) error {
+	var raw struct {
+		ID      string
+		Names   []string
+		Created interface{}
+		Labels  map[string]string
+	}
+
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	image.ID = raw.ID
+	image.Names = raw.Names
+
+	// Until Podman 2.0.x the field 'Created' held a human-readable string in
+	// format "5 minutes ago". Since Podman 2.1 the field holds an integer with
+	// Unix time. Go interprets numbers in JSON as float64.
+	switch value := raw.Created.(type) {
+	case string:
+		image.Created = value
+	case float64:
+		image.Created = utils.HumanDuration(int64(value))
+	}
+
+	image.Labels = raw.Labels
+	return nil
+}
 
 // CheckVersion compares provided version with the version of Podman.
 //
@@ -95,14 +132,14 @@ func GetContainers(args ...string) ([]map[string]interface{}, error) {
 	return containers, nil
 }
 
-// GetImagesJSON is a wrapper function around `podman images --format json` command.
+// GetImages is a wrapper function around `podman images --format json` command.
 //
 // Parameter args accepts an array of strings to be passed to the wrapped command (eg. ["-a", "--filter", "123"]).
 //
-// Returned value is the JSON representing the images.
+// Returned value is a slice of Images.
 //
 // If a problem happens during execution, first argument is nil and second argument holds the error message.
-func GetImagesJSON(args ...string) ([]byte, error) {
+func GetImages(args ...string) ([]Image, error) {
 	var stdout bytes.Buffer
 
 	logLevelString := LogLevel.String()
@@ -112,7 +149,12 @@ func GetImagesJSON(args ...string) ([]byte, error) {
 	}
 
 	data := stdout.Bytes()
-	return data, nil
+	var images []Image
+	if err := json.Unmarshal(data, &images); err != nil {
+		return nil, err
+	}
+
+	return images, nil
 }
 
 // GetVersion returns version of Podman in a string

@@ -30,13 +30,6 @@ import (
 	"golang.org/x/term"
 )
 
-type toolboxImage struct {
-	ID      string
-	Names   []string
-	Created string
-	Labels  map[string]string
-}
-
 type toolboxContainer struct {
 	ID      string
 	Names   []string
@@ -107,7 +100,7 @@ func list(cmd *cobra.Command, args []string) error {
 		lsImages = false
 	}
 
-	var images []toolboxImage
+	var images []podman.Image
 	var containers []toolboxContainer
 	var err error
 
@@ -187,22 +180,16 @@ func listHelp(cmd *cobra.Command, args []string) {
 	}
 }
 
-func getImages() ([]toolboxImage, error) {
+func getImages() ([]podman.Image, error) {
 	logrus.Debug("Fetching all images")
 	args := []string{"--sort", "repository"}
-	data, err := podman.GetImagesJSON(args...)
+	images, err := podman.GetImages(args...)
 	if err != nil {
 		logrus.Debugf("Fetching all images failed: %s", err)
 		return nil, errors.New("failed to get images")
 	}
 
-	var images []toolboxImage
-	if err := json.Unmarshal(data, &images); err != nil {
-		logrus.Debugf("Fetching all images failed: %s", err)
-		return nil, errors.New("failed to get images")
-	}
-
-	var toolboxImages []toolboxImage
+	var toolboxImages []podman.Image
 
 	for _, image := range images {
 		for label := range toolboxLabels {
@@ -216,7 +203,7 @@ func getImages() ([]toolboxImage, error) {
 	return toolboxImages, nil
 }
 
-func listOutput(images []toolboxImage, containers []toolboxContainer) {
+func listOutput(images []podman.Image, containers []toolboxContainer) {
 	if len(images) != 0 {
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
@@ -300,35 +287,6 @@ func listOutput(images []toolboxImage, containers []toolboxContainer) {
 
 		writer.Flush()
 	}
-}
-
-func (image *toolboxImage) UnmarshalJSON(data []byte) error {
-	var raw struct {
-		ID      string
-		Names   []string
-		Created interface{}
-		Labels  map[string]string
-	}
-
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return err
-	}
-
-	image.ID = raw.ID
-	image.Names = raw.Names
-
-	// Until Podman 2.0.x the field 'Created' held a human-readable string in
-	// format "5 minutes ago". Since Podman 2.1 the field holds an integer with
-	// Unix time. Go interprets numbers in JSON as float64.
-	switch value := raw.Created.(type) {
-	case string:
-		image.Created = value
-	case float64:
-		image.Created = utils.HumanDuration(int64(value))
-	}
-
-	image.Labels = raw.Labels
-	return nil
 }
 
 func (c *toolboxContainer) UnmarshalJSON(data []byte) error {
