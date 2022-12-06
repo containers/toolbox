@@ -316,6 +316,7 @@ func (image *toolboxImage) UnmarshalJSON(data []byte) error {
 
 	image.ID = raw.ID
 	image.Names = raw.Names
+
 	// Until Podman 2.0.x the field 'Created' held a human-readable string in
 	// format "5 minutes ago". Since Podman 2.1 the field holds an integer with
 	// Unix time. Go interprets numbers in JSON as float64.
@@ -327,7 +328,6 @@ func (image *toolboxImage) UnmarshalJSON(data []byte) error {
 	}
 
 	image.Labels = raw.Labels
-
 	return nil
 }
 
