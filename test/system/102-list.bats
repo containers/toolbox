@@ -76,6 +76,27 @@ teardown() {
   fi
 }
 
+@test "list: Image and its copy" {
+  local default_image
+  default_image="$(get_default_image)"
+
+  pull_default_image_and_copy
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 2
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
+
+  assert_success
+  assert_line --index 1 --partial "$default_image"
+  assert_line --index 2 --partial "$default_image-copy"
+  assert [ ${#lines[@]} -eq 4 ]
+  if check_bats_version 1.7.0; then
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+}
+
 @test "list: Try to list images and containers (no flag) with 3 containers and 2 images (the list should have 3 images and 2 containers)" {
   # Pull the two images
   pull_default_image
