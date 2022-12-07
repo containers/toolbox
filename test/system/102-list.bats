@@ -63,6 +63,25 @@ teardown() {
   assert_output ""
 }
 
+@test "list: List an image without a name" {
+  echo -e "FROM scratch\n\nLABEL com.github.containers.toolbox=\"true\"" > "$BATS_TMPDIR"/Containerfile
+
+  run $PODMAN build "$BATS_TMPDIR"
+
+  assert_success
+  assert_line --index 0 --partial "FROM scratch"
+  assert_line --index 1 --partial "LABEL com.github.containers.toolbox=\"true\""
+  assert_line --index 2 --partial "COMMIT"
+  assert_line --index 3 --regexp "^--> [a-z0-9]*$"
+
+  run --keep-empty-lines $TOOLBOX list
+
+  assert_success
+  assert_line --index 1 --partial "<none>"
+
+  rm -f "$BATS_TMPDIR"/Containerfile
+}
+
 @test "list: Try to list images and containers (no flag) with 3 containers and 2 images (the list should have 3 images and 2 containers)" {
   # Pull the two images
   pull_default_image
@@ -97,23 +116,4 @@ teardown() {
   assert_line --index 5 --partial "$(get_system_id)-toolbox-$(get_system_version)"
   assert_line --index 6 --partial "non-default-one"
   assert_line --index 7 --partial "non-default-two"
-}
-
-@test "list: List an image without a name" {
-  echo -e "FROM scratch\n\nLABEL com.github.containers.toolbox=\"true\"" > "$BATS_TMPDIR"/Containerfile
-
-  run $PODMAN build "$BATS_TMPDIR"
-
-  assert_success
-  assert_line --index 0 --partial "FROM scratch"
-  assert_line --index 1 --partial "LABEL com.github.containers.toolbox=\"true\""
-  assert_line --index 2 --partial "COMMIT"
-  assert_line --index 3 --regexp "^--> [a-z0-9]*$"
-
-  run --keep-empty-lines $TOOLBOX list
-
-  assert_success
-  assert_line --index 1 --partial "<none>"
-
-  rm -f "$BATS_TMPDIR"/Containerfile
 }
