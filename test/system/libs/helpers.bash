@@ -267,8 +267,6 @@ function pull_distro_image() {
     echo "Failed to load image ${image} from cache ${IMAGE_CACHE_DIR}/${image_archive}"
     assert_success
   fi
-
-  $PODMAN images
 }
 
 
