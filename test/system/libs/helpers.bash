@@ -224,6 +224,21 @@ function _clean_docker_registry() {
 }
 
 
+function build_image_without_name() {
+  echo -e "FROM scratch\n\nLABEL com.github.containers.toolbox=\"true\"" > "$BATS_TMPDIR"/Containerfile
+
+  run $PODMAN build "$BATS_TMPDIR"
+
+  assert_success
+  assert_line --index 0 --partial "FROM scratch"
+  assert_line --index 1 --partial "LABEL com.github.containers.toolbox=\"true\""
+  assert_line --index 2 --partial "COMMIT"
+  assert_line --index 3 --regexp "^--> [a-z0-9]*$"
+
+  rm -f "$BATS_TMPDIR"/Containerfile
+}
+
+
 # Copies an image from local storage to Podman's image store
 #
 # Call before creating any container. Network failures are not nice.
