@@ -138,6 +138,16 @@ func createErrorInvalidRelease(hint string) error {
 	return errors.New(errMsg)
 }
 
+func createErrorNonToolboxContainer() error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "this is not a Toolbox container.\n")
+	fmt.Fprintf(&builder, "Toolbox is only meant to work with Toolbox containers.\n")
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
 func getUsageForCommonCommands() string {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "create    Create a new toolbox container\n")

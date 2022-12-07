@@ -20,6 +20,7 @@ load 'libs/bats-assert/load'
 load 'libs/helpers'
 
 setup() {
+  bats_require_minimum_version 1.5.0
   _setup_environment
 }
 
@@ -32,6 +33,7 @@ setup() {
 }
 
 @test "completion: Smoke test with 'fish'" {
+  bats_require_minimum_version 1.5.0
   run $TOOLBOX completion fish
 
   assert_success
@@ -40,6 +42,7 @@ setup() {
 }
 
 @test "completion: Smoke test with 'zsh'" {
+  bats_require_minimum_version 1.5.0
   run $TOOLBOX completion zsh
 
   assert_success
@@ -48,6 +51,7 @@ setup() {
 }
 
 @test "completion: Try without any arguments" {
+  bats_require_minimum_version 1.5.0
   run --separate-stderr $TOOLBOX completion
 
   assert_failure
@@ -59,6 +63,7 @@ setup() {
 }
 
 @test "completion: Try with invalid arguments" {
+  bats_require_minimum_version 1.5.0
   run --separate-stderr $TOOLBOX completion foo
 
   assert_failure
@@ -70,6 +75,7 @@ setup() {
 }
 
 @test "completion: Try with unknown flag" {
+  bats_require_minimum_version 1.5.0
   run --separate-stderr $TOOLBOX completion --foo
 
   assert_failure
@@ -81,6 +87,7 @@ setup() {
 }
 
 @test "completion: Try with unsupported shell" {
+  bats_require_minimum_version 1.5.0
   run --separate-stderr $TOOLBOX completion powershell
 
   assert_failure

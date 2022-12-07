@@ -142,6 +142,10 @@ func preRun(cmd *cobra.Command, args []string) error {
 		if _, err := validateSubIDRanges(cmd, args, currentUser); err != nil {
 			return err
 		}
+	} else {
+		if !utils.IsInsideToolboxContainer() {
+			return createErrorNonToolboxContainer()
+		}
 	}
 
 	toolboxPath := os.Getenv("TOOLBOX_PATH")
