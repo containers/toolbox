@@ -100,20 +100,20 @@ teardown() {
 }
 
 @test "list: List an image without a name" {
-    echo -e "FROM scratch\n\nLABEL com.github.containers.toolbox=\"true\"" > "$BATS_TMPDIR"/Containerfile
+  echo -e "FROM scratch\n\nLABEL com.github.containers.toolbox=\"true\"" > "$BATS_TMPDIR"/Containerfile
 
-    run $PODMAN build "$BATS_TMPDIR"
+  run $PODMAN build "$BATS_TMPDIR"
 
-    assert_success
-    assert_line --index 0 --partial "FROM scratch"
-    assert_line --index 1 --partial "LABEL com.github.containers.toolbox=\"true\""
-    assert_line --index 2 --partial "COMMIT"
-    assert_line --index 3 --regexp "^--> [a-z0-9]*$"
+  assert_success
+  assert_line --index 0 --partial "FROM scratch"
+  assert_line --index 1 --partial "LABEL com.github.containers.toolbox=\"true\""
+  assert_line --index 2 --partial "COMMIT"
+  assert_line --index 3 --regexp "^--> [a-z0-9]*$"
 
-    run --keep-empty-lines $TOOLBOX list
+  run --keep-empty-lines $TOOLBOX list
 
-    assert_success
-    assert_line --index 1 --partial "<none>"
+  assert_success
+  assert_line --index 1 --partial "<none>"
 
-    rm -f "$BATS_TMPDIR"/Containerfile
+  rm -f "$BATS_TMPDIR"/Containerfile
 }
