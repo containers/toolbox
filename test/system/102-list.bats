@@ -66,7 +66,7 @@ teardown() {
 @test "list: List an image without a name" {
   build_image_without_name
 
-  run --keep-empty-lines $TOOLBOX list
+  run --keep-empty-lines --separate-stderr $TOOLBOX list
 
   assert_success
   assert_line --index 1 --partial "<none>"
@@ -83,14 +83,14 @@ teardown() {
   create_container non-default-two
 
   # Check images
-  run --keep-empty-lines $TOOLBOX list --images
+  run --keep-empty-lines --separate-stderr $TOOLBOX list --images
 
   assert_success
   assert_line --index 1 --partial "$(get_system_id)-toolbox:$(get_system_version)"
   assert_line --index 2 --partial "fedora-toolbox:34"
 
   # Check containers
-  run --keep-empty-lines $TOOLBOX list --containers
+  run --keep-empty-lines --separate-stderr $TOOLBOX list --containers
 
   assert_success
   assert_line --index 1 --partial "$(get_system_id)-toolbox-$(get_system_version)"
@@ -98,7 +98,7 @@ teardown() {
   assert_line --index 3 --partial "non-default-two"
 
   # Check all together
-  run --keep-empty-lines $TOOLBOX list
+  run --keep-empty-lines --separate-stderr $TOOLBOX list
 
   assert_success
   assert_line --index 1 --partial "$(get_system_id)-toolbox:$(get_system_version)"
