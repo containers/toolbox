@@ -30,21 +30,21 @@ teardown() {
 
 
 @test "list: Run 'list' with zero containers and zero images (the list should be empty)" {
-  run $TOOLBOX list
+  run --keep-empty-lines $TOOLBOX list
 
   assert_success
   assert_output ""
 }
 
 @test "list: Run 'list -c' with zero containers (the list should be empty)" {
-  run $TOOLBOX list -c
+  run --keep-empty-lines $TOOLBOX list -c
 
   assert_success
   assert_output ""
 }
 
 @test "list: Run 'list -i' with zero images (the list should be empty)" {
-  run $TOOLBOX list -i
+  run --keep-empty-lines $TOOLBOX list -i
 
   assert_success
   assert_output ""
@@ -57,7 +57,7 @@ teardown() {
 
   assert_output --partial "$BUSYBOX_IMAGE"
 
-  run $TOOLBOX list
+  run --keep-empty-lines $TOOLBOX list
 
   assert_success
   assert_output ""
@@ -74,14 +74,14 @@ teardown() {
   create_container non-default-two
 
   # Check images
-  run $TOOLBOX list --images
+  run --keep-empty-lines $TOOLBOX list --images
 
   assert_success
   assert_line --index 1 --partial "$(get_system_id)-toolbox:$(get_system_version)"
   assert_line --index 2 --partial "fedora-toolbox:34"
 
   # Check containers
-  run $TOOLBOX list --containers
+  run --keep-empty-lines $TOOLBOX list --containers
 
   assert_success
   assert_line --index 1 --partial "$(get_system_id)-toolbox-$(get_system_version)"
@@ -89,14 +89,14 @@ teardown() {
   assert_line --index 3 --partial "non-default-two"
 
   # Check all together
-  run $TOOLBOX list
+  run --keep-empty-lines $TOOLBOX list
 
   assert_success
   assert_line --index 1 --partial "$(get_system_id)-toolbox:$(get_system_version)"
   assert_line --index 2 --partial "fedora-toolbox:34"
-  assert_line --index 4 --partial "$(get_system_id)-toolbox-$(get_system_version)"
-  assert_line --index 5 --partial "non-default-one"
-  assert_line --index 6 --partial "non-default-two"
+  assert_line --index 5 --partial "$(get_system_id)-toolbox-$(get_system_version)"
+  assert_line --index 6 --partial "non-default-one"
+  assert_line --index 7 --partial "non-default-two"
 }
 
 @test "list: List an image without a name" {
@@ -110,7 +110,7 @@ teardown() {
     assert_line --index 2 --partial "COMMIT"
     assert_line --index 3 --regexp "^--> [a-z0-9]*$"
 
-    run $TOOLBOX list
+    run --keep-empty-lines $TOOLBOX list
 
     assert_success
     assert_line --index 1 --partial "<none>"
