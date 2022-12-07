@@ -38,6 +38,13 @@ teardown() {
   assert_success
 }
 
+@test "container: Start with an old forward incompatible runtime" {
+  create_distro_container fedora 34 fedora-toolbox-34
+
+  run container_started fedora-toolbox-34
+  assert_success
+}
+
 @test "container(Fedora Rawhide): Containers with supported versions start without issues" {
   local os_release="$(find_os_release)"
   local system_id="$(get_system_id)"
