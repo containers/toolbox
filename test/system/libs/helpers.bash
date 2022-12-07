@@ -239,6 +239,36 @@ function build_image_without_name() {
 }
 
 
+function check_bats_version() {
+    local required_version
+    required_version="$1"
+
+    if ! old_version=$(printf "%s\n%s\n" "$BATS_VERSION" "$required_version" | sort --version-sort | head --lines 1); then
+        return 1
+    fi
+
+    if [ "$required_version" = "$old_version" ]; then
+        return 0
+    fi
+
+    return 1
+}
+
+
+function get_default_image() {
+  local distro
+  local image
+  local release
+
+  distro="$(get_system_id)"
+  release="$(get_system_version)"
+  image="${IMAGES[$distro]}:$release"
+
+  echo "$image"
+  return 0
+}
+
+
 # Copies an image from local storage to Podman's image store
 #
 # Call before creating any container. Network failures are not nice.

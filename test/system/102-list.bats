@@ -107,3 +107,23 @@ teardown() {
   assert_line --index 6 --partial "non-default-one"
   assert_line --index 7 --partial "non-default-two"
 }
+
+@test "list: Images with and without names" {
+  local default_image
+  default_image="$(get_default_image)"
+
+  pull_default_image
+  pull_distro_image fedora 34
+  build_image_without_name
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
+
+  assert_success
+  assert_line --index 1 --partial "<none>"
+  assert_line --index 2 --partial "$default_image"
+  assert_line --index 3 --partial "fedora-toolbox:34"
+  assert [ ${#lines[@]} -eq 5 ]
+  if check_bats_version 1.7.0; then
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+}
