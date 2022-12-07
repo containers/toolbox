@@ -77,26 +77,26 @@ teardown() {
   run $TOOLBOX list --images
 
   assert_success
-  assert_output --partial "$(get_system_id)-toolbox:$(get_system_version)"
-  assert_output --partial "fedora-toolbox:34"
+  assert_line --index 1 --partial "$(get_system_id)-toolbox:$(get_system_version)"
+  assert_line --index 2 --partial "fedora-toolbox:34"
 
   # Check containers
   run $TOOLBOX list --containers
 
   assert_success
-  assert_output --partial "$(get_system_id)-toolbox-$(get_system_version)"
-  assert_output --partial "non-default-one"
-  assert_output --partial "non-default-two"
+  assert_line --index 1 --partial "$(get_system_id)-toolbox-$(get_system_version)"
+  assert_line --index 2 --partial "non-default-one"
+  assert_line --index 3 --partial "non-default-two"
 
   # Check all together
   run $TOOLBOX list
 
   assert_success
-  assert_output --partial "$(get_system_id)-toolbox:$(get_system_version)"
-  assert_output --partial "fedora-toolbox:34"
-  assert_output --partial "$(get_system_id)-toolbox-$(get_system_version)"
-  assert_output --partial "non-default-one"
-  assert_output --partial "non-default-two"
+  assert_line --index 1 --partial "$(get_system_id)-toolbox:$(get_system_version)"
+  assert_line --index 2 --partial "fedora-toolbox:34"
+  assert_line --index 4 --partial "$(get_system_id)-toolbox-$(get_system_version)"
+  assert_line --index 5 --partial "non-default-one"
+  assert_line --index 6 --partial "non-default-two"
 }
 
 @test "list: List an image without a name" {
