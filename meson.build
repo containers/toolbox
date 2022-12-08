@@ -15,6 +15,7 @@ endif
 
 go = find_program('go')
 go_md2man = find_program('go-md2man')
+podman = find_program('podman')
 
 codespell = find_program('codespell', required: false)
 shellcheck = find_program('shellcheck', required: false)
