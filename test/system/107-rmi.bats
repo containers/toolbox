@@ -53,10 +53,11 @@ teardown() {
   create_container foo
   start_container foo
 
-  run --keep-empty-lines $TOOLBOX rmi --all
+  run --keep-empty-lines --separate-stderr $TOOLBOX rmi --all
 
   assert_failure
-  assert_output --regexp "Error: image .* has dependent children"
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 --regexp "Error: image .* has dependent children"
 
   new_num_of_images=$(list_images)
 
