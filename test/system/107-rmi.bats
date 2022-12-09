@@ -115,6 +115,140 @@ teardown() {
   assert_equal "$num_of_images" 0
 }
 
+@test "rmi: An image and its copy by name, separately" {
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 0
+
+  local default_image
+  default_image="$(get_default_image)"
+
+  pull_default_image_and_copy
+
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 2
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image"
+
+  assert_success
+  assert_output ""
+  output="$stderr"
+  assert_output ""
+  if check_bats_version 1.7.0; then
+    assert [ ${#lines[@]} -eq 0 ]
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image-copy"
+
+  assert_success
+  assert_output ""
+  output="$stderr"
+  assert_output ""
+  if check_bats_version 1.7.0; then
+    assert [ ${#lines[@]} -eq 0 ]
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 0
+}
+
+@test "rmi: An image and its copy by name, separately (reverse order)" {
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 0
+
+  local default_image
+  default_image="$(get_default_image)"
+
+  pull_default_image_and_copy
+
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 2
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image-copy"
+
+  assert_success
+  assert_output ""
+  output="$stderr"
+  assert_output ""
+  if check_bats_version 1.7.0; then
+    assert [ ${#lines[@]} -eq 0 ]
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image"
+
+  assert_success
+  assert_output ""
+  output="$stderr"
+  assert_output ""
+  if check_bats_version 1.7.0; then
+    assert [ ${#lines[@]} -eq 0 ]
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 0
+}
+
+@test "rmi: An image and its copy by name, together" {
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 0
+
+  local default_image
+  default_image="$(get_default_image)"
+
+  pull_default_image_and_copy
+
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 2
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image" "$default_image-copy"
+
+  assert_success
+  assert_output ""
+  output="$stderr"
+  assert_output ""
+  if check_bats_version 1.7.0; then
+    assert [ ${#lines[@]} -eq 0 ]
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 0
+}
+
+@test "rmi: An image and its copy by name, together (reverse order)" {
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 0
+
+  local default_image
+  default_image="$(get_default_image)"
+
+  pull_default_image_and_copy
+
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 2
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image-copy" "$default_image"
+
+  assert_success
+  assert_output ""
+  output="$stderr"
+  assert_output ""
+  if check_bats_version 1.7.0; then
+    assert [ ${#lines[@]} -eq 0 ]
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 0
+}
+
 @test "rmi: Try to remove all images with a container present and running" {
   skip "Bug: Fail in 'toolbox rmi' does not return non-zero value"
   num_of_images=$(list_images)
