@@ -327,6 +327,29 @@ function pull_default_image() {
 }
 
 
+function pull_default_image_and_copy() {
+  pull_default_image
+
+  local distro
+  local version
+  local image
+
+  distro="$(get_system_id)"
+  version="$(get_system_version)"
+  image="${IMAGES[$distro]}:$version"
+
+  # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
+  run "$SKOPEO" copy \
+      "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]$image" \
+      "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]$image-copy"
+
+  if [ "$status" -ne 0 ]; then
+    echo "Failed to copy image $image to $image-copy"
+    assert_success
+  fi
+}
+
+
 # Creates a container with specific name, distro and version
 #
 # Pulling of an image is taken care of by the function
