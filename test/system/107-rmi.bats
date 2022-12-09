@@ -70,12 +70,37 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 0
 
-  build_image_without_name
+  build_image_without_name >/dev/null
 
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 1
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi --all
+
+  assert_success
+  assert_output ""
+  output="$stderr"
+  assert_output ""
+  if check_bats_version 1.7.0; then
+    assert [ ${#lines[@]} -eq 0 ]
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 0
+}
+
+@test "rmi: An image without a name" {
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 0
+
+  image="$(build_image_without_name)"
+
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$image"
 
   assert_success
   assert_output ""

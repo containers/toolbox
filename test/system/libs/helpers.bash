@@ -234,8 +234,12 @@ function build_image_without_name() {
   assert_line --index 1 --partial "LABEL com.github.containers.toolbox=\"true\""
   assert_line --index 2 --partial "COMMIT"
   assert_line --index 3 --regexp "^--> [a-z0-9]*$"
+  last=$((${#lines[@]}-1))
+  assert_line --index "$last" --regexp "^[a-f0-9]{64}$"
 
   rm -f "$BATS_TMPDIR"/Containerfile
+
+  echo "${lines[$last]}"
 }
 
 

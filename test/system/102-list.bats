@@ -64,7 +64,7 @@ teardown() {
 }
 
 @test "list: List an image without a name" {
-  build_image_without_name
+  build_image_without_name >/dev/null
 
   run --keep-empty-lines --separate-stderr $TOOLBOX list
 
@@ -130,7 +130,7 @@ teardown() {
 
   pull_default_image
   pull_distro_image fedora 34
-  build_image_without_name
+  build_image_without_name >/dev/null
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
 
