@@ -56,10 +56,10 @@ function _setup_containers_storage() {
 function _clean_temporary_storage() {
   $PODMAN system reset -f
 
-  rm -rf ${ROOTLESS_PODMAN_STORE_DIR}
-  rm -rf ${ROOTLESS_PODMAN_RUNROOT_DIR}
-  rm -rf ${PODMAN_STORE_CONFIG_FILE}
-  rm -rf ${TEMP_STORAGE_DIR}
+  rm --force --recursive ${ROOTLESS_PODMAN_STORE_DIR}
+  rm --force --recursive ${ROOTLESS_PODMAN_RUNROOT_DIR}
+  rm --force --recursive ${PODMAN_STORE_CONFIG_FILE}
+  rm --force --recursive ${TEMP_STORAGE_DIR}
 }
 
 
@@ -127,7 +127,7 @@ function _pull_and_cache_distro_image() {
 
 # Removes the folder with cached images
 function _clean_cached_images() {
-  rm -rf ${IMAGE_CACHE_DIR}
+  rm --force --recursive ${IMAGE_CACHE_DIR}
 }
 
 
@@ -218,9 +218,9 @@ function _clean_docker_registry() {
   $PODMAN --root "${DOCKER_REG_ROOT}" rm --all --force
   $PODMAN --root "${DOCKER_REG_ROOT}" rmi --all --force
   # Remove Docker registry dir
-  rm -rf "${DOCKER_REG_ROOT}"
+  rm --force --recursive "${DOCKER_REG_ROOT}"
   # Remove dir with created registry certificates
-  rm -rf "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"
+  rm --force --recursive "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"
 }
 
 
@@ -430,17 +430,17 @@ function stop_container() {
 
 # Returns the name of the latest created container
 function get_latest_container_name() {
-  $PODMAN ps -l --format "{{ .Names }}"
+  $PODMAN ps --latest --format "{{ .Names }}"
 }
 
 
 function list_images() {
-  $PODMAN images --all --quiet | wc -l
+  $PODMAN images --all --quiet | wc --lines
 }
 
 
 function list_containers() {
-  $PODMAN ps --all --quiet | wc -l
+  $PODMAN ps --all --quiet | wc --lines
 }
 
 
