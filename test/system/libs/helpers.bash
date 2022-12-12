@@ -435,7 +435,7 @@ function get_latest_container_name() {
 
 
 function list_images() {
-  $PODMAN images --all --quiet | wc --lines
+  $PODMAN images --all --format "{{.ID}}" | wc --lines
 }
 
 
