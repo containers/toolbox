@@ -65,6 +65,34 @@ teardown() {
   assert_equal "$new_num_of_images" "$num_of_images"
 }
 
+@test "rmi: An image by name" {
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 0
+
+  local default_image
+  default_image="$(get_default_image)"
+
+  pull_default_image
+
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image"
+
+  assert_success
+  assert_output ""
+  output="$stderr"
+  assert_output ""
+  if check_bats_version 1.7.0; then
+    assert [ ${#lines[@]} -eq 0 ]
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 0
+}
+
 @test "rmi: '--all' with an image without a name" {
   local num_of_images
   num_of_images="$(list_images)"
