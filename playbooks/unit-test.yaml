@@ -20,6 +20,6 @@
     - include_tasks: build.yaml
 
     - name: Test
-      command: meson test -C builddir
+      command: meson test -C builddir --verbose
       args:
         chdir: '{{ zuul.project.src_dir }}'
