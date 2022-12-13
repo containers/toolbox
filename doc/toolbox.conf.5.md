@@ -5,9 +5,9 @@ toolbox.conf - Toolbox configuration file
 
 ## DESCRIPTION
 
-Persistently overrides the default behaviour of `toolbox(1)`. The sytax is TOML
-and the names of the options match their command line counterparts. Currently,
-the only supported section is *general*.
+Persistently overrides the default behaviour of `toolbox(1)`. The syntax is
+TOML and the names of the options match their command line counterparts.
+Currently, the only supported section is *general*.
 
 ## OPTIONS
 
