@@ -528,24 +528,22 @@ func mountBind(containerPath, source, flags string) error {
 // If it's not, then redirectPath will still proceed with the linking in two
 // different ways depending whether target is an absolute or a relative link:
 //
-//   * absolute - target's destination will be prepended with /run/host, and
-//                containerPath will be linked to the resulting path. This is
-//                an attempt to unbreak things, but if it doesn't work then
-//                it's the user's responsibility to fix it up.
+//   - absolute - target's destination will be prepended with /run/host, and
+//     containerPath will be linked to the resulting path. This is an attempt
+//     to unbreak things, but if it doesn't work then it's the user's
+//     responsibility to fix it up.
 //
-//                This is meant to address the common case where
-//                /etc/resolv.conf on the host (ie., /run/host/etc/resolv.conf
-//                inside the container) is an absolute symbolic link to
-//                something like /run/systemd/resolve/stub-resolv.conf. The
-//                container's /etc/resolv.conf will then get linked to
-//                /run/host/run/systemd/resolved/resolv-stub.conf.
+//     This is meant to address the common case where /etc/resolv.conf on the
+//     host (ie., /run/host/etc/resolv.conf inside the container) is an
+//     absolute symbolic link to /run/systemd/resolve/stub-resolv.conf. The
+//     container's /etc/resolv.conf will then get linked to
+//     /run/host/run/systemd/resolved/resolv-stub.conf.
 //
-//                This is why properly configured hosts should use relative
-//                symbolic links, because they don't need to be adjusted in
-//                such scenarios.
+//     This is why properly configured hosts should use relative symbolic
+//     links, because they don't need to be adjusted in such scenarios.
 //
-//   * relative - containerPath will be linked to the invalid target, and it's
-//                the user's responsibility to fix it up.
+//   - relative - containerPath will be linked to the invalid target, and it's
+//     the user's responsibility to fix it up.
 //
 // folder signifies if the target is a folder
 func redirectPath(containerPath, target string, folder bool) error {
