@@ -17,6 +17,7 @@
 - name: Install RPM packages
   become: yes
   package:
+    update_cache: "{{ true if zuul.attempts > 1 else false }}"
     name:
       - ShellCheck
       - bash-completion
