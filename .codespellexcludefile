@@ -1,1 +1,15 @@
+    usr_mount_destination_flags="ro"
+        toolbox_profile_bind="--volume /etc/profile.d/toolbox.sh:/etc/profile.d/toolbox.sh:ro"
+        toolbox_profile_bind="--volume /usr/share/profile.d/toolbox.sh:/etc/profile.d/toolbox.sh:ro"
+            if echo "$usr_mount_source_flags" | grep --invert-match "ro" >/dev/null 2>&3; then
+            --volume "$TOOLBOX_PATH":/usr/bin/toolbox:ro \
+            if ! mount_bind /run/host/etc/machine-id /etc/machine-id ro; then
+            if ! mount_bind /run/host/var/lib/flatpak /var/lib/flatpak ro; then
+            if ! mount_bind /run/host/var/log/journal /var/log/journal ro; then
 		if strings.Contains(command.Name(), "complet") {
+	toolboxPathMountArg := toolboxPath + ":/usr/bin/toolbox:ro"
+			toolboxShMountArg := mount.source + ":" + mount.containerPath + ":ro"
+		{"/etc/machine-id", "/run/host/etc/machine-id", "ro"},
+		{"/var/lib/flatpak", "/run/host/var/lib/flatpak", "ro"},
+		{"/var/lib/systemd/coredump", "/run/host/var/lib/systemd/coredump", "ro"},
+		{"/var/log/journal", "/run/host/var/log/journal", "ro"},
