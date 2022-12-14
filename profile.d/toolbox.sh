@@ -83,7 +83,7 @@ if [ -f /run/.containerenv ] \
     if [ "$TERM" != "" ]; then
         error_message="Error: terminfo entry not found for $TERM"
         term_without_first_character="${TERM#?}"
-        term_just_first_character="${TERM%$term_without_first_character}"
+        term_just_first_character="${TERM%"$term_without_first_character"}"
         terminfo_sub_directory="$term_just_first_character/$TERM"
 
         if [ "$TERMINFO" = "" ]; then

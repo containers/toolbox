@@ -569,7 +569,7 @@ image_reference_get_basename()
     image="$1"
 
     domain=$(image_reference_get_domain "$image")
-    remainder=${image#$domain}
+    remainder=${image#"$domain"}
     path=${remainder%:*}
     basename=${path##*/}
     echo "$basename"
@@ -590,7 +590,7 @@ image_reference_get_tag()
     image="$1"
 
     domain=$(image_reference_get_domain "$image")
-    remainder=${image#$domain}
+    remainder=${image#"$domain"}
 
     tag=""
     if (echo "$remainder" | grep ":" >/dev/null 2>&3); then
