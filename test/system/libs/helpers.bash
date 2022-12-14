@@ -131,7 +131,7 @@ function _clean_cached_images() {
 }
 
 
-# Prepares a localy hosted image registry
+# Prepares a locally hosted image registry
 #
 # The registry is set up with Podman set to an alternative root. It won't
 # affect other containers or images in the default root.
