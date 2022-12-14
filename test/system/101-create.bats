@@ -53,8 +53,8 @@ teardown() {
   assert_success
 }
 
-@test "create: Try to create a container with invalid custom name ('ßpeci@l.Nam€'; using positional argument)" {
-  run $TOOLBOX -y create "ßpeci@l.Nam€"
+@test "create: Try to create a container with invalid custom name ('ßpeci@l.N@m€'; using positional argument)" {
+  run $TOOLBOX -y create "ßpeci@l.N@m€"
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for 'CONTAINER'"
@@ -62,8 +62,8 @@ teardown() {
   assert_line --index 2 "Run 'toolbox --help' for usage."
 }
 
-@test "create: Try to create a container with invalid custom name ('ßpeci@l.Nam€'; using option --container)" {
-  run $TOOLBOX -y create -c "ßpeci@l.Nam€"
+@test "create: Try to create a container with invalid custom name ('ßpeci@l.N@m€'; using option --container)" {
+  run $TOOLBOX -y create -c "ßpeci@l.N@m€"
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--container'"
@@ -71,8 +71,8 @@ teardown() {
   assert_line --index 2 "Run 'toolbox --help' for usage."
 }
 
-@test "create: Try to create a container with invalid custom image ('ßpeci@l.Nam€')" {
-  local image="ßpeci@l.Nam€"
+@test "create: Try to create a container with invalid custom image ('ßpeci@l.N@m€')" {
+  local image="ßpeci@l.N@m€"
 
   run $TOOLBOX create --image "$image"
 
