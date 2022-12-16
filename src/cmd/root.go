@@ -145,10 +145,12 @@ func preRun(cmd *cobra.Command, args []string) error {
 				currentUser.Username)
 
 			if _, err := validateSubIDFile("/etc/subuid"); err != nil {
+				logrus.Debugf("Checking sub-ID file /etc/subuid: %s", err)
 				return newSubIDFileError()
 			}
 
 			if _, err := validateSubIDFile("/etc/subgid"); err != nil {
+				logrus.Debugf("Checking sub-ID file /etc/subgid: %s", err)
 				return newSubIDFileError()
 			}
 		}
@@ -401,8 +403,7 @@ func validateSubIDFile(path string) (bool, error) {
 
 	file, err := os.Open(path)
 	if err != nil {
-		logrus.Debugf("Validating sub-ID file: failed to open %s: %s", path, err)
-		return false, fmt.Errorf("failed to open %s", path)
+		return false, fmt.Errorf("failed to open: %w", err)
 	}
 
 	scanner := bufio.NewScanner(file)
@@ -419,5 +420,5 @@ func validateSubIDFile(path string) (bool, error) {
 		}
 	}
 
-	return false, fmt.Errorf("failed to find an entry for user %s in %s", currentUser.Username, path)
+	return false, fmt.Errorf("failed to find an entry for user %s", currentUser.Username)
 }
