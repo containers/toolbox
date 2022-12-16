@@ -399,8 +399,6 @@ func validateSubIDFile(path string) (bool, error) {
 		panic("cannot validate sub-IDs inside container")
 	}
 
-	logrus.Debugf("Validating sub-ID file %s", path)
-
 	file, err := os.Open(path)
 	if err != nil {
 		return false, fmt.Errorf("failed to open: %w", err)
