@@ -298,6 +298,7 @@ func runCommandWithFallbacks(container string, command []string, emitEscapeSeque
 	runFallbackCommandsIndex := 0
 	runFallbackWorkDirsIndex := 0
 	workDir := workingDirectory
+	runFallbackWorkDirs := append([]string{"/run/host" + workDir}, runFallbackWorkDirs...)
 
 	for {
 		execArgs := constructExecArgs(container, command, detachKeysSupported, envOptions, workDir)
@@ -522,7 +523,7 @@ func isPathPresent(container, path string) (bool, error) {
 		"exec",
 		"--user", currentUser.Username,
 		container,
-		"sh", "-c", "test -d \"$1\"", "sh", path,
+		"sh", "-c", "test -d \"$1\" -a \"$1\" -ef \"/run/host/$1\"", "sh", path,
 	}
 
 	if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
