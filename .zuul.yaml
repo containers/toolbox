@@ -18,11 +18,11 @@
 - job:
     name: unit-test
     description: Run Toolbox's unit tests declared in Meson
-    timeout: 600
+    timeout: 1800
     nodeset:
       nodes:
-        - name: ci-node-36
-          label: cloud-fedora-36
+        - name: fedora-rawhide
+          label: cloud-fedora-rawhide
     pre-run: playbooks/setup-env.yaml
     run: playbooks/unit-test.yaml
 
