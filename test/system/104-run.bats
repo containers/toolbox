@@ -163,7 +163,7 @@ teardown() {
   assert_output "other-container"
 }
 
-@test "run: Ensure that $HOME is used as a fallback working directory" {
+@test "run: Ensure that /run/host is used as a fallback working directory" {
   local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
   create_default_container
 
@@ -172,11 +172,11 @@ teardown() {
   popd
 
   assert_success
-  assert_line --index 0 "$HOME"
+  assert_line --index 0 "/run/host/etc/kernel"
   assert [ ${#lines[@]} -eq 1 ]
   lines=("${stderr_lines[@]}")
   assert_line --index $((${#stderr_lines[@]}-2)) "Error: directory /etc/kernel not found in container $default_container_name"
-  assert_line --index $((${#stderr_lines[@]}-1)) "Using $HOME instead."
+  assert_line --index $((${#stderr_lines[@]}-1)) "Using /run/host/etc/kernel instead."
   assert [ ${#stderr_lines[@]} -gt 2 ]
 }
 
