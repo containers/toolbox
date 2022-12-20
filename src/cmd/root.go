@@ -404,6 +404,8 @@ func validateSubIDFile(path string) (bool, error) {
 		return false, fmt.Errorf("failed to open: %w", err)
 	}
 
+	defer file.Close()
+
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanLines)
 
