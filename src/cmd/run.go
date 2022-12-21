@@ -21,7 +21,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/containers/toolbox/pkg/podman"
@@ -262,6 +264,30 @@ func runCommand(container string,
 	if entryPointPID <= 0 {
 		return fmt.Errorf("invalid entry point PID of container %s", container)
 	}
+
+	logrus.Debugf("Setting up monitor to stop container %s on termination", container)
+	signalChannel := make(chan os.Signal, 1)
+	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
+
+	go func() {
+		signal := <-signalChannel
+
+		logrus.Debugf("Got signal %d, killing cgroup", signal)
+		cgroupFilePath := fmt.Sprintf("/proc/%d/cgroup", entryPointPID)
+		cgroupId, err := os.ReadFile(cgroupFilePath)
+		if err != nil {
+			logrus.Debugf("Could not look up cgroup of container %s: %s", container, err)
+			return
+		}
+
+		cgroup := strings.Trim(string(cgroupId), "0:/\n")
+		killPath := fmt.Sprintf("/sys/fs/cgroup/%s/cgroup.kill", cgroup)
+
+		if err := os.WriteFile(killPath, []byte("1"), 0644); err != nil {
+			logrus.Debugf("Could not write 1 to %s: %s", killPath, err)
+			return
+		}
+	}()
 
 	logrus.Debugf("Waiting for container %s to finish initializing", container)
 
