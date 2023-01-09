@@ -27,6 +27,7 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
+	"github.com/containers/toolbox/pkg/skopeo"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
@@ -403,7 +404,6 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 	createArgs := []string{
 		"--log-level", logLevelString,
 		"create",
-		"--cgroupns", "host",
 		"--dns", "none",
 		"--env", toolboxPathEnvArg,
 	}
@@ -647,6 +647,8 @@ func getServiceSocket(serviceName string, unitName string) (string, error) {
 }
 
 func pullImage(image, release string) (bool, error) {
+	logrus.Debugf("Looking for image %s", image)
+
 	if ok := utils.ImageReferenceCanBeID(image); ok {
 		logrus.Debugf("Looking for image %s", image)
 
@@ -667,6 +669,7 @@ func pullImage(image, release string) (bool, error) {
 	}
 
 	var imageFull string
+	var imageSize string = "docker://"
 
 	if hasDomain {
 		imageFull = image
@@ -677,8 +680,7 @@ func pullImage(image, release string) (bool, error) {
 			return false, fmt.Errorf("image %s not found in local storage and known registries", image)
 		}
 	}
-
-	logrus.Debugf("Looking for image %s", imageFull)
+	imageSize += imageFull
 
 	if _, err := podman.ImageExists(imageFull); err == nil {
 		return true, nil
@@ -699,9 +701,14 @@ func pullImage(image, release string) (bool, error) {
 	}
 
 	if promptForDownload {
+		infoSize, err := skopeo.Inspect(imageFull)
+		if err != nil {
+			logrus.Debug("cannot get the size of the image")
+		}
+
 		fmt.Println("Image required to create toolbox container.")
 
-		prompt := fmt.Sprintf("Download %s (500MB)? [y/N]:", imageFull)
+		prompt := fmt.Sprintf("Download %s (%vMB)? [y/N]:", imageFull, infoSize)
 		shouldPullImage = askForConfirmation(prompt)
 	}
 

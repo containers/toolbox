@@ -4,7 +4,7 @@
 toolbox\-create - Create a new toolbox container
 
 ## SYNOPSIS
-**toolbox create** [*--authfile AUTHFILE*]
+**toolbox create** [*--authfile FILE*]
                [*--distro DISTRO* | *-d DISTRO*]
                [*--image NAME* | *-i NAME*]
                [*--release RELEASE* | *-r RELEASE*]
