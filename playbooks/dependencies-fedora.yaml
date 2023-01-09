@@ -52,7 +52,7 @@
     chdir: '{{ zuul.project.src_dir }}'
 
 - name: Check versions of crucial packages
-  command: rpm -qa ShellCheck codespell *kernel* gcc *glibc* shadow-utils-subid-devel golang podman conmon containernetworking-plugins containers-common container-selinux crun fuse-overlayfs flatpak-session-helper
+  command: rpm -qa ShellCheck codespell *kernel* gcc *glibc* shadow-utils-subid-devel golang podman conmon containernetworking-plugins containers-common container-selinux crun fuse-overlayfs flatpak-session-helper skopeo
 
 - name: Show podman versions
   command: podman version

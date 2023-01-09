@@ -21,6 +21,7 @@ sources = files(
   'cmd/utils.go',
   'pkg/podman/podman.go',
   'pkg/shell/shell.go',
+  'pkg/skopeo/skopeo.go',
   'pkg/utils/libsubid-wrappers.c',
   'pkg/utils/errors.go',
   'pkg/utils/utils.go',

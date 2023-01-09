@@ -27,7 +27,9 @@ import (
 	"github.com/briandowns/spinner"
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
+	"github.com/containers/toolbox/pkg/skopeo"
 	"github.com/containers/toolbox/pkg/utils"
+	"github.com/docker/go-units"
 	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -573,6 +575,30 @@ func getFullyQualifiedImageFromRepoTags(image string) (string, error) {
 	return imageFull, nil
 }
 
+func getImageSizeFromRegistry(imageFull string) (string, error) {
+	image, err := skopeo.Inspect(imageFull)
+	if err != nil {
+		return "", err
+	}
+
+	if image.LayersData == nil {
+		return "", errors.New("'skopeo inspect' did not have LayersData")
+	}
+
+	var imageSizeFloat float64
+
+	for _, layer := range image.LayersData {
+		if layerSize, err := layer.Size.Float64(); err != nil {
+			return "", err
+		} else {
+			imageSizeFloat += layerSize
+		}
+	}
+
+	imageSizeHuman := units.HumanSize(imageSizeFloat)
+	return imageSizeHuman, nil
+}
+
 func getServiceSocket(serviceName string, unitName string) (string, error) {
 	logrus.Debugf("Resolving path to the %s socket", serviceName)
 
@@ -687,7 +713,15 @@ func pullImage(image, release, authFile string) (bool, error) {
 	if promptForDownload {
 		fmt.Println("Image required to create toolbox container.")
 
-		prompt := fmt.Sprintf("Download %s (500MB)? [y/N]:", imageFull)
+		var prompt string
+
+		if imageSize, err := getImageSizeFromRegistry(imageFull); err != nil {
+			logrus.Debugf("Getting image size failed: %s", err)
+			prompt = fmt.Sprintf("Download %s? [y/N]:", imageFull)
+		} else {
+			prompt = fmt.Sprintf("Download %s (%s)? [y/N]:", imageFull, imageSize)
+		}
+
 		shouldPullImage = askForConfirmation(prompt)
 	}
 

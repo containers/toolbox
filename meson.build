@@ -84,10 +84,6 @@ if shellcheck.found()
   test('shellcheck toolbox (deprecated)', shellcheck, args: [toolbox_sh])
 endif
 
-if not skopeo.found()
-    message('Running system tests requires Skopeo for OCI image manipulation.')
-endif
-
 install_subdir(
   'test',
   install_dir: get_option('datadir') / meson.project_name(),

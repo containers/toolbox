@@ -54,6 +54,14 @@
     state: absent
     update_cache: "{{ true if zuul.attempts > 1 else false }}"
 
+- name: Ensure that skopeo(1) is absent
+  become: yes
+  package:
+    name:
+      - skopeo
+    state: absent
+    update_cache: "{{ true if zuul.attempts > 1 else false }}"
+
 - name: Download Go modules
   shell: |
     go mod download -x
