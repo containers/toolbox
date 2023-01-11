@@ -1,4 +1,4 @@
-% toolbox-init-container(1)
+% toolbox-init-container 1
 
 ## NAME
 toolbox\-init\-container - Initialize a running container

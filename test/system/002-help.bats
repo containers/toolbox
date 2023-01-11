@@ -42,7 +42,8 @@ setup() {
   run $TOOLBOX help
 
   assert_success
-  assert_line --index 0 --partial "toolbox(1)()"
+  assert_line --index 0 --partial "toolbox(1)"
+  assert_line --index 0 --partial "General Commands Manual"
 }
 
 @test "help: Run command 'help' with no man present" {

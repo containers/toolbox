@@ -1,4 +1,4 @@
-% toolbox-rm(1)
+% toolbox-rm 1
 
 ## NAME
 toolbox\-rm - Remove one or more toolbox containers

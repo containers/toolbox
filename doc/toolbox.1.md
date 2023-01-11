@@ -1,4 +1,4 @@
-% toolbox(1)
+% toolbox 1
 
 ## NAME
 toolbox - Tool for containerized command line environments on Linux

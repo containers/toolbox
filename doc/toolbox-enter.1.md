@@ -1,4 +1,4 @@
-% toolbox-enter(1)
+% toolbox-enter 1
 
 ## NAME
 toolbox\-enter - Enter a toolbox container for interactive use

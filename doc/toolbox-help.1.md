@@ -1,4 +1,4 @@
-% toolbox-help(1)
+% toolbox-help 1
 
 ## NAME
 toolbox\-help - Display help information about Toolbox

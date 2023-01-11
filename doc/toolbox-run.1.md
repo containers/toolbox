@@ -1,4 +1,4 @@
-% toolbox-run(1)
+% toolbox-run 1
 
 ## NAME
 toolbox\-run - Run a command in an existing toolbox container

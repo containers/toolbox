@@ -1,4 +1,4 @@
-% toolbox-list(1)
+% toolbox-list 1
 
 ## NAME
 toolbox\-list - List existing toolbox containers and images

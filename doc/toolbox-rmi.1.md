@@ -1,4 +1,4 @@
-% toolbox-rmi(1)
+% toolbox-rmi 1
 
 ## NAME
 toolbox\-rmi - Remove one or more toolbox images

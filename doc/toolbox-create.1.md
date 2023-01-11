@@ -1,4 +1,4 @@
-% toolbox-create(1)
+% toolbox-create 1
 
 ## NAME
 toolbox\-create - Create a new toolbox container

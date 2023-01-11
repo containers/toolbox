@@ -1,4 +1,4 @@
-% toolbox.conf(5)
+% toolbox.conf 5
 
 ## NAME
 toolbox.conf - Toolbox configuration file
