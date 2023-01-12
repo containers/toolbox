@@ -781,7 +781,7 @@ pull_base_toolbox_image()
         spinner_directory=""
     fi
 
-    $podman_command pull $base_toolbox_image_full >/dev/null 2>&3
+    $podman_command pull "$base_toolbox_image_full" >/dev/null 2>&3
     ret_val=$?
 
     if [ "$spinner_directory" != "" ]; then
@@ -1824,7 +1824,7 @@ remove_containers()
             ret_val=$(echo "$ids" \
                       | (
                             while read -r id; do
-                                if ! $podman_command rm $force_option "$id" >/dev/null 2>&3; then
+                                if ! $podman_command rm "$force_option" "$id" >/dev/null 2>&3; then
                                     echo "$base_toolbox_command: failed to remove container $id" >&2
                                     ret_val=1
                                 fi
@@ -1855,7 +1855,7 @@ remove_containers()
                                 continue
                             fi
 
-                            if ! $podman_command rm $force_option "$id" >/dev/null 2>&3; then
+                            if ! $podman_command rm "$force_option" "$id" >/dev/null 2>&3; then
                                 echo "$base_toolbox_command: failed to remove container $id" >&2
                                 ret_val=1
                             fi
@@ -1901,7 +1901,7 @@ remove_images()
             ret_val=$(echo "$ids" \
                       | (
                             while read -r id; do
-                                if ! $podman_command rmi $force_option "$id" >/dev/null 2>&3; then
+                                if ! $podman_command rmi "$force_option" "$id" >/dev/null 2>&3; then
                                     echo "$base_toolbox_command: failed to remove image $id" >&2
                                     ret_val=1
                                 fi
@@ -1932,7 +1932,7 @@ remove_images()
                                 continue
                             fi
 
-                            if ! $podman_command rmi $force_option "$id" >/dev/null 2>&3; then
+                            if ! $podman_command rmi "$force_option" "$id" >/dev/null 2>&3; then
                                 echo "$base_toolbox_command: failed to remove image $id" >&2
                                 ret_val=1
                             fi
