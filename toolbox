@@ -2476,6 +2476,7 @@ case $op in
                 * )
                     exit_if_unrecognized_option "$1"
             esac
+            # shellcheck disable=SC2317
             shift
         done
         help "$1"
@@ -2556,6 +2557,7 @@ case $op in
                 * )
                     exit_if_unrecognized_option "$1"
             esac
+            # shellcheck disable=SC2317
             shift
         done
         exit_if_extra_operand "$1"
