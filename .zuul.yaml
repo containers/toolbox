@@ -51,7 +51,7 @@
 - job:
     name: system-test-fedora-36
     description: Run Toolbx's system tests in Fedora 36
-    timeout: 1200
+    timeout: 2400
     nodeset:
       nodes:
         - name: fedora-36
@@ -62,7 +62,7 @@
 - job:
     name: system-test-fedora-35
     description: Run Toolbox's system tests in Fedora 35
-    timeout: 1200
+    timeout: 2400
     nodeset:
       nodes:
         - name: fedora-35
