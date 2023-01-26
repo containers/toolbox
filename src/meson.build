@@ -1,6 +1,7 @@
 go_build_wrapper_file = files('go-build-wrapper')
 go_build_wrapper_program = find_program('go-build-wrapper')
 
+meson_generate_completions_program = find_program('meson_generate_completions.py')
 meson_go_fmt_program = find_program('meson_go_fmt.py')
 
 sources = files(
@@ -64,6 +65,52 @@ toolbox_go = custom_target(
   install: true,
   install_dir: get_option('bindir'),
   output: 'toolbox',
+)
+
+if bashcompletionsdir != ''
+  custom_target(
+    'bash-completion',
+    capture: true,
+    command: [
+      meson_generate_completions_program,
+      meson.current_source_dir(),
+      'bash',
+    ],
+    depends: [toolbox_go],
+    install: true,
+    install_dir: bashcompletionsdir,
+    output: 'toolbox.bash',
+)
+endif
+
+if fishcompletionsdir != ''
+  custom_target(
+    'fish-completion',
+    capture: true,
+    command: [
+      meson_generate_completions_program,
+      meson.current_source_dir(),
+      'fish',
+    ],
+    depends: [toolbox_go],
+    install: true,
+    install_dir: fishcompletionsdir,
+    output: 'toolbox.fish',
+)
+endif
+
+custom_target(
+  'zsh-completion',
+  capture: true,
+  command: [
+    meson_generate_completions_program,
+    meson.current_source_dir(),
+    'zsh',
+  ],
+  depends: [toolbox_go],
+  install: true,
+  install_dir: zshcompletionsdir,
+  output: '_toolbox',
 )
 
 if shellcheck.found()
