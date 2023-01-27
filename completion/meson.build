@@ -1,10 +1,10 @@
-generate_completions_program = find_program('generate_completions.py')
+meson_generate_completions_program = find_program('meson_generate_completions.py')
 
 if bashcompletionsdir != ''
   custom_target(
     'bash-completion',
     capture: true,
-    command: [generate_completions_program, meson.global_source_root() / 'src', 'bash'],
+    command: [meson_generate_completions_program, meson.global_source_root() / 'src', 'bash'],
     depends: [toolbox_go],
     install: true,
     install_dir: bashcompletionsdir,
@@ -16,7 +16,7 @@ if fishcompletionsdir != ''
   custom_target(
     'fish-completion',
     capture: true,
-    command: [generate_completions_program, meson.global_source_root() / 'src', 'fish'],
+    command: [meson_generate_completions_program, meson.global_source_root() / 'src', 'fish'],
     depends: [toolbox_go],
     install: true,
     install_dir: fishcompletionsdir,
@@ -27,7 +27,7 @@ endif
 custom_target(
   'zsh-completion',
   capture: true,
-  command: [generate_completions_program, meson.global_source_root() / 'src', 'zsh'],
+  command: [meson_generate_completions_program, meson.global_source_root() / 'src', 'zsh'],
   depends: [toolbox_go],
   install: true,
   install_dir: zshcompletionsdir,
