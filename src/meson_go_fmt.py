@@ -27,8 +27,8 @@ source_dir = sys.argv[1]
 
 gofmt = subprocess.run(['gofmt', '-d', source_dir], capture_output=True, check=True)
 if gofmt.stdout:
-   diff = gofmt.stdout.decode()
-   print(diff)
-   sys.exit(1)
+    diff = gofmt.stdout.decode()
+    print(diff)
+    sys.exit(1)
 
 sys.exit(0)
