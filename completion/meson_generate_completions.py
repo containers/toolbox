@@ -23,9 +23,6 @@ import sys
 if len(sys.argv) != 3:
     print('{}: wrong arguments'.format(sys.argv[0]), file=sys.stderr)
     print('Usage: {} [SOURCE DIR] [COMPLETION TYPE]'.format(sys.argv[0]), file=sys.stderr)
-    print()
-    print("SOURCE DIR is path to the Toolbox Go source code")
-    print("COMPLETION TYPE is either 'bash', 'zsh' or 'fish'")
     sys.exit(1)
 
 source_dir = sys.argv[1]
