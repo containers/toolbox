@@ -25,6 +25,7 @@
       - codespell
       - fish
       - flatpak-session-helper
+      - gcc
       - golang
       - golang-github-cpuguy83-md2man
       - httpd-tools
@@ -50,7 +51,7 @@
     chdir: '{{ zuul.project.src_dir }}'
 
 - name: Check versions of crucial packages
-  command: rpm -qa ShellCheck codespell *kernel* *glibc* golang podman conmon containernetworking-plugins containers-common container-selinux crun fuse-overlayfs flatpak-session-helper
+  command: rpm -qa ShellCheck codespell *kernel* gcc *glibc* golang podman conmon containernetworking-plugins containers-common container-selinux crun fuse-overlayfs flatpak-session-helper
 
 - name: Show podman versions
   command: podman version
