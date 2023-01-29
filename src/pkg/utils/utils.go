@@ -38,15 +38,14 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+type GetFullyQualifiedImageFunc func(string, string) string
 type ParseReleaseFunc func(string) (string, error)
 
 type Distro struct {
 	ContainerNamePrefix    string
 	ImageBasename          string
+	GetFullyQualifiedImage GetFullyQualifiedImageFunc
 	ParseRelease           ParseReleaseFunc
-	Registry               string
-	Repository             string
-	RepositoryNeedsRelease bool
 }
 
 const (
@@ -99,18 +98,14 @@ var (
 		"fedora": {
 			"fedora-toolbox",
 			"fedora-toolbox",
+			getFullyQualifiedImageFedora,
 			parseReleaseFedora,
-			"registry.fedoraproject.org",
-			"",
-			false,
 		},
 		"rhel": {
 			"rhel-toolbox",
 			"toolbox",
+			getFullyQualifiedImageRHEL,
 			parseReleaseRHEL,
-			"registry.access.redhat.com",
-			"ubi8",
-			false,
 		},
 	}
 )
@@ -319,21 +314,8 @@ func GetFullyQualifiedImageFromDistros(image, release string) (string, error) {
 			continue
 		}
 
-		var repository string
-
-		if distroObj.RepositoryNeedsRelease {
-			repository = fmt.Sprintf(distroObj.Repository, release)
-		} else {
-			repository = distroObj.Repository
-		}
-
-		imageFull := distroObj.Registry
-
-		if repository != "" {
-			imageFull = imageFull + "/" + repository
-		}
-
-		imageFull = imageFull + "/" + image
+		getFullyQualifiedImageImpl := distroObj.GetFullyQualifiedImage
+		imageFull := getFullyQualifiedImageImpl(image, release)
 
 		logrus.Debugf("Resolved image %s to %s", image, imageFull)
 
@@ -341,6 +323,23 @@ func GetFullyQualifiedImageFromDistros(image, release string) (string, error) {
 	}
 
 	return "", fmt.Errorf("failed to resolve image %s", image)
+}
+
+func getFullyQualifiedImageFedora(image, release string) string {
+	imageFull := "registry.fedoraproject.org/" + image
+	return imageFull
+}
+
+func getFullyQualifiedImageRHEL(image, release string) string {
+	i := strings.IndexRune(release, '.')
+	if i == -1 {
+		panicMsg := fmt.Sprintf("release %s not in '<major>.<minor>' format", release)
+		panic(panicMsg)
+	}
+
+	releaseMajor := release[:i]
+	imageFull := "registry.access.redhat.com/ubi" + releaseMajor + "/" + image
+	return imageFull
 }
 
 // GetGroupForSudo returns the name of the sudoers group.
