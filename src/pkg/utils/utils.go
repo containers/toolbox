@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2022 Red Hat Inc.
+ * Copyright © 2019 – 2023 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -291,6 +291,19 @@ func GetEnvOptionsForPreservedVariables() []string {
 
 func GetFullyQualifiedImageFromDistros(image, release string) (string, error) {
 	logrus.Debugf("Resolving fully qualified name for image %s from known registries", image)
+
+	if image == "" {
+		panic("image not specified")
+	}
+
+	if release == "" {
+		panic("release not specified")
+	}
+
+	if tag := ImageReferenceGetTag(image); tag != "" && release != tag {
+		panicMsg := fmt.Sprintf("image %s does not match release %s", image, release)
+		panic(panicMsg)
+	}
 
 	if ImageReferenceHasDomain(image) {
 		return image, nil
