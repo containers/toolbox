@@ -219,7 +219,7 @@ func showManual(manual string) error {
 			return nil
 		}
 
-		return errors.New("failed to lookup man(1)")
+		return errors.New("failed to look up man(1)")
 	}
 
 	manualArgs := []string{"man", manual}

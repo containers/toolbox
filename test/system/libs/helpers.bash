@@ -47,7 +47,7 @@ function _setup_environment() {
 
 function _setup_containers_storage() {
   mkdir -p ${TEMP_STORAGE_DIR}
-  # Setup a storage config file for PODMAN
+  # Set up a storage config file for PODMAN
   echo -e "[storage]\n  driver = \"overlay\"\n  rootless_storage_path = \"${ROOTLESS_PODMAN_STORE_DIR}\"\n  runroot = \"${ROOTLESS_PODMAN_RUNROOT_DIR}\"\n" > ${PODMAN_STORE_CONFIG_FILE}
   export CONTAINERS_STORAGE_CONF=${PODMAN_STORE_CONFIG_FILE}
 }
@@ -513,7 +513,7 @@ function get_system_version() {
 }
 
 
-# Setup the XDG_RUNTIME_DIR variable if not set
+# Set up the XDG_RUNTIME_DIR variable if not set
 function check_xdg_runtime_dir() {
   if [[ -z "${XDG_RUNTIME_DIR}" ]]; then
     export XDG_RUNTIME_DIR="/run/user/${UID}"

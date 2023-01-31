@@ -17,7 +17,7 @@
 
 load 'libs/helpers'
 
-@test "test suite: Setup" {
+@test "test suite: Set up" {
     local os_release="$(find_os_release)"
     local system_id="$(get_system_id)"
     local system_version="$(get_system_version)"

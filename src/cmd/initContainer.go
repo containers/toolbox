@@ -319,7 +319,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 	uidString := strconv.Itoa(initContainerFlags.uid)
 	targetUser, err := user.LookupId(uidString)
 	if err != nil {
-		return fmt.Errorf("failed to lookup user ID %s: %w", uidString, err)
+		return fmt.Errorf("failed to look up user ID %s: %w", uidString, err)
 	}
 
 	toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(targetUser)

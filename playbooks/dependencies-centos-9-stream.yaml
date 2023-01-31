@@ -44,7 +44,7 @@
   args:
     chdir: '{{ zuul.project.src_dir }}/src'
 
-- name: Setup Git submodules
+- name: Set up Git submodules
   shell: |
     git submodule init
     git submodule update
