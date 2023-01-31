@@ -546,8 +546,6 @@ func getEntryPointAndPID(container string) (string, int, error) {
 	switch entryPointPID := entryPointPID.(type) {
 	case float64:
 		entryPointPIDInt = int(entryPointPID)
-	case int:
-		entryPointPIDInt = entryPointPID
 	default:
 		return "", 0, fmt.Errorf("failed to inspect entry point PID of container %s", container)
 	}
