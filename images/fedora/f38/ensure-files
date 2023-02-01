@@ -9,3 +9,6 @@
 /usr/share/man/fr/man8/rpm.8*
 /usr/share/man/ja/man8/rpm.8*
 /usr/share/man/man8/rpm.8*
+
+/usr/share/man/man1/kill.1*
+/usr/share/man/man8/mount.8*

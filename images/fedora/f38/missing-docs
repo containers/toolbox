@@ -16,3 +16,4 @@ sed
 sudo
 systemd
 tar
+util-linux-core
