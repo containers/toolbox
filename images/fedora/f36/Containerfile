@@ -14,6 +14,7 @@ COPY README.md /
 RUN rm /etc/rpm/macros.image-language-conf
 RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf
 
+RUN dnf -y upgrade
 RUN dnf -y swap coreutils-single coreutils-full
 RUN dnf -y swap glibc-minimal-langpack glibc-all-langpacks
 
