@@ -11,7 +11,7 @@ LABEL com.github.containers.toolbox="true" \
 
 COPY README.md /
 
-RUN rm /etc/rpm/macros.image-language.conf
+RUN rm /etc/rpm/macros.image-language-conf
 RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf
 
 RUN dnf -y swap coreutils-single coreutils-full
