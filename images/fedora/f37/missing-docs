@@ -4,6 +4,7 @@ coreutils-common
 curl
 findutils
 gawk
+gnupg2
 grep
 gzip
 libcap
