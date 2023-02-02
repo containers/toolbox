@@ -13,7 +13,7 @@ gvfs-client
 hostname
 iproute
 iputils
-jwhois
+whois
 keyutils
 krb5-libs
 less
