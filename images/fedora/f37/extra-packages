@@ -7,7 +7,7 @@ findutils
 flatpak-spawn
 fpaste
 git
-gnupg
+gnupg2
 gnupg2-smime
 gvfs-client
 hostname
