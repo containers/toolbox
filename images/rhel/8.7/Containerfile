@@ -1,0 +1,28 @@
+FROM registry.access.redhat.com/ubi8:8.7
+
+ENV NAME=toolbox-container VERSION=8.7
+LABEL com.github.containers.toolbox="true" \
+      com.redhat.component="$NAME" \
+      com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
+      name="$NAME" \
+      version="$VERSION" \
+      usage="This image is meant to be used with the toolbox command" \
+      summary="Base image for creating UBI toolbox containers" \
+      maintainer="Oliver Gutiérrez <ogutierrez@redhat.com>"
+
+COPY README.md /
+
+RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf
+RUN dnf -y swap coreutils-single coreutils-full
+
+COPY missing-docs /
+RUN dnf -y reinstall $(<missing-docs)
+RUN rm /missing-docs
+
+COPY extra-packages /
+RUN dnf -y install $(<extra-packages)
+RUN rm /extra-packages
+
+RUN dnf clean all
+
+CMD /bin/sh
