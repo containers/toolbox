@@ -70,24 +70,12 @@
     pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test.yaml
 
-- job:
-    name: system-test-fedora-35
-    description: Run Toolbox's system tests in Fedora 35
-    timeout: 2400
-    nodeset:
-      nodes:
-        - name: fedora-35
-          label: cloud-fedora-35
-    pre-run: playbooks/setup-env.yaml
-    run: playbooks/system-test.yaml
-
 - project:
     periodic:
       jobs:
         - system-test-fedora-rawhide
         - system-test-fedora-37
         - system-test-fedora-36
-        - system-test-fedora-35
     check:
       jobs:
         - unit-test
@@ -95,7 +83,6 @@
         - system-test-fedora-rawhide
         - system-test-fedora-37
         - system-test-fedora-36
-        - system-test-fedora-35
     gate:
       jobs:
         - unit-test
@@ -103,4 +90,3 @@
         - system-test-fedora-rawhide
         - system-test-fedora-37
         - system-test-fedora-36
-        - system-test-fedora-35
