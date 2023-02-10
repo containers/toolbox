@@ -57,7 +57,7 @@ specifies its version. Supported combinations are:
 
 Distro |Release
 -------|----------
-fedora |\<release\> or f\<release\> eg., 35 or f35
+fedora |\<release\> or f\<release\> eg., 36 or f36
 rhel   |\<major\>.\<minor\> eg., 8.5
 
 ## GLOBAL OPTIONS ##
