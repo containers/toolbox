@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2022 Red Hat Inc.
+ * Copyright © 2019 – 2023 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,7 @@ var (
 		{"/run/systemd/resolve", "/run/host/run/systemd/resolve", ""},
 		{"/run/systemd/sessions", "/run/host/run/systemd/sessions", ""},
 		{"/run/systemd/system", "/run/host/run/systemd/system", ""},
+		{"/run/systemd/users", "/run/host/run/systemd/users", ""},
 		{"/run/udev/data", "/run/host/run/udev/data", ""},
 		{"/run/udev/tags", "/run/host/run/udev/tags", ""},
 		{"/tmp", "/run/host/tmp", "rslave"},
