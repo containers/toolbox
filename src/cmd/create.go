@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2022 Red Hat Inc.
+ * Copyright © 2019 – 2023 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,14 +176,14 @@ func create(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := createContainer(container, image, release, true); err != nil {
+	if err := createContainer(container, image, release, createFlags.authFile, true); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createContainer(container, image, release string, showCommandToEnter bool) error {
+func createContainer(container, image, release, authFile string, showCommandToEnter bool) error {
 	if container == "" {
 		panic("container not specified")
 	}
@@ -210,7 +210,7 @@ func createContainer(container, image, release string, showCommandToEnter bool) 
 		return errors.New(errMsg)
 	}
 
-	pulled, err := pullImage(image, release)
+	pulled, err := pullImage(image, release, authFile)
 	if err != nil {
 		return err
 	}
@@ -646,7 +646,7 @@ func getServiceSocket(serviceName string, unitName string) (string, error) {
 	return "", fmt.Errorf("failed to find a SOCK_STREAM socket for %s", unitName)
 }
 
-func pullImage(image, release string) (bool, error) {
+func pullImage(image, release, authFile string) (bool, error) {
 	if ok := utils.ImageReferenceCanBeID(image); ok {
 		logrus.Debugf("Looking for image %s", image)
 
@@ -721,7 +721,7 @@ func pullImage(image, release string) (bool, error) {
 		defer s.Stop()
 	}
 
-	if err := podman.Pull(imageFull, createFlags.authFile); err != nil {
+	if err := podman.Pull(imageFull, authFile); err != nil {
 		var builder strings.Builder
 		fmt.Fprintf(&builder, "failed to pull image %s\n", imageFull)
 		fmt.Fprintf(&builder, "If it was a private image, log in with: podman login %s\n", domain)

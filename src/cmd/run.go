@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2022 Red Hat Inc.
+ * Copyright © 2019 – 2023 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -215,7 +215,7 @@ func runCommand(container string,
 				return nil
 			}
 
-			if err := createContainer(container, image, release, false); err != nil {
+			if err := createContainer(container, image, release, "", false); err != nil {
 				return err
 			}
 		} else if containersCount == 1 && defaultContainer {
