@@ -1,7 +1,7 @@
 project(
   'toolbox',
   'c',
-  version: '0.0.99.3',
+  version: '0.0.99.4',
   license: 'ASL 2.0',
   default_options: 'c_std=c99',
   meson_version: '>= 0.58.0',
