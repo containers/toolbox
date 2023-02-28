@@ -166,7 +166,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 
 	logrus.Debugf("TOOLBOX_PATH is %s", toolboxPath)
 
-	if err := migrate(); err != nil {
+	if err := migrate(cmd, args); err != nil {
 		return err
 	}
 
@@ -211,10 +211,15 @@ func rootRun(cmd *cobra.Command, args []string) error {
 	return rootRunImpl(cmd, args)
 }
 
-func migrate() error {
+func migrate(cmd *cobra.Command, args []string) error {
 	logrus.Debug("Migrating to newer Podman")
 
 	if utils.IsInsideContainer() {
+		return nil
+	}
+
+	if cmdName, completionCmdName := cmd.Name(), completionCmd.Name(); cmdName == completionCmdName {
+		logrus.Debugf("Migration not needed: command %s doesn't need it", cmdName)
 		return nil
 	}
 

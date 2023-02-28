@@ -18,12 +18,12 @@ subid_dep = cc.find_library('subid', has_headers: ['shadow/subid.h'])
 
 go = find_program('go')
 go_md2man = find_program('go-md2man')
-podman = find_program('podman')
 
 bats = find_program('bats', required: false)
 codespell = find_program('codespell', required: false)
 htpasswd = find_program('htpasswd', required: false)
 openssl = find_program('openssl', required: false)
+podman = find_program('podman', required: false)
 shellcheck = find_program('shellcheck', required: false)
 skopeo = find_program('skopeo', required: false)
 
