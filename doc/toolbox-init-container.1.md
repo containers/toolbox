@@ -10,7 +10,6 @@ toolbox\-init\-container - Initialize a running container
                        *--media-link*
                        *--mnt-link*
                        *--monitor-host*
-                       *--shell SHELL*
                        *--uid UID*
                        *--user USER*
 
@@ -101,11 +100,6 @@ The bind mounted paths are:
 - `/var/lib/systemd/coredump`
 - `/var/log/journal`
 - `/var/mnt`
-
-**--shell** SHELL
-
-Create a user inside the toolbox container whose login shell is SHELL. This
-option is required.
 
 **--uid** UID
 

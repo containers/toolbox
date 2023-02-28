@@ -380,17 +380,11 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 
 	logLevelString := podman.LogLevel.String()
 
-	userShell := os.Getenv("SHELL")
-	if userShell == "" {
-		return errors.New("failed to get the current user's default shell")
-	}
-
 	entryPoint := []string{
 		"toolbox", "--log-level", "debug",
 		"init-container",
 		"--gid", currentUser.Gid,
 		"--home", currentUser.HomeDir,
-		"--shell", userShell,
 		"--uid", currentUser.Uid,
 		"--user", currentUser.Username,
 		"--monitor-host",

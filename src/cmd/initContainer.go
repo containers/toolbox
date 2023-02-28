@@ -42,7 +42,6 @@ var (
 		mediaLink   bool
 		mntLink     bool
 		monitorHost bool
-		shell       string
 		uid         int
 		user        string
 	}
@@ -109,14 +108,6 @@ func init() {
 		"monitor-host",
 		false,
 		"Ensure that certain configuration files inside the toolbox container are in sync with the host")
-
-	flags.StringVar(&initContainerFlags.shell,
-		"shell",
-		"",
-		"Create a user inside the toolbox container whose login shell is SHELL")
-	if err := initContainerCmd.MarkFlagRequired("shell"); err != nil {
-		panic("Could not mark flag --shell as required")
-	}
 
 	flags.IntVar(&initContainerFlags.uid,
 		"uid",
@@ -240,7 +231,6 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		if err := configureUsers(initContainerFlags.uid,
 			initContainerFlags.user,
 			initContainerFlags.home,
-			initContainerFlags.shell,
 			initContainerFlags.homeLink,
 			false); err != nil {
 			return err
@@ -249,7 +239,6 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		if err := configureUsers(initContainerFlags.uid,
 			initContainerFlags.user,
 			initContainerFlags.home,
-			initContainerFlags.shell,
 			initContainerFlags.homeLink,
 			true); err != nil {
 			return err
@@ -387,7 +376,7 @@ func initContainerHelp(cmd *cobra.Command, args []string) {
 }
 
 func configureUsers(targetUserUid int,
-	targetUser, targetUserHome, targetUserShell string,
+	targetUser, targetUserHome string,
 	homeLink, targetUserExists bool) error {
 	if homeLink {
 		if err := redirectPath("/home", "/var/home", true); err != nil {
@@ -407,7 +396,6 @@ func configureUsers(targetUserUid int,
 			"--append",
 			"--groups", sudoGroup,
 			"--home", targetUserHome,
-			"--shell", targetUserShell,
 			"--uid", fmt.Sprint(targetUserUid),
 			targetUser,
 		}
@@ -427,7 +415,6 @@ func configureUsers(targetUserUid int,
 			"--groups", sudoGroup,
 			"--home-dir", targetUserHome,
 			"--no-create-home",
-			"--shell", targetUserShell,
 			"--uid", fmt.Sprint(targetUserUid),
 			targetUser,
 		}
