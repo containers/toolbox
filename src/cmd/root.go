@@ -127,6 +127,7 @@ func init() {
 }
 
 func preRun(cmd *cobra.Command, args []string) error {
+	migrationNeeded := true
 	cmd.Root().SilenceUsage = true
 
 	if err := setUpLoggers(); err != nil {
@@ -136,7 +137,12 @@ func preRun(cmd *cobra.Command, args []string) error {
 	logrus.Debugf("Running as real user ID %s", currentUser.Uid)
 	logrus.Debugf("Resolved absolute path to the executable as %s", executable)
 
-	if !utils.IsInsideContainer() {
+	if cmdName, completionCmdName := cmd.Name(), completionCmd.Name(); cmdName == completionCmdName {
+		logrus.Debugf("Migration not needed: command %s doesn't need it", cmdName)
+		migrationNeeded = false
+	}
+
+	if migrationNeeded && !utils.IsInsideContainer() {
 		logrus.Debugf("Running on a cgroups v%d host", cgroupsVersion)
 
 		if currentUser.Uid != "0" {
@@ -166,8 +172,10 @@ func preRun(cmd *cobra.Command, args []string) error {
 
 	logrus.Debugf("TOOLBOX_PATH is %s", toolboxPath)
 
-	if err := migrate(cmd, args); err != nil {
-		return err
+	if migrationNeeded {
+		if err := migrate(cmd, args); err != nil {
+			return err
+		}
 	}
 
 	if err := utils.SetUpConfiguration(); err != nil {
@@ -215,11 +223,6 @@ func migrate(cmd *cobra.Command, args []string) error {
 	logrus.Debug("Migrating to newer Podman")
 
 	if utils.IsInsideContainer() {
-		return nil
-	}
-
-	if cmdName, completionCmdName := cmd.Name(), completionCmd.Name(); cmdName == completionCmdName {
-		logrus.Debugf("Migration not needed: command %s doesn't need it", cmdName)
 		return nil
 	}
 
