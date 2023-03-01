@@ -1,6 +1,7 @@
 FROM registry.fedoraproject.org/fedora:37
 
-ENV NAME=fedora-toolbox VERSION=37
+ARG NAME=fedora-toolbox
+ARG VERSION=37
 LABEL com.github.containers.toolbox="true" \
       com.redhat.component="$NAME" \
       name="$NAME" \
