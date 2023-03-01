@@ -401,6 +401,11 @@ func validateSubIDRanges(cmd *cobra.Command, args []string, user *user.User) (bo
 		return true, nil
 	}
 
+	if cmdName, completionCmdName := cmd.Name(), completionCmd.Name(); cmdName == completionCmdName {
+		logrus.Debugf("Look-up not needed: command %s doesn't need them", cmdName)
+		return true, nil
+	}
+
 	if _, err := utils.ValidateSubIDRanges(user); err != nil {
 		logrus.Debugf("Looking for sub-GID and sub-UID ranges: %s", err)
 		return false, newSubIDError()
