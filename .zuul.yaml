@@ -38,6 +38,17 @@
     run: playbooks/unit-test.yaml
 
 - job:
+    name: unit-test-restricted
+    description: Run Toolbox's unit tests declared in Meson in a restricted build environment
+    timeout: 1800
+    nodeset:
+      nodes:
+        - name: fedora-rawhide
+          label: cloud-fedora-rawhide
+    pre-run: playbooks/setup-env-restricted.yaml
+    run: playbooks/unit-test.yaml
+
+- job:
     name: system-test-fedora-rawhide
     description: Run Toolbox's system tests in Fedora Rawhide
     timeout: 3600
@@ -80,6 +91,7 @@
       jobs:
         - unit-test
         - unit-test-migration-path-for-coreos-toolbox
+        - unit-test-restricted
         - system-test-fedora-rawhide
         - system-test-fedora-37
         - system-test-fedora-36
@@ -87,6 +99,7 @@
       jobs:
         - unit-test
         - unit-test-migration-path-for-coreos-toolbox
+        - unit-test-restricted
         - system-test-fedora-rawhide
         - system-test-fedora-37
         - system-test-fedora-36
