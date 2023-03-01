@@ -215,6 +215,7 @@ func migrate(cmd *cobra.Command, args []string) error {
 	logrus.Debug("Migrating to newer Podman")
 
 	if utils.IsInsideContainer() {
+		logrus.Debug("Migration not needed: running inside a container")
 		return nil
 	}
 
