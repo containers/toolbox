@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2022 Red Hat Inc.
+ * Copyright © 2019 – 2023 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,13 +139,8 @@ func preRun(cmd *cobra.Command, args []string) error {
 	if !utils.IsInsideContainer() {
 		logrus.Debugf("Running on a cgroups v%d host", cgroupsVersion)
 
-		if currentUser.Uid != "0" {
-			logrus.Debugf("Looking for sub-GID and sub-UID ranges for user %s", currentUser.Username)
-
-			if _, err := utils.ValidateSubIDRanges(currentUser); err != nil {
-				logrus.Debugf("Looking for sub-GID and sub-UID ranges: %s", err)
-				return newSubIDError()
-			}
+		if _, err := validateSubIDRanges(cmd, args, currentUser); err != nil {
+			return err
 		}
 	}
 
@@ -391,4 +386,25 @@ func setUpLoggers() error {
 	}
 
 	return nil
+}
+
+func validateSubIDRanges(cmd *cobra.Command, args []string, user *user.User) (bool, error) {
+	logrus.Debugf("Looking for sub-GID and sub-UID ranges for user %s", user.Username)
+
+	if user.Uid == "0" {
+		logrus.Debugf("Look-up not needed: user %s doesn't need them", user.Username)
+		return true, nil
+	}
+
+	if utils.IsInsideContainer() {
+		logrus.Debug("Look-up not needed: running inside a container")
+		return true, nil
+	}
+
+	if _, err := utils.ValidateSubIDRanges(user); err != nil {
+		logrus.Debugf("Looking for sub-GID and sub-UID ranges: %s", err)
+		return false, newSubIDError()
+	}
+
+	return true, nil
 }
