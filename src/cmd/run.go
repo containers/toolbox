@@ -604,24 +604,6 @@ func startContainer(container string) error {
 		return fmt.Errorf("failed to start container %s", container)
 	}
 
-	logrus.Debug("Checking if 'podman system migrate' supports '--new-runtime'")
-
-	if !podman.CheckVersion("1.6.2") {
-		var builder strings.Builder
-
-		fmt.Fprintf(&builder,
-			"container %s doesn't support cgroups v%d\n",
-			container,
-			cgroupsVersion)
-
-		fmt.Fprintf(&builder, "Update Podman to version 1.6.2 or newer.\n")
-
-		errMsg := builder.String()
-		return errors.New(errMsg)
-	}
-
-	logrus.Debug("'podman system migrate' supports '--new-runtime'")
-
 	ociRuntimeRequired := "runc"
 	if cgroupsVersion == 2 {
 		ociRuntimeRequired = "crun"

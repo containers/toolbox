@@ -254,14 +254,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		devPtsMount = []string{"--mount", "type=devpts,destination=/dev/pts"}
 	}
 
-	logrus.Debug("Checking if 'podman create' supports '--ulimit host'")
-
-	var ulimitHost []string
-
-	if podman.CheckVersion("1.5.0") {
-		logrus.Debug("'podman create' supports '--ulimit host'")
-		ulimitHost = []string{"--ulimit", "host"}
-	}
+	ulimitHost := []string{"--ulimit", "host"}
 
 	var usernsArg string
 	if currentUser.Uid == "0" {
