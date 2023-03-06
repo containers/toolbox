@@ -42,6 +42,7 @@ var (
 		mediaLink   bool
 		mntLink     bool
 		monitorHost bool
+		mountDevPts bool
 		shell       string
 		uid         int
 		user        string
@@ -113,6 +114,11 @@ func init() {
 		panicMsg := fmt.Sprintf("cannot mark --monitor-host as deprecated: %s", err)
 		panic(panicMsg)
 	}
+
+	flags.BoolVar(&initContainerFlags.mountDevPts,
+		"mount-devpts",
+		false,
+		"Mount a devpts file system at /dev/pts")
 
 	flags.StringVar(&initContainerFlags.shell,
 		"shell",
@@ -252,6 +258,12 @@ func initContainer(cmd *cobra.Command, args []string) error {
 			initContainerFlags.shell,
 			initContainerFlags.homeLink,
 			true); err != nil {
+			return err
+		}
+	}
+
+	if initContainerFlags.mountDevPts {
+		if err := mountDevPts(); err != nil {
 			return err
 		}
 	}
@@ -517,6 +529,48 @@ func mountBind(containerPath, source, flags string) error {
 
 	if err := shell.Run("mount", nil, nil, nil, args...); err != nil {
 		return fmt.Errorf("failed to bind %s to %s", containerPath, source)
+	}
+
+	return nil
+}
+
+func mountDevPts() error {
+	optionsArgs := []string{
+		"noexec",
+		"nosuid",
+	}
+
+	const ttyGroup = "tty"
+	logrus.Debugf("Looking up group %s", ttyGroup)
+
+	if _, err := user.LookupGroup(ttyGroup); err != nil {
+		logrus.Debugf("Looking up group %s failed: %s", ttyGroup, err)
+	} else {
+		const optionsGIDArg = "gid=" + ttyGroup
+		optionsArgs = append(optionsArgs, []string{
+			optionsGIDArg,
+		}...)
+	}
+
+	optionsArgs = append(optionsArgs, []string{
+		"mode=620",
+		"ptmxmode=666",
+	}...)
+
+	optionsArg := strings.Join(optionsArgs, ",")
+
+	const devPtsFS = "devpts"
+	const devPtsMountPoint = "/dev/pts"
+
+	mountArgs := []string{
+		"--types", devPtsFS,
+		"--options", optionsArg,
+		devPtsFS,
+		devPtsMountPoint,
+	}
+
+	if err := shell.Run("mount", nil, nil, nil, mountArgs...); err != nil {
+		return fmt.Errorf("failed to mount a %s file system at %s: %w", devPtsFS, devPtsMountPoint, err)
 	}
 
 	return nil
