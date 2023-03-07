@@ -389,7 +389,7 @@ func setUpLoggers() error {
 }
 
 func validateSubIDRanges(cmd *cobra.Command, args []string, user *user.User) (bool, error) {
-	logrus.Debugf("Looking for sub-GID and sub-UID ranges for user %s", user.Username)
+	logrus.Debugf("Looking up sub-GID and sub-UID ranges for user %s", user.Username)
 
 	if user.Uid == "0" {
 		logrus.Debugf("Look-up not needed: user %s doesn't need them", user.Username)
@@ -407,7 +407,7 @@ func validateSubIDRanges(cmd *cobra.Command, args []string, user *user.User) (bo
 	}
 
 	if _, err := utils.ValidateSubIDRanges(user); err != nil {
-		logrus.Debugf("Looking for sub-GID and sub-UID ranges: %s", err)
+		logrus.Debugf("Looking up sub-GID and sub-UID ranges failed: %s", err)
 		return false, newSubIDError()
 	}
 

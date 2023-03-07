@@ -556,7 +556,7 @@ func getEntryPointAndPID(container string) (string, int, error) {
 }
 
 func isCommandPresent(container, command string) (bool, error) {
-	logrus.Debugf("Looking for command %s in container %s", command, container)
+	logrus.Debugf("Looking up command %s in container %s", command, container)
 
 	logLevelString := podman.LogLevel.String()
 	args := []string{
@@ -575,7 +575,7 @@ func isCommandPresent(container, command string) (bool, error) {
 }
 
 func isPathPresent(container, path string) (bool, error) {
-	logrus.Debugf("Looking for path %s in container %s", path, container)
+	logrus.Debugf("Looking up path %s in container %s", path, container)
 
 	logLevelString := podman.LogLevel.String()
 	args := []string{

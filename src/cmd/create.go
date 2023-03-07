@@ -345,7 +345,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		runMediaMount = []string{"--volume", "/run/media:/run/media:rslave"}
 	}
 
-	logrus.Debug("Looking for toolbox.sh")
+	logrus.Debug("Looking up toolbox.sh")
 
 	var toolboxShMount []string
 
@@ -634,7 +634,7 @@ func getServiceSocket(serviceName string, unitName string) (string, error) {
 
 func pullImage(image, release, authFile string) (bool, error) {
 	if ok := utils.ImageReferenceCanBeID(image); ok {
-		logrus.Debugf("Looking for image %s", image)
+		logrus.Debugf("Looking up image %s", image)
 
 		if _, err := podman.ImageExists(image); err == nil {
 			return true, nil
@@ -645,7 +645,7 @@ func pullImage(image, release, authFile string) (bool, error) {
 
 	if !hasDomain {
 		imageLocal := "localhost/" + image
-		logrus.Debugf("Looking for image %s", imageLocal)
+		logrus.Debugf("Looking up image %s", imageLocal)
 
 		if _, err := podman.ImageExists(imageLocal); err == nil {
 			return true, nil
@@ -664,7 +664,7 @@ func pullImage(image, release, authFile string) (bool, error) {
 		}
 	}
 
-	logrus.Debugf("Looking for image %s", imageFull)
+	logrus.Debugf("Looking up image %s", imageFull)
 
 	if _, err := podman.ImageExists(imageFull); err == nil {
 		return true, nil
