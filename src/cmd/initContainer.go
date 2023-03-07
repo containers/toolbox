@@ -206,18 +206,6 @@ func initContainer(cmd *cobra.Command, args []string) error {
 				return err
 			}
 		}
-
-		for _, mount := range initContainerMounts {
-			if err := mountBind(mount.containerPath, mount.source, mount.flags); err != nil {
-				return err
-			}
-		}
-
-		if utils.PathExists("/sys/fs/selinux") {
-			if err := mountBind("/sys/fs/selinux", "/usr/share/empty", ""); err != nil {
-				return err
-			}
-		}
 	}
 
 	if initContainerFlags.mediaLink {
@@ -233,6 +221,18 @@ func initContainer(cmd *cobra.Command, args []string) error {
 			if err := redirectPath("/mnt", "/var/mnt", true); err != nil {
 				return err
 			}
+		}
+	}
+
+	for _, mount := range initContainerMounts {
+		if err := mountBind(mount.containerPath, mount.source, mount.flags); err != nil {
+			return err
+		}
+	}
+
+	if utils.PathExists("/sys/fs/selinux") {
+		if err := mountBind("/sys/fs/selinux", "/usr/share/empty", ""); err != nil {
+			return err
 		}
 	}
 
