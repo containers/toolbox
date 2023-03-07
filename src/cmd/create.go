@@ -254,8 +254,6 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		devPtsMount = []string{"--mount", "type=devpts,destination=/dev/pts"}
 	}
 
-	ulimitHost := []string{"--ulimit", "host"}
-
 	var usernsArg string
 	if currentUser.Uid == "0" {
 		usernsArg = "host"
@@ -417,11 +415,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		"--pid", "host",
 		"--privileged",
 		"--security-opt", "label=disable",
-	}...)
-
-	createArgs = append(createArgs, ulimitHost...)
-
-	createArgs = append(createArgs, []string{
+		"--ulimit", "host",
 		"--userns", usernsArg,
 		"--user", "root:root",
 		"--volume", "/:/run/host:rslave",
