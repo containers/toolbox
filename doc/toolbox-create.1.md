@@ -68,7 +68,7 @@ and grants it `sudo` and `root` access.
 Crucial configuration files, such as `/etc/host.conf`, `/etc/hosts`,
 `/etc/localtime`, `/etc/resolv.conf` and `/etc/timezone`, inside the container
 are kept synchronized with the host. The entry point also bind mounts various
-subsets of the host's filesystem hierarchy to their corresponding locations
+subsets of the host's file system hierarchy to their corresponding locations
 inside the container to provide seamless integration with the host. This
 includes `/run/libvirt`, `/run/systemd/journal`, `/run/udev/data`,
 `/var/lib/libvirt`, `/var/lib/systemd/coredump`, `/var/log/journal` and others.

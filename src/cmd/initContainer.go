@@ -523,7 +523,7 @@ func mountBind(containerPath, source, flags string) error {
 }
 
 // redirectPath serves for creating symbolic links for crucial system
-// configuration files to their counterparts on the host's filesystem.
+// configuration files to their counterparts on the host's file system.
 //
 // containerPath and target must be absolute paths
 //
