@@ -1,0 +1,37 @@
+FROM docker.io/library/ubuntu:16.04
+
+LABEL com.github.containers.toolbox="true" \
+      name="ubuntu-toolbox" \
+      version="16.04" \
+      usage="This image is meant to be used with the toolbox command" \
+      summary="Base image for creating Ubuntu toolbox containers" \
+      maintainer="Ievgen Popovych <jmennius@gmail.com>"
+
+# Remove apt configuration optimized for containers
+# Remove docker-gzip-indexes to help with "command-not-found"
+RUN rm /etc/apt/apt.conf.d/docker-gzip-indexes /etc/apt/apt.conf.d/docker-no-languages
+
+# Enable myhostname nss plugin for clean hostname resolution without patching
+# hosts (at least for sudo), add it right after 'files' entry. We expect that
+# this entry is not present yet. Do this early so that package postinst (which
+# adds it too late in the order) skips this step
+RUN sed -Ei 's/^(hosts:.*)(\<files\>)\s*(.*)/\1\2 myhostname \3/' /etc/nsswitch.conf
+
+# Install ubuntu-minimal & ubuntu-standard
+# Ask resolvconf maintainer script not to touch resolve.conf file
+# Install extra packages as well as libnss-myhostname
+COPY extra-packages /
+RUN apt-get update && \
+    echo "resolvconf resolvconf/linkify-resolvconf boolean false" | debconf-set-selections && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        ubuntu-minimal ubuntu-standard \
+        libnss-myhostname \
+        $(cat extra-packages | xargs) && \
+    rm -rd /var/lib/apt/lists/*
+RUN rm /extra-packages
+
+# Allow authentication with empty password, promptless
+RUN sed -i '/^auth.*pam_unix.so/s/nullok_secure/try_first_pass nullok/' /etc/pam.d/common-auth
+
+# Fix empty bind-mount to clear selinuxfs (see #337)
+RUN mkdir /usr/share/empty

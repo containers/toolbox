@@ -1,0 +1,9 @@
+curl
+flatpak-xdg-utils
+git
+gnupg2
+keyutils
+tree
+unzip
+zip
+zsh
