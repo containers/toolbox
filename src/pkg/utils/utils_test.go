@@ -142,6 +142,11 @@ func TestParseRelease(t *testing.T) {
 		},
 		{
 			inputDistro:  "rhel",
+			inputRelease: "8.0",
+			output:       "8.0",
+		},
+		{
+			inputDistro:  "rhel",
 			inputRelease: "8.3",
 			output:       "8.3",
 		},
@@ -157,6 +162,31 @@ func TestParseRelease(t *testing.T) {
 		},
 		{
 			inputDistro:  "rhel",
+			inputRelease: "8.0.0",
+			errMsg:       "The release must be in the '<major>.<minor>' format.",
+		},
+		{
+			inputDistro:  "rhel",
+			inputRelease: "8.0.1",
+			errMsg:       "The release must be in the '<major>.<minor>' format.",
+		},
+		{
+			inputDistro:  "rhel",
+			inputRelease: "8.3.0",
+			errMsg:       "The release must be in the '<major>.<minor>' format.",
+		},
+		{
+			inputDistro:  "rhel",
+			inputRelease: "8.3.1",
+			errMsg:       "The release must be in the '<major>.<minor>' format.",
+		},
+		{
+			inputDistro:  "rhel",
+			inputRelease: "foo",
+			errMsg:       "The release must be in the '<major>.<minor>' format.",
+		},
+		{
+			inputDistro:  "rhel",
 			inputRelease: "8.2foo",
 			errMsg:       "The release must be in the '<major>.<minor>' format.",
 		},
@@ -164,6 +194,16 @@ func TestParseRelease(t *testing.T) {
 			inputDistro:  "rhel",
 			inputRelease: "-2.1",
 			errMsg:       "The release must be a positive number.",
+		},
+		{
+			inputDistro:  "rhel",
+			inputRelease: "-2.-1",
+			errMsg:       "The release must be in the '<major>.<minor>' format.",
+		},
+		{
+			inputDistro:  "rhel",
+			inputRelease: "2.-1",
+			errMsg:       "The release must be in the '<major>.<minor>' format.",
 		},
 	}
 

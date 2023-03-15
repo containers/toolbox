@@ -230,6 +230,56 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
+@test "create: Try '--distro rhel --release 8.0.0'" {
+  run $TOOLBOX --assumeyes create --distro rhel --release 8.0.0
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try '--distro rhel --release 8.0.1'" {
+  run $TOOLBOX --assumeyes create --distro rhel --release 8.0.1
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try '--distro rhel --release 8.3.0'" {
+  run $TOOLBOX --assumeyes create --distro rhel --release 8.3.0
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try '--distro rhel --release 8.3.1'" {
+  run $TOOLBOX --assumeyes create --distro rhel --release 8.3.1
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try '--distro rhel --release foo'" {
+  run $TOOLBOX --assumeyes create --distro rhel --release foo
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
 @test "create: Try '--distro rhel --release 8.2foo'" {
   run $TOOLBOX --assumeyes create --distro rhel --release 8.2foo
 
@@ -246,6 +296,26 @@ teardown() {
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive number."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try '--distro rhel --release -2.-1'" {
+  run $TOOLBOX --assumeyes create --distro rhel --release -2.-1
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try '--distro rhel --release 2.-1'" {
+  run $TOOLBOX --assumeyes create --distro rhel --release 2.-1
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#lines[@]} -eq 3 ]
 }
