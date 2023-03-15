@@ -112,6 +112,51 @@ teardown() {
   assert_output --regexp "Created[[:blank:]]+rhel-toolbox-8.7"
 }
 
+@test "create: Ubuntu 16.04" {
+  pull_distro_image ubuntu 16.04
+
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 16.04
+
+  assert_success
+  assert_output --partial "Created container: ubuntu-toolbox-16.04"
+  assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-16.04"
+
+  run $PODMAN ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+ubuntu-toolbox-16.04"
+}
+
+@test "create: Ubuntu 18.04" {
+  pull_distro_image ubuntu 18.04
+
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 18.04
+
+  assert_success
+  assert_output --partial "Created container: ubuntu-toolbox-18.04"
+  assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-18.04"
+
+  run $PODMAN ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+ubuntu-toolbox-18.04"
+}
+
+@test "create: Ubuntu 20.04" {
+  pull_distro_image ubuntu 20.04
+
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 20.04
+
+  assert_success
+  assert_output --partial "Created container: ubuntu-toolbox-20.04"
+  assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-20.04"
+
+  run $PODMAN ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+ubuntu-toolbox-20.04"
+}
+
 @test "create: Try an unsupported distribution" {
   local distro="foo"
 
@@ -329,6 +374,196 @@ teardown() {
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 20')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 20
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the 'YY.MM' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 20.04.0')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 20.04.0
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the 'YY.MM' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 20.04.1')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 20.04.1
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the 'YY.MM' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release foo')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release foo
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the 'YY.MM' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 20foo')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 20foo
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the 'YY.MM' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release foo.bar')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release foo.bar
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the 'YY.MM' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release foo.bar.baz')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release foo.bar.baz
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the 'YY.MM' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 3.10')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 3.10
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release year must be 4 or more."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 202.4')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 202.4
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release year cannot have more than two digits."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 202.04')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 202.04
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release year cannot have more than two digits."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 2020.4')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 2020.4
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release year cannot have more than two digits."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 2020.04')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 2020.04
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release year cannot have more than two digits."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 04.10')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 04.10
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release year cannot have a leading zero."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 4.bar')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 4.bar
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the 'YY.MM' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 4.bar.baz')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 4.bar.baz
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the 'YY.MM' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 4.0')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 4.0
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release month must be between 01 and 12."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 4.00')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 4.00
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release month must be between 01 and 12."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 4.13')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 4.13
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release month must be between 01 and 12."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Ubuntu with an invalid release ('--release 20.4')" {
+  run $TOOLBOX --assumeyes create --distro ubuntu --release 20.4
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release month must have two digits."
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#lines[@]} -eq 3 ]
 }

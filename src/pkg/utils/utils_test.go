@@ -205,6 +205,121 @@ func TestParseRelease(t *testing.T) {
 			inputRelease: "2.-1",
 			errMsg:       "The release must be in the '<major>.<minor>' format.",
 		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "4.10",
+			output:       "4.10",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "5.04",
+			output:       "5.04",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "20.04",
+			output:       "20.04",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "20.10",
+			output:       "20.10",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "20",
+			errMsg:       "The release must be in the 'YY.MM' format.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "20.04.0",
+			errMsg:       "The release must be in the 'YY.MM' format.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "20.04.1",
+			errMsg:       "The release must be in the 'YY.MM' format.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "foo",
+			errMsg:       "The release must be in the 'YY.MM' format.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "20foo",
+			errMsg:       "The release must be in the 'YY.MM' format.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "foo.bar",
+			errMsg:       "The release must be in the 'YY.MM' format.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "foo.bar.baz",
+			errMsg:       "The release must be in the 'YY.MM' format.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "3.10",
+			errMsg:       "The release year must be 4 or more.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "202.4",
+			errMsg:       "The release year cannot have more than two digits.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "202.04",
+			errMsg:       "The release year cannot have more than two digits.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "2020.4",
+			errMsg:       "The release year cannot have more than two digits.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "2020.04",
+			errMsg:       "The release year cannot have more than two digits.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "04.10",
+			errMsg:       "The release year cannot have a leading zero.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "4.bar",
+			errMsg:       "The release must be in the 'YY.MM' format.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "4.bar.baz",
+			errMsg:       "The release must be in the 'YY.MM' format.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "4.0",
+			errMsg:       "The release month must be between 01 and 12.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "4.00",
+			errMsg:       "The release month must be between 01 and 12.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "4.13",
+			errMsg:       "The release month must be between 01 and 12.",
+		},
+		{
+			inputDistro:  "ubuntu",
+			inputRelease: "20.4",
+			errMsg:       "The release month must have two digits.",
+		},
 	}
 
 	for _, tc := range testCases {

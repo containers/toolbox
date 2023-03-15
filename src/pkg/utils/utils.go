@@ -28,6 +28,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"unicode/utf8"
 
 	"github.com/acobaugh/osrelease"
 	"github.com/containers/toolbox/pkg/shell"
@@ -107,6 +108,12 @@ var (
 			"toolbox",
 			getFullyQualifiedImageRHEL,
 			parseReleaseRHEL,
+		},
+		"ubuntu": {
+			"ubuntu-toolbox",
+			"ubuntu-toolbox",
+			getFullyQualifiedImageUbuntu,
+			parseReleaseUbuntu,
 		},
 	}
 )
@@ -340,6 +347,11 @@ func getFullyQualifiedImageRHEL(image, release string) string {
 
 	releaseMajor := release[:i]
 	imageFull := "registry.access.redhat.com/ubi" + releaseMajor + "/" + image
+	return imageFull
+}
+
+func getFullyQualifiedImageUbuntu(image, release string) string {
+	imageFull := "quay.io/toolbx-images/" + image
 	return imageFull
 }
 
@@ -667,6 +679,49 @@ func parseReleaseRHEL(release string) (string, error) {
 
 	if releaseN <= 0 {
 		return "", &ParseReleaseError{"The release must be a positive number."}
+	}
+
+	return release, nil
+}
+
+func parseReleaseUbuntu(release string) (string, error) {
+	releaseParts := strings.Split(release, ".")
+	if len(releaseParts) != 2 {
+		return "", &ParseReleaseError{"The release must be in the 'YY.MM' format."}
+	}
+
+	releaseYear, err := strconv.Atoi(releaseParts[0])
+	if err != nil {
+		logrus.Debugf("Parsing release year %s as an integer failed: %s", releaseParts[0], err)
+		return "", &ParseReleaseError{"The release must be in the 'YY.MM' format."}
+	}
+
+	if releaseYear < 4 {
+		return "", &ParseReleaseError{"The release year must be 4 or more."}
+	}
+
+	releaseYearLen := utf8.RuneCountInString(releaseParts[0])
+	if releaseYearLen > 2 {
+		return "", &ParseReleaseError{"The release year cannot have more than two digits."}
+	} else if releaseYear < 10 && releaseYearLen == 2 {
+		return "", &ParseReleaseError{"The release year cannot have a leading zero."}
+	}
+
+	releaseMonth, err := strconv.Atoi(releaseParts[1])
+	if err != nil {
+		logrus.Debugf("Parsing release month %s as an integer failed: %s", releaseParts[1], err)
+		return "", &ParseReleaseError{"The release must be in the 'YY.MM' format."}
+	}
+
+	if releaseMonth < 1 {
+		return "", &ParseReleaseError{"The release month must be between 01 and 12."}
+	} else if releaseMonth > 12 {
+		return "", &ParseReleaseError{"The release month must be between 01 and 12."}
+	}
+
+	releaseMonthLen := utf8.RuneCountInString(releaseParts[1])
+	if releaseMonthLen != 2 {
+		return "", &ParseReleaseError{"The release month must have two digits."}
 	}
 
 	return release, nil

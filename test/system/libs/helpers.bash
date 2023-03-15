@@ -26,7 +26,8 @@ readonly SKOPEO=${SKOPEO:-$(command -v skopeo)}
 declare -Ag IMAGES=([busybox]="quay.io/toolbox_tests/busybox" \
                    [docker-reg]="quay.io/toolbox_tests/registry" \
                    [fedora]="registry.fedoraproject.org/fedora-toolbox" \
-                   [rhel]="registry.access.redhat.com/ubi8/toolbox")
+                   [rhel]="registry.access.redhat.com/ubi8/toolbox" \
+                   [ubuntu]="quay.io/toolbx-images/ubuntu-toolbox")
 
 
 function cleanup_all() {

@@ -178,6 +178,96 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+@test "list: Ubuntu 16.04 image" {
+  pull_distro_image ubuntu 16.04
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx-images/ubuntu-toolbox:16.04"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Ubuntu 16.04 image (using --images)" {
+  pull_distro_image ubuntu 16.04
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx-images/ubuntu-toolbox:16.04"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Ubuntu 18.04 image" {
+  pull_distro_image ubuntu 18.04
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx-images/ubuntu-toolbox:18.04"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Ubuntu 18.04 image (using --images)" {
+  pull_distro_image ubuntu 18.04
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx-images/ubuntu-toolbox:18.04"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Ubuntu 20.04 image" {
+  pull_distro_image ubuntu 20.04
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx-images/ubuntu-toolbox:20.04"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Ubuntu 20.04 image (using --images)" {
+  pull_distro_image ubuntu 20.04
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx-images/ubuntu-toolbox:20.04"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
 @test "list: An image without a name" {
   build_image_without_name >/dev/null
 
