@@ -130,8 +130,88 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
+@test "create: Try '--distro fedora --release -3.0'" {
+  run $TOOLBOX --assumeyes create --distro fedora --release -3.0
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try '--distro fedora --release -3.1'" {
+  run $TOOLBOX --assumeyes create --distro fedora --release -3.1
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try '--distro fedora --release 0'" {
+  run $TOOLBOX --assumeyes create --distro fedora --release 0
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try '--distro fedora --release 0.0'" {
+  run $TOOLBOX --assumeyes create --distro fedora --release 0.0
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try '--distro fedora --release 0.1'" {
+  run $TOOLBOX --assumeyes create --distro fedora --release 0.1
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try '--distro fedora --release 3.0'" {
+  run $TOOLBOX --assumeyes create --distro fedora --release 3.0
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try '--distro fedora --release 3.1'" {
+  run $TOOLBOX --assumeyes create --distro fedora --release 3.1
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
 @test "create: Try '--distro fedora --release foo'" {
   run $TOOLBOX --assumeyes create --distro fedora --release foo
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try '--distro fedora --release 3foo'" {
+  run $TOOLBOX --assumeyes create --distro fedora --release 3foo
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"

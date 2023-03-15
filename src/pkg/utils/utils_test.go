@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 – 2022 Red Hat Inc.
+ * Copyright © 2021 – 2023 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,7 +97,47 @@ func TestParseRelease(t *testing.T) {
 		},
 		{
 			inputDistro:  "fedora",
+			inputRelease: "-3.0",
+			errMsg:       "The release must be a positive integer.",
+		},
+		{
+			inputDistro:  "fedora",
+			inputRelease: "-3.1",
+			errMsg:       "The release must be a positive integer.",
+		},
+		{
+			inputDistro:  "fedora",
+			inputRelease: "0",
+			errMsg:       "The release must be a positive integer.",
+		},
+		{
+			inputDistro:  "fedora",
+			inputRelease: "0.0",
+			errMsg:       "The release must be a positive integer.",
+		},
+		{
+			inputDistro:  "fedora",
+			inputRelease: "0.1",
+			errMsg:       "The release must be a positive integer.",
+		},
+		{
+			inputDistro:  "fedora",
+			inputRelease: "3.0",
+			errMsg:       "The release must be a positive integer.",
+		},
+		{
+			inputDistro:  "fedora",
+			inputRelease: "3.1",
+			errMsg:       "The release must be a positive integer.",
+		},
+		{
+			inputDistro:  "fedora",
 			inputRelease: "foo",
+			errMsg:       "The release must be a positive integer.",
+		},
+		{
+			inputDistro:  "fedora",
+			inputRelease: "3foo",
 			errMsg:       "The release must be a positive integer.",
 		},
 		{
