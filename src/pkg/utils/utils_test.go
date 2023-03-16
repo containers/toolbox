@@ -75,90 +75,68 @@ func TestImageReferenceCanBeID(t *testing.T) {
 
 func TestParseRelease(t *testing.T) {
 	testCases := []struct {
-		name         string
 		inputDistro  string
 		inputRelease string
 		output       string
-		ok           bool
 		errMsg       string
 	}{
 		{
-			name:         "Fedora; f34; valid",
 			inputDistro:  "fedora",
 			inputRelease: "f34",
 			output:       "34",
-			ok:           true,
 		},
 		{
-			name:         "Fedora; 33; valid",
 			inputDistro:  "fedora",
 			inputRelease: "33",
 			output:       "33",
-			ok:           true,
 		},
 		{
-			name:         "Fedora; -3; invalid; less than 0",
 			inputDistro:  "fedora",
 			inputRelease: "-3",
-			ok:           false,
 			errMsg:       "The release must be a positive integer.",
 		},
 		{
-			name:         "Fedora; foo; invalid; non-numeric",
 			inputDistro:  "fedora",
 			inputRelease: "foo",
-			ok:           false,
 			errMsg:       "The release must be a positive integer.",
 		},
 		{
-			name:         "RHEL; 8.3; valid",
 			inputDistro:  "rhel",
 			inputRelease: "8.3",
 			output:       "8.3",
-			ok:           true,
 		},
 		{
-			name:         "RHEL; 8.42; valid",
 			inputDistro:  "rhel",
 			inputRelease: "8.42",
 			output:       "8.42",
-			ok:           true,
 		},
 		{
-			name:         "RHEL; 8; invalid; missing point release",
 			inputDistro:  "rhel",
 			inputRelease: "8",
-			ok:           false,
 			errMsg:       "The release must be in the '<major>.<minor>' format.",
 		},
 		{
-			name:         "RHEL; 8.2foo; invalid; non-float",
 			inputDistro:  "rhel",
 			inputRelease: "8.2foo",
-			ok:           false,
 			errMsg:       "The release must be in the '<major>.<minor>' format.",
 		},
 		{
-			name:         "RHEL; -2.1; invalid; less than 0",
 			inputDistro:  "rhel",
 			inputRelease: "-2.1",
-			ok:           false,
 			errMsg:       "The release must be a positive number.",
 		},
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
+		name := tc.inputDistro + ", " + tc.inputRelease
+		t.Run(name, func(t *testing.T) {
 			release, err := parseRelease(tc.inputDistro, tc.inputRelease)
 
-			if tc.ok {
+			if tc.errMsg == "" {
 				assert.NoError(t, err)
 			} else {
 				assert.Error(t, err)
-
-				if tc.errMsg != "" {
-					assert.EqualError(t, err, tc.errMsg)
-				}
+				assert.EqualError(t, err, tc.errMsg)
 			}
 
 			assert.Equal(t, tc.output, release)
