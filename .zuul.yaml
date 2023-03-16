@@ -1,5 +1,5 @@
 #
-# Copyright © 2020 – 2022 Red Hat, Inc.
+# Copyright © 2020 – 2023 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -49,6 +49,17 @@
     run: playbooks/system-test.yaml
 
 - job:
+    name: system-test-fedora-38
+    description: Run Toolbx's system tests in Fedora 38
+    timeout: 2400
+    nodeset:
+      nodes:
+        - name: fedora-38
+          label: cloud-fedora-38
+    pre-run: playbooks/setup-env.yaml
+    run: playbooks/system-test.yaml
+
+- job:
     name: system-test-fedora-37
     description: Run Toolbx's system tests in Fedora 37
     timeout: 2400
@@ -74,6 +85,7 @@
     periodic:
       jobs:
         - system-test-fedora-rawhide
+        - system-test-fedora-38
         - system-test-fedora-37
         - system-test-fedora-36
     check:
@@ -81,6 +93,7 @@
         - unit-test
         - unit-test-migration-path-for-coreos-toolbox
         - system-test-fedora-rawhide
+        - system-test-fedora-38
         - system-test-fedora-37
         - system-test-fedora-36
     gate:
@@ -88,5 +101,6 @@
         - unit-test
         - unit-test-migration-path-for-coreos-toolbox
         - system-test-fedora-rawhide
+        - system-test-fedora-38
         - system-test-fedora-37
         - system-test-fedora-36
