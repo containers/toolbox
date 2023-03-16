@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Copyright © 2019 – 2022 Red Hat, Inc.
+# Copyright © 2019 – 2023 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ teardown() {
 @test "create: Create the default container" {
   pull_default_image
 
-  run $TOOLBOX -y create
+  run $TOOLBOX --assumeyes create
 
   assert_success
 }
@@ -40,7 +40,7 @@ teardown() {
 @test "create: Create a container with a valid custom name ('custom-containerName')" {
   pull_default_image
 
-  run $TOOLBOX -y create -c "custom-containerName"
+  run $TOOLBOX --assumeyes create --container "custom-containerName"
 
   assert_success
 }
@@ -48,13 +48,13 @@ teardown() {
 @test "create: Create a container with a custom image and name ('fedora34'; f34)" {
   pull_distro_image fedora 34
 
-  run $TOOLBOX -y create -c "fedora34" -i fedora-toolbox:34
+  run $TOOLBOX --assumeyes create --container "fedora34" --image fedora-toolbox:34
 
   assert_success
 }
 
 @test "create: Try to create a container with invalid custom name ('ßpeci@l.N@m€'; using positional argument)" {
-  run $TOOLBOX -y create "ßpeci@l.N@m€"
+  run $TOOLBOX --assumeyes create "ßpeci@l.N@m€"
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for 'CONTAINER'"
@@ -63,7 +63,7 @@ teardown() {
 }
 
 @test "create: Try to create a container with invalid custom name ('ßpeci@l.N@m€'; using option --container)" {
-  run $TOOLBOX -y create -c "ßpeci@l.N@m€"
+  run $TOOLBOX --assumeyes create --container "ßpeci@l.N@m€"
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--container'"
@@ -87,7 +87,7 @@ teardown() {
 @test "create: Create a container with a distro and release options ('fedora'; f34)" {
   pull_distro_image fedora 34
 
-  run $TOOLBOX -y create -d "fedora" -r f34
+  run $TOOLBOX --assumeyes create --distro "fedora" --release f34
 
   assert_success
   assert_output --partial "Created container: fedora-toolbox-34"
@@ -112,7 +112,7 @@ teardown() {
 }
 
 @test "create: Try to create a container based on non-existent image" {
-  run $TOOLBOX -y create -i foo.org/bar
+  run $TOOLBOX --assumeyes create --image foo.org/bar
 
   assert_failure
   assert_line --index 0 "Error: failed to pull image foo.org/bar"
@@ -121,7 +121,7 @@ teardown() {
 }
 
 @test "create: Try to create a container based on Fedora but with wrong version" {
-  run $TOOLBOX -y create -d fedora -r foobar
+  run $TOOLBOX --assumeyes create --distro fedora --release foobar
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -172,7 +172,7 @@ teardown() {
     distro="rhel"
   fi
 
-  run $TOOLBOX -y create -d "$distro"
+  run $TOOLBOX --assumeyes create --distro "$distro"
 
   assert_failure
   assert_line --index 0 "Error: option '--release' is needed"
