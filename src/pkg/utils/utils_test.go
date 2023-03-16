@@ -80,7 +80,6 @@ func TestParseRelease(t *testing.T) {
 		inputRelease string
 		output       string
 		ok           bool
-		err          error
 		errMsg       string
 	}{
 		{
@@ -156,10 +155,6 @@ func TestParseRelease(t *testing.T) {
 				assert.NoError(t, err)
 			} else {
 				assert.Error(t, err)
-
-				if tc.err != nil {
-					assert.ErrorIs(t, err, tc.err)
-				}
 
 				if tc.errMsg != "" {
 					assert.EqualError(t, err, tc.errMsg)
