@@ -120,7 +120,7 @@ teardown() {
   assert_line --index 2 "Use 'toolbox --verbose ...' for further details."
 }
 
-@test "create: Try to create a container based on Fedora but with wrong version" {
+@test "create: Try '--distro fedora --release foobar'" {
   run $TOOLBOX --assumeyes create --distro fedora --release foobar
 
   assert_failure
@@ -128,7 +128,9 @@ teardown() {
   assert_line --index 1 "The release must be a positive integer."
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#lines[@]} -eq 3 ]
+}
 
+@test "create: Try '--distro fedora --release -3'" {
   run $TOOLBOX --assumeyes create --distro fedora --release -3
 
   assert_failure
@@ -138,7 +140,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try to create a container based on RHEL but with wrong version" {
+@test "create: Try '--distro rhel --release 8'" {
   run $TOOLBOX --assumeyes create --distro rhel --release 8
 
   assert_failure
@@ -146,7 +148,9 @@ teardown() {
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#lines[@]} -eq 3 ]
+}
 
+@test "create: Try '--distro rhel --release 8.2foo'" {
   run $TOOLBOX --assumeyes create --distro rhel --release 8.2foo
 
   assert_failure
@@ -154,7 +158,9 @@ teardown() {
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#lines[@]} -eq 3 ]
+}
 
+@test "create: Try '--distro rhel --release -2.1'" {
   run $TOOLBOX --assumeyes create --distro rhel --release -2.1
 
   assert_failure
