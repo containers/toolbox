@@ -120,8 +120,8 @@ teardown() {
   assert_line --index 2 "Use 'toolbox --verbose ...' for further details."
 }
 
-@test "create: Try '--distro fedora --release foobar'" {
-  run $TOOLBOX --assumeyes create --distro fedora --release foobar
+@test "create: Try '--distro fedora --release -3'" {
+  run $TOOLBOX --assumeyes create --distro fedora --release -3
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -130,8 +130,8 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro fedora --release -3'" {
-  run $TOOLBOX --assumeyes create --distro fedora --release -3
+@test "create: Try '--distro fedora --release foo'" {
+  run $TOOLBOX --assumeyes create --distro fedora --release foo
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
