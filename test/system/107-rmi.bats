@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Copyright © 2021 – 2022 Red Hat, Inc.
+# Copyright © 2021 – 2023 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ teardown() {
   assert_equal "$num_of_images" 0
 }
 
-@test "rmi: Remove all images with the default image present" {
+@test "rmi: '--all' with the default image" {
   num_of_images=$(list_images)
   assert_equal "$num_of_images" 0
 
@@ -277,7 +277,7 @@ teardown() {
   assert_equal "$num_of_images" 0
 }
 
-@test "rmi: Try to remove all images with a container present and running" {
+@test "rmi: Try '--all' with a running container" {
   skip "Bug: Fail in 'toolbox rmi' does not return non-zero value"
   num_of_images=$(list_images)
   assert_equal "$num_of_images" 0
@@ -296,7 +296,7 @@ teardown() {
   assert_equal "$new_num_of_images" "$num_of_images"
 }
 
-@test "rmi: Force remove all images with a container present and running" {
+@test "rmi: '--all --force' with a running container" {
   num_of_images=$(list_images)
   assert_equal "$num_of_images" 0
 
