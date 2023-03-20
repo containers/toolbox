@@ -29,7 +29,7 @@ teardown() {
 }
 
 
-@test "rmi: '--all' without any images" {
+@test "rmi: --all without any images" {
   local num_of_images
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 0
@@ -49,7 +49,7 @@ teardown() {
   assert_equal "$num_of_images" 0
 }
 
-@test "rmi: '--all' with the default image" {
+@test "rmi: --all with the default image" {
   num_of_images=$(list_images)
   assert_equal "$num_of_images" 0
 
@@ -93,7 +93,7 @@ teardown() {
   assert_equal "$num_of_images" 0
 }
 
-@test "rmi: '--all' with an image without a name" {
+@test "rmi: --all with an image without a name" {
   local num_of_images
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 0
@@ -277,7 +277,7 @@ teardown() {
   assert_equal "$num_of_images" 0
 }
 
-@test "rmi: Try '--all' with a running container" {
+@test "rmi: Try --all with a running container" {
   skip "Bug: Fail in 'toolbox rmi' does not return non-zero value"
   num_of_images=$(list_images)
   assert_equal "$num_of_images" 0
