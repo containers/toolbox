@@ -29,7 +29,7 @@ teardown() {
 }
 
 
-@test "create: Create the default container" {
+@test "create: Smoke test" {
   pull_default_image
 
   run $TOOLBOX --assumeyes create
@@ -37,7 +37,7 @@ teardown() {
   assert_success
 }
 
-@test "create: Create a container with a valid custom name ('custom-containerName')" {
+@test "create: With a custom name (using option --container)" {
   pull_default_image
 
   run $TOOLBOX --assumeyes create --container "custom-containerName"
@@ -45,7 +45,7 @@ teardown() {
   assert_success
 }
 
-@test "create: Create a container with a custom image and name ('fedora34'; f34)" {
+@test "create: With a custom image and name (using option --container)" {
   pull_distro_image fedora 34
 
   run $TOOLBOX --assumeyes create --container "fedora34" --image fedora-toolbox:34
@@ -53,7 +53,7 @@ teardown() {
   assert_success
 }
 
-@test "create: Try to create a container with invalid custom name ('ßpeci@l.N@m€'; using positional argument)" {
+@test "create: Try with an invalid custom name (using positional argument)" {
   run $TOOLBOX --assumeyes create "ßpeci@l.N@m€"
 
   assert_failure
@@ -62,7 +62,7 @@ teardown() {
   assert_line --index 2 "Run 'toolbox --help' for usage."
 }
 
-@test "create: Try to create a container with invalid custom name ('ßpeci@l.N@m€'; using option --container)" {
+@test "create: Try with an invalid custom name (using option --container)" {
   run $TOOLBOX --assumeyes create --container "ßpeci@l.N@m€"
 
   assert_failure
@@ -71,7 +71,7 @@ teardown() {
   assert_line --index 2 "Run 'toolbox --help' for usage."
 }
 
-@test "create: Try to create a container with invalid custom image ('ßpeci@l.N@m€')" {
+@test "create: Try with an invalid custom image" {
   local image="ßpeci@l.N@m€"
 
   run $TOOLBOX create --image "$image"
@@ -84,7 +84,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 4 ]
 }
 
-@test "create: Create a container with a distro and release options ('fedora'; f34)" {
+@test "create: Fedora 34" {
   pull_distro_image fedora 34
 
   run $TOOLBOX --assumeyes create --distro "fedora" --release f34
@@ -99,7 +99,7 @@ teardown() {
   assert_output --regexp "Created[[:blank:]]+fedora-toolbox-34"
 }
 
-@test "create: Try to create a container based on unsupported distribution" {
+@test "create: Try an unsupported distribution" {
   local distro="foo"
 
   run $TOOLBOX --assumeyes create --distro "$distro"
@@ -111,7 +111,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try to create a container based on non-existent image" {
+@test "create: Try a non-existent image" {
   run $TOOLBOX --assumeyes create --image foo.org/bar
 
   assert_failure
@@ -120,7 +120,7 @@ teardown() {
   assert_line --index 2 "Use 'toolbox --verbose ...' for further details."
 }
 
-@test "create: Try '--distro fedora --release -3'" {
+@test "create: Try Fedora with an invalid release ('--release -3')" {
   run $TOOLBOX --assumeyes create --distro fedora --release -3
 
   assert_failure
@@ -130,7 +130,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro fedora --release -3.0'" {
+@test "create: Try Fedora with an invalid release ('--release -3.0')" {
   run $TOOLBOX --assumeyes create --distro fedora --release -3.0
 
   assert_failure
@@ -140,7 +140,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro fedora --release -3.1'" {
+@test "create: Try Fedora with an invalid release ('--release -3.1')" {
   run $TOOLBOX --assumeyes create --distro fedora --release -3.1
 
   assert_failure
@@ -150,7 +150,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro fedora --release 0'" {
+@test "create: Try Fedora with an invalid release ('--release 0')" {
   run $TOOLBOX --assumeyes create --distro fedora --release 0
 
   assert_failure
@@ -160,7 +160,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro fedora --release 0.0'" {
+@test "create: Try Fedora with an invalid release ('--release 0.0')" {
   run $TOOLBOX --assumeyes create --distro fedora --release 0.0
 
   assert_failure
@@ -170,7 +170,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro fedora --release 0.1'" {
+@test "create: Try Fedora with an invalid release ('--release 0.1')" {
   run $TOOLBOX --assumeyes create --distro fedora --release 0.1
 
   assert_failure
@@ -180,7 +180,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro fedora --release 3.0'" {
+@test "create: Try Fedora with an invalid release ('--release 3.0')" {
   run $TOOLBOX --assumeyes create --distro fedora --release 3.0
 
   assert_failure
@@ -190,7 +190,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro fedora --release 3.1'" {
+@test "create: Try Fedora with an invalid release ('--release 3.1')" {
   run $TOOLBOX --assumeyes create --distro fedora --release 3.1
 
   assert_failure
@@ -200,7 +200,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro fedora --release foo'" {
+@test "create: Try Fedora with an invalid release ('--release foo')" {
   run $TOOLBOX --assumeyes create --distro fedora --release foo
 
   assert_failure
@@ -210,7 +210,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro fedora --release 3foo'" {
+@test "create: Try Fedora with an invalid release ('--release 3foo')" {
   run $TOOLBOX --assumeyes create --distro fedora --release 3foo
 
   assert_failure
@@ -220,7 +220,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro rhel --release 8'" {
+@test "create: Try RHEL with an invalid release ('--release 8')" {
   run $TOOLBOX --assumeyes create --distro rhel --release 8
 
   assert_failure
@@ -230,7 +230,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro rhel --release 8.0.0'" {
+@test "create: Try RHEL with an invalid release ('--release 8.0.0')" {
   run $TOOLBOX --assumeyes create --distro rhel --release 8.0.0
 
   assert_failure
@@ -240,7 +240,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro rhel --release 8.0.1'" {
+@test "create: Try RHEL with an invalid release ('--release 8.0.1')" {
   run $TOOLBOX --assumeyes create --distro rhel --release 8.0.1
 
   assert_failure
@@ -250,7 +250,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro rhel --release 8.3.0'" {
+@test "create: Try RHEL with an invalid release ('--release 8.3.0')" {
   run $TOOLBOX --assumeyes create --distro rhel --release 8.3.0
 
   assert_failure
@@ -260,7 +260,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro rhel --release 8.3.1'" {
+@test "create: Try RHEL with an invalid release ('--release 8.3.1')" {
   run $TOOLBOX --assumeyes create --distro rhel --release 8.3.1
 
   assert_failure
@@ -270,7 +270,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro rhel --release foo'" {
+@test "create: Try RHEL with an invalid release ('--release foo')" {
   run $TOOLBOX --assumeyes create --distro rhel --release foo
 
   assert_failure
@@ -280,7 +280,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro rhel --release 8.2foo'" {
+@test "create: Try RHEL with an invalid release ('--release 8.2foo')" {
   run $TOOLBOX --assumeyes create --distro rhel --release 8.2foo
 
   assert_failure
@@ -290,7 +290,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro rhel --release -2.1'" {
+@test "create: Try RHEL with an invalid release ('--release -2.1')" {
   run $TOOLBOX --assumeyes create --distro rhel --release -2.1
 
   assert_failure
@@ -300,7 +300,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro rhel --release -2.-1'" {
+@test "create: Try RHEL with an invalid release ('--release -2.-1')" {
   run $TOOLBOX --assumeyes create --distro rhel --release -2.-1
 
   assert_failure
@@ -310,7 +310,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try '--distro rhel --release 2.-1'" {
+@test "create: Try RHEL with an invalid release ('--release 2.-1')" {
   run $TOOLBOX --assumeyes create --distro rhel --release 2.-1
 
   assert_failure
@@ -320,7 +320,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try to create a container based on non-default distribution without providing version" {
+@test "create: Try a non-default distro without a release" {
   local distro="fedora"
   local system_id="$(get_system_id)"
 
@@ -337,7 +337,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Try to create a container using both --distro and --image" {
+@test "create: Try using both --distro and --image" {
   pull_distro_image fedora 34
 
   run $TOOLBOX --assumeyes create --distro "fedora" --image fedora-toolbox:34
@@ -348,7 +348,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 2 ]
 }
 
-@test "create: Try to create a container using both --image and --release" {
+@test "create: Try using both --image and --release" {
   pull_distro_image fedora 34
 
   run $TOOLBOX --assumeyes create --image fedora-toolbox:34 --release 34
@@ -359,7 +359,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 2 ]
 }
 
-@test "create: Try to create a container and pass a non-existent file to the --authfile option" {
+@test "create: Try a non-existent authentication file" {
   local file="$BATS_RUN_TMPDIR/non-existent-file"
 
   run $TOOLBOX create --authfile "$file"
@@ -371,7 +371,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
-@test "create: Create a container based on an image from locked registry using an authentication file" {
+@test "create: With a custom image that needs an authentication file" {
   local authfile="$BATS_RUN_TMPDIR/authfile"
   local image="fedora-toolbox:34"
 
