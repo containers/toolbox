@@ -31,24 +31,27 @@ teardown() {
 
 
 @test "list: Smoke test" {
-  run --keep-empty-lines $TOOLBOX list
+  run --keep-empty-lines --separate-stderr $TOOLBOX list
 
   assert_success
-  assert_output ""
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
 @test "list: Smoke test (using --containers)" {
-  run --keep-empty-lines $TOOLBOX list --containers
+  run --keep-empty-lines --separate-stderr $TOOLBOX list --containers
 
   assert_success
-  assert_output ""
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
 @test "list: Smoke test (using --images)" {
-  run --keep-empty-lines $TOOLBOX list --images
+  run --keep-empty-lines --separate-stderr $TOOLBOX list --images
 
   assert_success
-  assert_output ""
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
 @test "list: With just one non-Toolbx image" {
@@ -58,10 +61,11 @@ teardown() {
 
   assert_output --partial "$BUSYBOX_IMAGE"
 
-  run --keep-empty-lines $TOOLBOX list
+  run --keep-empty-lines --separate-stderr $TOOLBOX list
 
   assert_success
-  assert_output ""
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
 @test "list: An image without a name" {
