@@ -140,7 +140,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "list: Images with and without names" {
+@test "list: Images with and without names (using --images)" {
   local default_image
   default_image="$(get_default_image)"
 
