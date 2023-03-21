@@ -57,9 +57,9 @@ teardown() {
 @test "list: With just one non-Toolbx image" {
   pull_distro_image busybox
 
-  run podman images
-
-  assert_output --partial "$BUSYBOX_IMAGE"
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
 
   run --keep-empty-lines --separate-stderr $TOOLBOX list
 
