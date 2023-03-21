@@ -32,6 +32,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"golang.org/x/sys/unix"
 )
 
 var (
@@ -475,6 +476,68 @@ func handleFileSystemEvent(event fsnotify.Event) {
 	}
 }
 
+func parseOptions(presetFlags int, opts string) (flags int) {
+	// Based on code available on: https://github.com/moby/sys/blob/main/mount/flags_unix.go
+	// Possible flags string representation
+	var flagset = map[string]struct {
+		clear bool
+		flag  int
+	}{
+		"defaults":      {false, 0},
+		"ro":            {false, unix.MS_RDONLY},
+		"rw":            {true, unix.MS_RDONLY},
+		"suid":          {true, unix.MS_NOSUID},
+		"nosuid":        {false, unix.MS_NOSUID},
+		"dev":           {true, unix.MS_NODEV},
+		"nodev":         {false, unix.MS_NODEV},
+		"exec":          {true, unix.MS_NOEXEC},
+		"noexec":        {false, unix.MS_NOEXEC},
+		"sync":          {false, unix.MS_SYNCHRONOUS},
+		"async":         {true, unix.MS_SYNCHRONOUS},
+		"dirsync":       {false, unix.MS_DIRSYNC},
+		"remount":       {false, unix.MS_REMOUNT},
+		"mand":          {false, unix.MS_MANDLOCK},
+		"nomand":        {true, unix.MS_MANDLOCK},
+		"atime":         {true, unix.MS_NOATIME},
+		"noatime":       {false, unix.MS_NOATIME},
+		"diratime":      {true, unix.MS_NODIRATIME},
+		"nodiratime":    {false, unix.MS_NODIRATIME},
+		"bind":          {false, unix.MS_BIND},
+		"rbind":         {false, unix.MS_BIND | unix.MS_REC},
+		"unbindable":    {false, unix.MS_UNBINDABLE},
+		"runbindable":   {false, unix.MS_UNBINDABLE | unix.MS_REC},
+		"private":       {false, unix.MS_PRIVATE},
+		"rprivate":      {false, unix.MS_PRIVATE | unix.MS_REC},
+		"shared":        {false, unix.MS_SHARED},
+		"rshared":       {false, unix.MS_SHARED | unix.MS_REC},
+		"slave":         {false, unix.MS_SLAVE},
+		"rslave":        {false, unix.MS_SLAVE | unix.MS_REC},
+		"relatime":      {false, unix.MS_RELATIME},
+		"norelatime":    {true, unix.MS_RELATIME},
+		"strictatime":   {false, unix.MS_STRICTATIME},
+		"nostrictatime": {true, unix.MS_STRICTATIME},
+	}
+
+	// set initial value
+	flags = presetFlags
+
+	// parse flags options
+	for _, o := range strings.Split(opts, ",") {
+		// If the option does not exist in the flags table or the flag
+		// is not supported on the platform,
+		// then it is a data value for a specific fs type
+		if f, exist := flagset[o]; exist && f.flag != 0 {
+			if f.clear {
+				flags &= ^f.flag
+			} else {
+				flags |= f.flag
+			}
+		}
+	}
+
+	return
+}
+
 func mountBind(containerPath, source, flags string) error {
 	fi, err := os.Stat(source)
 	if err != nil {
@@ -505,18 +568,11 @@ func mountBind(containerPath, source, flags string) error {
 
 	logrus.Debugf("Binding %s to %s", containerPath, source)
 
-	args := []string{
-		"--rbind",
-	}
+	mOpts := parseOptions(unix.MS_BIND|unix.MS_REC, flags)
 
-	if flags != "" {
-		args = append(args, []string{"-o", flags}...)
-	}
-
-	args = append(args, []string{source, containerPath}...)
-
-	if err := shell.Run("mount", nil, nil, nil, args...); err != nil {
-		return fmt.Errorf("failed to bind %s to %s", containerPath, source)
+	err = unix.Mount(source, containerPath, "", uintptr(mOpts), "")
+	if err != nil {
+		return fmt.Errorf("failed to bind %s to %s: %w", containerPath, source, err)
 	}
 
 	return nil
