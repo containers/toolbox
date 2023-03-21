@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Copyright © 2019 – 2022 Red Hat, Inc.
+# Copyright © 2019 – 2023 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,15 +36,15 @@ teardown() {
   assert_output ""
 }
 
-@test "list: Run 'list -c' with zero containers (the list should be empty)" {
-  run --keep-empty-lines $TOOLBOX list -c
+@test "list: Run 'list --containers' with zero containers (the list should be empty)" {
+  run --keep-empty-lines $TOOLBOX list --containers
 
   assert_success
   assert_output ""
 }
 
-@test "list: Run 'list -i' with zero images (the list should be empty)" {
-  run --keep-empty-lines $TOOLBOX list -i
+@test "list: Run 'list --images' with zero images (the list should be empty)" {
+  run --keep-empty-lines $TOOLBOX list --images
 
   assert_success
   assert_output ""
