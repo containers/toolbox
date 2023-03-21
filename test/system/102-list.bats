@@ -82,6 +82,42 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+@test "list: Default image" {
+  local default_image
+  default_image="$(get_default_image)"
+
+  pull_default_image
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
+
+  assert_success
+  assert_line --index 1 --partial "$default_image"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Default image (using --images)" {
+  local default_image
+  default_image="$(get_default_image)"
+
+  pull_default_image
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
+
+  assert_success
+  assert_line --index 1 --partial "$default_image"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
 @test "list: An image without a name" {
   build_image_without_name >/dev/null
 
