@@ -711,20 +711,47 @@ func pullImage(image, release, authFile string) (bool, error) {
 	}
 
 	if promptForDownload {
+		imageSizeChan := make(chan string)
+		confirmationChan := make(chan bool)
+
 		fmt.Println("Image required to create toolbox container.")
 
-		var prompt string
+		prompt := fmt.Sprintf("Download %s (...)? [y/N]:", imageFull)
 
-		if imageSize, err := getImageSizeFromRegistry(imageFull); err != nil {
-			logrus.Debugf("Getting image size failed: %s", err)
-			prompt = fmt.Sprintf("Download %s? [y/N]:", imageFull)
-		} else {
-			prompt = fmt.Sprintf("Download %s (%s)? [y/N]:", imageFull, imageSize)
+		go func() {
+			shouldPullImage := askForConfirmation(prompt)
+			confirmationChan <- shouldPullImage
+		}()
+
+		// Launch a goroutine to call getImageSizeFromRegistry and send the size to the channel
+		go func() {
+			imageSize, err := getImageSizeFromRegistry(imageFull)
+			if err != nil {
+				logrus.Debugf("Getting image size failed: %s", err)
+				imageSize = ""
+			}
+			imageSizeChan <- imageSize
+		}()
+
+		var imageSize string
+		var userResponded = false
+
+		for !userResponded {
+			select {
+			case shouldPullImage = <-confirmationChan:
+				userResponded = true
+
+			case imageSize = <-imageSizeChan:
+				if imageSize != "" {
+					prompt = fmt.Sprintf("\rDownload %s (%s)? [y/N]:", imageFull, imageSize)
+				} else {
+					prompt = fmt.Sprintf("\rDownload %s? [y/N]:     ", imageFull)
+				}
+				fmt.Printf("%s", prompt)
+			}
 		}
 
-		shouldPullImage = askForConfirmation(prompt)
 	}
-
 	if !shouldPullImage {
 		return false, nil
 	}
