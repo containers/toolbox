@@ -29,28 +29,28 @@ teardown() {
 }
 
 
-@test "list: Run 'list' with zero containers and zero images (the list should be empty)" {
+@test "list: Smoke test" {
   run --keep-empty-lines $TOOLBOX list
 
   assert_success
   assert_output ""
 }
 
-@test "list: Run 'list --containers' with zero containers (the list should be empty)" {
+@test "list: Smoke test (using --containers)" {
   run --keep-empty-lines $TOOLBOX list --containers
 
   assert_success
   assert_output ""
 }
 
-@test "list: Run 'list --images' with zero images (the list should be empty)" {
+@test "list: Smoke test (using --images)" {
   run --keep-empty-lines $TOOLBOX list --images
 
   assert_success
   assert_output ""
 }
 
-@test "list: Run 'list' with zero toolbox's containers and images, but other image (the list should be empty)" {
+@test "list: With just one non-Toolbx image" {
   pull_distro_image busybox
 
   run podman images
@@ -63,7 +63,7 @@ teardown() {
   assert_output ""
 }
 
-@test "list: List an image without a name" {
+@test "list: An image without a name" {
   build_image_without_name >/dev/null
 
   run --keep-empty-lines --separate-stderr $TOOLBOX list
@@ -97,7 +97,7 @@ teardown() {
   fi
 }
 
-@test "list: Try to list images and containers (no flag) with 3 containers and 2 images (the list should have 3 images and 2 containers)" {
+@test "list: Containers and images" {
   # Pull the two images
   pull_default_image
   pull_distro_image fedora 34
