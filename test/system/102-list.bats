@@ -181,6 +181,10 @@ teardown() {
 @test "list: An image without a name" {
   build_image_without_name >/dev/null
 
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
   run --keep-empty-lines --separate-stderr $TOOLBOX list
 
   assert_success
@@ -252,6 +256,10 @@ teardown() {
   # Pull the two images
   pull_default_image
   pull_distro_image fedora 34
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 2
 
   # Create three containers
   create_default_container
