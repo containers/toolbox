@@ -246,6 +246,9 @@ teardown() {
   local default_image
   default_image="$(get_default_image)"
 
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
   # Pull the two images
   pull_default_image
   pull_distro_image fedora 34
@@ -268,7 +271,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr $TOOLBOX list --containers
 
   assert_success
-  assert_line --index 1 --partial "$(get_system_id)-toolbox-$(get_system_version)"
+  assert_line --index 1 --partial "$default_container"
   assert_line --index 2 --partial "non-default-one"
   assert_line --index 3 --partial "non-default-two"
   assert [ ${#lines[@]} -eq 5 ]
@@ -280,7 +283,7 @@ teardown() {
   assert_success
   assert_line --index 1 --partial "registry.fedoraproject.org/fedora-toolbox:34"
   assert_line --index 2 --partial "$default_image"
-  assert_line --index 5 --partial "$(get_system_id)-toolbox-$(get_system_version)"
+  assert_line --index 5 --partial "$default_container"
   assert_line --index 6 --partial "non-default-one"
   assert_line --index 7 --partial "non-default-two"
   assert [ ${#lines[@]} -eq 9 ]
