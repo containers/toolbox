@@ -148,6 +148,36 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+@test "list: RHEL 8.7 image" {
+  pull_distro_image rhel 8.7
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
+
+  assert_success
+  assert_line --index 1 --partial "registry.access.redhat.com/ubi8/toolbox:8.7"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: RHEL 8.7 image (using --images)" {
+  pull_distro_image rhel 8.7
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
+
+  assert_success
+  assert_line --index 1 --partial "registry.access.redhat.com/ubi8/toolbox:8.7"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
 @test "list: An image without a name" {
   build_image_without_name >/dev/null
 

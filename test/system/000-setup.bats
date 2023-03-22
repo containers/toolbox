@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Copyright © 2021 – 2022 Red Hat, Inc.
+# Copyright © 2021 – 2023 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ load 'libs/helpers'
     _pull_and_cache_distro_image "$system_id" "$system_version" || false
     # Cache all images that will be needed during the tests
     _pull_and_cache_distro_image fedora 34 || false
+    _pull_and_cache_distro_image rhel 8.7 || false
     _pull_and_cache_distro_image busybox || false
     # If run on Fedora Rawhide, cache 2 extra images (previous Fedora versions)
     local rawhide_res="$(awk '/rawhide/' $os_release)"
