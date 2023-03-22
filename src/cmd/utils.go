@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 – 2022 Red Hat Inc.
+ * Copyright © 2020 – 2023 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package cmd
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"os"
@@ -43,7 +44,12 @@ func askForConfirmation(prompt string) bool {
 
 		var response string
 
-		fmt.Scanf("%s", &response)
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Split(bufio.ScanLines)
+		if scanner.Scan() {
+			response = scanner.Text()
+		}
+
 		if response == "" {
 			response = "n"
 		} else {
