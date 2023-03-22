@@ -337,3 +337,72 @@ teardown() {
   assert [ ${#lines[@]} -eq 5 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
+
+@test "list: With just one non-Toolbx container and one non-Toolbx image" {
+  local busybox_image
+  busybox_image="$(get_busybox_image)"
+
+  pull_distro_image busybox
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  $PODMAN create --name busybox-container "$busybox_image"
+
+  local num_of_containers
+  num_of_containers="$(list_containers)"
+  assert_equal "$num_of_containers" 1
+
+  run --keep-empty-lines --separate-stderr $TOOLBOX list
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: With just one non-Toolbx container and one non-Toolbx image (using --containers)" {
+  local busybox_image
+  busybox_image="$(get_busybox_image)"
+
+  pull_distro_image busybox
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  $PODMAN create --name busybox-container "$busybox_image"
+
+  local num_of_containers
+  num_of_containers="$(list_containers)"
+  assert_equal "$num_of_containers" 1
+
+  run --keep-empty-lines --separate-stderr $TOOLBOX list --containers
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: With just one non-Toolbx container and one non-Toolbx image (using --images)" {
+  local busybox_image
+  busybox_image="$(get_busybox_image)"
+
+  pull_distro_image busybox
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  $PODMAN create --name busybox-container "$busybox_image"
+
+  local num_of_containers
+  num_of_containers="$(list_containers)"
+  assert_equal "$num_of_containers" 1
+
+  run --keep-empty-lines --separate-stderr $TOOLBOX list --images
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}

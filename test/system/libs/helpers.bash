@@ -259,6 +259,14 @@ function check_bats_version() {
 }
 
 
+function get_busybox_image() {
+  local image
+  image="${IMAGES[busybox]}"
+  echo "$image"
+  return 0
+}
+
+
 function get_default_image() {
   local distro
   local image
