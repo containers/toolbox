@@ -250,18 +250,6 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
-@test "run: Try Fedora with an invalid release ('--release foobar')" {
-  run --separate-stderr $TOOLBOX run --distro fedora --release foobar ls
-
-  assert_failure
-  assert [ ${#lines[@]} -eq 0 ]
-  lines=("${stderr_lines[@]}")
-  assert_line --index 0 "Error: invalid argument for '--release'"
-  assert_line --index 1 "The release must be a positive integer."
-  assert_line --index 2 "Run 'toolbox --help' for usage."
-  assert [ ${#stderr_lines[@]} -eq 3 ]
-}
-
 @test "run: Try Fedora with an invalid release ('--release -3')" {
   run --separate-stderr $TOOLBOX run --distro fedora --release -3 ls
 
@@ -274,8 +262,176 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
+@test "run: Try Fedora with an invalid release ('--release -3.0')" {
+  run --separate-stderr $TOOLBOX run --distro fedora --release -3.0 ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try Fedora with an invalid release ('--release -3.1')" {
+  run --separate-stderr $TOOLBOX run --distro fedora --release -3.1 ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try Fedora with an invalid release ('--release 0')" {
+  run --separate-stderr $TOOLBOX run --distro fedora --release 0 ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try Fedora with an invalid release ('--release 0.0')" {
+  run --separate-stderr $TOOLBOX run --distro fedora --release 0.0 ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try Fedora with an invalid release ('--release 0.1')" {
+  run --separate-stderr $TOOLBOX run --distro fedora --release 0.1 ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try Fedora with an invalid release ('--release 3.0')" {
+  run --separate-stderr $TOOLBOX run --distro fedora --release 3.0 ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try Fedora with an invalid release ('--release 3.1')" {
+  run --separate-stderr $TOOLBOX run --distro fedora --release 3.1 ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try Fedora with an invalid release ('--release foo')" {
+  run --separate-stderr $TOOLBOX run --distro fedora --release foo ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try Fedora with an invalid release ('--release 3foo')" {
+  run --separate-stderr $TOOLBOX run --distro fedora --release 3foo ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
 @test "run: Try RHEL with an invalid release ('--release 8')" {
   run --separate-stderr $TOOLBOX run --distro rhel --release 8 ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try RHEL with an invalid release ('--release 8.0.0')" {
+  run --separate-stderr $TOOLBOX run --distro rhel --release 8.0.0 ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try RHEL with an invalid release ('--release 8.0.1')" {
+  run --separate-stderr $TOOLBOX run --distro rhel --release 8.0.1 ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try RHEL with an invalid release ('--release 8.3.0')" {
+  run --separate-stderr $TOOLBOX run --distro rhel --release 8.3.0 ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try RHEL with an invalid release ('--release 8.3.1')" {
+  run --separate-stderr $TOOLBOX run --distro rhel --release 8.3.1 ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try RHEL with an invalid release ('--release foo')" {
+  run --separate-stderr $TOOLBOX run --distro rhel --release foo ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -306,6 +462,30 @@ teardown() {
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive number."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try RHEL with an invalid release ('--release -2.-1')" {
+  run --separate-stderr $TOOLBOX run --distro rhel --release -2.-1 ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try RHEL with an invalid release ('--release 2.-1')" {
+  run --separate-stderr $TOOLBOX run --distro rhel --release 2.-1 ls
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be in the '<major>.<minor>' format."
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
