@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Copyright © 2021 – 2022 Red Hat, Inc.
+# Copyright © 2021 – 2023 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -250,7 +250,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
-@test "run: Try Fedora with an invalid release" {
+@test "run: Try Fedora with an invalid release ('--release foobar')" {
   run --separate-stderr $TOOLBOX run --distro fedora --release foobar ls
 
   assert_failure
@@ -260,7 +260,9 @@ teardown() {
   assert_line --index 1 "The release must be a positive integer."
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#stderr_lines[@]} -eq 3 ]
+}
 
+@test "run: Try Fedora with an invalid release ('--release -3')" {
   run --separate-stderr $TOOLBOX run --distro fedora --release -3 ls
 
   assert_failure
@@ -272,7 +274,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
-@test "run: Try RHEL with an invalid release" {
+@test "run: Try RHEL with an invalid release ('--release 8')" {
   run --separate-stderr $TOOLBOX run --distro rhel --release 8 ls
 
   assert_failure
@@ -282,7 +284,9 @@ teardown() {
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#stderr_lines[@]} -eq 3 ]
+}
 
+@test "run: Try RHEL with an invalid release ('--release 8.2foo')" {
   run --separate-stderr $TOOLBOX run --distro rhel --release 8.2foo ls
 
   assert_failure
@@ -292,7 +296,9 @@ teardown() {
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#stderr_lines[@]} -eq 3 ]
+}
 
+@test "run: Try RHEL with an invalid release ('--release -2.1')" {
   run --separate-stderr $TOOLBOX run --distro rhel --release -2.1 ls
 
   assert_failure
