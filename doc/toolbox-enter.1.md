@@ -42,13 +42,13 @@ host.
 
 ## EXAMPLES
 
-### Enter a toolbox container using the default image matching the host OS
+### Enter the default toolbox container matching the host OS
 
 ```
 $ toolbox enter
 ```
 
-### Enter a toolbox container using the default image for Fedora 36
+### Enter the default toolbox container for Fedora 36
 
 ```
 $ toolbox enter --distro fedora --release f36

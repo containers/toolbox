@@ -85,13 +85,13 @@ $ toolbox run false; echo $?
 
 ## EXAMPLES
 
-### Run ls inside a toolbox container using the default image matching the host OS
+### Run ls inside the default toolbox container matching the host OS
 
 ```
 $ toolbox run ls -la
 ```
 
-### Run emacs inside a toolbox container using the default image for Fedora 36
+### Run emacs inside the default toolbox container for Fedora 36
 
 ```
 $ toolbox run --distro fedora --release f36 emacs
