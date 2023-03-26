@@ -98,6 +98,20 @@ teardown() {
   assert_output --regexp "Created[[:blank:]]+fedora-toolbox-34"
 }
 
+@test "create: RHEL 8.7" {
+  pull_distro_image rhel 8.7
+
+  run $TOOLBOX --assumeyes create --distro rhel --release 8.7
+
+  assert_success
+  assert_output --partial "Created container: rhel-toolbox-8.7"
+  assert_output --partial "Enter with: toolbox enter rhel-toolbox-8.7"
+
+  run podman ps -a
+
+  assert_output --regexp "Created[[:blank:]]+rhel-toolbox-8.7"
+}
+
 @test "create: Try an unsupported distribution" {
   local distro="foo"
 
