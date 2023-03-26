@@ -87,7 +87,7 @@ teardown() {
 @test "create: Fedora 34" {
   pull_distro_image fedora 34
 
-  run $TOOLBOX --assumeyes create --distro "fedora" --release f34
+  run $TOOLBOX --assumeyes create --distro fedora --release f34
 
   assert_success
   assert_output --partial "Created container: fedora-toolbox-34"
@@ -339,7 +339,7 @@ teardown() {
 @test "create: Try using both --distro and --image" {
   pull_distro_image fedora 34
 
-  run $TOOLBOX --assumeyes create --distro "fedora" --image fedora-toolbox:34
+  run $TOOLBOX --assumeyes create --distro fedora --image fedora-toolbox:34
 
   assert_failure
   assert_line --index 0 "Error: options --distro and --image cannot be used together"
