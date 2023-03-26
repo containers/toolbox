@@ -93,7 +93,6 @@ teardown() {
   assert_output --partial "Created container: fedora-toolbox-34"
   assert_output --partial "Enter with: toolbox enter fedora-toolbox-34"
 
-  # Make sure the container has actually been created
   run podman ps -a
 
   assert_output --regexp "Created[[:blank:]]+fedora-toolbox-34"
