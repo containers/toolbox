@@ -46,6 +46,16 @@ teardown() {
   assert_output ""
 }
 
+@test "run: Smoke test with Fedora 34" {
+  create_distro_container fedora 34 fedora-toolbox-34
+
+  run --separate-stderr $TOOLBOX run --distro fedora --release 34 true
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
 @test "run: Ensure that a login shell is used to invoke the command" {
   create_default_container
 
