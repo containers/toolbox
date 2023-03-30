@@ -112,13 +112,13 @@ host. Cannot be used with `--image`.
 
 ## EXAMPLES
 
-### Create a toolbox container using the default image matching the host OS
+### Create the default toolbox container matching the host OS
 
 ```
 $ toolbox create
 ```
 
-### Create a toolbox container using the default image for Fedora 36
+### Create the default toolbox container for Fedora 36
 
 ```
 $ toolbox create --distro fedora --release f36
