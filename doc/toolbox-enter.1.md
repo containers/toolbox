@@ -54,7 +54,7 @@ $ toolbox enter
 $ toolbox enter --distro fedora --release f36
 ```
 
-### Enter a custom toolbox container using a custom image
+### Enter a toolbox container with a custom name
 
 ```
 $ toolbox enter foo

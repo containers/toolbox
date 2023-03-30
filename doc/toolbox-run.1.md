@@ -97,7 +97,7 @@ $ toolbox run ls -la
 $ toolbox run --distro fedora --release f36 emacs
 ```
 
-### Run uptime inside a custom toolbox container using a custom image
+### Run uptime inside a toolbox container with a custom name
 
 ```
 $ toolbox run --container foo uptime
