@@ -27,6 +27,7 @@ RUN sed -Ei '/apt-get (update|upgrade)/s/^/#/' /usr/local/sbin/unminimize && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install \
         ubuntu-minimal ubuntu-standard \
         libnss-myhostname \
+        flatpak-xdg-utils \
         $(cat extra-packages | xargs) && \
     rm -rd /var/lib/apt/lists/*
 RUN rm /extra-packages

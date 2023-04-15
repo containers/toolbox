@@ -1,5 +1,4 @@
 curl
-flatpak-xdg-utils
 git
 gnupg2
 keyutils
