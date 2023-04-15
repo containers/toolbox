@@ -35,3 +35,6 @@ RUN sed -i '/^auth.*pam_unix.so/s/nullok_secure/try_first_pass nullok/' /etc/pam
 
 # Fix empty bind-mount to clear selinuxfs (see #337)
 RUN mkdir /usr/share/empty
+
+# Disable APT ESM hook which tries to enable some systemd services on each apt invocation
+RUN rm /etc/apt/apt.conf.d/20apt-esm-hook.conf

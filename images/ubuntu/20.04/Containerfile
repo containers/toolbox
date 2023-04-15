@@ -40,3 +40,6 @@ RUN mkdir /usr/share/empty
 
 # Add flatpak-spawn to /usr/bin
 RUN ln -s /usr/libexec/flatpak-xdg-utils/flatpak-spawn /usr/bin/
+
+# Disable APT ESM hook which tries to enable some systemd services on each apt invocation
+RUN rm /etc/apt/apt.conf.d/20apt-esm-hook.conf
