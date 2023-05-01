@@ -27,7 +27,8 @@ if [ -f /run/ostree-booted ] \
    && [ "${ID}" = "fedora" ] \
    && { [ "${VARIANT_ID}" = "workstation" ] \
         || [ "${VARIANT_ID}" = "silverblue" ] \
-        || [ "${VARIANT_ID}" = "kinoite" ]; }; then
+        || [ "${VARIANT_ID}" = "kinoite" ] \
+        || [ "${VARIANT_ID}" = "sericea" ]; }; then
     echo ""
     echo "Welcome to ${PRETTY_NAME:-Linux}."
     echo ""
