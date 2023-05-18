@@ -22,7 +22,8 @@ Running them won't remove any existing containers or images.
 These tests use a few standard libraries for `bats` which help with clarity
 and consistency. The libraries are [bats-support](https://github.com/bats-core/bats-support)
 and [bats-assert](https://github.com/bats-core/bats-assert). These libraries are
-provided as git submodules in the `libs` directory. Make sure both are present.
+provided as git submodules in the `libs` directory. Make sure both are present
+by running `git submodule init` and `git submodule update`.
 
 ## How to run the tests
 

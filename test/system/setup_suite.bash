@@ -15,11 +15,23 @@
 # limitations under the License.
 #
 
-load 'libs/helpers'
+missing_dependencies=false
+
+if [ -f test/system/libs/bats-assert/load.bash ] && [ -f test/system/libs/bats-support/load.bash ]; then
+  load 'libs/helpers'
+else
+  missing_dependencies=true
+fi
 
 setup_suite() {
   bats_require_minimum_version 1.7.0
   echo "# test suite: Set up" >&3
+
+  if $missing_dependencies; then
+    echo "# Missing dependencies" >&3
+    echo "# Forgot to run 'git submodule init' and 'git submodule update' ?" >&3
+    return 1
+  fi
 
   local os_release="$(find_os_release)"
   local system_id="$(get_system_id)"
@@ -49,6 +61,10 @@ setup_suite() {
 teardown_suite() {
   bats_require_minimum_version 1.7.0
   echo "# test suite: Tear down" >&3
+
+  if $missing_dependencies; then
+    return 0
+  fi
 
   _setup_environment
 
