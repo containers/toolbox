@@ -246,7 +246,7 @@ teardown() {
   create_default_container
 
   pushd /etc/kernel
-  run --separate-stderr $TOOLBOX run pwd
+  run -127 --separate-stderr $TOOLBOX run pwd
   popd
 
   assert_success

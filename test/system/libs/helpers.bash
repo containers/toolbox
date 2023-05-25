@@ -64,7 +64,6 @@ function _clean_temporary_storage() {
   rm --force --recursive ${TEMP_STORAGE_DIR}
 }
 
-
 # Pulls an image using Podman and saves it to a image dir using Skopeo
 #
 # Parameters
