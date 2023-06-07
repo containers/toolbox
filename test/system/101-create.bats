@@ -84,6 +84,48 @@ teardown() {
   assert [ ${#lines[@]} -eq 4 ]
 }
 
+@test "create: Arch Linux" {
+  pull_distro_image arch latest
+
+  run $TOOLBOX --assumeyes create --distro arch
+
+  assert_success
+  assert_output --partial "Created container: arch-toolbox-latest"
+  assert_output --partial "Enter with: toolbox enter arch-toolbox-latest"
+
+  run podman ps -a
+
+  assert_output --regexp "Created[[:blank:]]+arch-toolbox-latest"
+}
+
+@test "create: Arch Linux ('--release latest')" {
+  pull_distro_image arch latest
+
+  run $TOOLBOX --assumeyes create --distro arch --release latest
+
+  assert_success
+  assert_output --partial "Created container: arch-toolbox-latest"
+  assert_output --partial "Enter with: toolbox enter arch-toolbox-latest"
+
+  run podman ps -a
+
+  assert_output --regexp "Created[[:blank:]]+arch-toolbox-latest"
+}
+
+@test "create: Arch Linux ('--release rolling')" {
+  pull_distro_image arch latest
+
+  run $TOOLBOX --assumeyes create --distro arch --release rolling
+
+  assert_success
+  assert_output --partial "Created container: arch-toolbox-latest"
+  assert_output --partial "Enter with: toolbox enter arch-toolbox-latest"
+
+  run podman ps -a
+
+  assert_output --regexp "Created[[:blank:]]+arch-toolbox-latest"
+}
+
 @test "create: Fedora 34" {
   pull_distro_image fedora 34
 
@@ -176,6 +218,16 @@ teardown() {
   assert_line --index 0 "Error: failed to pull image foo.org/bar"
   assert_line --index 1 "If it was a private image, log in with: podman login foo.org"
   assert_line --index 2 "Use 'toolbox --verbose ...' for further details."
+}
+
+@test "create: Try Arch Linux with an invalid release ('--release foo')" {
+  run $TOOLBOX --assumeyes create --distro arch --release foo
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be 'latest'."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
 }
 
 @test "create: Try Fedora with an invalid release ('--release -3')" {

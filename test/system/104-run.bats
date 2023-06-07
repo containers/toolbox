@@ -46,6 +46,36 @@ teardown() {
   assert_output ""
 }
 
+@test "run: Smoke test with Arch Linux" {
+  create_distro_container arch latest arch-toolbox-latest
+
+  run --separate-stderr $TOOLBOX run --distro arch true
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "run: Smoke test with Arch Linux ('--release latest')" {
+  create_distro_container arch latest arch-toolbox-latest
+
+  run --separate-stderr $TOOLBOX run --distro arch --release latest true
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "run: Smoke test with Arch Linux ('--release rolling')" {
+  create_distro_container arch latest arch-toolbox-latest
+
+  run --separate-stderr $TOOLBOX run --distro arch --release rolling true
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
 @test "run: Smoke test with Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
 
