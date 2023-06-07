@@ -829,7 +829,7 @@ func ResolveContainerAndImageNames(container, distroCLI, imageCLI, releaseCLI st
 		}
 	}
 
-	if _, ok := supportedDistros[distro]; !ok {
+	if _, supportedDistro := supportedDistros[distro]; !supportedDistro {
 		return "", "", "", &DistroError{distro, ErrDistroUnsupported}
 	}
 
