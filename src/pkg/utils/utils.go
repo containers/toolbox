@@ -39,12 +39,14 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+type GetDefaultReleaseFunc func() (string, error)
 type GetFullyQualifiedImageFunc func(string, string) string
 type ParseReleaseFunc func(string) (string, error)
 
 type Distro struct {
 	ContainerNamePrefix    string
 	ImageBasename          string
+	GetDefaultRelease      GetDefaultReleaseFunc
 	GetFullyQualifiedImage GetFullyQualifiedImageFunc
 	ParseRelease           ParseReleaseFunc
 }
@@ -100,18 +102,21 @@ var (
 		"fedora": {
 			"fedora-toolbox",
 			"fedora-toolbox",
+			getDefaultReleaseFedora,
 			getFullyQualifiedImageFedora,
 			parseReleaseFedora,
 		},
 		"rhel": {
 			"rhel-toolbox",
 			"toolbox",
+			getDefaultReleaseRHEL,
 			getFullyQualifiedImageRHEL,
 			parseReleaseRHEL,
 		},
 		"ubuntu": {
 			"ubuntu-toolbox",
 			"ubuntu-toolbox",
+			getDefaultReleaseUbuntu,
 			getFullyQualifiedImageUbuntu,
 			parseReleaseUbuntu,
 		},
@@ -140,7 +145,7 @@ func init() {
 	hostID, err := GetHostID()
 	if err == nil {
 		if distroObj, supportedDistro := supportedDistros[hostID]; supportedDistro {
-			release, err := getHostVersionID()
+			release, err := getDefaultReleaseForDistro(hostID)
 			if err == nil {
 				containerNamePrefixDefault = distroObj.ContainerNamePrefix
 				distroDefault = hostID
@@ -271,6 +276,52 @@ func getDefaultImageForDistro(distro, release string) string {
 
 	image := distroObj.ImageBasename + ":" + release
 	return image
+}
+
+func getDefaultReleaseForDistro(distro string) (string, error) {
+	if distro == "" {
+		panic("distro not specified")
+	}
+
+	distroObj, supportedDistro := supportedDistros[distro]
+	if !supportedDistro {
+		panicMsg := fmt.Sprintf("failed to find %s in the list of supported distributions", distro)
+		panic(panicMsg)
+	}
+
+	release, err := distroObj.GetDefaultRelease()
+	if err != nil {
+		return "", err
+	}
+
+	return release, nil
+}
+
+func getDefaultReleaseFedora() (string, error) {
+	release, err := getHostVersionID()
+	if err != nil {
+		return "", err
+	}
+
+	return release, nil
+}
+
+func getDefaultReleaseRHEL() (string, error) {
+	release, err := getHostVersionID()
+	if err != nil {
+		return "", err
+	}
+
+	return release, nil
+}
+
+func getDefaultReleaseUbuntu() (string, error) {
+	release, err := getHostVersionID()
+	if err != nil {
+		return "", err
+	}
+
+	return release, nil
 }
 
 func GetEnvOptionsForPreservedVariables() []string {
