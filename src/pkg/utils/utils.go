@@ -46,10 +46,19 @@ type ParseReleaseFunc func(string) (string, error)
 type Distro struct {
 	ContainerNamePrefix    string
 	ImageBasename          string
+	ReleaseRequired        bool
 	GetDefaultRelease      GetDefaultReleaseFunc
 	GetFullyQualifiedImage GetFullyQualifiedImageFunc
 	ParseRelease           ParseReleaseFunc
 }
+
+type OptionValueSource int
+
+const (
+	optionValueDefault OptionValueSource = iota
+	optionValueConfigFile
+	optionValueCLI
+)
 
 const (
 	containerNamePrefixFallback = "fedora-toolbox"
@@ -102,6 +111,7 @@ var (
 		"fedora": {
 			"fedora-toolbox",
 			"fedora-toolbox",
+			true,
 			getDefaultReleaseFedora,
 			getFullyQualifiedImageFedora,
 			parseReleaseFedora,
@@ -109,6 +119,7 @@ var (
 		"rhel": {
 			"rhel-toolbox",
 			"toolbox",
+			true,
 			getDefaultReleaseRHEL,
 			getFullyQualifiedImageRHEL,
 			parseReleaseRHEL,
@@ -116,6 +127,7 @@ var (
 		"ubuntu": {
 			"ubuntu-toolbox",
 			"ubuntu-toolbox",
+			true,
 			getDefaultReleaseUbuntu,
 			getFullyQualifiedImageUbuntu,
 			parseReleaseUbuntu,
@@ -820,27 +832,57 @@ func ResolveContainerAndImageNames(container, distroCLI, imageCLI, releaseCLI st
 	logrus.Debugf("Image (CLI): '%s'", imageCLI)
 	logrus.Debugf("Release (CLI): '%s'", releaseCLI)
 
-	distro, image, release := distroCLI, imageCLI, releaseCLI
+	distro, distroSource := distroCLI, optionValueCLI
+	image, release := imageCLI, releaseCLI
 
 	if distroCLI == "" {
-		distro = distroDefault
+		distro, distroSource = distroDefault, optionValueDefault
 		if viper.IsSet("general.distro") {
-			distro = viper.GetString("general.distro")
+			distro, distroSource = viper.GetString("general.distro"), optionValueConfigFile
 		}
 	}
 
-	if _, supportedDistro := supportedDistros[distro]; !supportedDistro {
+	distroObj, supportedDistro := supportedDistros[distro]
+	if !supportedDistro {
 		return "", "", "", &DistroError{distro, ErrDistroUnsupported}
 	}
 
-	if distro != distroDefault && releaseCLI == "" && !viper.IsSet("general.release") {
-		return "", "", "", &DistroError{distro, ErrDistroWithoutRelease}
-	}
+	if distro == distroDefault {
+		if releaseCLI == "" {
+			release = releaseDefault
+			if viper.IsSet("general.release") {
+				release = viper.GetString("general.release")
+			}
+		}
+	} else {
+		if distroObj.ReleaseRequired {
+			if releaseCLI == "" && !viper.IsSet("general.release") {
+				return "", "", "", &DistroError{distro, ErrDistroWithoutRelease}
+			}
 
-	if releaseCLI == "" {
-		release = releaseDefault
-		if viper.IsSet("general.release") {
-			release = viper.GetString("general.release")
+			if releaseCLI == "" {
+				release = viper.GetString("general.release")
+			}
+
+			if release == "" {
+				panicMsg := fmt.Sprintf("cannot find release for non-default distribution %s", distro)
+				panic(panicMsg)
+			}
+		} else {
+			switch distroSource {
+			case optionValueCLI:
+				// 'release' already set to 'releaseCLI'
+			case optionValueConfigFile:
+				if releaseCLI == "" {
+					if viper.IsSet("general.release") {
+						release = viper.GetString("general.release")
+					}
+				}
+			case optionValueDefault:
+				panic("distro must be non-default")
+			default:
+				panic("cannot handle new OptionValueSource")
+			}
 		}
 	}
 
