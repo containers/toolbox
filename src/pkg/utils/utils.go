@@ -140,7 +140,7 @@ func init() {
 	hostID, err := GetHostID()
 	if err == nil {
 		if distroObj, supportedDistro := supportedDistros[hostID]; supportedDistro {
-			release, err := GetHostVersionID()
+			release, err := getHostVersionID()
 			if err == nil {
 				containerNamePrefixDefault = distroObj.ContainerNamePrefix
 				distroDefault = hostID
@@ -399,11 +399,11 @@ func GetHostVariantID() (string, error) {
 	return osRelease["VARIANT_ID"], nil
 }
 
-// GetHostVersionID returns the VERSION_ID from the os-release files
+// getHostVersionID returns the VERSION_ID from the os-release files
 //
 // Examples:
 // - host is Fedora 32, returned string is '32'
-func GetHostVersionID() (string, error) {
+func getHostVersionID() (string, error) {
 	osRelease, err := osrelease.Read()
 	if err != nil {
 		return "", err
