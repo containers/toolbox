@@ -1,4 +1,6 @@
 *    @HarryMichal @debarshiray
+/.github/workflows/arch-images.yaml       @Foxboron
+/.github/workflows/arch-images-pr.yaml    @Foxboron
 /data/gfx/*.gif    @jimmac
 /images/arch       @Foxboron
 /images/rhel       @debarshiray @olivergs
