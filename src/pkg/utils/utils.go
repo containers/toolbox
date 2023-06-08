@@ -351,7 +351,7 @@ func getFullyQualifiedImageRHEL(image, release string) string {
 }
 
 func getFullyQualifiedImageUbuntu(image, release string) string {
-	imageFull := "quay.io/toolbx-images/" + image
+	imageFull := "quay.io/toolbx/" + image
 	return imageFull
 }
 

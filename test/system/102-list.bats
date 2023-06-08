@@ -188,7 +188,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list
 
   assert_success
-  assert_line --index 1 --partial "quay.io/toolbx-images/ubuntu-toolbox:16.04"
+  assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:16.04"
   assert [ ${#lines[@]} -eq 3 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
@@ -203,7 +203,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
 
   assert_success
-  assert_line --index 1 --partial "quay.io/toolbx-images/ubuntu-toolbox:16.04"
+  assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:16.04"
   assert [ ${#lines[@]} -eq 3 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
@@ -218,7 +218,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list
 
   assert_success
-  assert_line --index 1 --partial "quay.io/toolbx-images/ubuntu-toolbox:18.04"
+  assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:18.04"
   assert [ ${#lines[@]} -eq 3 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
@@ -233,7 +233,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
 
   assert_success
-  assert_line --index 1 --partial "quay.io/toolbx-images/ubuntu-toolbox:18.04"
+  assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:18.04"
   assert [ ${#lines[@]} -eq 3 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
@@ -248,7 +248,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list
 
   assert_success
-  assert_line --index 1 --partial "quay.io/toolbx-images/ubuntu-toolbox:20.04"
+  assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:20.04"
   assert [ ${#lines[@]} -eq 3 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
@@ -263,7 +263,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
 
   assert_success
-  assert_line --index 1 --partial "quay.io/toolbx-images/ubuntu-toolbox:20.04"
+  assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:20.04"
   assert [ ${#lines[@]} -eq 3 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
