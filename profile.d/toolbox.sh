@@ -25,7 +25,9 @@ eval $(
 if [ -f /run/ostree-booted ] \
    && ! [ -f "$host_welcome_stub" ] \
    && [ "${ID}" = "fedora" ] \
-   && { [ "${VARIANT_ID}" = "workstation" ] || [ "${VARIANT_ID}" = "silverblue" ] || [ "${VARIANT_ID}" = "kinoite" ]; }; then
+   && { [ "${VARIANT_ID}" = "workstation" ] \
+        || [ "${VARIANT_ID}" = "silverblue" ] \
+        || [ "${VARIANT_ID}" = "kinoite" ]; }; then
     echo ""
     echo "Welcome to ${PRETTY_NAME:-Linux}."
     echo ""
