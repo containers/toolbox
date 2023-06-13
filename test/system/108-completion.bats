@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 #
-# Copyright © 2022 Red Hat, Inc.
+# Copyright © 2023 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ load 'libs/bats-assert/load'
 load 'libs/helpers'
 
 setup() {
+  bats_require_minimum_version 1.7.0
   _setup_environment
 }
 
