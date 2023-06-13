@@ -20,6 +20,7 @@ load 'libs/bats-assert/load'
 load 'libs/helpers'
 
 setup() {
+  bats_require_minimum_version 1.7.0
   _setup_environment
   cleanup_all
 }
@@ -37,13 +38,8 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi --all
 
   assert_success
-  assert_output ""
-  output="$stderr"
-  assert_output ""
-  if check_bats_version 1.7.0; then
-    assert [ ${#lines[@]} -eq 0 ]
-    assert [ ${#stderr_lines[@]} -eq 0 ]
-  fi
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 0
@@ -81,13 +77,8 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image"
 
   assert_success
-  assert_output ""
-  output="$stderr"
-  assert_output ""
-  if check_bats_version 1.7.0; then
-    assert [ ${#lines[@]} -eq 0 ]
-    assert [ ${#stderr_lines[@]} -eq 0 ]
-  fi
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 0
@@ -106,13 +97,8 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi --all
 
   assert_success
-  assert_output ""
-  output="$stderr"
-  assert_output ""
-  if check_bats_version 1.7.0; then
-    assert [ ${#lines[@]} -eq 0 ]
-    assert [ ${#stderr_lines[@]} -eq 0 ]
-  fi
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 0
@@ -131,13 +117,8 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$image"
 
   assert_success
-  assert_output ""
-  output="$stderr"
-  assert_output ""
-  if check_bats_version 1.7.0; then
-    assert [ ${#lines[@]} -eq 0 ]
-    assert [ ${#stderr_lines[@]} -eq 0 ]
-  fi
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 0
@@ -159,24 +140,14 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image"
 
   assert_success
-  assert_output ""
-  output="$stderr"
-  assert_output ""
-  if check_bats_version 1.7.0; then
-    assert [ ${#lines[@]} -eq 0 ]
-    assert [ ${#stderr_lines[@]} -eq 0 ]
-  fi
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image-copy"
 
   assert_success
-  assert_output ""
-  output="$stderr"
-  assert_output ""
-  if check_bats_version 1.7.0; then
-    assert [ ${#lines[@]} -eq 0 ]
-    assert [ ${#stderr_lines[@]} -eq 0 ]
-  fi
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 0
@@ -198,24 +169,14 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image-copy"
 
   assert_success
-  assert_output ""
-  output="$stderr"
-  assert_output ""
-  if check_bats_version 1.7.0; then
-    assert [ ${#lines[@]} -eq 0 ]
-    assert [ ${#stderr_lines[@]} -eq 0 ]
-  fi
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image"
 
   assert_success
-  assert_output ""
-  output="$stderr"
-  assert_output ""
-  if check_bats_version 1.7.0; then
-    assert [ ${#lines[@]} -eq 0 ]
-    assert [ ${#stderr_lines[@]} -eq 0 ]
-  fi
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 0
@@ -237,13 +198,8 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image" "$default_image-copy"
 
   assert_success
-  assert_output ""
-  output="$stderr"
-  assert_output ""
-  if check_bats_version 1.7.0; then
-    assert [ ${#lines[@]} -eq 0 ]
-    assert [ ${#stderr_lines[@]} -eq 0 ]
-  fi
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 0
@@ -265,13 +221,8 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image-copy" "$default_image"
 
   assert_success
-  assert_output ""
-  output="$stderr"
-  assert_output ""
-  if check_bats_version 1.7.0; then
-    assert [ ${#lines[@]} -eq 0 ]
-    assert [ ${#stderr_lines[@]} -eq 0 ]
-  fi
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 0
