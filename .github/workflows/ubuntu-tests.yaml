@@ -1,0 +1,146 @@
+#
+# Copyright © 2023 Red Hat, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: ubuntu-tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  ubuntu-jammy-tests:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: containers/toolbox
+          submodules: true
+
+      - name: Install deb packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install \
+            apache2-utils \
+            bash-completion \
+            codespell \
+            fish \
+            gcc \
+            go-md2man \
+            golang \
+            meson \
+            ninja-build \
+            openssl \
+            podman \
+            shellcheck \
+            skopeo \
+            systemd \
+            udisks2
+
+      - name: Checkout Bats
+        uses: actions/checkout@v3
+        with:
+          path: bats-core/bats-core
+          ref: v1.9.0
+          repository: bats-core/bats-core.git
+          submodules: true
+
+      - name: Install deb packages for Bats
+        run: |
+          sudo apt-get update
+          sudo apt-get install \
+            bash \
+            parallel
+
+      - name: Install Bats
+        run: sudo ./install.sh /usr/local
+        working-directory: bats-core/bats-core
+
+      - name: Checkout shadow
+        uses: actions/checkout@v3
+        with:
+          path: shadow-maint/shadow
+          ref: 4.13
+          repository: shadow-maint/shadow.git
+          submodules: true
+
+      - name: Install deb packages for shadow
+        run: |
+          sudo apt-get update
+          sudo apt-get install \
+            autoconf \
+            autopoint \
+            gettext \
+            libaudit-dev \
+            libcrypt-dev \
+            libpam0g-dev \
+            libselinux1-dev \
+            libsemanage-dev
+
+      - name: Set up build directory for shadow
+        run: |
+          autoreconf --force --install --verbose
+          ./configure \
+            --disable-account-tools-setuid \
+            --disable-silent-rules \
+            --with-audit \
+            --with-libpam \
+            --with-selinux \
+            --with-yescrypt \
+            --without-acl \
+            --without-attr \
+            --without-su \
+            --without-tcb \
+            SHELL=/bin/sh
+        working-directory: shadow-maint/shadow
+
+      - name: Build shadow
+        run: make
+        working-directory: shadow-maint/shadow
+
+      - name: Install shadow
+        run: sudo make install
+        working-directory: shadow-maint/shadow
+
+      - name: Download Go modules
+        run: go mod download -x
+        working-directory: containers/toolbox/src
+
+      - name: Set up build directory
+        run: meson setup --fatal-meson-warnings builddir
+        working-directory: containers/toolbox
+
+      - name: Build
+        run: meson compile -C builddir --verbose
+        working-directory: containers/toolbox
+
+      - name: Install
+        run: sudo meson install -C builddir
+        working-directory: containers/toolbox
+
+      - name: Unit tests
+        run: meson test -C builddir --verbose
+        working-directory: containers/toolbox
+
+      - name: System tests
+        run: bats --timing test/system/001-version.bats test/system/002-help.bats test/system/108-completion.bats
+        env:
+          TOOLBOX: /usr/local/bin/toolbox
+        working-directory: containers/toolbox
