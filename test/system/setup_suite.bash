@@ -17,7 +17,10 @@
 
 load 'libs/helpers'
 
-@test "test suite: Set up" {
+setup_suite() {
+  bats_require_minimum_version 1.7.0
+  echo "# test suite: Set up" >&3
+
   local os_release="$(find_os_release)"
   local system_id="$(get_system_id)"
   local system_version="$(get_system_version)"
@@ -41,4 +44,15 @@ load 'libs/helpers'
   fi
 
   _setup_docker_registry
+}
+
+teardown_suite() {
+  bats_require_minimum_version 1.7.0
+  echo "# test suite: Tear down" >&3
+
+  _setup_environment
+
+  _clean_cached_images
+  _clean_docker_registry
+  _clean_temporary_storage
 }
