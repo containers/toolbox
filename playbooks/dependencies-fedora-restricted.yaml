@@ -63,15 +63,17 @@
     update_cache: "{{ true if zuul.attempts > 1 else false }}"
 
 - name: Download Go modules
-  shell: |
-    go mod download -x
+  command: go mod download -x
   args:
     chdir: '{{ zuul.project.src_dir }}/src'
 
-- name: Set up Git submodules
-  shell: |
-    git submodule init
-    git submodule update
+- name: Initialize Git submodules
+  command: git submodule init
+  args:
+    chdir: '{{ zuul.project.src_dir }}'
+
+- name: Update Git submodules
+  command: git submodule update
   args:
     chdir: '{{ zuul.project.src_dir }}'
 
