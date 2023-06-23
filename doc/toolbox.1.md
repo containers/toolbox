@@ -90,35 +90,35 @@ Same as `--log-level=debug`. Use `-vv` to include `--log-podman`.
 
 Commands for working with toolbox containers and images:
 
-**toolbox-create(1)**
+**toolbox create(1)**
 
 Create a new toolbox container.
 
-**toolbox-enter(1)**
+**toolbox enter(1)**
 
 Enter a toolbox container for interactive use.
 
-**toolbox-help(1)**
+**toolbox help(1)**
 
 Display help information about Toolbox.
 
-**toolbox-init-container(1)**
+**toolbox init-container(1)**
 
 Initialize a running container.
 
-**toolbox-list(1)**
+**toolbox list(1)**
 
 List existing toolbox containers and images.
 
-**toolbox-rm(1)**
+**toolbox rm(1)**
 
 Remove one or more toolbox containers.
 
-**toolbox-rmi(1)**
+**toolbox rmi(1)**
 
 Remove one or more toolbox images.
 
-**toolbox-run(1)**
+**toolbox run(1)**
 
 Run a command in an existing toolbox container.
 
