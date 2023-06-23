@@ -494,7 +494,7 @@ function find_os_release() {
 
 
 # Returns the content of field ID in os-release
-function get_system_id() {
+function get_system_id() (
   local os_release
 
   os_release="$(find_os_release)"
@@ -504,8 +504,9 @@ function get_system_id() {
     return
   fi
 
-  echo $(awk -F= '/ID/ {print $2}' $os_release | head -n 1)
-}
+  . "$os_release"
+  echo "$ID"
+)
 
 
 # Returns the content of field VERSION_ID in os-release
