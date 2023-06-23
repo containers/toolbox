@@ -510,7 +510,7 @@ function get_system_id() (
 
 
 # Returns the content of field VERSION_ID in os-release
-function get_system_version() {
+function get_system_version() (
   local os_release
 
   os_release="$(find_os_release)"
@@ -520,8 +520,9 @@ function get_system_version() {
     return
   fi
 
-  echo $(awk -F= '/VERSION_ID/ {print $2}' $os_release | head -n 1)
-}
+  . "$os_release"
+  echo "$VERSION_ID"
+)
 
 
 # Set up the XDG_RUNTIME_DIR variable if not set
