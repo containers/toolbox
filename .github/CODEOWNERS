@@ -2,6 +2,7 @@
 /.github/workflows/arch-images.yaml       @Foxboron
 /.github/workflows/arch-images-pr.yaml    @Foxboron
 /.github/workflows/ubuntu-images.yaml     @Jmennius
+/.github/workflows/ubuntu-tests.yaml      @Jmennius
 /data/gfx/*.gif    @jimmac
 /images/arch       @Foxboron
 /images/rhel       @debarshiray @olivergs
