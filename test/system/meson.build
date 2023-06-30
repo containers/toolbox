@@ -1,4 +1,5 @@
 test_system = files(
+  '201-ipc.bats',
   '203-network.bats',
 )
 
