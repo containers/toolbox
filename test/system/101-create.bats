@@ -28,7 +28,6 @@ teardown() {
   cleanup_containers
 }
 
-
 @test "create: Smoke test" {
   pull_default_image
 

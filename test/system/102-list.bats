@@ -29,7 +29,6 @@ teardown() {
   cleanup_all
 }
 
-
 @test "list: Smoke test" {
   run --keep-empty-lines --separate-stderr $TOOLBOX list
 
