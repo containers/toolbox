@@ -166,11 +166,11 @@ teardown() {
 @test "run: 'sudo id' inside the default container" {
   create_default_container
 
-  output="$($TOOLBOX --verbose run sudo id 2>$BATS_TMPDIR/stderr)"
+  output="$($TOOLBOX --verbose run sudo id 2>$BATS_TEST_TMPDIR/stderr)"
   status="$?"
 
   echo "# stderr"
-  cat $BATS_TMPDIR/stderr
+  cat $BATS_TEST_TMPDIR/stderr
   echo "# stdout"
   echo $output
 
