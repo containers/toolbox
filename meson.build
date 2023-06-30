@@ -111,5 +111,6 @@ subdir('data')
 subdir('doc')
 subdir('profile.d')
 subdir('src')
+subdir('test')
 
 meson.add_install_script('meson_post_install.py')
