@@ -1,4 +1,4 @@
-#!/usr/bin/env bats
+# shellcheck shell=bats
 #
 # Copyright © 2021 – 2023 Red Hat, Inc.
 #

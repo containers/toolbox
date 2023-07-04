@@ -1,6 +1,6 @@
-#!/usr/bin/env bats
+# shellcheck shell=bats
 #
-# Copyright © 2020 – 2022 Red Hat, Inc.
+# Copyright © 2020 – 2023 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+# shellcheck shell=bash
 #
 # Copyright © 2021 – 2023 Red Hat, Inc.
 #
