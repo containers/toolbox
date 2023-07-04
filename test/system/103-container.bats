@@ -34,7 +34,7 @@ teardown() {
 
   create_default_container
 
-  run container_started $CONTAINER_NAME
+  run container_started "$CONTAINER_NAME"
   assert_success
 }
 

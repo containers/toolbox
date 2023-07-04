@@ -30,7 +30,7 @@ teardown() {
 }
 
 @test "list: Smoke test" {
-  run --keep-empty-lines --separate-stderr $TOOLBOX list
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -38,7 +38,7 @@ teardown() {
 }
 
 @test "list: Smoke test (using --containers)" {
-  run --keep-empty-lines --separate-stderr $TOOLBOX list --containers
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --containers
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -46,7 +46,7 @@ teardown() {
 }
 
 @test "list: Smoke test (using --images)" {
-  run --keep-empty-lines --separate-stderr $TOOLBOX list --images
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -60,7 +60,7 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 1
 
-  run --keep-empty-lines --separate-stderr $TOOLBOX list
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -74,7 +74,7 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 1
 
-  run --keep-empty-lines --separate-stderr $TOOLBOX list --images
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -376,7 +376,7 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 1
 
-  run --keep-empty-lines --separate-stderr $TOOLBOX list
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
 
   assert_success
   assert_line --index 1 --partial "<none>"
@@ -397,7 +397,7 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 1
 
-  run --keep-empty-lines --separate-stderr $TOOLBOX list --images
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
 
   assert_success
   assert_line --index 1 --partial "<none>"
@@ -470,7 +470,7 @@ teardown() {
   create_container non-default-two
 
   # Check images
-  run --keep-empty-lines --separate-stderr $TOOLBOX list --images
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
 
   assert_success
   assert_line --index 1 --partial "registry.fedoraproject.org/fedora-toolbox:34"
@@ -479,7 +479,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   # Check containers
-  run --keep-empty-lines --separate-stderr $TOOLBOX list --containers
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --containers
 
   assert_success
   assert_line --index 1 --partial "$default_container"
@@ -489,7 +489,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   # Check all together
-  run --keep-empty-lines --separate-stderr $TOOLBOX list
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
 
   assert_success
   assert_line --index 1 --partial "registry.fedoraproject.org/fedora-toolbox:34"
@@ -557,7 +557,7 @@ teardown() {
   num_of_containers="$(list_containers)"
   assert_equal "$num_of_containers" 1
 
-  run --keep-empty-lines --separate-stderr $TOOLBOX list
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -580,7 +580,7 @@ teardown() {
   num_of_containers="$(list_containers)"
   assert_equal "$num_of_containers" 1
 
-  run --keep-empty-lines --separate-stderr $TOOLBOX list --containers
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --containers
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -603,7 +603,7 @@ teardown() {
   num_of_containers="$(list_containers)"
   assert_equal "$num_of_containers" 1
 
-  run --keep-empty-lines --separate-stderr $TOOLBOX list --images
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]

@@ -18,9 +18,9 @@ readonly DOCKER_REG_URI="localhost:50000"
 readonly DOCKER_REG_NAME="docker-registry"
 
 # Podman and Toolbox commands to run
-readonly PODMAN=${PODMAN:-$(command -v podman)}
-readonly TOOLBOX=${TOOLBOX:-$(command -v toolbox)}
-readonly SKOPEO=${SKOPEO:-$(command -v skopeo)}
+readonly PODMAN="${PODMAN:-$(command -v podman)}"
+readonly TOOLBOX="${TOOLBOX:-$(command -v toolbox)}"
+readonly SKOPEO="${SKOPEO:-$(command -v skopeo)}"
 
 # Images
 declare -Ag IMAGES=([arch]="quay.io/toolbx/arch-toolbox" \
@@ -32,13 +32,13 @@ declare -Ag IMAGES=([arch]="quay.io/toolbx/arch-toolbox" \
 
 
 function cleanup_all() {
-  $PODMAN rm --all --force >/dev/null
-  $PODMAN rmi --all --force >/dev/null
+  "$PODMAN" rm --all --force >/dev/null
+  "$PODMAN" rmi --all --force >/dev/null
 }
 
 
 function cleanup_containers() {
-  $PODMAN rm --all --force >/dev/null
+  "$PODMAN" rm --all --force >/dev/null
 }
 
 
@@ -48,20 +48,20 @@ function _setup_environment() {
 }
 
 function _setup_containers_storage() {
-  mkdir -p ${TEMP_STORAGE_DIR}
+  mkdir -p "${TEMP_STORAGE_DIR}"
   # Set up a storage config file for PODMAN
-  echo -e "[storage]\n  driver = \"overlay\"\n  rootless_storage_path = \"${ROOTLESS_PODMAN_STORE_DIR}\"\n  runroot = \"${ROOTLESS_PODMAN_RUNROOT_DIR}\"\n" > ${PODMAN_STORE_CONFIG_FILE}
-  export CONTAINERS_STORAGE_CONF=${PODMAN_STORE_CONFIG_FILE}
+  echo -e "[storage]\n  driver = \"overlay\"\n  rootless_storage_path = \"${ROOTLESS_PODMAN_STORE_DIR}\"\n  runroot = \"${ROOTLESS_PODMAN_RUNROOT_DIR}\"\n" > "${PODMAN_STORE_CONFIG_FILE}"
+  export CONTAINERS_STORAGE_CONF="${PODMAN_STORE_CONFIG_FILE}"
 }
 
 
 function _clean_temporary_storage() {
-  $PODMAN system reset -f
+  "$PODMAN" system reset -f
 
-  rm --force --recursive ${ROOTLESS_PODMAN_STORE_DIR}
-  rm --force --recursive ${ROOTLESS_PODMAN_RUNROOT_DIR}
-  rm --force --recursive ${PODMAN_STORE_CONFIG_FILE}
-  rm --force --recursive ${TEMP_STORAGE_DIR}
+  rm --force --recursive "${ROOTLESS_PODMAN_STORE_DIR}"
+  rm --force --recursive "${ROOTLESS_PODMAN_RUNROOT_DIR}"
+  rm --force --recursive "${PODMAN_STORE_CONFIG_FILE}"
+  rm --force --recursive "${TEMP_STORAGE_DIR}"
 }
 
 
@@ -98,24 +98,24 @@ function _pull_and_cache_distro_image() {
     image_archive="${image_archive}-${version}"
   fi
 
-  if [[ -d ${IMAGE_CACHE_DIR}/${image_archive} ]] ; then
+  if [[ -d "${IMAGE_CACHE_DIR}/${image_archive}" ]] ; then
     return 0
   fi
 
-  if [ ! -d ${IMAGE_CACHE_DIR} ]; then
-    run mkdir -p ${IMAGE_CACHE_DIR}
+  if [ ! -d "${IMAGE_CACHE_DIR}" ]; then
+    run mkdir -p "${IMAGE_CACHE_DIR}"
     assert_success
   fi
 
   for ((i = num_of_retries; i > 0; i--)); do
-    run $SKOPEO copy --dest-compress docker://${image} dir:${IMAGE_CACHE_DIR}/${image_archive}
+    run "$SKOPEO" copy --dest-compress "docker://${image}" "dir:${IMAGE_CACHE_DIR}/${image_archive}"
 
     if [ "$status" -eq 0 ]; then
       cached=true
       break
     fi
 
-    sleep $timeout
+    sleep "$timeout"
   done
 
   if ! $cached; then
@@ -129,7 +129,7 @@ function _pull_and_cache_distro_image() {
 
 # Removes the folder with cached images
 function _clean_cached_images() {
-  rm --force --recursive ${IMAGE_CACHE_DIR}
+  rm --force --recursive "${IMAGE_CACHE_DIR}"
 }
 
 
@@ -174,11 +174,11 @@ function _setup_docker_registry() {
   assert_success
 
   # Pull Docker registry image
-  run $PODMAN --root "${DOCKER_REG_ROOT}" pull "${IMAGES[docker-reg]}"
+  run "$PODMAN" --root "${DOCKER_REG_ROOT}" pull "${IMAGES[docker-reg]}"
   assert_success
 
   # Create a Docker registry
-  run $PODMAN --root "${DOCKER_REG_ROOT}" run -d \
+  run "$PODMAN" --root "${DOCKER_REG_ROOT}" run -d \
     --rm \
     --name "${DOCKER_REG_NAME}" \
     --privileged \
@@ -194,20 +194,20 @@ function _setup_docker_registry() {
     "${IMAGES[docker-reg]}"
   assert_success
 
-  run $PODMAN login \
-    --authfile ${TEMP_BASE_DIR}/authfile.json \
+  run "$PODMAN" login \
+    --authfile "${TEMP_BASE_DIR}/authfile.json" \
     --username user \
     --password user \
     "${DOCKER_REG_URI}"
   assert_success
 
   # Add fedora-toolbox:34 image to the registry
-  run $SKOPEO copy --dest-authfile ${TEMP_BASE_DIR}/authfile.json \
+  run "$SKOPEO" copy --dest-authfile "${TEMP_BASE_DIR}/authfile.json" \
     dir:"${IMAGE_CACHE_DIR}"/fedora-toolbox-34 \
     docker://"${DOCKER_REG_URI}"/fedora-toolbox:34
   assert_success
 
-  run rm ${TEMP_BASE_DIR}/authfile.json
+  run rm "${TEMP_BASE_DIR}/authfile.json"
   assert_success
 }
 
@@ -215,10 +215,10 @@ function _setup_docker_registry() {
 # Stop, removes and cleans after a locally hosted Docker registry
 function _clean_docker_registry() {
   # Stop Docker registry container
-  $PODMAN --root "${DOCKER_REG_ROOT}" stop --time 0 "${DOCKER_REG_NAME}"
+  "$PODMAN" --root "${DOCKER_REG_ROOT}" stop --time 0 "${DOCKER_REG_NAME}"
   # Clean up Podman's registry root state
-  $PODMAN --root "${DOCKER_REG_ROOT}" rm --all --force
-  $PODMAN --root "${DOCKER_REG_ROOT}" rmi --all --force
+  "$PODMAN" --root "${DOCKER_REG_ROOT}" rm --all --force
+  "$PODMAN" --root "${DOCKER_REG_ROOT}" rmi --all --force
   # Remove Docker registry dir
   rm --force --recursive "${DOCKER_REG_ROOT}"
   # Remove dir with created registry certificates
@@ -229,7 +229,7 @@ function _clean_docker_registry() {
 function build_image_without_name() {
   echo -e "FROM scratch\n\nLABEL com.github.containers.toolbox=\"true\"" > "$BATS_TEST_TMPDIR"/Containerfile
 
-  run $PODMAN build "$BATS_TEST_TMPDIR"
+  run "$PODMAN" build "$BATS_TEST_TMPDIR"
 
   assert_success
   assert_line --index 0 --partial "FROM scratch"
@@ -315,13 +315,13 @@ function pull_distro_image() {
   fi
 
   # No need to copy if the image is already available in Podman
-  run $PODMAN image exists ${image}
+  run "$PODMAN" image exists "${image}"
   if [[ "$status" -eq 0 ]]; then
     return
   fi
 
   # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
-  run $SKOPEO copy "dir:${IMAGE_CACHE_DIR}/${image_archive}" "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]${image}"
+  run "$SKOPEO" copy "dir:${IMAGE_CACHE_DIR}/${image_archive}" "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]${image}"
   if [ "$status" -ne 0 ]; then
     echo "Failed to load image ${image} from cache ${IMAGE_CACHE_DIR}/${image_archive}"
     assert_success
@@ -378,9 +378,9 @@ function create_distro_container() {
   version="$2"
   container_name="$3"
 
-  pull_distro_image ${distro} ${version}
+  pull_distro_image "${distro}" "${version}"
 
-  $TOOLBOX --assumeyes create --container "${container_name}" --distro "${distro}" --release "${version}" >/dev/null \
+  "$TOOLBOX" --assumeyes create --container "${container_name}" --distro "${distro}" --release "${version}" >/dev/null \
     || fail "Toolbox couldn't create container '$container_name'"
 }
 
@@ -395,7 +395,7 @@ function create_container() {
 
   container_name="$1"
 
-  create_distro_container $(get_system_id) $(get_system_version) $container_name
+  create_distro_container "$(get_system_id)" "$(get_system_version)" "$container_name"
 }
 
 
@@ -403,7 +403,7 @@ function create_container() {
 function create_default_container() {
   pull_default_image
 
-  $TOOLBOX --assumeyes create >/dev/null \
+  "$TOOLBOX" --assumeyes create >/dev/null \
     || fail "Toolbox couldn't create default container"
 }
 
@@ -412,7 +412,7 @@ function start_container() {
   local container_name
   container_name="$1"
 
-  $PODMAN start "$container_name" >/dev/null \
+  "$PODMAN" start "$container_name" >/dev/null \
     || fail "Podman couldn't start the container '$container_name'"
 }
 
@@ -431,17 +431,17 @@ function container_started() {
   local container_name
   container_name="$1"
 
-  run $PODMAN start $container_name
+  run "$PODMAN" start "$container_name"
 
   # Used as a return value
   container_initialized=1
 
   for TRIES in 1 2 3 4 5
   do
-    run $PODMAN logs $container_name
-    container_output=$output
+    run "$PODMAN" logs "$container_name"
+    container_output="$output"
     # Look for last line of the container startup log
-    run grep 'Listening to file system and ticker events' <<< $container_output
+    run grep 'Listening to file system and ticker events' <<< "$container_output"
     if [[ "$status" -eq 0 ]]; then
       container_initialized=0
       break
@@ -449,7 +449,7 @@ function container_started() {
     sleep 1
   done
 
-  return $container_initialized
+  return "$container_initialized"
 }
 
 
@@ -458,26 +458,26 @@ function stop_container() {
   container_name="$1"
 
   # Make sure the container is running before trying to stop it
-  $PODMAN start "$container_name" >/dev/null \
+  "$PODMAN" start "$container_name" >/dev/null \
     || fail "Podman couldn't start the container '$container_name'"
-  $PODMAN stop "$container_name" >/dev/null \
+  "$PODMAN" stop "$container_name" >/dev/null \
     || fail "Podman couldn't stop the container '$container_name'"
 }
 
 
 # Returns the name of the latest created container
 function get_latest_container_name() {
-  $PODMAN ps --latest --format "{{ .Names }}"
+  "$PODMAN" ps --latest --format "{{ .Names }}"
 }
 
 
 function list_images() {
-  $PODMAN images --all --format "{{.ID}}" | wc --lines
+  "$PODMAN" images --all --format "{{.ID}}" | wc --lines
 }
 
 
 function list_containers() {
-  $PODMAN ps --all --quiet | wc --lines
+  "$PODMAN" ps --all --quiet | wc --lines
 }
 
 

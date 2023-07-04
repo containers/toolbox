@@ -31,7 +31,7 @@ teardown() {
 @test "create: Smoke test" {
   pull_default_image
 
-  run $TOOLBOX --assumeyes create
+  run "$TOOLBOX" --assumeyes create
 
   assert_success
 }
@@ -39,7 +39,7 @@ teardown() {
 @test "create: With a custom name (using option --container)" {
   pull_default_image
 
-  run $TOOLBOX --assumeyes create --container "custom-containerName"
+  run "$TOOLBOX" --assumeyes create --container "custom-containerName"
 
   assert_success
 }
@@ -47,13 +47,13 @@ teardown() {
 @test "create: With a custom image and name (using option --container)" {
   pull_distro_image fedora 34
 
-  run $TOOLBOX --assumeyes create --container "fedora34" --image fedora-toolbox:34
+  run "$TOOLBOX" --assumeyes create --container "fedora34" --image fedora-toolbox:34
 
   assert_success
 }
 
 @test "create: Try with an invalid custom name (using positional argument)" {
-  run $TOOLBOX --assumeyes create "ßpeci@l.N@m€"
+  run "$TOOLBOX" --assumeyes create "ßpeci@l.N@m€"
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for 'CONTAINER'"
@@ -62,7 +62,7 @@ teardown() {
 }
 
 @test "create: Try with an invalid custom name (using option --container)" {
-  run $TOOLBOX --assumeyes create --container "ßpeci@l.N@m€"
+  run "$TOOLBOX" --assumeyes create --container "ßpeci@l.N@m€"
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--container'"
@@ -73,7 +73,7 @@ teardown() {
 @test "create: Try with an invalid custom image" {
   local image="ßpeci@l.N@m€"
 
-  run $TOOLBOX create --image "$image"
+  run "$TOOLBOX" create --image "$image"
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--image'"
@@ -86,7 +86,7 @@ teardown() {
 @test "create: Arch Linux" {
   pull_distro_image arch latest
 
-  run $TOOLBOX --assumeyes create --distro arch
+  run "$TOOLBOX" --assumeyes create --distro arch
 
   assert_success
   assert_output --partial "Created container: arch-toolbox-latest"
@@ -100,7 +100,7 @@ teardown() {
 @test "create: Arch Linux ('--release latest')" {
   pull_distro_image arch latest
 
-  run $TOOLBOX --assumeyes create --distro arch --release latest
+  run "$TOOLBOX" --assumeyes create --distro arch --release latest
 
   assert_success
   assert_output --partial "Created container: arch-toolbox-latest"
@@ -114,7 +114,7 @@ teardown() {
 @test "create: Arch Linux ('--release rolling')" {
   pull_distro_image arch latest
 
-  run $TOOLBOX --assumeyes create --distro arch --release rolling
+  run "$TOOLBOX" --assumeyes create --distro arch --release rolling
 
   assert_success
   assert_output --partial "Created container: arch-toolbox-latest"
@@ -128,7 +128,7 @@ teardown() {
 @test "create: Fedora 34" {
   pull_distro_image fedora 34
 
-  run $TOOLBOX --assumeyes create --distro fedora --release f34
+  run "$TOOLBOX" --assumeyes create --distro fedora --release f34
 
   assert_success
   assert_output --partial "Created container: fedora-toolbox-34"
@@ -142,7 +142,7 @@ teardown() {
 @test "create: RHEL 8.7" {
   pull_distro_image rhel 8.7
 
-  run $TOOLBOX --assumeyes create --distro rhel --release 8.7
+  run "$TOOLBOX" --assumeyes create --distro rhel --release 8.7
 
   assert_success
   assert_output --partial "Created container: rhel-toolbox-8.7"
@@ -156,7 +156,7 @@ teardown() {
 @test "create: Ubuntu 16.04" {
   pull_distro_image ubuntu 16.04
 
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 16.04
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 16.04
 
   assert_success
   assert_output --partial "Created container: ubuntu-toolbox-16.04"
@@ -171,7 +171,7 @@ teardown() {
 @test "create: Ubuntu 18.04" {
   pull_distro_image ubuntu 18.04
 
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 18.04
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 18.04
 
   assert_success
   assert_output --partial "Created container: ubuntu-toolbox-18.04"
@@ -186,7 +186,7 @@ teardown() {
 @test "create: Ubuntu 20.04" {
   pull_distro_image ubuntu 20.04
 
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 20.04
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 20.04
 
   assert_success
   assert_output --partial "Created container: ubuntu-toolbox-20.04"
@@ -201,7 +201,7 @@ teardown() {
 @test "create: Try an unsupported distribution" {
   local distro="foo"
 
-  run $TOOLBOX --assumeyes create --distro "$distro"
+  run "$TOOLBOX" --assumeyes create --distro "$distro"
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--distro'"
@@ -211,7 +211,7 @@ teardown() {
 }
 
 @test "create: Try a non-existent image" {
-  run $TOOLBOX --assumeyes create --image foo.org/bar
+  run "$TOOLBOX" --assumeyes create --image foo.org/bar
 
   assert_failure
   assert_line --index 0 "Error: failed to pull image foo.org/bar"
@@ -220,7 +220,7 @@ teardown() {
 }
 
 @test "create: Try Arch Linux with an invalid release ('--release foo')" {
-  run $TOOLBOX --assumeyes create --distro arch --release foo
+  run "$TOOLBOX" --assumeyes create --distro arch --release foo
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -230,7 +230,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release -3')" {
-  run $TOOLBOX --assumeyes create --distro fedora --release -3
+  run "$TOOLBOX" --assumeyes create --distro fedora --release -3
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -240,7 +240,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release -3.0')" {
-  run $TOOLBOX --assumeyes create --distro fedora --release -3.0
+  run "$TOOLBOX" --assumeyes create --distro fedora --release -3.0
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -250,7 +250,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release -3.1')" {
-  run $TOOLBOX --assumeyes create --distro fedora --release -3.1
+  run "$TOOLBOX" --assumeyes create --distro fedora --release -3.1
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -260,7 +260,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release 0')" {
-  run $TOOLBOX --assumeyes create --distro fedora --release 0
+  run "$TOOLBOX" --assumeyes create --distro fedora --release 0
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -270,7 +270,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release 0.0')" {
-  run $TOOLBOX --assumeyes create --distro fedora --release 0.0
+  run "$TOOLBOX" --assumeyes create --distro fedora --release 0.0
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -280,7 +280,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release 0.1')" {
-  run $TOOLBOX --assumeyes create --distro fedora --release 0.1
+  run "$TOOLBOX" --assumeyes create --distro fedora --release 0.1
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -290,7 +290,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release 3.0')" {
-  run $TOOLBOX --assumeyes create --distro fedora --release 3.0
+  run "$TOOLBOX" --assumeyes create --distro fedora --release 3.0
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -300,7 +300,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release 3.1')" {
-  run $TOOLBOX --assumeyes create --distro fedora --release 3.1
+  run "$TOOLBOX" --assumeyes create --distro fedora --release 3.1
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -310,7 +310,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release foo')" {
-  run $TOOLBOX --assumeyes create --distro fedora --release foo
+  run "$TOOLBOX" --assumeyes create --distro fedora --release foo
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -320,7 +320,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release 3foo')" {
-  run $TOOLBOX --assumeyes create --distro fedora --release 3foo
+  run "$TOOLBOX" --assumeyes create --distro fedora --release 3foo
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -330,7 +330,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release 8')" {
-  run $TOOLBOX --assumeyes create --distro rhel --release 8
+  run "$TOOLBOX" --assumeyes create --distro rhel --release 8
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -340,7 +340,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release 8.0.0')" {
-  run $TOOLBOX --assumeyes create --distro rhel --release 8.0.0
+  run "$TOOLBOX" --assumeyes create --distro rhel --release 8.0.0
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -350,7 +350,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release 8.0.1')" {
-  run $TOOLBOX --assumeyes create --distro rhel --release 8.0.1
+  run "$TOOLBOX" --assumeyes create --distro rhel --release 8.0.1
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -360,7 +360,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release 8.3.0')" {
-  run $TOOLBOX --assumeyes create --distro rhel --release 8.3.0
+  run "$TOOLBOX" --assumeyes create --distro rhel --release 8.3.0
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -370,7 +370,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release 8.3.1')" {
-  run $TOOLBOX --assumeyes create --distro rhel --release 8.3.1
+  run "$TOOLBOX" --assumeyes create --distro rhel --release 8.3.1
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -380,7 +380,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release foo')" {
-  run $TOOLBOX --assumeyes create --distro rhel --release foo
+  run "$TOOLBOX" --assumeyes create --distro rhel --release foo
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -390,7 +390,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release 8.2foo')" {
-  run $TOOLBOX --assumeyes create --distro rhel --release 8.2foo
+  run "$TOOLBOX" --assumeyes create --distro rhel --release 8.2foo
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -400,7 +400,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release -2.1')" {
-  run $TOOLBOX --assumeyes create --distro rhel --release -2.1
+  run "$TOOLBOX" --assumeyes create --distro rhel --release -2.1
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -410,7 +410,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release -2.-1')" {
-  run $TOOLBOX --assumeyes create --distro rhel --release -2.-1
+  run "$TOOLBOX" --assumeyes create --distro rhel --release -2.-1
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -420,7 +420,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release 2.-1')" {
-  run $TOOLBOX --assumeyes create --distro rhel --release 2.-1
+  run "$TOOLBOX" --assumeyes create --distro rhel --release 2.-1
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -430,7 +430,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 20')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 20
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 20
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -440,7 +440,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 20.04.0')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 20.04.0
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 20.04.0
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -450,7 +450,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 20.04.1')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 20.04.1
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 20.04.1
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -460,7 +460,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release foo')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release foo
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release foo
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -470,7 +470,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 20foo')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 20foo
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 20foo
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -480,7 +480,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release foo.bar')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release foo.bar
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release foo.bar
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -490,7 +490,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release foo.bar.baz')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release foo.bar.baz
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release foo.bar.baz
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -500,7 +500,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 3.10')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 3.10
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 3.10
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -510,7 +510,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 202.4')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 202.4
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 202.4
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -520,7 +520,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 202.04')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 202.04
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 202.04
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -530,7 +530,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 2020.4')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 2020.4
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 2020.4
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -540,7 +540,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 2020.04')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 2020.04
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 2020.04
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -550,7 +550,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 04.10')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 04.10
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 04.10
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -560,7 +560,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 4.bar')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 4.bar
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 4.bar
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -570,7 +570,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 4.bar.baz')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 4.bar.baz
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 4.bar.baz
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -580,7 +580,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 4.0')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 4.0
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 4.0
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -590,7 +590,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 4.00')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 4.00
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 4.00
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -600,7 +600,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 4.13')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 4.13
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 4.13
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -610,7 +610,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 20.4')" {
-  run $TOOLBOX --assumeyes create --distro ubuntu --release 20.4
+  run "$TOOLBOX" --assumeyes create --distro ubuntu --release 20.4
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -627,7 +627,7 @@ teardown() {
     distro="rhel"
   fi
 
-  run $TOOLBOX --assumeyes create --distro "$distro"
+  run "$TOOLBOX" --assumeyes create --distro "$distro"
 
   assert_failure
   assert_line --index 0 "Error: option '--release' is needed"
@@ -639,7 +639,7 @@ teardown() {
 @test "create: Try using both --distro and --image" {
   pull_distro_image fedora 34
 
-  run $TOOLBOX --assumeyes create --distro fedora --image fedora-toolbox:34
+  run "$TOOLBOX" --assumeyes create --distro fedora --image fedora-toolbox:34
 
   assert_failure
   assert_line --index 0 "Error: options --distro and --image cannot be used together"
@@ -650,7 +650,7 @@ teardown() {
 @test "create: Try using both --image and --release" {
   pull_distro_image fedora 34
 
-  run $TOOLBOX --assumeyes create --image fedora-toolbox:34 --release 34
+  run "$TOOLBOX" --assumeyes create --image fedora-toolbox:34 --release 34
 
   assert_failure
   assert_line --index 0 "Error: options --image and --release cannot be used together"
@@ -661,7 +661,7 @@ teardown() {
 @test "create: Try a non-existent authentication file" {
   local file="$BATS_RUN_TMPDIR/non-existent-file"
 
-  run $TOOLBOX create --authfile "$file"
+  run "$TOOLBOX" create --authfile "$file"
 
   assert_failure
   assert_line --index 0 "Error: file $file not found"
@@ -677,7 +677,7 @@ teardown() {
   run $PODMAN login --authfile "$authfile" --username user --password user "$DOCKER_REG_URI"
   assert_success
 
-  run $TOOLBOX --assumeyes create --image "$DOCKER_REG_URI/$image"
+  run "$TOOLBOX" --assumeyes create --image "$DOCKER_REG_URI/$image"
 
   assert_failure
   assert_line --index 0 "Error: failed to pull image $DOCKER_REG_URI/$image"
@@ -685,7 +685,7 @@ teardown() {
   assert_line --index 2 "Use 'toolbox --verbose ...' for further details."
   assert [ ${#lines[@]} -eq 3 ]
 
-  run $TOOLBOX --assumeyes create --authfile "$authfile" --image "$DOCKER_REG_URI/$image"
+  run "$TOOLBOX" --assumeyes create --authfile "$authfile" --image "$DOCKER_REG_URI/$image"
 
   rm "$authfile"
 

@@ -25,7 +25,7 @@ setup() {
 }
 
 @test "completion: Smoke test with 'bash'" {
-  run $TOOLBOX completion bash
+  run "$TOOLBOX" completion bash
 
   assert_success
   assert [ ${#lines[@]} -gt 0 ]
@@ -33,7 +33,7 @@ setup() {
 }
 
 @test "completion: Smoke test with 'fish'" {
-  run $TOOLBOX completion fish
+  run "$TOOLBOX" completion fish
 
   assert_success
   assert [ ${#lines[@]} -gt 0 ]
@@ -41,7 +41,7 @@ setup() {
 }
 
 @test "completion: Smoke test with 'zsh'" {
-  run $TOOLBOX completion zsh
+  run "$TOOLBOX" completion zsh
 
   assert_success
   assert [ ${#lines[@]} -gt 0 ]
@@ -49,7 +49,7 @@ setup() {
 }
 
 @test "completion: Try without any arguments" {
-  run --separate-stderr $TOOLBOX completion
+  run --separate-stderr "$TOOLBOX" completion
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -60,7 +60,7 @@ setup() {
 }
 
 @test "completion: Try with invalid arguments" {
-  run --separate-stderr $TOOLBOX completion foo
+  run --separate-stderr "$TOOLBOX" completion foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -71,7 +71,7 @@ setup() {
 }
 
 @test "completion: Try with unknown flag" {
-  run --separate-stderr $TOOLBOX completion --foo
+  run --separate-stderr "$TOOLBOX" completion --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -82,7 +82,7 @@ setup() {
 }
 
 @test "completion: Try with unsupported shell" {
-  run --separate-stderr $TOOLBOX completion powershell
+  run --separate-stderr "$TOOLBOX" completion powershell
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]

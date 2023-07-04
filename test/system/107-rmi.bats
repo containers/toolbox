@@ -46,17 +46,17 @@ teardown() {
 }
 
 @test "rmi: --all with the default image" {
-  num_of_images=$(list_images)
+  num_of_images="$(list_images)"
   assert_equal "$num_of_images" 0
 
   pull_default_image
 
-  run --keep-empty-lines $TOOLBOX rmi --all
+  run --keep-empty-lines "$TOOLBOX" rmi --all
 
   assert_success
   assert_output ""
 
-  new_num_of_images=$(list_images)
+  new_num_of_images="$(list_images)"
 
   assert_equal "$new_num_of_images" "$num_of_images"
 }
@@ -230,36 +230,36 @@ teardown() {
 
 @test "rmi: Try --all with a running container" {
   skip "Bug: Fail in 'toolbox rmi' does not return non-zero value"
-  num_of_images=$(list_images)
+  num_of_images="$(list_images)"
   assert_equal "$num_of_images" 0
 
   create_container foo
   start_container foo
 
-  run --keep-empty-lines --separate-stderr $TOOLBOX rmi --all
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi --all
 
   assert_failure
   lines=("${stderr_lines[@]}")
   assert_line --index 0 --regexp "Error: image .* has dependent children"
 
-  new_num_of_images=$(list_images)
+  new_num_of_images="$(list_images)"
 
   assert_equal "$new_num_of_images" "$num_of_images"
 }
 
 @test "rmi: '--all --force' with a running container" {
-  num_of_images=$(list_images)
+  num_of_images="$(list_images)"
   assert_equal "$num_of_images" 0
 
   create_container foo
   start_container foo
 
-  run --keep-empty-lines $TOOLBOX rmi --all --force
+  run --keep-empty-lines "$TOOLBOX" rmi --all --force
 
   assert_success
   assert_output ""
 
-  new_num_of_images=$(list_images)
+  new_num_of_images="$(list_images)"
 
   assert_equal "$new_num_of_images" "$num_of_images"
 }

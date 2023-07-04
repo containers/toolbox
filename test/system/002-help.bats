@@ -24,7 +24,7 @@ setup() {
 }
 
 @test "help: Try to run toolbox with no command" {
-  run $TOOLBOX
+  run "$TOOLBOX"
 
   assert_failure
   assert_line --index 0 "Error: missing command"
@@ -39,7 +39,7 @@ setup() {
     skip "Test works only if man is in PATH"
   fi
 
-  run $TOOLBOX help
+  run "$TOOLBOX" help
 
   assert_success
   assert_line --index 0 --partial "toolbox(1)"
@@ -51,7 +51,7 @@ setup() {
     skip "Test works only if man is not in PATH"
   fi
 
-  run $TOOLBOX help
+  run "$TOOLBOX" help
 
   assert_success
   assert_line --index 0 "toolbox - Tool for containerized command line environments on Linux"
@@ -63,14 +63,14 @@ setup() {
 }
 
 @test "help: Use flag '--help' (it should show usage screen)" {
-  run $TOOLBOX --help
+  run "$TOOLBOX" --help
 
   assert_success
   assert_output --partial "toolbox - Tool for containerized command line environments on Linux"
 }
 
 @test "help: Try to run toolbox with non-existent command (shows usage screen)" {
-  run $TOOLBOX foo
+  run "$TOOLBOX" foo
 
   assert_failure
   assert_line --index 0 "Error: unknown command \"foo\" for \"toolbox\""
@@ -78,7 +78,7 @@ setup() {
 }
 
 @test "help: Try to run toolbox with non-existent flag (shows usage screen)" {
-  run $TOOLBOX --foo
+  run "$TOOLBOX" --foo
 
   assert_failure
   assert_line --index 0 "Error: unknown flag: --foo"
@@ -86,7 +86,7 @@ setup() {
 }
 
 @test "help: Try to run 'toolbox create' with non-existent flag (shows usage screen)" {
-  run $TOOLBOX create --foo
+  run "$TOOLBOX" create --foo
 
   assert_failure
   assert_line --index 0 "Error: unknown flag: --foo"
@@ -94,7 +94,7 @@ setup() {
 }
 
 @test "help: Try to run 'toolbox enter' with non-existent flag (shows usage screen)" {
-  run $TOOLBOX enter --foo
+  run "$TOOLBOX" enter --foo
 
   assert_failure
   assert_line --index 0 "Error: unknown flag: --foo"
@@ -102,7 +102,7 @@ setup() {
 }
 
 @test "help: Try to run 'toolbox help' with non-existent flag (shows usage screen)" {
-  run $TOOLBOX help --foo
+  run "$TOOLBOX" help --foo
 
   assert_failure
   assert_line --index 0 "Error: unknown flag: --foo"
@@ -110,7 +110,7 @@ setup() {
 }
 
 @test "help: Try to run 'toolbox init-container' with non-existent flag (shows usage screen)" {
-  run $TOOLBOX init-container --foo
+  run "$TOOLBOX" init-container --foo
 
   assert_failure
   assert_line --index 0 "Error: unknown flag: --foo"
@@ -118,7 +118,7 @@ setup() {
 }
 
 @test "help: Try to run 'toolbox list' with non-existent flag (shows usage screen)" {
-  run $TOOLBOX list --foo
+  run "$TOOLBOX" list --foo
 
   assert_failure
   assert_line --index 0 "Error: unknown flag: --foo"
@@ -126,7 +126,7 @@ setup() {
 }
 
 @test "help: Try to run 'toolbox rm' with non-existent flag (shows usage screen)" {
-  run $TOOLBOX rm --foo
+  run "$TOOLBOX" rm --foo
 
   assert_failure
   assert_line --index 0 "Error: unknown flag: --foo"
@@ -134,7 +134,7 @@ setup() {
 }
 
 @test "help: Try to run 'toolbox rmi' with non-existent flag (shows usage screen)" {
-  run $TOOLBOX rmi --foo
+  run "$TOOLBOX" rmi --foo
 
   assert_failure
   assert_line --index 0 "Error: unknown flag: --foo"
@@ -142,7 +142,7 @@ setup() {
 }
 
 @test "help: Try to run 'toolbox run' with non-existent flag (shows usage screen)" {
-  run $TOOLBOX run --foo
+  run "$TOOLBOX" run --foo
 
   assert_failure
   assert_line --index 0 "Error: unknown flag: --foo"

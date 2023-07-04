@@ -25,7 +25,7 @@ setup() {
 }
 
 @test "version: Check version using option --version" {
-  run --separate-stderr $TOOLBOX --version
+  run --separate-stderr "$TOOLBOX" --version
 
   assert_success
   assert_output --regexp '^toolbox version [0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$'

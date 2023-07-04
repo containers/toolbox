@@ -32,7 +32,7 @@ teardown() {
 @test "run: Smoke test with true(1)" {
   create_default_container
 
-  run $TOOLBOX run true
+  run "$TOOLBOX" run true
 
   assert_success
   assert_output ""
@@ -41,7 +41,7 @@ teardown() {
 @test "run: Smoke test with false(1)" {
   create_default_container
 
-  run -1 $TOOLBOX run false
+  run -1 "$TOOLBOX" run false
 
   assert_failure
   assert_output ""
@@ -50,7 +50,7 @@ teardown() {
 @test "run: Smoke test with Arch Linux" {
   create_distro_container arch latest arch-toolbox-latest
 
-  run --separate-stderr $TOOLBOX run --distro arch true
+  run --separate-stderr "$TOOLBOX" run --distro arch true
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -60,7 +60,7 @@ teardown() {
 @test "run: Smoke test with Arch Linux ('--release latest')" {
   create_distro_container arch latest arch-toolbox-latest
 
-  run --separate-stderr $TOOLBOX run --distro arch --release latest true
+  run --separate-stderr "$TOOLBOX" run --distro arch --release latest true
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -70,7 +70,7 @@ teardown() {
 @test "run: Smoke test with Arch Linux ('--release rolling')" {
   create_distro_container arch latest arch-toolbox-latest
 
-  run --separate-stderr $TOOLBOX run --distro arch --release rolling true
+  run --separate-stderr "$TOOLBOX" run --distro arch --release rolling true
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -80,7 +80,7 @@ teardown() {
 @test "run: Smoke test with Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
 
-  run --separate-stderr $TOOLBOX run --distro fedora --release 34 true
+  run --separate-stderr "$TOOLBOX" run --distro fedora --release 34 true
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -90,7 +90,7 @@ teardown() {
 @test "run: Smoke test with RHEL 8.7" {
   create_distro_container rhel 8.7 rhel-toolbox-8.7
 
-  run --separate-stderr $TOOLBOX run --distro rhel --release 8.7 true
+  run --separate-stderr "$TOOLBOX" run --distro rhel --release 8.7 true
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -100,7 +100,7 @@ teardown() {
 @test "run: Smoke test with Ubuntu 16.04" {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
-  run --separate-stderr $TOOLBOX run --distro ubuntu --release 16.04 true
+  run --separate-stderr "$TOOLBOX" run --distro ubuntu --release 16.04 true
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -110,7 +110,7 @@ teardown() {
 @test "run: Smoke test with Ubuntu 18.04" {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
-  run --separate-stderr $TOOLBOX run --distro ubuntu --release 18.04 true
+  run --separate-stderr "$TOOLBOX" run --distro ubuntu --release 18.04 true
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -120,7 +120,7 @@ teardown() {
 @test "run: Smoke test with Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
-  run --separate-stderr $TOOLBOX run --distro ubuntu --release 20.04 true
+  run --separate-stderr "$TOOLBOX" run --distro ubuntu --release 20.04 true
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -133,7 +133,7 @@ teardown() {
   cp "$HOME"/.bash_profile "$HOME"/.bash_profile.orig
   echo "echo \"~/.bash_profile read\"" >>"$HOME"/.bash_profile
 
-  run $TOOLBOX run true
+  run "$TOOLBOX" run true
 
   mv "$HOME"/.bash_profile.orig "$HOME"/.bash_profile
 
@@ -145,7 +145,7 @@ teardown() {
 @test "run: 'echo \"Hello World\"' inside the default container" {
   create_default_container
 
-  run $TOOLBOX --verbose run echo "Hello World"
+  run "$TOOLBOX" --verbose run echo "Hello World"
 
   assert_success
   assert_line --index $((${#lines[@]}-1)) "Hello World"
@@ -157,7 +157,7 @@ teardown() {
   start_container running
   stop_container running
 
-  run $TOOLBOX --verbose run --container running echo "Hello World"
+  run "$TOOLBOX" --verbose run --container running echo "Hello World"
 
   assert_success
   assert_line --index $((${#lines[@]}-1)) "Hello World"
@@ -166,13 +166,13 @@ teardown() {
 @test "run: 'sudo id' inside the default container" {
   create_default_container
 
-  output="$($TOOLBOX --verbose run sudo id 2>$BATS_TEST_TMPDIR/stderr)"
+  output="$("$TOOLBOX" --verbose run sudo id 2>"$BATS_TEST_TMPDIR/stderr")"
   status="$?"
 
   echo "# stderr"
-  cat $BATS_TEST_TMPDIR/stderr
+  cat "$BATS_TEST_TMPDIR/stderr"
   echo "# stdout"
-  echo $output
+  echo "$output"
 
   assert_success
   assert_output --partial "uid=0(root)"
@@ -181,7 +181,7 @@ teardown() {
 @test "run: Ensure that /run/.containerenv exists" {
   create_default_container
 
-  run --separate-stderr $TOOLBOX run cat /run/.containerenv
+  run --separate-stderr "$TOOLBOX" run cat /run/.containerenv
 
   assert_success
   assert [ ${#lines[@]} -gt 0 ]
@@ -191,7 +191,7 @@ teardown() {
 @test "run: Ensure that /run/.toolboxenv exists" {
   create_default_container
 
-  run --separate-stderr $TOOLBOX run test -f /run/.toolboxenv
+  run --separate-stderr "$TOOLBOX" run test -f /run/.toolboxenv
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -205,7 +205,7 @@ teardown() {
   create_default_container
   create_container other-container
 
-  run --separate-stderr $TOOLBOX run cat /run/.containerenv
+  run --separate-stderr "$TOOLBOX" run cat /run/.containerenv
 
   assert_success
   assert [ ${#lines[@]} -gt 0 ]
@@ -229,7 +229,7 @@ teardown() {
   create_default_container
   create_container other-container
 
-  run --separate-stderr $TOOLBOX run --container other-container cat /run/.containerenv
+  run --separate-stderr "$TOOLBOX" run --container other-container cat /run/.containerenv
 
   assert_success
   assert [ ${#lines[@]} -gt 0 ]
@@ -248,7 +248,7 @@ teardown() {
   create_default_container
 
   pushd /etc/kernel
-  run --separate-stderr $TOOLBOX run pwd
+  run --separate-stderr "$TOOLBOX" run pwd
   popd
 
   assert_success
@@ -264,7 +264,7 @@ teardown() {
   create_default_container
 
   # File descriptors 3 and 4 are reserved by Bats.
-  run --separate-stderr $TOOLBOX run --preserve-fds 3 readlink /proc/self/fd/5 5>/dev/null
+  run --separate-stderr "$TOOLBOX" run --preserve-fds 3 readlink /proc/self/fd/5 5>/dev/null
 
   assert_success
   assert_line --index 0 "/dev/null"
@@ -275,7 +275,7 @@ teardown() {
 @test "run: Try the non-existent default container with none other present" {
   local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
 
-  run --separate-stderr $TOOLBOX run true
+  run --separate-stderr "$TOOLBOX" run true
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -291,7 +291,7 @@ teardown() {
 
   create_container other-container
 
-  run --separate-stderr $TOOLBOX run true
+  run --separate-stderr "$TOOLBOX" run true
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -305,7 +305,7 @@ teardown() {
 @test "run: Try a specific non-existent container with another present" {
   create_container other-container
 
-  run --separate-stderr $TOOLBOX run --container wrong-container true
+  run --separate-stderr "$TOOLBOX" run --container wrong-container true
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -319,7 +319,7 @@ teardown() {
 @test "run: Try an unsupported distribution" {
   local distro="foo"
 
-  run --separate-stderr $TOOLBOX --assumeyes run --distro "$distro" ls
+  run --separate-stderr "$TOOLBOX" --assumeyes run --distro "$distro" ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -331,7 +331,7 @@ teardown() {
 }
 
 @test "run: Try Fedora with an invalid release ('--release -3')" {
-  run --separate-stderr $TOOLBOX run --distro fedora --release -3 ls
+  run --separate-stderr "$TOOLBOX" run --distro fedora --release -3 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -343,7 +343,7 @@ teardown() {
 }
 
 @test "run: Try Fedora with an invalid release ('--release -3.0')" {
-  run --separate-stderr $TOOLBOX run --distro fedora --release -3.0 ls
+  run --separate-stderr "$TOOLBOX" run --distro fedora --release -3.0 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -355,7 +355,7 @@ teardown() {
 }
 
 @test "run: Try Fedora with an invalid release ('--release -3.1')" {
-  run --separate-stderr $TOOLBOX run --distro fedora --release -3.1 ls
+  run --separate-stderr "$TOOLBOX" run --distro fedora --release -3.1 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -367,7 +367,7 @@ teardown() {
 }
 
 @test "run: Try Fedora with an invalid release ('--release 0')" {
-  run --separate-stderr $TOOLBOX run --distro fedora --release 0 ls
+  run --separate-stderr "$TOOLBOX" run --distro fedora --release 0 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -379,7 +379,7 @@ teardown() {
 }
 
 @test "run: Try Fedora with an invalid release ('--release 0.0')" {
-  run --separate-stderr $TOOLBOX run --distro fedora --release 0.0 ls
+  run --separate-stderr "$TOOLBOX" run --distro fedora --release 0.0 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -391,7 +391,7 @@ teardown() {
 }
 
 @test "run: Try Fedora with an invalid release ('--release 0.1')" {
-  run --separate-stderr $TOOLBOX run --distro fedora --release 0.1 ls
+  run --separate-stderr "$TOOLBOX" run --distro fedora --release 0.1 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -403,7 +403,7 @@ teardown() {
 }
 
 @test "run: Try Fedora with an invalid release ('--release 3.0')" {
-  run --separate-stderr $TOOLBOX run --distro fedora --release 3.0 ls
+  run --separate-stderr "$TOOLBOX" run --distro fedora --release 3.0 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -415,7 +415,7 @@ teardown() {
 }
 
 @test "run: Try Fedora with an invalid release ('--release 3.1')" {
-  run --separate-stderr $TOOLBOX run --distro fedora --release 3.1 ls
+  run --separate-stderr "$TOOLBOX" run --distro fedora --release 3.1 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -427,7 +427,7 @@ teardown() {
 }
 
 @test "run: Try Fedora with an invalid release ('--release foo')" {
-  run --separate-stderr $TOOLBOX run --distro fedora --release foo ls
+  run --separate-stderr "$TOOLBOX" run --distro fedora --release foo ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -439,7 +439,7 @@ teardown() {
 }
 
 @test "run: Try Fedora with an invalid release ('--release 3foo')" {
-  run --separate-stderr $TOOLBOX run --distro fedora --release 3foo ls
+  run --separate-stderr "$TOOLBOX" run --distro fedora --release 3foo ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -451,7 +451,7 @@ teardown() {
 }
 
 @test "run: Try RHEL with an invalid release ('--release 8')" {
-  run --separate-stderr $TOOLBOX run --distro rhel --release 8 ls
+  run --separate-stderr "$TOOLBOX" run --distro rhel --release 8 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -463,7 +463,7 @@ teardown() {
 }
 
 @test "run: Try RHEL with an invalid release ('--release 8.0.0')" {
-  run --separate-stderr $TOOLBOX run --distro rhel --release 8.0.0 ls
+  run --separate-stderr "$TOOLBOX" run --distro rhel --release 8.0.0 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -475,7 +475,7 @@ teardown() {
 }
 
 @test "run: Try RHEL with an invalid release ('--release 8.0.1')" {
-  run --separate-stderr $TOOLBOX run --distro rhel --release 8.0.1 ls
+  run --separate-stderr "$TOOLBOX" run --distro rhel --release 8.0.1 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -487,7 +487,7 @@ teardown() {
 }
 
 @test "run: Try RHEL with an invalid release ('--release 8.3.0')" {
-  run --separate-stderr $TOOLBOX run --distro rhel --release 8.3.0 ls
+  run --separate-stderr "$TOOLBOX" run --distro rhel --release 8.3.0 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -499,7 +499,7 @@ teardown() {
 }
 
 @test "run: Try RHEL with an invalid release ('--release 8.3.1')" {
-  run --separate-stderr $TOOLBOX run --distro rhel --release 8.3.1 ls
+  run --separate-stderr "$TOOLBOX" run --distro rhel --release 8.3.1 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -511,7 +511,7 @@ teardown() {
 }
 
 @test "run: Try RHEL with an invalid release ('--release foo')" {
-  run --separate-stderr $TOOLBOX run --distro rhel --release foo ls
+  run --separate-stderr "$TOOLBOX" run --distro rhel --release foo ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -523,7 +523,7 @@ teardown() {
 }
 
 @test "run: Try RHEL with an invalid release ('--release 8.2foo')" {
-  run --separate-stderr $TOOLBOX run --distro rhel --release 8.2foo ls
+  run --separate-stderr "$TOOLBOX" run --distro rhel --release 8.2foo ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -535,7 +535,7 @@ teardown() {
 }
 
 @test "run: Try RHEL with an invalid release ('--release -2.1')" {
-  run --separate-stderr $TOOLBOX run --distro rhel --release -2.1 ls
+  run --separate-stderr "$TOOLBOX" run --distro rhel --release -2.1 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -547,7 +547,7 @@ teardown() {
 }
 
 @test "run: Try RHEL with an invalid release ('--release -2.-1')" {
-  run --separate-stderr $TOOLBOX run --distro rhel --release -2.-1 ls
+  run --separate-stderr "$TOOLBOX" run --distro rhel --release -2.-1 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -559,7 +559,7 @@ teardown() {
 }
 
 @test "run: Try RHEL with an invalid release ('--release 2.-1')" {
-  run --separate-stderr $TOOLBOX run --distro rhel --release 2.-1 ls
+  run --separate-stderr "$TOOLBOX" run --distro rhel --release 2.-1 ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -578,7 +578,7 @@ teardown() {
     distro="rhel"
   fi
 
-  run --separate-stderr $TOOLBOX run --distro "$distro" ls
+  run --separate-stderr "$TOOLBOX" run --distro "$distro" ls
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -592,7 +592,7 @@ teardown() {
 @test "run: Smoke test with 'exit 2'" {
   create_default_container
 
-  run -2 $TOOLBOX run /bin/sh -c 'exit 2'
+  run -2 "$TOOLBOX" run /bin/sh -c 'exit 2'
   assert_failure
   assert_output ""
 }
@@ -602,7 +602,7 @@ teardown() {
   create_default_container
 
   # File descriptors 3 and 4 are reserved by Bats.
-  run -125 --separate-stderr $TOOLBOX run --preserve-fds 3 readlink /proc/self/fd/5
+  run -125 --separate-stderr "$TOOLBOX" run --preserve-fds 3 readlink /proc/self/fd/5
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -615,7 +615,7 @@ teardown() {
 @test "run: Try /etc as a command" {
   create_default_container
 
-  run -126 --separate-stderr $TOOLBOX run /etc
+  run -126 --separate-stderr "$TOOLBOX" run /etc
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -631,7 +631,7 @@ teardown() {
 
   create_default_container
 
-  run -127 --separate-stderr $TOOLBOX run $cmd
+  run -127 --separate-stderr "$TOOLBOX" run "$cmd"
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]

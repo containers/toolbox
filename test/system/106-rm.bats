@@ -31,7 +31,7 @@ teardown() {
 
 @test "rm: Try to remove a non-existent container" {
   container_name="nonexistentcontainer"
-  run $TOOLBOX rm "$container_name"
+  run "$TOOLBOX" rm "$container_name"
 
   #assert_failure  #BUG: it should return 1
   assert_output "Error: failed to inspect container $container_name"
@@ -42,7 +42,7 @@ teardown() {
   create_container running
   start_container running
 
-  run $TOOLBOX rm running
+  run "$TOOLBOX" rm running
 
   #assert_failure  #BUG: it should return 1
   assert_output "Error: container running is running"
@@ -51,7 +51,7 @@ teardown() {
 @test "rm: Remove a not running container" {
   create_container not-running
 
-  run $TOOLBOX rm not-running
+  run "$TOOLBOX" rm not-running
 
   assert_success
   assert_output ""
@@ -61,26 +61,26 @@ teardown() {
   create_container running
   start_container running
 
-  run $TOOLBOX rm --force running
+  run "$TOOLBOX" rm --force running
 
   assert_success
   assert_output ""
 }
 
 @test "rm: Force remove all containers (with 2 containers created and 1 running)" {
-  num_of_containers=$(list_containers)
+  num_of_containers="$(list_containers)"
   assert_equal "$num_of_containers" 0
 
   create_container running
   create_container not-running
   start_container running
 
-  run $TOOLBOX rm --force --all
+  run "$TOOLBOX" rm --force --all
 
   assert_success
   assert_output ""
 
-  new_num_of_containers=$(list_containers)
+  new_num_of_containers="$(list_containers)"
 
   assert_equal "$new_num_of_containers" "$num_of_containers"
 }
