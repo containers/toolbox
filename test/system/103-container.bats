@@ -46,12 +46,10 @@ teardown() {
 }
 
 @test "container(Fedora Rawhide): Containers with supported versions start without issues" {
-  local os_release="$(find_os_release)"
   local system_id="$(get_system_id)"
   local system_version="$(get_system_version)"
-  local rawhide_res="$(awk '/rawhide/' $os_release)"
 
-  if [ "$system_id" != "fedora" ] || [ -z "$rawhide_res" ]; then
+  if ! is_fedora_rawhide; then
     skip "This test is only for Fedora Rawhide"
   fi
 

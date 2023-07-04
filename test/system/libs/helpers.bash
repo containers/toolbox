@@ -525,6 +525,20 @@ function get_system_version() (
 )
 
 
+function is_fedora_rawhide() (
+  local os_release
+  os_release="$(find_os_release)"
+  [ -z "$os_release" ] && return 1
+
+  . "$os_release"
+
+  [ "$ID" != "fedora" ] && return 1
+  [ "$REDHAT_BUGZILLA_PRODUCT_VERSION" != "rawhide" ] && return 1
+
+  return 0
+)
+
+
 # Set up the XDG_RUNTIME_DIR variable if not set
 function check_xdg_runtime_dir() {
   if [[ -z "${XDG_RUNTIME_DIR}" ]]; then
