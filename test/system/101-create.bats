@@ -621,7 +621,9 @@ teardown() {
 
 @test "create: Try a non-default distro without a release" {
   local distro="fedora"
-  local system_id="$(get_system_id)"
+
+  local system_id
+  system_id="$(get_system_id)"
 
   if [ "$system_id" = "fedora" ]; then
     distro="rhel"

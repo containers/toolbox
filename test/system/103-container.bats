@@ -30,7 +30,8 @@ teardown() {
 
 
 @test "container: Check container starts without issues" {
-  readonly CONTAINER_NAME="$(get_system_id)-toolbox-$(get_system_version)"
+  CONTAINER_NAME="$(get_system_id)-toolbox-$(get_system_version)"
+  readonly CONTAINER_NAME
 
   create_default_container
 
@@ -46,8 +47,11 @@ teardown() {
 }
 
 @test "container(Fedora Rawhide): Containers with supported versions start without issues" {
-  local system_id="$(get_system_id)"
-  local system_version="$(get_system_version)"
+  local system_id
+  system_id="$(get_system_id)"
+
+  local system_version
+  system_version="$(get_system_version)"
 
   if ! is_fedora_rawhide; then
     skip "This test is only for Fedora Rawhide"

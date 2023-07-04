@@ -203,7 +203,9 @@ teardown() {
 @test "run: Ensure that the default container is used" {
   test -z "${name+x}"
 
-  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+  local default_container_name
+  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+
   create_default_container
   create_container other-container
 
@@ -227,7 +229,9 @@ teardown() {
   assert_success
   assert_output ""
 
-  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+  local default_container_name
+  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+
   create_default_container
   create_container other-container
 
@@ -246,7 +250,9 @@ teardown() {
 }
 
 @test "run: Ensure that $HOME is used as a fallback working directory" {
-  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+  local default_container_name
+  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+
   create_default_container
 
   pushd /etc/kernel
@@ -275,7 +281,8 @@ teardown() {
 }
 
 @test "run: Try the non-existent default container with none other present" {
-  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+  local default_container_name
+  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
 
   run --separate-stderr "$TOOLBOX" run true
 
@@ -289,7 +296,8 @@ teardown() {
 }
 
 @test "run: Try the non-existent default container with another present" {
-  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+  local default_container_name
+  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
 
   create_container other-container
 
@@ -574,7 +582,9 @@ teardown() {
 
 @test "run: Try a non-default distro without a release" {
   local distro="fedora"
-  local system_id="$(get_system_id)"
+
+  local system_id
+  system_id="$(get_system_id)"
 
   if [ "$system_id" = "fedora" ]; then
     distro="rhel"
@@ -600,7 +610,9 @@ teardown() {
 }
 
 @test "run: Pass down 1 invalid file descriptor" {
-  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+  local default_container_name
+  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+
   create_default_container
 
   # File descriptors 3 and 4 are reserved by Bats.

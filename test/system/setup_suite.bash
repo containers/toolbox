@@ -33,8 +33,11 @@ setup_suite() {
     return 1
   fi
 
-  local system_id="$(get_system_id)"
-  local system_version="$(get_system_version)"
+  local system_id
+  system_id="$(get_system_id)"
+
+  local system_version
+  system_version="$(get_system_version)"
 
   _setup_environment
   # Cache the default image for the system

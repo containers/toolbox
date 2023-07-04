@@ -37,7 +37,8 @@ teardown() {
 }
 
 @test "enter: Try to enter the default container with more than 1 other containers present" {
-  local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+  local default_container_name
+  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
 
   create_container first
   create_container second
@@ -127,7 +128,9 @@ teardown() {
 
 @test "enter: Try to enter a container based on non-default distro without providing a version" {
   local distro="fedora"
-  local system_id="$(get_system_id)"
+
+  local system_id
+  system_id="$(get_system_id)"
 
   if [ "$system_id" = "fedora" ]; then
     distro="rhel"
