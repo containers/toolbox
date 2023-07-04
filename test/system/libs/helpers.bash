@@ -236,7 +236,10 @@ function build_image_without_name() {
   assert_line --index 1 --partial "LABEL com.github.containers.toolbox=\"true\""
   assert_line --index 2 --partial "COMMIT"
   assert_line --index 3 --regexp "^--> [a-f0-9]{6,64}$"
+
+  # shellcheck disable=SC2154
   last=$((${#lines[@]}-1))
+
   assert_line --index "$last" --regexp "^[a-f0-9]{64}$"
 
   rm -f "$BATS_TEST_TMPDIR"/Containerfile
@@ -440,6 +443,7 @@ function container_started() {
     run "$PODMAN" logs "$container_name"
 
     # Look for last line of the container startup log
+    # shellcheck disable=SC2154
     if echo "$output" | grep "Listening to file system and ticker events"; then
       container_initialized=0
       break

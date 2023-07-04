@@ -34,6 +34,8 @@ teardown() {
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
+
+  # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 

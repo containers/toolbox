@@ -30,5 +30,7 @@ setup() {
   assert_success
   assert_output --regexp '^toolbox version [0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$'
   assert [ ${#lines[@]} -eq 1 ]
+
+  # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
