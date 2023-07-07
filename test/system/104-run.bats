@@ -211,6 +211,7 @@ teardown() {
   assert [ ${#lines[@]} -gt 0 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
+  # shellcheck disable=SC1090
   source <(echo "$output")
   run echo "$name"
 
@@ -234,6 +235,7 @@ teardown() {
   assert [ ${#lines[@]} -gt 0 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
+  # shellcheck disable=SC1090
   source <(echo "$output")
   run echo "$name"
 
