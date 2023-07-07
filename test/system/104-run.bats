@@ -199,10 +199,7 @@ teardown() {
 }
 
 @test "run: Ensure that the default container is used" {
-  run echo "$name"
-
-  assert_success
-  assert_output ""
+  test -z "${name+x}"
 
   local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
   create_default_container
