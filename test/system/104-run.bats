@@ -131,14 +131,14 @@ teardown() {
   create_default_container
 
   cp "$HOME"/.bash_profile "$HOME"/.bash_profile.orig
-  echo "echo \"~/.bash_profile read\"" >>"$HOME"/.bash_profile
+  echo "echo \"$HOME/.bash_profile read\"" >>"$HOME"/.bash_profile
 
   run "$TOOLBOX" run true
 
   mv "$HOME"/.bash_profile.orig "$HOME"/.bash_profile
 
   assert_success
-  assert_line --index 0 "~/.bash_profile read"
+  assert_line --index 0 "$HOME/.bash_profile read"
   assert [ ${#lines[@]} -eq 1 ]
 }
 
