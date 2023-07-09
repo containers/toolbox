@@ -1,4 +1,4 @@
-#!/usr/bin/env bats
+#!/usr/bin/env bash
 #
 # Copyright © 2021 – 2023 Red Hat, Inc.
 #
