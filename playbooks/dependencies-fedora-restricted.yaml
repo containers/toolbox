@@ -14,6 +14,11 @@
 # limitations under the License.
 #
 
+- name: Install python3-dnf
+  become: true
+  command: dnf5 --assumeyes install python3-dnf
+  when: ansible_distribution_major_version | int >= 39
+
 - name: Ensure that subordinate group ID ranges are absent
   become: yes
   file:
