@@ -62,10 +62,10 @@ var (
 		{"/run/udev/data", "/run/host/run/udev/data", ""},
 		{"/run/udev/tags", "/run/host/run/udev/tags", ""},
 		{"/tmp", "/run/host/tmp", "rslave"},
-		{"/var/lib/flatpak", "/run/host/var/lib/flatpak", "ro"},
+		{"/var/lib/flatpak", "/run/host/var/lib/flatpak", ""},
 		{"/var/lib/libvirt", "/run/host/var/lib/libvirt", ""},
-		{"/var/lib/systemd/coredump", "/run/host/var/lib/systemd/coredump", "ro"},
-		{"/var/log/journal", "/run/host/var/log/journal", "ro"},
+		{"/var/lib/systemd/coredump", "/run/host/var/lib/systemd/coredump", ""},
+		{"/var/log/journal", "/run/host/var/log/journal", ""},
 		{"/var/mnt", "/run/host/var/mnt", "rslave"},
 	}
 )
