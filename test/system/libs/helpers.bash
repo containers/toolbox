@@ -86,7 +86,7 @@ function _pull_and_cache_distro_image() {
   distro="$1"
   version="$2"
 
-  if [ ! -v IMAGES[$distro] ]; then
+  if ! [ -v IMAGES[$distro] ]; then
     fail "Requested distro (${distro}) does not have a matching image"
   fi
 
@@ -302,7 +302,7 @@ function pull_distro_image() {
   distro="$1"
   version="$2"
 
-  if [ ! -v IMAGES[$distro] ]; then
+  if ! [ -v IMAGES[$distro] ]; then
     fail "Requested distro (${distro}) does not have a matching image"
   fi
 
