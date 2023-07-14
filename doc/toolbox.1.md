@@ -48,6 +48,9 @@ falls back to a Fedora image. Supported host operating systems are:
 
 * Fedora
 * Red Hat Enterprise Linux >= 8.5
+* CentOS Stream
+* Arch Linux
+
 
 However, it's possible to create containers for a different distribution
 through the use of the `--distro` and `--release` options that are accepted by
