@@ -107,7 +107,7 @@ function _pull_and_cache_distro_image() {
     assert_success
   fi
 
-  for ((i = ${num_of_retries}; i > 0; i--)); do
+  for ((i = num_of_retries; i > 0; i--)); do
     run $SKOPEO copy --dest-compress docker://${image} dir:${IMAGE_CACHE_DIR}/${image_archive}
 
     if [ "$status" -eq 0 ]; then
