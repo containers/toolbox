@@ -3,6 +3,7 @@ test_system = files(
   '203-network.bats',
   '206-user.bats',
   '210-ulimit.bats',
+  '211-dbus.bats',
 )
 
 if shellcheck.found()
