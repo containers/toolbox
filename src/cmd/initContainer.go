@@ -236,24 +236,12 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	if _, err := user.Lookup(initContainerFlags.user); err != nil {
-		if err := configureUsers(initContainerFlags.uid,
-			initContainerFlags.user,
-			initContainerFlags.home,
-			initContainerFlags.shell,
-			initContainerFlags.homeLink,
-			false); err != nil {
-			return err
-		}
-	} else {
-		if err := configureUsers(initContainerFlags.uid,
-			initContainerFlags.user,
-			initContainerFlags.home,
-			initContainerFlags.shell,
-			initContainerFlags.homeLink,
-			true); err != nil {
-			return err
-		}
+	if err := configureUsers(initContainerFlags.uid,
+		initContainerFlags.user,
+		initContainerFlags.home,
+		initContainerFlags.shell,
+		initContainerFlags.homeLink); err != nil {
+		return err
 	}
 
 	if utils.PathExists("/etc/krb5.conf.d") && !utils.PathExists("/etc/krb5.conf.d/kcm_default_ccache") {
@@ -386,9 +374,7 @@ func initContainerHelp(cmd *cobra.Command, args []string) {
 	}
 }
 
-func configureUsers(targetUserUid int,
-	targetUser, targetUserHome, targetUserShell string,
-	homeLink, targetUserExists bool) error {
+func configureUsers(targetUserUid int, targetUser, targetUserHome, targetUserShell string, homeLink bool) error {
 	if homeLink {
 		if err := redirectPath("/home", "/var/home", true); err != nil {
 			return err
@@ -400,27 +386,7 @@ func configureUsers(targetUserUid int,
 		return fmt.Errorf("failed to get group for sudo: %w", err)
 	}
 
-	if targetUserExists {
-		logrus.Debugf("Modifying user %s with UID %d:", targetUser, targetUserUid)
-
-		usermodArgs := []string{
-			"--append",
-			"--groups", sudoGroup,
-			"--home", targetUserHome,
-			"--shell", targetUserShell,
-			"--uid", fmt.Sprint(targetUserUid),
-			targetUser,
-		}
-
-		logrus.Debug("usermod")
-		for _, arg := range usermodArgs {
-			logrus.Debugf("%s", arg)
-		}
-
-		if err := shell.Run("usermod", nil, nil, nil, usermodArgs...); err != nil {
-			return fmt.Errorf("failed to modify user %s with UID %d: %w", targetUser, targetUserUid, err)
-		}
-	} else {
+	if _, err := user.Lookup(targetUser); err != nil {
 		logrus.Debugf("Adding user %s with UID %d:", targetUser, targetUserUid)
 
 		useraddArgs := []string{
@@ -439,6 +405,26 @@ func configureUsers(targetUserUid int,
 
 		if err := shell.Run("useradd", nil, nil, nil, useraddArgs...); err != nil {
 			return fmt.Errorf("failed to add user %s with UID %d: %w", targetUser, targetUserUid, err)
+		}
+	} else {
+		logrus.Debugf("Modifying user %s with UID %d:", targetUser, targetUserUid)
+
+		usermodArgs := []string{
+			"--append",
+			"--groups", sudoGroup,
+			"--home", targetUserHome,
+			"--shell", targetUserShell,
+			"--uid", fmt.Sprint(targetUserUid),
+			targetUser,
+		}
+
+		logrus.Debug("usermod")
+		for _, arg := range usermodArgs {
+			logrus.Debugf("%s", arg)
+		}
+
+		if err := shell.Run("usermod", nil, nil, nil, usermodArgs...); err != nil {
+			return fmt.Errorf("failed to modify user %s with UID %d: %w", targetUser, targetUserUid, err)
 		}
 	}
 
