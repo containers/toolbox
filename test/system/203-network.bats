@@ -39,7 +39,12 @@ teardown() {
 
   assert_success
   assert_line --index 0 "$ns_host"
-  assert [ ${#lines[@]} -eq 2 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
 
   # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
