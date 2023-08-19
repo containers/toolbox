@@ -52,7 +52,7 @@ var (
 		source        string
 		flags         string
 	}{
-		{"/etc/machine-id", "/run/host/etc/machine-id", "ro"},
+		{"/etc/machine-id", "/run/host/etc/machine-id", ""},
 		{"/run/libvirt", "/run/host/run/libvirt", ""},
 		{"/run/systemd/journal", "/run/host/run/systemd/journal", ""},
 		{"/run/systemd/resolve", "/run/host/run/systemd/resolve", ""},
