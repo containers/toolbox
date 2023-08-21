@@ -122,6 +122,14 @@ var (
 			getFullyQualifiedImageArch,
 			parseReleaseArch,
 		},
+		"debian": {
+			"debian-toolbox",
+			"debian-toolbox",
+			true,
+			getDefaultReleaseDebian,
+			getFullyQualifiedImageDebian,
+			parseReleaseDebian,
+		},
 		"fedora": {
 			"fedora-toolbox",
 			"fedora-toolbox",
@@ -327,6 +335,15 @@ func getDefaultReleaseArch() (string, error) {
 	return "latest", nil
 }
 
+func getDefaultReleaseDebian() (string, error) {
+	release, err := getHostVersionID()
+	if err != nil {
+		return "", err
+	}
+
+	return release, nil
+}
+
 func getDefaultReleaseFedora() (string, error) {
 	release, err := getHostVersionID()
 	if err != nil {
@@ -415,6 +432,11 @@ func GetFullyQualifiedImageFromDistros(image, release string) (string, error) {
 }
 
 func getFullyQualifiedImageArch(image, release string) string {
+	imageFull := "quay.io/toolbx/" + image
+	return imageFull
+}
+
+func getFullyQualifiedImageDebian(image, release string) string {
 	imageFull := "quay.io/toolbx/" + image
 	return imageFull
 }
@@ -740,6 +762,24 @@ func parseReleaseArch(release string) (string, error) {
 	}
 
 	return "latest", nil
+}
+
+func parseReleaseDebian(release string) (string, error) {
+	if release == "testing" || release == "unstable" {
+		return release, nil
+	}
+
+	releaseN, err := strconv.Atoi(release)
+	if err != nil {
+		logrus.Debugf("Parsing release %s as an integer failed: %s", release, err)
+		return "", &ParseReleaseError{"The release must be a positive integer, 'testing', or 'unstable'."}
+	}
+
+	if releaseN <= 0 {
+		return "", &ParseReleaseError{"The release must be a positive integer, 'testing', or 'unstable'."}
+	}
+
+	return release, nil
 }
 
 func parseReleaseFedora(release string) (string, error) {
