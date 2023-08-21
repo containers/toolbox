@@ -82,6 +82,86 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+@test "network: ping(8) inside Debian 10" {
+  create_distro_container debian 10 debian-toolbox-10
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro debian --release 10 ping -c 2 f.root-servers.net
+
+  if [ "$status" -eq 1 ]; then
+    skip "lost packets"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -gt 0 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "network: ping(8) inside Debian 11" {
+  create_distro_container debian 11 debian-toolbox-11
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro debian --release 11 ping -c 2 f.root-servers.net
+
+  if [ "$status" -eq 1 ]; then
+    skip "lost packets"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -gt 0 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "network: ping(8) inside Debian 12" {
+  create_distro_container debian 12 debian-toolbox-12
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro debian --release 12 ping -c 2 f.root-servers.net
+
+  if [ "$status" -eq 1 ]; then
+    skip "lost packets"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -gt 0 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "network: ping(8) inside Debian Testing" {
+  create_distro_container debian testing debian-toolbox-testing
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro debian --release testing ping -c 2 f.root-servers.net
+
+  if [ "$status" -eq 1 ]; then
+    skip "lost packets"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -gt 0 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "network: ping(8) inside Debian Unstable" {
+  create_distro_container debian unstable debian-toolbox-unstable
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro debian --release unstable ping -c 2 f.root-servers.net
+
+  if [ "$status" -eq 1 ]; then
+    skip "lost packets"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -gt 0 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
 @test "network: ping(8) inside Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
 

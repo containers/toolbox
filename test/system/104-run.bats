@@ -79,6 +79,56 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+@test "run: Smoke test with Debian 10" {
+  create_distro_container debian 10 debian-toolbox-10
+
+  run --separate-stderr "$TOOLBOX" run --distro debian --release 10 true
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "run: Smoke test with Debian 11" {
+  create_distro_container debian 11 debian-toolbox-11
+
+  run --separate-stderr "$TOOLBOX" run --distro debian --release 11 true
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "run: Smoke test with Debian 12" {
+  create_distro_container debian 12 debian-toolbox-12
+
+  run --separate-stderr "$TOOLBOX" run --distro debian --release 12 true
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "run: Smoke test with Debian Testing" {
+  create_distro_container debian testing debian-toolbox-testing
+
+  run --separate-stderr "$TOOLBOX" run --distro debian --release testing true
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "run: Smoke test with Debian Unstable" {
+  create_distro_container debian unstable debian-toolbox-unstable
+
+  run --separate-stderr "$TOOLBOX" run --distro debian --release unstable true
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
 @test "run: Smoke test with Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
 

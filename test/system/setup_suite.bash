@@ -44,6 +44,11 @@ setup_suite() {
   _pull_and_cache_distro_image "$system_id" "$system_version" || false
   # Cache all images that will be needed during the tests
   _pull_and_cache_distro_image arch latest || false
+  _pull_and_cache_distro_image debian 10 || false
+  _pull_and_cache_distro_image debian 11 || false
+  _pull_and_cache_distro_image debian 12 || false
+  _pull_and_cache_distro_image debian testing || false
+  _pull_and_cache_distro_image debian unstable || false
   _pull_and_cache_distro_image fedora 34 || false
   _pull_and_cache_distro_image rhel 8.7 || false
   _pull_and_cache_distro_image ubuntu 16.04 || false

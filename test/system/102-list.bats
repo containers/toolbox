@@ -173,6 +173,156 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+@test "list: Debian 10 image" {
+  pull_distro_image debian 10
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx/debian-toolbox:10"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Debian 10 image (using --images)" {
+  pull_distro_image debian 10
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx/debian-toolbox:10"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Debian 11 image" {
+  pull_distro_image debian 11
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx/debian-toolbox:11"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Debian 11 image (using --images)" {
+  pull_distro_image debian 11
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx/debian-toolbox:11"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Debian 12 image" {
+  pull_distro_image debian 12
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx/debian-toolbox:12"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Debian 12 image (using --images)" {
+  pull_distro_image debian 12
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx/debian-toolbox:12"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Debian Testing image" {
+  pull_distro_image debian testing
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx/debian-toolbox:testing"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Debian Testing image (using --images)" {
+  pull_distro_image debian testing
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx/debian-toolbox:testing"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Debian Unstable image" {
+  pull_distro_image debian unstable
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx/debian-toolbox:unstable"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Debian Unstable image (using --images)" {
+  pull_distro_image debian unstable
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx/debian-toolbox:unstable"
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
 @test "list: Fedora 34 image" {
   pull_distro_image fedora 34
 

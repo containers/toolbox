@@ -125,6 +125,76 @@ teardown() {
   assert_output --regexp "Created[[:blank:]]+arch-toolbox-latest"
 }
 
+@test "create: Debian 10" {
+  pull_distro_image debian 10
+
+  run $TOOLBOX --assumeyes create --distro debian --release 10
+
+  assert_success
+  assert_output --partial "Created container: debian-toolbox-10"
+  assert_output --partial "Enter with: toolbox enter debian-toolbox-10"
+
+  run podman ps -a
+
+  assert_output --regexp "Created[[:blank:]]+debian-toolbox-10"
+}
+
+@test "create: Debian 11" {
+  pull_distro_image debian 11
+
+  run $TOOLBOX --assumeyes create --distro debian --release 11
+
+  assert_success
+  assert_output --partial "Created container: debian-toolbox-11"
+  assert_output --partial "Enter with: toolbox enter debian-toolbox-11"
+
+  run podman ps -a
+
+  assert_output --regexp "Created[[:blank:]]+debian-toolbox-11"
+}
+
+@test "create: Debian 12" {
+  pull_distro_image debian 12
+
+  run $TOOLBOX --assumeyes create --distro debian --release 12
+
+  assert_success
+  assert_output --partial "Created container: debian-toolbox-12"
+  assert_output --partial "Enter with: toolbox enter debian-toolbox-12"
+
+  run podman ps -a
+
+  assert_output --regexp "Created[[:blank:]]+debian-toolbox-12"
+}
+
+@test "create: Debian Testing" {
+  pull_distro_image debian testing
+
+  run $TOOLBOX --assumeyes create --distro debian --release testing
+
+  assert_success
+  assert_output --partial "Created container: debian-toolbox-testing"
+  assert_output --partial "Enter with: toolbox enter debian-toolbox-testing"
+
+  run podman ps -a
+
+  assert_output --regexp "Created[[:blank:]]+debian-toolbox-testing"
+}
+
+@test "create: Debian Unstable" {
+  pull_distro_image debian unstable
+
+  run $TOOLBOX --assumeyes create --distro debian --release unstable
+
+  assert_success
+  assert_output --partial "Created container: debian-toolbox-unstable"
+  assert_output --partial "Enter with: toolbox enter debian-toolbox-unstable"
+
+  run podman ps -a
+
+  assert_output --regexp "Created[[:blank:]]+debian-toolbox-unstable"
+}
+
 @test "create: Fedora 34" {
   pull_distro_image fedora 34
 
@@ -225,6 +295,46 @@ teardown() {
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be 'latest'."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Debian with an invalid release ('--release -4')" {
+  run $TOOLBOX --assumeyes create --distro debian --release -4
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer, 'testing', or 'unstable'."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Debian with an invalid release ('--release 10.4')" {
+  run $TOOLBOX --assumeyes create --distro debian --release 10.4
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer, 'testing', or 'unstable'."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Debian with an invalid release ('--release 10foo')" {
+  run $TOOLBOX --assumeyes create --distro debian --release 10foo
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer, 'testing', or 'unstable'."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try Debian with an invalid release ('--release foo')" {
+  run $TOOLBOX --assumeyes create --distro debian --release foo
+
+  assert_failure
+  assert_line --index 0 "Error: invalid argument for '--release'"
+  assert_line --index 1 "The release must be a positive integer, 'testing', or 'unstable'."
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#lines[@]} -eq 3 ]
 }
