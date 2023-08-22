@@ -393,6 +393,7 @@ func configureUsers(targetUserUid int, targetUser, targetUserHome, targetUserShe
 			"--groups", sudoGroup,
 			"--home-dir", targetUserHome,
 			"--no-create-home",
+			"--password", "",
 			"--shell", targetUserShell,
 			"--uid", fmt.Sprint(targetUserUid),
 			targetUser,
@@ -413,6 +414,7 @@ func configureUsers(targetUserUid int, targetUser, targetUserHome, targetUserShe
 			"--append",
 			"--groups", sudoGroup,
 			"--home", targetUserHome,
+			"--password", "",
 			"--shell", targetUserShell,
 			"--uid", fmt.Sprint(targetUserUid),
 			targetUser,
@@ -426,12 +428,6 @@ func configureUsers(targetUserUid int, targetUser, targetUserHome, targetUserShe
 		if err := shell.Run("usermod", nil, nil, nil, usermodArgs...); err != nil {
 			return fmt.Errorf("failed to modify user %s with UID %d: %w", targetUser, targetUserUid, err)
 		}
-	}
-
-	logrus.Debugf("Removing password for user %s", targetUser)
-
-	if err := shell.Run("passwd", nil, nil, nil, "--delete", targetUser); err != nil {
-		return fmt.Errorf("failed to remove password for user %s: %w", targetUser, err)
 	}
 
 	logrus.Debug("Removing password for user root")
