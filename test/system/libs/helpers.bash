@@ -439,7 +439,9 @@ function container_started() {
   # Used as a return value
   container_initialized=1
 
-  for TRIES in 1 2 3 4 5; do
+  local num_of_retries=5
+
+  for ((i = 0; i < num_of_retries; i++)); do
     run "$PODMAN" logs "$container_name"
 
     # Look for last line of the container startup log
