@@ -333,7 +333,7 @@ function pull_distro_image() {
 #
 # See pull_default_image() for more info.
 function pull_default_image() {
-  pull_distro_image $(get_system_id) $(get_system_version)
+  pull_distro_image "$(get_system_id)" "$(get_system_version)"
 }
 
 
