@@ -431,7 +431,7 @@ function container_started() {
   local container_name
   container_name="$1"
 
-  run "$PODMAN" start "$container_name"
+  start_container "$container_name"
 
   # Used as a return value
   container_initialized=1
