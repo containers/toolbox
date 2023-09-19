@@ -439,10 +439,9 @@ function container_started() {
   for TRIES in 1 2 3 4 5
   do
     run "$PODMAN" logs "$container_name"
-    container_output="$output"
+
     # Look for last line of the container startup log
-    run grep 'Listening to file system and ticker events' <<< "$container_output"
-    if [[ "$status" -eq 0 ]]; then
+    if echo "$output" | grep "Listening to file system and ticker events"; then
       container_initialized=0
       break
     fi
