@@ -502,7 +502,9 @@ function get_system_id() (
     return
   fi
 
+  # shellcheck disable=SC1090
   . "$os_release"
+
   echo "$ID"
 )
 
@@ -518,7 +520,9 @@ function get_system_version() (
     return
   fi
 
+  # shellcheck disable=SC1090
   . "$os_release"
+
   echo "$VERSION_ID"
 )
 
@@ -528,6 +532,7 @@ function is_fedora_rawhide() (
   os_release="$(find_os_release)"
   [ -z "$os_release" ] && return 1
 
+  # shellcheck disable=SC1090
   . "$os_release"
 
   [ "$ID" != "fedora" ] && return 1
