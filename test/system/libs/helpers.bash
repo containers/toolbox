@@ -444,11 +444,20 @@ function container_started() {
   local num_of_retries=5
 
   for ((j = 0; j < num_of_retries; j++)); do
-    run "$PODMAN" logs "$container_name"
+    run --separate-stderr "$PODMAN" logs "$container_name"
+
+    # shellcheck disable=SC2154
+    if [ "$status" -ne 0 ]; then
+      fail "Failed to invoke '$PODMAN logs'"
+      [ "$output" != "" ] && echo "$output"
+      [ "$stderr" != "" ] && echo "$stderr" >&2
+      ret_val="$status"
+      break
+    fi
 
     # Look for last line of the container startup log
     # shellcheck disable=SC2154
-    if echo "$output" | grep "Listening to file system and ticker events"; then
+    if echo "$output $stderr" | grep "Listening to file system and ticker events"; then
       ret_val=0
       break
     fi
