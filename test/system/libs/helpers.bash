@@ -107,6 +107,8 @@ function _pull_and_cache_distro_image() {
     assert_success
   fi
 
+  local -i j
+
   for ((j = 0; j < num_of_retries; j++)); do
     run "$SKOPEO" copy --dest-compress "docker://${image}" "dir:${IMAGE_CACHE_DIR}/${image_archive}"
 
@@ -439,6 +441,7 @@ function container_started() {
   # Used as a return value
   container_initialized=1
 
+  local -i j
   local num_of_retries=5
 
   for ((j = 0; j < num_of_retries; j++)); do
