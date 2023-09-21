@@ -449,8 +449,6 @@ function container_started() {
     # shellcheck disable=SC2154
     if [ "$status" -ne 0 ]; then
       fail "Failed to invoke '$PODMAN logs'"
-      [ "$output" != "" ] && echo "$output"
-      [ "$stderr" != "" ] && echo "$stderr" >&2
       ret_val="$status"
       break
     fi
@@ -464,6 +462,15 @@ function container_started() {
 
     sleep 1
   done
+
+  if [ "$ret_val" -ne 0 ]; then
+    if [ "$j" -eq "$num_of_retries" ]; then
+      fail "Failed to initialize container $container_name"
+    fi
+
+    [ "$output" != "" ] && echo "$output"
+    [ "$stderr" != "" ] && echo "$stderr" >&2
+  fi
 
   return "$ret_val"
 }
