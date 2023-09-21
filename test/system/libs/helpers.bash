@@ -107,7 +107,7 @@ function _pull_and_cache_distro_image() {
     assert_success
   fi
 
-  for ((i = 0; i < num_of_retries; i++)); do
+  for ((j = 0; j < num_of_retries; j++)); do
     run "$SKOPEO" copy --dest-compress "docker://${image}" "dir:${IMAGE_CACHE_DIR}/${image_archive}"
 
     if [ "$status" -eq 0 ]; then
@@ -441,7 +441,7 @@ function container_started() {
 
   local num_of_retries=5
 
-  for ((i = 0; i < num_of_retries; i++)); do
+  for ((j = 0; j < num_of_retries; j++)); do
     run "$PODMAN" logs "$container_name"
 
     # Look for last line of the container startup log
