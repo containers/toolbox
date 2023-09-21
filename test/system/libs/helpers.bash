@@ -439,7 +439,7 @@ function container_started() {
   start_container "$container_name"
 
   # Used as a return value
-  container_initialized=1
+  local -i container_initialized=1
 
   local -i j
   local num_of_retries=5
