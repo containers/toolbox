@@ -436,10 +436,9 @@ function container_started() {
   local container_name
   container_name="$1"
 
-  start_container "$container_name"
+  local -i ret_val=1
 
-  # Used as a return value
-  local -i container_initialized=1
+  start_container "$container_name"
 
   local -i j
   local num_of_retries=5
@@ -450,13 +449,13 @@ function container_started() {
     # Look for last line of the container startup log
     # shellcheck disable=SC2154
     if echo "$output" | grep "Listening to file system and ticker events"; then
-      container_initialized=0
+      ret_val=0
       break
     fi
     sleep 1
   done
 
-  return "$container_initialized"
+  return "$ret_val"
 }
 
 
