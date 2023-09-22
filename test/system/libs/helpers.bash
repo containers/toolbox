@@ -56,7 +56,7 @@ function _setup_containers_storage() {
 
 
 function _clean_temporary_storage() {
-  "$PODMAN" system reset --force
+  "$PODMAN" system reset --force >/dev/null
 
   rm --force --recursive "${ROOTLESS_PODMAN_STORE_DIR}"
   rm --force --recursive "${ROOTLESS_PODMAN_RUNROOT_DIR}"
