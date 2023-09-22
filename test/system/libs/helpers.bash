@@ -461,6 +461,7 @@ function container_started() {
       ret_val=0
       break
     fi
+
     sleep 1
   done
 
