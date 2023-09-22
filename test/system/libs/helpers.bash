@@ -218,7 +218,10 @@ function _setup_docker_registry() {
 # Stop, removes and cleans after a locally hosted Docker registry
 function _clean_docker_registry() {
   # Stop Docker registry container
-  "$PODMAN" --root "${DOCKER_REG_ROOT}" stop --time 0 "${DOCKER_REG_NAME}"
+  if "$PODMAN" --root "$DOCKER_REG_ROOT" container exists "$DOCKER_REG_NAME"; then
+    "$PODMAN" --root "${DOCKER_REG_ROOT}" stop --time 0 "${DOCKER_REG_NAME}"
+  fi
+
   # Clean up Podman's registry root state
   "$PODMAN" --root "${DOCKER_REG_ROOT}" rm --all --force
   "$PODMAN" --root "${DOCKER_REG_ROOT}" rmi --all --force
