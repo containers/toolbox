@@ -108,12 +108,17 @@ function _pull_and_cache_distro_image() {
     assert_success
   fi
 
+  local error_message
   local -i j
+  local -i ret_val
 
   for ((j = 0; j < num_of_retries; j++)); do
-    run "$SKOPEO" copy --dest-compress "docker://${image}" "dir:${IMAGE_CACHE_DIR}/${image_archive}"
+    error_message="$( ("$SKOPEO" copy --dest-compress \
+                          "docker://${image}" \
+                          "dir:${IMAGE_CACHE_DIR}/${image_archive}" >/dev/null) 2>&1)"
+    ret_val="$?"
 
-    if [ "$status" -eq 0 ]; then
+    if [ "$ret_val" -eq 0 ]; then
       cached=true
       break
     fi
@@ -123,7 +128,8 @@ function _pull_and_cache_distro_image() {
 
   if ! $cached; then
     echo "Failed to cache image ${image} to ${IMAGE_CACHE_DIR}/${image_archive}"
-    assert_success
+    [ "$error_message" != "" ] && echo "$error_message" >&2
+    return "$ret_val"
   fi
 
   cleanup_all
