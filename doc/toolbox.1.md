@@ -46,8 +46,10 @@ By default, Toolbox tries to use an image matching the host operating system
 distribution for creating containers. If the host is not supported, then it
 falls back to a Fedora image. Supported host operating systems are:
 
+* Arch Linux
 * Fedora
 * Red Hat Enterprise Linux >= 8.5
+* Ubuntu
 
 However, it's possible to create containers for a different distribution
 through the use of the `--distro` and `--release` options that are accepted by
@@ -57,8 +59,10 @@ specifies its version. Supported combinations are:
 
 Distro |Release
 -------|----------
+arch   |latest or rolling
 fedora |\<release\> or f\<release\> eg., 36 or f36
 rhel   |\<major\>.\<minor\> eg., 8.5
+ubuntu |\<YY\>.\<MM\> eg., 22.04
 
 ## GLOBAL OPTIONS ##
 
