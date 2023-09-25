@@ -335,7 +335,7 @@ function pull_distro_image() {
 
   # No need to copy if the image is already available in Podman
   if "$PODMAN" image exists "${image}"; then
-    return
+    return 0
   fi
 
   # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
@@ -344,6 +344,8 @@ function pull_distro_image() {
     echo "Failed to load image ${image} from cache ${IMAGE_CACHE_DIR}/${image_archive}"
     assert_success
   fi
+
+  return 0
 }
 
 
