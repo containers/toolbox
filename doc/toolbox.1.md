@@ -64,6 +64,33 @@ fedora |\<release\> or f\<release\> eg., 36 or f36
 rhel   |\<major\>.\<minor\> eg., 8.5
 ubuntu |\<YY\>.\<MM\> eg., 22.04
 
+## USAGE
+
+### Create a Toolbox container:
+
+```
+[user@hostname ~]$ toolbox create
+Image required to create toolbox container.
+Download registry.fedoraproject.org/fedora-toolbox:36 (294.1MB)? [y/N]: y
+Created container: fedora-toolbox-36
+Enter with: toolbox enter
+[user@hostname ~]$
+```
+
+### Enter the Toolbox container:
+
+```
+[user@hostname ~]$ toolbox enter
+⬢[user@toolbox ~]$
+```
+
+### Remove the Toolbox container:
+
+```
+[user@hostname ~]$ toolbox rm fedora-toolbox-36
+[user@hostname ~]$
+```
+
 ## GLOBAL OPTIONS ##
 
 The following options are understood:
