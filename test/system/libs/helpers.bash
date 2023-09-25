@@ -340,6 +340,8 @@ function pull_distro_image() {
 
   # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
   run "$SKOPEO" copy "dir:${IMAGE_CACHE_DIR}/${image_archive}" "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]${image}"
+
+  # shellcheck disable=SC2154
   if [ "$status" -ne 0 ]; then
     echo "Failed to load image ${image} from cache ${IMAGE_CACHE_DIR}/${image_archive}"
     assert_success
