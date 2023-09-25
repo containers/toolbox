@@ -334,8 +334,7 @@ function pull_distro_image() {
   fi
 
   # No need to copy if the image is already available in Podman
-  run "$PODMAN" image exists "${image}"
-  if [[ "$status" -eq 0 ]]; then
+  if "$PODMAN" image exists "${image}"; then
     return
   fi
 
