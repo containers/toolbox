@@ -133,6 +133,9 @@ function _pull_and_cache_distro_image() {
   fi
 
   cleanup_all
+  ret_val="$?"
+
+  return "$ret_val"
 }
 
 
