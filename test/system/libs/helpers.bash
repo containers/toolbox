@@ -127,7 +127,7 @@ function _pull_and_cache_distro_image() {
   done
 
   if ! $cached; then
-    echo "Failed to cache image ${image} to ${IMAGE_CACHE_DIR}/${image_archive}"
+    echo "Failed to cache image ${image} to ${IMAGE_CACHE_DIR}/${image_archive}" >&2
     [ "$error_message" != "" ] && echo "$error_message" >&2
     return "$ret_val"
   fi
