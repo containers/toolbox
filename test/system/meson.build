@@ -14,6 +14,7 @@ test_system = files(
   '206-user.bats',
   '210-ulimit.bats',
   '211-dbus.bats',
+  '220-environment-variables.bats',
   'setup_suite.bash',
   'libs/helpers.bash',
 )
