@@ -13,7 +13,6 @@ gvfs-client
 hostname
 iproute
 iputils
-whois
 keyutils
 krb5-libs
 less
@@ -42,6 +41,7 @@ vte-profile
 vulkan-loader
 wget
 which
+whois
 words
 xorg-x11-xauth
 xz
