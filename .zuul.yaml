@@ -60,6 +60,17 @@
     run: playbooks/system-test.yaml
 
 - job:
+    name: system-test-fedora-39
+    description: Run Toolbx's system tests in Fedora 39
+    timeout: 2400
+    nodeset:
+      nodes:
+        - name: fedora-39
+          label: cloud-fedora-39
+    pre-run: playbooks/setup-env.yaml
+    run: playbooks/system-test.yaml
+
+- job:
     name: system-test-fedora-38
     description: Run Toolbx's system tests in Fedora 38
     timeout: 2400
@@ -85,6 +96,7 @@
     periodic:
       jobs:
         - system-test-fedora-rawhide
+        - system-test-fedora-39
         - system-test-fedora-38
         - system-test-fedora-37
     check:
@@ -93,6 +105,7 @@
         - unit-test-migration-path-for-coreos-toolbox
         - unit-test-restricted
         - system-test-fedora-rawhide
+        - system-test-fedora-39
         - system-test-fedora-38
         - system-test-fedora-37
     gate:
@@ -101,5 +114,6 @@
         - unit-test-migration-path-for-coreos-toolbox
         - unit-test-restricted
         - system-test-fedora-rawhide
+        - system-test-fedora-39
         - system-test-fedora-38
         - system-test-fedora-37
