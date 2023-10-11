@@ -62,11 +62,42 @@ setup() {
   assert_line --index 7 "Go to https://github.com/containers/toolbox for further information."
 }
 
-@test "help: Use flag '--help' (it should show usage screen)" {
+@test "help: Use flag '--help'" {
+  if ! command -v man 2>/dev/null; then
+    skip "not found man(1)"
+  fi
+
   run --keep-empty-lines "$TOOLBOX" --help
 
   assert_success
-  assert_output --partial "toolbox - Tool for containerized command line environments on Linux"
+  assert_line --index 0 --partial "toolbox(1)"
+  assert_line --index 0 --partial "General Commands Manual"
+  assert_line --index 3 --partial "toolbox - Tool for containerized command line environments on Linux"
+}
+
+@test "help: Use flag '--help' with man(1) absent" {
+  if command -v man 2>/dev/null; then
+    skip "found man(1)"
+  fi
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" --help
+
+  assert_success
+  assert_line --index 0 "toolbox - Tool for containerized command line environments on Linux"
+  assert_line --index 2 "Common commands are:"
+  assert_line --index 3 "create    Create a new toolbox container"
+  assert_line --index 4 "enter     Enter an existing toolbox container"
+  assert_line --index 5 "list      List all existing toolbox containers and images"
+  assert_line --index 7 "Go to https://github.com/containers/toolbox for further information."
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 8 ]
+  else
+    assert [ ${#lines[@]} -eq 9 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
 @test "help: Try to run toolbox with non-existent command (shows usage screen)" {
