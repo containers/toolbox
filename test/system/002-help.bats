@@ -27,12 +27,14 @@ setup() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX"
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: missing command"
   assert_line --index 2 "create    Create a new toolbox container"
   assert_line --index 3 "enter     Enter an existing toolbox container"
   assert_line --index 4 "list      List all existing toolbox containers and images"
   assert_line --index 6 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 7 ]
 }
 
 @test "help: Run command 'help'" {
@@ -45,6 +47,8 @@ setup() {
   assert_success
   assert_line --index 0 --partial "toolbox(1)"
   assert_line --index 0 --partial "General Commands Manual"
+  assert [ ${#lines[@]} -gt 4 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
 @test "help: Run command 'help' with no man present" {
@@ -61,6 +65,8 @@ setup() {
   assert_line --index 4 "enter     Enter an existing toolbox container"
   assert_line --index 5 "list      List all existing toolbox containers and images"
   assert_line --index 7 "Go to https://github.com/containers/toolbox for further information."
+  assert [ ${#lines[@]} -eq 8 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
 @test "help: Use flag '--help'" {
@@ -74,6 +80,8 @@ setup() {
   assert_line --index 0 --partial "toolbox(1)"
   assert_line --index 0 --partial "General Commands Manual"
   assert_line --index 3 --partial "toolbox - Tool for containerized command line environments on Linux"
+  assert [ ${#lines[@]} -gt 4 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
 @test "help: Use flag '--help' with man(1) absent" {
@@ -105,88 +113,108 @@ setup() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: unknown command \"foo\" for \"toolbox\""
   assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
 @test "help: Try to run toolbox with non-existent flag (shows usage screen)" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" --foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: unknown flag: --foo"
   assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
 @test "help: Try to run 'toolbox create' with non-existent flag (shows usage screen)" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" create --foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: unknown flag: --foo"
   assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
 @test "help: Try to run 'toolbox enter' with non-existent flag (shows usage screen)" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" enter --foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: unknown flag: --foo"
   assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
 @test "help: Try to run 'toolbox help' with non-existent flag (shows usage screen)" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" help --foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: unknown flag: --foo"
   assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
 @test "help: Try to run 'toolbox init-container' with non-existent flag (shows usage screen)" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" init-container --foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: unknown flag: --foo"
   assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
 @test "help: Try to run 'toolbox list' with non-existent flag (shows usage screen)" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list --foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: unknown flag: --foo"
   assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
 @test "help: Try to run 'toolbox rm' with non-existent flag (shows usage screen)" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" rm --foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: unknown flag: --foo"
   assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
 @test "help: Try to run 'toolbox rmi' with non-existent flag (shows usage screen)" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi --foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: unknown flag: --foo"
   assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
 @test "help: Try to run 'toolbox run' with non-existent flag (shows usage screen)" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run --foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: unknown flag: --foo"
   assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
 }
