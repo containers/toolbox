@@ -97,7 +97,13 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "$default_image"
-  assert [ ${#lines[@]} -eq 3 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 2 ]
+  else
+    assert [ ${#lines[@]} -eq 3 ]
+  fi
+
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -115,7 +121,13 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "$default_image"
-  assert [ ${#lines[@]} -eq 3 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 2 ]
+  else
+    assert [ ${#lines[@]} -eq 3 ]
+  fi
+
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -428,7 +440,13 @@ teardown() {
   assert_success
   assert_line --index 1 --partial "$default_image"
   assert_line --index 2 --partial "$default_image-copy"
-  assert [ ${#lines[@]} -eq 4 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 3 ]
+  else
+    assert [ ${#lines[@]} -eq 4 ]
+  fi
+
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -447,7 +465,13 @@ teardown() {
   assert_success
   assert_line --index 1 --partial "$default_image"
   assert_line --index 2 --partial "$default_image-copy"
-  assert [ ${#lines[@]} -eq 4 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 3 ]
+  else
+    assert [ ${#lines[@]} -eq 4 ]
+  fi
+
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -477,7 +501,13 @@ teardown() {
   assert_success
   assert_line --index 1 --partial "registry.fedoraproject.org/fedora-toolbox:34"
   assert_line --index 2 --partial "$default_image"
-  assert [ ${#lines[@]} -eq 4 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 3 ]
+  else
+    assert [ ${#lines[@]} -eq 4 ]
+  fi
+
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   # Check containers
@@ -487,7 +517,13 @@ teardown() {
   assert_line --index 1 --partial "$default_container"
   assert_line --index 2 --partial "non-default-one"
   assert_line --index 3 --partial "non-default-two"
-  assert [ ${#lines[@]} -eq 5 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 4 ]
+  else
+    assert [ ${#lines[@]} -eq 5 ]
+  fi
+
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   # Check all together
@@ -499,7 +535,13 @@ teardown() {
   assert_line --index 5 --partial "$default_container"
   assert_line --index 6 --partial "non-default-one"
   assert_line --index 7 --partial "non-default-two"
-  assert [ ${#lines[@]} -eq 9 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 8 ]
+  else
+    assert [ ${#lines[@]} -eq 9 ]
+  fi
+
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -521,7 +563,13 @@ teardown() {
   assert_line --index 1 --partial "<none>"
   assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
   assert_line --index 3 --partial "$default_image"
-  assert [ ${#lines[@]} -eq 5 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 4 ]
+  else
+    assert [ ${#lines[@]} -eq 5 ]
+  fi
+
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -539,7 +587,13 @@ teardown() {
   assert_line --index 1 --partial "<none>"
   assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
   assert_line --index 3 --partial "$default_image"
-  assert [ ${#lines[@]} -eq 5 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 4 ]
+  else
+    assert [ ${#lines[@]} -eq 5 ]
+  fi
+
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
