@@ -23,7 +23,7 @@ setup() {
   _setup_environment
 }
 
-@test "help: Try to run toolbox with no command" {
+@test "help: Smoke test" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX"
 
   assert_failure
@@ -37,9 +37,9 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 7 ]
 }
 
-@test "help: Run command 'help'" {
+@test "help: Command 'help'" {
   if ! command -v man 2>/dev/null; then
-    skip "Test works only if man is in PATH"
+    skip "not found man(1)"
   fi
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" help
@@ -52,9 +52,9 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "help: Run command 'help' with no man present" {
+@test "help: Command 'help' with man(1) absent" {
   if command -v man 2>/dev/null; then
-    skip "Test works only if man is not in PATH"
+    skip "found man(1)"
   fi
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" help
@@ -70,7 +70,7 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "help: Use flag '--help'" {
+@test "help: Flag '--help'" {
   if ! command -v man 2>/dev/null; then
     skip "not found man(1)"
   fi
@@ -85,7 +85,7 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "help: Use flag '--help' with man(1) absent" {
+@test "help: Flag '--help' with man(1) absent" {
   if command -v man 2>/dev/null; then
     skip "found man(1)"
   fi
@@ -110,7 +110,7 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "help: Try to run toolbox with non-existent command (shows usage screen)" {
+@test "help: Try unknown command" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" foo
 
   assert_failure
@@ -121,7 +121,7 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
-@test "help: Try to run toolbox with non-existent flag (shows usage screen)" {
+@test "help: Try unknown flag" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" --foo
 
   assert_failure
@@ -132,7 +132,7 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
-@test "help: Try to run 'toolbox create' with non-existent flag (shows usage screen)" {
+@test "help: Try 'create' with unknown flag" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" create --foo
 
   assert_failure
@@ -143,7 +143,7 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
-@test "help: Try to run 'toolbox enter' with non-existent flag (shows usage screen)" {
+@test "help: Try 'enter' with unknown flag" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" enter --foo
 
   assert_failure
@@ -154,7 +154,7 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
-@test "help: Try to run 'toolbox help' with non-existent flag (shows usage screen)" {
+@test "help: Try 'help' with unknown flag" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" help --foo
 
   assert_failure
@@ -165,7 +165,7 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
-@test "help: Try to run 'toolbox init-container' with non-existent flag (shows usage screen)" {
+@test "help: Try 'init-container' with unknown flag" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" init-container --foo
 
   assert_failure
@@ -176,7 +176,7 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
-@test "help: Try to run 'toolbox list' with non-existent flag (shows usage screen)" {
+@test "help: Try 'list' with unknown flag" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list --foo
 
   assert_failure
@@ -187,7 +187,7 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
-@test "help: Try to run 'toolbox rm' with non-existent flag (shows usage screen)" {
+@test "help: Try 'rm' with unknown flag" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" rm --foo
 
   assert_failure
@@ -198,7 +198,7 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
-@test "help: Try to run 'toolbox rmi' with non-existent flag (shows usage screen)" {
+@test "help: Try 'rmi' with unknown flag" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi --foo
 
   assert_failure
@@ -209,7 +209,7 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
-@test "help: Try to run 'toolbox run' with non-existent flag (shows usage screen)" {
+@test "help: Try 'run' with unknown flag" {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run --foo
 
   assert_failure
