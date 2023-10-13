@@ -78,4 +78,4 @@
     chdir: '{{ zuul.project.src_dir }}'
 
 - name: Check versions of crucial packages
-  command: rpm -qa ShellCheck codespell *kernel* gcc *glibc* shadow-utils-subid-devel golang flatpak-session-helper
+  command: rpm -qa ShellCheck codespell *kernel* gcc *glibc* shadow-utils-subid-devel golang golang-github-cpuguy83-md2man flatpak-session-helper
