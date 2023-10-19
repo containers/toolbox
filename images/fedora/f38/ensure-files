@@ -9,6 +9,10 @@
 /usr/share/man/man1/gpg2.1*
 /usr/share/man/man7/gnupg2.7*
 
+/usr/share/man/fr/man1/pstree.1*
+/usr/share/man/ko/man1/pstree.1*
+/usr/share/man/man1/pstree.1*
+
 /usr/share/man/fr/man8/rpm.8*
 /usr/share/man/ja/man8/rpm.8*
 /usr/share/man/man8/rpm.8*

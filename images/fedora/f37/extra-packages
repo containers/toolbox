@@ -28,6 +28,7 @@ openssh-clients
 passwd
 pigz
 procps-ng
+psmisc
 rsync
 shadow-utils
 sudo
