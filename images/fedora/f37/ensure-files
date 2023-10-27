@@ -17,6 +17,10 @@
 /usr/share/man/ja/man8/rpm.8*
 /usr/share/man/man8/rpm.8*
 
+/usr/share/man/fr/man8/useradd.8*
+/usr/share/man/ja/man8/useradd.8*
+/usr/share/man/man8/useradd.8*
+
 /usr/share/man/man1/cal.1.*
 /usr/share/man/man1/getopt.1*
 /usr/share/man/man1/hexdump.1*
