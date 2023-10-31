@@ -6,12 +6,25 @@
 /usr/share/man/man1/cp.1*
 /usr/share/man/man1/ls.1*
 
+/usr/share/man/man8/dnf.8*
+/usr/share/man/man5/dnf.conf.5*
+
+/usr/share/locale/de/LC_MESSAGES/elfutils.mo
+/usr/share/locale/ja/LC_MESSAGES/elfutils.mo
+
 /usr/share/man/man1/gpg2.1*
 /usr/share/man/man7/gnupg2.7*
+
+/usr/share/info/nettle.info*
+
+/usr/share/locale/fr/LC_MESSAGES/popt.mo
+/usr/share/locale/ja/LC_MESSAGES/popt.mo
 
 /usr/share/man/fr/man1/pstree.1*
 /usr/share/man/ko/man1/pstree.1*
 /usr/share/man/man1/pstree.1*
+
+/usr/share/info/history.info*
 
 /usr/share/man/man8/rpm.8*
 /usr/share/man/man8/rpm2cpio.8*
