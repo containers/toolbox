@@ -47,7 +47,7 @@ setup() {
   assert_success
   assert_line --index 0 --partial "toolbox(1)"
   assert_line --index 0 --partial "General Commands Manual"
-  assert_line --index 3 --partial "toolbox - Tool for containerized command line environments on Linux"
+  assert_line --index 3 --regexp "^[[:blank:]]+toolbox [‐-] Tool for containerized command line environments on Linux$"
   assert [ ${#lines[@]} -gt 4 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
@@ -80,7 +80,7 @@ setup() {
   assert_success
   assert_line --index 0 --partial "toolbox(1)"
   assert_line --index 0 --partial "General Commands Manual"
-  assert_line --index 3 --partial "toolbox - Tool for containerized command line environments on Linux"
+  assert_line --index 3 --regexp "^[[:blank:]]+toolbox [‐-] Tool for containerized command line environments on Linux$"
   assert [ ${#lines[@]} -gt 4 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
