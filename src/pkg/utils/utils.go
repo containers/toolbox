@@ -152,6 +152,10 @@ var (
 var (
 	ContainerNameDefault string
 
+	ErrConfigurationSyntax = errors.New("failed to parse")
+
+	ErrConfigurationUserConfigDir = errors.New("neither $XDG_CONFIG_HOME nor $HOME are defined")
+
 	ErrContainerNameFromImageInvalid = errors.New("container name generated from image is invalid")
 
 	ErrContainerNameInvalid = errors.New("container name is invalid")
@@ -669,7 +673,7 @@ func SetUpConfiguration() error {
 	userConfigDir, err := os.UserConfigDir()
 	if err != nil {
 		logrus.Debugf("Setting up configuration: failed to get the user config directory: %s", err)
-		return errors.New("failed to get the user config directory")
+		return &ConfigurationError{"", ErrConfigurationUserConfigDir}
 	}
 
 	userConfigPath := userConfigDir + "/containers/toolbox.conf"
@@ -691,18 +695,17 @@ func SetUpConfiguration() error {
 				continue
 			} else if errors.As(err, &errConfigParse) {
 				logrus.Debugf("Setting up configuration: failed to parse file %s: %s", configFile, err)
-				return fmt.Errorf("failed to parse file %s", configFile)
+				return &ConfigurationError{configFile, ErrConfigurationSyntax}
 			} else {
 				logrus.Debugf("Setting up configuration: failed to read file %s: %s", configFile, err)
-				return fmt.Errorf("failed to read file %s", configFile)
+				return &ConfigurationError{configFile, err}
 			}
 		}
 	}
 
 	container, _, _, err := ResolveContainerAndImageNames("", "", "", "")
 	if err != nil {
-		logrus.Debugf("Setting up configuration: failed to resolve container name: %s", err)
-		return errors.New("failed to resolve container name")
+		return err
 	}
 
 	ContainerNameDefault = container

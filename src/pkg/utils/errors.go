@@ -20,6 +20,11 @@ import (
 	"fmt"
 )
 
+type ConfigurationError struct {
+	File string
+	Err  error
+}
+
 type ContainerError struct {
 	Container string
 	Image     string
@@ -38,6 +43,15 @@ type ImageError struct {
 
 type ParseReleaseError struct {
 	Hint string
+}
+
+func (err *ConfigurationError) Error() string {
+	errMsg := fmt.Sprintf("%s: %s", err.File, err.Err)
+	return errMsg
+}
+
+func (err *ConfigurationError) Unwrap() error {
+	return err.Err
 }
 
 func (err *ContainerError) Error() string {
