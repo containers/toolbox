@@ -692,10 +692,6 @@ func pullImage(image, release, authFile string) (bool, error) {
 
 	logrus.Debugf("Looking up image %s", imageFull)
 
-	if _, err := podman.ImageExists(imageFull); err == nil {
-		return true, nil
-	}
-
 	domain := utils.ImageReferenceGetDomain(imageFull)
 	if domain == "" {
 		panicMsg := fmt.Sprintf("failed to get domain from %s", imageFull)
@@ -711,7 +707,9 @@ func pullImage(image, release, authFile string) (bool, error) {
 	}
 
 	if promptForDownload {
-		fmt.Println("Image required to create toolbox container.")
+		if _, err := podman.ImageExists(imageFull); err != nil {
+			fmt.Println("Image required to create toolbox container.")
+		}
 
 		var prompt string
 
