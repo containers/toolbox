@@ -6,6 +6,7 @@ toolbox\-create - Create a new toolbox container
 ## SYNOPSIS
 **toolbox create** [*--authfile FILE*]
                [*--distro DISTRO* | *-d DISTRO*]
+               [*--file CONTAINERFILE* | *-f CONTAINERFILE*]
                [*--image NAME* | *-i NAME*]
                [*--release RELEASE* | *-r RELEASE*]
                [*CONTAINER*]
@@ -95,6 +96,12 @@ Create a toolbox container for a different operating system DISTRO than the
 host. Cannot be used with `--image`. Has to be coupled with `--release` unless
 the selected DISTRO matches the host.
 
+**--file** CONTAINERFILE, **-f** CONTAINERFILE
+
+Create a toolbox container from a Containerfile. If used with `--image`, then
+the built image will be tagged with that value, otherwise the current directory
+name will be used.
+
 **--image** NAME, **-i** NAME
 
 Change the NAME of the image used to create the toolbox container. This is
@@ -134,6 +141,12 @@ $ toolbox create --image bar foo
 
 ```
 $ toolbox create --authfile ~/auth.json --image registry.example.com/bar
+```
+
+### Create a custom toolbox container from a Containerfile
+
+```
+$ toolbox create --file Containerfile
 ```
 
 ## SEE ALSO

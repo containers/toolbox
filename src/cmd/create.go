@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -47,6 +48,7 @@ var (
 		authFile  string
 		container string
 		distro    string
+		file      string
 		image     string
 		release   string
 	}
@@ -86,6 +88,12 @@ func init() {
 		"d",
 		"",
 		"Create a toolbox container for a different operating system distribution than the host")
+
+	flags.StringVarP(&createFlags.file,
+		"file",
+		"f",
+		"",
+		"Create a toolbox container from the given Containerfile")
 
 	flags.StringVarP(&createFlags.image,
 		"image",
@@ -168,10 +176,43 @@ func create(cmd *cobra.Command, args []string) error {
 		containerArg = "--container"
 	}
 
+	image := createFlags.image
+
+	if cmd.Flag("file").Changed {
+		if !utils.PathExists(createFlags.file) {
+			var builder strings.Builder
+			fmt.Fprintf(&builder, "file %s not found\n", createFlags.authFile)
+			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+			errMsg := builder.String()
+			return errors.New(errMsg)
+		}
+
+		var err error
+                if container == "" {
+			container, err = dirname()
+			if err != nil {
+				return err
+			}
+                }
+
+		if image == "" {
+			image, err = dirname()
+			if err != nil {
+				return err
+			}
+		}
+
+		err = buildContainerImage(image, createFlags.file)
+		if err != nil {
+			return err
+		}
+	}
+
 	container, image, release, err := resolveContainerAndImageNames(container,
 		containerArg,
 		createFlags.distro,
-		createFlags.image,
+		image,
 		createFlags.release)
 
 	if err != nil {
@@ -182,6 +223,20 @@ func create(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	return nil
+}
+
+func buildContainerImage(image, containerFile string) error {
+	buildArgs := []string{
+		"build",
+		"--file",
+		containerFile,
+		"--tag",
+		image,
+	}
+	if err := shell.Run("podman", nil, nil, nil, buildArgs...); err != nil {
+		return fmt.Errorf("failed to build image %s", image)
+	}
 	return nil
 }
 
@@ -780,4 +835,12 @@ func systemdPathBusEscape(path string) string {
 		}
 	}
 	return string(n)
+}
+
+func dirname() (string, error) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	return path.Base(cwd), nil
 }
