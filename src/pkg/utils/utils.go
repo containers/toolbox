@@ -64,7 +64,7 @@ const (
 	containerNamePrefixFallback = "fedora-toolbox"
 	distroFallback              = "fedora"
 	idTruncLength               = 12
-	releaseFallback             = "37"
+	releaseFallback             = "38"
 )
 
 const (
