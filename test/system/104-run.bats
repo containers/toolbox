@@ -132,12 +132,20 @@ teardown() {
 @test "run: Ensure that a login shell is used to invoke the command" {
   create_default_container
 
-  cp "$HOME"/.bash_profile "$HOME"/.bash_profile.orig
-  echo "echo \"$HOME/.bash_profile read\"" >>"$HOME"/.bash_profile
+  local bash_backup
+  if [ -f "$HOME/.bash_profile" ]; then
+    bash_backup="$(mktemp "$HOME/.bash_profile.orig-XXX")"
+    cp "$HOME/.bash_profile" "$bash_backup"
+  fi
+  echo "echo \"$HOME/.bash_profile read\"" >> "$HOME/.bash_profile"
 
   run "$TOOLBOX" run true
 
-  mv "$HOME"/.bash_profile.orig "$HOME"/.bash_profile
+  if [ -n "$bash_backup" ]; then
+    mv "$bash_backup" "$HOME/.bash_profile"
+  else
+    rm "$HOME/.bash_profile"
+  fi
 
   assert_success
   assert_line --index 0 "$HOME/.bash_profile read"
