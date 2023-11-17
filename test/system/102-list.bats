@@ -477,7 +477,9 @@ teardown() {
 
 @test "list: Containers and images" {
   local default_image
+  local fedora34image
   default_image="$(get_default_image)"
+  fedora34image="registry.fedoraproject.org/fedora-toolbox:34"
 
   local default_container
   default_container="$(get_system_id)-toolbox-$(get_system_version)"
@@ -498,9 +500,15 @@ teardown() {
   # Check images
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
 
+  # Alphabetize images
+  local image1
+  local image2
+  image1="$(echo -e "$fedora34image\n$default_image" | sort | head -n 1)"
+  image2="$(echo -e "$fedora34image\n$default_image" | sort | tail -n 1)"
+
   assert_success
-  assert_line --index 1 --partial "registry.fedoraproject.org/fedora-toolbox:34"
-  assert_line --index 2 --partial "$default_image"
+  assert_line --index 1 --partial "$image1"
+  assert_line --index 2 --partial "$image2"
 
   if check_bats_version 1.10.0; then
     assert [ ${#lines[@]} -eq 3 ]
@@ -513,10 +521,18 @@ teardown() {
   # Check containers
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list --containers
 
+  # Alphabetize containers
+  local container1
+  local container2
+  local container3
+  container1="$(echo -e "$default_container\nnon-default-one\nnon-default-two" | sort | head -n 1)"
+  container2="$(echo -e "$default_container\nnon-default-one\nnon-default-two" | sort | head -n 2 | tail -n 1)"
+  container3="$(echo -e "$default_container\nnon-default-one\nnon-default-two" | sort | tail -n 1)"
+
   assert_success
-  assert_line --index 1 --partial "$default_container"
-  assert_line --index 2 --partial "non-default-one"
-  assert_line --index 3 --partial "non-default-two"
+  assert_line --index 1 --partial "$container1"
+  assert_line --index 2 --partial "$container2"
+  assert_line --index 3 --partial "$container3"
 
   if check_bats_version 1.10.0; then
     assert [ ${#lines[@]} -eq 4 ]
@@ -530,11 +546,11 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list
 
   assert_success
-  assert_line --index 1 --partial "registry.fedoraproject.org/fedora-toolbox:34"
-  assert_line --index 2 --partial "$default_image"
-  assert_line --index 5 --partial "$default_container"
-  assert_line --index 6 --partial "non-default-one"
-  assert_line --index 7 --partial "non-default-two"
+  assert_line --index 1 --partial "$image1"
+  assert_line --index 2 --partial "$image2"
+  assert_line --index 5 --partial "$container1"
+  assert_line --index 6 --partial "$container2"
+  assert_line --index 7 --partial "$container3"
 
   if check_bats_version 1.10.0; then
     assert [ ${#lines[@]} -eq 8 ]
@@ -547,7 +563,9 @@ teardown() {
 
 @test "list: Images with and without names" {
   local default_image
+  local fedora34image
   default_image="$(get_default_image)"
+  fedora34image="registry.fedoraproject.org/fedora-toolbox:34"
 
   pull_default_image
   pull_distro_image fedora 34
@@ -559,10 +577,16 @@ teardown() {
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list
 
+  # Alphabetize images
+  local image1
+  local image2
+  image1="$(echo -e "$fedora34image\n$default_image" | sort | head -n 1)"
+  image2="$(echo -e "$fedora34image\n$default_image" | sort | tail -n 1)"
+
   assert_success
   assert_line --index 1 --partial "<none>"
-  assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
-  assert_line --index 3 --partial "$default_image"
+  assert_line --index 2 --partial "$image1"
+  assert_line --index 3 --partial "$image2"
 
   if check_bats_version 1.10.0; then
     assert [ ${#lines[@]} -eq 4 ]
@@ -575,7 +599,9 @@ teardown() {
 
 @test "list: Images with and without names (using --images)" {
   local default_image
+  local fedora34image
   default_image="$(get_default_image)"
+  fedora34image="registry.fedoraproject.org/fedora-toolbox:34"
 
   pull_default_image
   pull_distro_image fedora 34
@@ -583,10 +609,16 @@ teardown() {
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
 
+  # Alphabetize images
+  local image1
+  local image2
+  image1="$(echo -e "$fedora34image\n$default_image" | sort | head -n 1)"
+  image2="$(echo -e "$fedora34image\n$default_image" | sort | tail -n 1)"
+
   assert_success
   assert_line --index 1 --partial "<none>"
-  assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
-  assert_line --index 3 --partial "$default_image"
+  assert_line --index 2 --partial "$image1"
+  assert_line --index 3 --partial "$image2"
 
   if check_bats_version 1.10.0; then
     assert [ ${#lines[@]} -eq 4 ]
