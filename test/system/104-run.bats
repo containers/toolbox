@@ -167,15 +167,21 @@ teardown() {
   local default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
   create_default_container
 
-  pushd /etc/kernel
+  local host_only_dir
+  host_only_dir="$(mktemp --directory /var/tmp/toolbox-test-XXXXXXXXXX)"
+
+  pushd "$host_only_dir"
   run --separate-stderr $TOOLBOX run pwd
   popd
+
+  rm --force --recursive "$host_only_dir"
 
   assert_success
   assert_line --index 0 "$HOME"
   assert [ ${#lines[@]} -eq 1 ]
   lines=("${stderr_lines[@]}")
-  assert_line --index $((${#stderr_lines[@]}-2)) "Error: directory /etc/kernel not found in container $default_container_name"
+  assert_line --index $((${#stderr_lines[@]}-2)) \
+    "Error: directory $host_only_dir not found in container $default_container_name"
   assert_line --index $((${#stderr_lines[@]}-1)) "Using $HOME instead."
   assert [ ${#stderr_lines[@]} -gt 2 ]
 }
