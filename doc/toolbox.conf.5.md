@@ -31,6 +31,11 @@ remote registry.
 Create a Toolbx container for a different operating system RELEASE than the
 host. Cannot be used with `image`.
 
+**devices** = ["DEVICE", ...]
+
+Add a host device to the container. Accepts a list of devices.
+Each device specification is assed as is to podman-create(1).
+
 ## FILES
 
 The following locations are looked up in increasing order of priority:

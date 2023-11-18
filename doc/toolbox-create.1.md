@@ -8,6 +8,7 @@ toolbox\-create - Create a new Toolbx container
                [*--distro DISTRO* | *-d DISTRO*]
                [*--image NAME* | *-i NAME*]
                [*--release RELEASE* | *-r RELEASE*]
+               [*--device DEVICE*]
                [*CONTAINER*]
 
 ## DESCRIPTION
@@ -110,6 +111,12 @@ remote registry.
 Create a Toolbx container for a different operating system RELEASE than the
 host. Cannot be used with `--image`.
 
+**--device** DEVICE
+
+Add a host device to the container. Passed as is to podman-create(1).
+This option can be specified multiple times or
+multiple comma-separated arguments can be specified.
+
 ## EXAMPLES
 
 ### Create the default Toolbx container matching the host OS
@@ -134,6 +141,12 @@ $ toolbox create --image bar foo
 
 ```
 $ toolbox create --authfile ~/auth.json --image registry.example.com/bar
+```
+
+### Create the default toolbox container with nvidia CDI device
+
+```
+$ toolbox create --device=nvidia.com/gpu=all
 ```
 
 ## SEE ALSO
