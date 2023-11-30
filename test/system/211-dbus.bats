@@ -64,7 +64,9 @@ teardown() {
                          --system \
                          --dest org.freedesktop.systemd1 \
                          --object-path /org/freedesktop/systemd1 \
-                         --method org.freedesktop.DBus.Properties.Get org.freedesktop.systemd1.Manager Version)"
+                         --method org.freedesktop.DBus.Properties.Get \
+                         org.freedesktop.systemd1.Manager \
+                         Version)"
 
   create_default_container
 
@@ -73,7 +75,8 @@ teardown() {
                                                             --dest org.freedesktop.systemd1 \
                                                             --object-path /org/freedesktop/systemd1 \
                                                             --method org.freedesktop.DBus.Properties.Get \
-                                                              org.freedesktop.systemd1.Manager Version
+                                                            org.freedesktop.systemd1.Manager \
+                                                            Version
 
   assert_success
   assert_line --index 0 "$expected_response"
