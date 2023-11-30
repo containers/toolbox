@@ -86,6 +86,8 @@ func rootRunImpl(cmd *cobra.Command, args []string) error {
 
 	if hostID == "fedora" && (hostVariantID == "silverblue" || hostVariantID == "workstation") {
 		emitEscapeSequence = true
+	} else if hostID == "fedora-asahi-remix" {
+		emitEscapeSequence = true
 	}
 
 	if err := runCommand(container,
