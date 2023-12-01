@@ -19,6 +19,18 @@ load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers'
 
+readonly RESOLVER_PYTHON3='\
+import socket; \
+import sys; \
+family = socket.AddressFamily.AF_INET if sys.argv[1] == "A" else 0; \
+family = socket.AddressFamily.AF_INET6 if sys.argv[1] == "AAAA" else 0; \
+addr = socket.getaddrinfo(sys.argv[2], None, family, socket.SocketKind.SOCK_RAW)[0][4][0]; \
+print(addr)'
+
+# shellcheck disable=SC2016
+readonly RESOLVER_SH='resolvectl --legend false --no-pager --type "$0" query "$1" \
+                      | cut --delimiter " " --fields 4'
+
 setup() {
   bats_require_minimum_version 1.7.0
   _setup_environment
@@ -48,6 +60,390 @@ teardown() {
 
   # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "network: DNS inside the default container" {
+  local ipv4_skip=false
+  local ipv4_addr
+  if ! ipv4_addr="$(python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net)"; then
+    ipv4_skip=true
+  fi
+
+  local ipv6_skip=false
+  local ipv6_addr
+  if ! ipv6_addr="$(python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net)"; then
+    ipv6_skip=true
+  fi
+
+  if $ipv4_skip && $ipv6_skip; then
+    skip "DNS not working on host"
+  fi
+
+  create_default_container
+
+  if ! $ipv4_skip; then
+    run --keep-empty-lines --separate-stderr "$TOOLBOX" run python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net
+
+    assert_success
+    assert_line --index 0 "$ipv4_addr"
+
+    if check_bats_version 1.10.0; then
+      assert [ ${#lines[@]} -eq 1 ]
+    else
+      assert [ ${#lines[@]} -eq 2 ]
+    fi
+
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+
+  if ! $ipv6_skip; then
+    run --keep-empty-lines --separate-stderr "$TOOLBOX" run python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net
+
+    assert_success
+    assert_line --index 0 "$ipv6_addr"
+
+    if check_bats_version 1.10.0; then
+      assert [ ${#lines[@]} -eq 1 ]
+    else
+      assert [ ${#lines[@]} -eq 2 ]
+    fi
+
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+}
+
+@test "network: DNS inside Arch Linux" {
+  local ipv4_skip=false
+  local ipv4_addr
+  if ! ipv4_addr="$(python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net)"; then
+    ipv4_skip=true
+  fi
+
+  local ipv6_skip=false
+  local ipv6_addr
+  if ! ipv6_addr="$(python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net)"; then
+    ipv6_skip=true
+  fi
+
+  if $ipv4_skip && $ipv6_skip; then
+    skip "DNS not working on host"
+  fi
+
+  create_distro_container arch latest arch-toolbox-latest
+
+  if ! $ipv4_skip; then
+    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+      --distro arch \
+      sh -c "$RESOLVER_SH" A k.root-servers.net
+
+    assert_success
+    assert_line --index 0 "$ipv4_addr"
+
+    if check_bats_version 1.10.0; then
+      assert [ ${#lines[@]} -eq 1 ]
+    else
+      assert [ ${#lines[@]} -eq 2 ]
+    fi
+
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+
+  if ! $ipv6_skip; then
+    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+      --distro arch \
+      sh -c "$RESOLVER_SH" AAAA k.root-servers.net
+
+    assert_success
+    assert_line --index 0 "$ipv6_addr"
+
+    if check_bats_version 1.10.0; then
+      assert [ ${#lines[@]} -eq 1 ]
+    else
+      assert [ ${#lines[@]} -eq 2 ]
+    fi
+
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+}
+
+@test "network: DNS inside Fedora 34" {
+  local ipv4_skip=false
+  local ipv4_addr
+  if ! ipv4_addr="$(python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net)"; then
+    ipv4_skip=true
+  fi
+
+  local ipv6_skip=false
+  local ipv6_addr
+  if ! ipv6_addr="$(python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net)"; then
+    ipv6_skip=true
+  fi
+
+  if $ipv4_skip && $ipv6_skip; then
+    skip "DNS not working on host"
+  fi
+
+  create_distro_container fedora 34 fedora-toolbox-34
+
+  if ! $ipv4_skip; then
+    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+      --distro fedora \
+      --release 34 \
+      python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net
+
+    assert_success
+    assert_line --index 0 "$ipv4_addr"
+
+    if check_bats_version 1.10.0; then
+      assert [ ${#lines[@]} -eq 1 ]
+    else
+      assert [ ${#lines[@]} -eq 2 ]
+    fi
+
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+
+  if ! $ipv6_skip; then
+    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+      --distro fedora \
+      --release 34 \
+      python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net
+
+    assert_success
+    assert_line --index 0 "$ipv6_addr"
+
+    if check_bats_version 1.10.0; then
+      assert [ ${#lines[@]} -eq 1 ]
+    else
+      assert [ ${#lines[@]} -eq 2 ]
+    fi
+
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+}
+
+@test "network: DNS inside RHEL 8.7" {
+  local ipv4_skip=false
+  local ipv4_addr
+  if ! ipv4_addr="$(python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net)"; then
+    ipv4_skip=true
+  fi
+
+  local ipv6_skip=false
+  local ipv6_addr
+  if ! ipv6_addr="$(python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net)"; then
+    ipv6_skip=true
+  fi
+
+  if $ipv4_skip && $ipv6_skip; then
+    skip "DNS not working on host"
+  fi
+
+  create_distro_container rhel 8.7 rhel-toolbox-8.7
+
+  if ! $ipv4_skip; then
+    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+      --distro rhel \
+      --release 8.7 \
+      /usr/libexec/platform-python3.6 -c "$RESOLVER_PYTHON3" A k.root-servers.net
+
+    assert_success
+    assert_line --index 0 "$ipv4_addr"
+
+    if check_bats_version 1.10.0; then
+      assert [ ${#lines[@]} -eq 1 ]
+    else
+      assert [ ${#lines[@]} -eq 2 ]
+    fi
+
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+
+  if ! $ipv6_skip; then
+    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+      --distro rhel \
+      --release 8.7 \
+      /usr/libexec/platform-python3.6 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net
+
+    assert_success
+    assert_line --index 0 "$ipv6_addr"
+
+    if check_bats_version 1.10.0; then
+      assert [ ${#lines[@]} -eq 1 ]
+    else
+      assert [ ${#lines[@]} -eq 2 ]
+    fi
+
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+}
+
+@test "network: DNS inside Ubuntu 16.04" {
+  local ipv4_skip=false
+  local ipv4_addr
+  if ! ipv4_addr="$(python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net)"; then
+    ipv4_skip=true
+  fi
+
+  local ipv6_skip=false
+  local ipv6_addr
+  if ! ipv6_addr="$(python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net)"; then
+    ipv6_skip=true
+  fi
+
+  if $ipv4_skip && $ipv6_skip; then
+    skip "DNS not working on host"
+  fi
+
+  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
+
+  if ! $ipv4_skip; then
+    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+      --distro ubuntu \
+      --release 16.04 \
+      python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net
+
+    assert_success
+    assert_line --index 0 "$ipv4_addr"
+
+    if check_bats_version 1.10.0; then
+      assert [ ${#lines[@]} -eq 1 ]
+    else
+      assert [ ${#lines[@]} -eq 2 ]
+    fi
+
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+
+  if ! $ipv6_skip; then
+    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+      --distro ubuntu \
+      --release 16.04 \
+      python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net
+
+    assert_success
+    assert_line --index 0 "$ipv6_addr"
+
+    if check_bats_version 1.10.0; then
+      assert [ ${#lines[@]} -eq 1 ]
+    else
+      assert [ ${#lines[@]} -eq 2 ]
+    fi
+
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+}
+
+@test "network: DNS inside Ubuntu 18.04" {
+  local ipv4_skip=false
+  local ipv4_addr
+  if ! ipv4_addr="$(python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net)"; then
+    ipv4_skip=true
+  fi
+
+  local ipv6_skip=false
+  local ipv6_addr
+  if ! ipv6_addr="$(python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net)"; then
+    ipv6_skip=true
+  fi
+
+  if $ipv4_skip && $ipv6_skip; then
+    skip "DNS not working on host"
+  fi
+
+  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
+
+  if ! $ipv4_skip; then
+    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+      --distro ubuntu \
+      --release 18.04 \
+      python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net
+
+    assert_success
+    assert_line --index 0 "$ipv4_addr"
+
+    if check_bats_version 1.10.0; then
+      assert [ ${#lines[@]} -eq 1 ]
+    else
+      assert [ ${#lines[@]} -eq 2 ]
+    fi
+
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+
+  if ! $ipv6_skip; then
+    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+      --distro ubuntu \
+      --release 18.04 \
+      python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net
+
+    assert_success
+    assert_line --index 0 "$ipv6_addr"
+
+    if check_bats_version 1.10.0; then
+      assert [ ${#lines[@]} -eq 1 ]
+    else
+      assert [ ${#lines[@]} -eq 2 ]
+    fi
+
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+}
+
+@test "network: DNS inside Ubuntu 20.04" {
+  local ipv4_skip=false
+  local ipv4_addr
+  if ! ipv4_addr="$(python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net)"; then
+    ipv4_skip=true
+  fi
+
+  local ipv6_skip=false
+  local ipv6_addr
+  if ! ipv6_addr="$(python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net)"; then
+    ipv6_skip=true
+  fi
+
+  if $ipv4_skip && $ipv6_skip; then
+    skip "DNS not working on host"
+  fi
+
+  create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
+
+  if ! $ipv4_skip; then
+    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+      --distro ubuntu \
+      --release 20.04 \
+      python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net
+
+    assert_success
+    assert_line --index 0 "$ipv4_addr"
+
+    if check_bats_version 1.10.0; then
+      assert [ ${#lines[@]} -eq 1 ]
+    else
+      assert [ ${#lines[@]} -eq 2 ]
+    fi
+
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
+
+  if ! $ipv6_skip; then
+    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+      --distro ubuntu \
+      --release 20.04 \
+      python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net
+
+    assert_success
+    assert_line --index 0 "$ipv6_addr"
+
+    if check_bats_version 1.10.0; then
+      assert [ ${#lines[@]} -eq 1 ]
+    else
+      assert [ ${#lines[@]} -eq 2 ]
+    fi
+
+    assert [ ${#stderr_lines[@]} -eq 0 ]
+  fi
 }
 
 @test "network: ping(8) inside the default container" {
