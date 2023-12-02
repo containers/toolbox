@@ -29,7 +29,7 @@ teardown() {
   cleanup_containers
 }
 
-@test "user: separate namespace" {
+@test "user: Separate namespace" {
   local ns_host
   ns_host=$(readlink /proc/$$/ns/user)
 

@@ -41,7 +41,7 @@ teardown() {
   cleanup_containers
 }
 
-@test "network: no namespace" {
+@test "network: No namespace" {
   local ns_host
   ns_host=$(readlink /proc/$$/ns/net)
 

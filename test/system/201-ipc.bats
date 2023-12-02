@@ -29,7 +29,7 @@ teardown() {
   cleanup_containers
 }
 
-@test "ipc: no namespace" {
+@test "ipc: No namespace" {
   local ns_host
   ns_host=$(readlink /proc/$$/ns/ipc)
 
