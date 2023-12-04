@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2022 Red Hat Inc.
+ * Copyright © 2019 – 2023 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -408,6 +408,19 @@ func Start(container string, stderr io.Writer) error {
 	args := []string{"--log-level", logLevelString, "start", container}
 
 	if err := shell.Run("podman", nil, nil, stderr, args...); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Stop(container string) error {
+	logrus.Debugf("Stopping container %s", container)
+
+	logLevelString := LogLevel.String()
+	args := []string{"--log-level", logLevelString, "stop", container}
+
+	if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
 		return err
 	}
 

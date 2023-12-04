@@ -285,6 +285,8 @@ func runCommand(container string,
 
 	logrus.Debugf("Container %s is initialized", container)
 
+	defer stopContainer(container)
+
 	if err := runCommandWithFallbacks(container,
 		preserveFDs,
 		command,
@@ -630,4 +632,11 @@ func startContainer(container string) error {
 	}
 
 	return nil
+}
+
+func stopContainer(container string) {
+	logrus.Debugf("Stopping container %s", container)
+	if err := podman.Stop(container); err != nil {
+		logrus.Debugf("Stopping container %s failed: %s", container, err)
+	}
 }
