@@ -17,6 +17,7 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -573,7 +574,8 @@ func getFullyQualifiedImageFromRepoTags(image string) (string, error) {
 }
 
 func getImageSizeFromRegistry(imageFull string) (string, error) {
-	image, err := skopeo.Inspect(imageFull)
+	ctx := context.Background()
+	image, err := skopeo.Inspect(ctx, imageFull)
 	if err != nil {
 		return "", err
 	}

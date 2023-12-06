@@ -18,6 +18,7 @@ package skopeo
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 
 	"github.com/containers/toolbox/pkg/shell"
@@ -30,13 +31,13 @@ type Image struct {
 	LayersData []Layer
 }
 
-func Inspect(target string) (*Image, error) {
+func Inspect(ctx context.Context, target string) (*Image, error) {
 	var stdout bytes.Buffer
 
 	targetWithTransport := "docker://" + target
 	args := []string{"inspect", "--format", "json", targetWithTransport}
 
-	if err := shell.Run("skopeo", nil, &stdout, nil, args...); err != nil {
+	if err := shell.RunContext(ctx, "skopeo", nil, &stdout, nil, args...); err != nil {
 		return nil, err
 	}
 
