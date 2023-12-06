@@ -44,7 +44,7 @@ jobs:
             fish \
             gcc \
             go-md2man \
-            golang \
+            golang-1.20 \
             meson \
             ninja-build \
             openssl \
@@ -53,6 +53,10 @@ jobs:
             skopeo \
             systemd \
             udisks2
+
+      - name: Set up PATH for Go 1.20
+        run: |
+          echo "PATH=/usr/lib/go-1.20/bin:$PATH" >> "$GITHUB_ENV"
 
       - name: Checkout Bats
         uses: actions/checkout@v3
