@@ -30,6 +30,7 @@ var (
 		container string
 		distro    string
 		release   string
+		once      bool
 	}
 )
 
@@ -60,6 +61,12 @@ func init() {
 		"r",
 		"",
 		"Enter a toolbox container for a different operating system release than the host")
+
+	flags.BoolVarP(&enterFlags.once,
+		"once",
+		"o",
+		false,
+		"Do not track container in use, only enter the container once.")
 
 	if err := enterCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
 		panicMsg := fmt.Sprintf("failed to register flag completion function: %v", err)
@@ -136,7 +143,7 @@ func enter(cmd *cobra.Command, args []string) error {
 
 	var emitEscapeSequence bool
 
-	if hostID == "fedora" && (hostVariantID == "silverblue" || hostVariantID == "workstation") {
+	if !enterFlags.once && hostID == "fedora" && (hostVariantID == "silverblue" || hostVariantID == "workstation") {
 		emitEscapeSequence = true
 	} else if hostID == "fedora-asahi-remix" {
 		emitEscapeSequence = true
