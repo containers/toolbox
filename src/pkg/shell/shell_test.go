@@ -1,10 +1,29 @@
+/*
+ * Copyright © 2023 Red Hat Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package shell_test
 
 import (
+	"context"
 	"errors"
 	"io"
 	"os"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/sirupsen/logrus"
@@ -95,6 +114,126 @@ func TestShellRun(t *testing.T) {
 				assert.Equal(t, tc.expect.stderr, actualStdErr.written)
 			} else {
 				assert.Empty(t, actualStdErr)
+			}
+		})
+	}
+}
+
+func TestRunContextWithExitCode(t *testing.T) {
+	testCases := []struct {
+		cancel   bool
+		command  []string
+		err      error
+		errMsg   string
+		exitCode int
+		stdout   []byte
+		stderr   []byte
+		timeout  time.Duration
+	}{
+		{
+			command: []string{"true"},
+		},
+		{
+			command:  []string{"false"},
+			exitCode: 1,
+		},
+		{
+			command: []string{"echo"},
+			stdout:  []byte("\n"),
+		},
+		{
+			command:  []string{"echo", "hello, world"},
+			err:      nil,
+			exitCode: 0,
+			stdout:   []byte("hello, world\n"),
+		},
+		{
+			command:  []string{"command-does-not-exist"},
+			errMsg:   "command-does-not-exist(1) not found",
+			exitCode: 1,
+		},
+		{
+			command:  []string{"cat", "/file/does/not/exist"},
+			exitCode: 1,
+			stderr:   []byte("cat: /file/does/not/exist: No such file or directory\n"),
+		},
+		{
+			cancel:   true,
+			command:  []string{"sleep", "+Inf"},
+			err:      context.Canceled,
+			exitCode: 1,
+		},
+		{
+			command:  []string{"sleep", "+Inf"},
+			err:      context.DeadlineExceeded,
+			exitCode: 1,
+			timeout:  1 * time.Second,
+		},
+	}
+
+	for _, tc := range testCases {
+		name := strings.Join(tc.command, " ")
+		if tc.cancel {
+			name += " (cancel)"
+		}
+		if tc.timeout != 0 {
+			name += " (timeout)"
+		}
+
+		t.Run(name, func(t *testing.T) {
+			var cancel context.CancelFunc
+			ctx := context.Background()
+			if tc.cancel {
+				ctx, cancel = context.WithCancel(ctx)
+				defer cancel()
+			}
+			if tc.timeout != 0 {
+				ctx, cancel = context.WithTimeout(ctx, tc.timeout)
+				defer cancel()
+			}
+
+			if tc.cancel {
+				cancel()
+			}
+
+			var stdout outputMock
+			var stderr outputMock
+
+			exitCode, err := shell.RunContextWithExitCode(ctx,
+				tc.command[0],
+				os.Stdin,
+				&stdout,
+				&stderr,
+				tc.command[1:]...)
+
+			if tc.err == nil && tc.errMsg == "" {
+				assert.NoError(t, err)
+			}
+
+			if tc.err != nil {
+				assert.Error(t, err)
+				assert.ErrorIs(t, err, tc.err)
+			}
+
+			if tc.errMsg != "" {
+				assert.Error(t, err)
+				assert.EqualError(t, err, tc.errMsg)
+			}
+
+			assert.Equal(t, tc.exitCode, exitCode)
+
+			if tc.stdout == nil {
+				assert.Empty(t, stdout.written)
+			} else {
+				assert.NotEmpty(t, stdout.written)
+				assert.Equal(t, tc.stdout, stdout.written)
+			}
+
+			if tc.stderr == nil {
+				assert.Empty(t, stderr.written)
+			} else {
+				assert.NotEmpty(t, stderr.written)
+				assert.Equal(t, tc.stderr, stderr.written)
 			}
 		})
 	}
