@@ -55,29 +55,15 @@ var (
 func askForConfirmation(prompt string) bool {
 	var retVal bool
 
-	for {
-		fmt.Printf("%s ", prompt)
+	ctx := context.Background()
+	retValCh, errCh := askForConfirmationAsync(ctx, prompt, nil)
 
-		var response string
-
-		scanner := bufio.NewScanner(os.Stdin)
-		scanner.Split(bufio.ScanLines)
-		if scanner.Scan() {
-			response = scanner.Text()
-		}
-
-		if response == "" {
-			response = "n"
-		} else {
-			response = strings.ToLower(response)
-		}
-
-		if response == "no" || response == "n" {
-			break
-		} else if response == "yes" || response == "y" {
-			retVal = true
-			break
-		}
+	select {
+	case val := <-retValCh:
+		retVal = val
+	case err := <-errCh:
+		logrus.Debugf("Failed to ask for confirmation: %s", err)
+		retVal = false
 	}
 
 	return retVal
