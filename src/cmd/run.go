@@ -166,6 +166,7 @@ func runCommand(container string,
 	preserveFDs uint,
 	command []string,
 	emitEscapeSequence, fallbackToBash, pedantic bool) error {
+
 	if !pedantic {
 		if image == "" {
 			panic("image not specified")
@@ -300,6 +301,7 @@ func runCommandWithFallbacks(container string,
 	preserveFDs uint,
 	command []string,
 	emitEscapeSequence, fallbackToBash bool) error {
+
 	logrus.Debug("Checking if 'podman exec' supports disabling the detach keys")
 
 	var detachKeysSupported bool
@@ -485,6 +487,7 @@ func constructExecArgs(container, preserveFDs string,
 	fallbackToBash bool,
 	ttyNeeded bool,
 	workDir string) []string {
+
 	logLevelString := podman.LogLevel.String()
 
 	execArgs := []string{
