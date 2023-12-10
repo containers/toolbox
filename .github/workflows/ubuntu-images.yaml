@@ -20,7 +20,7 @@ jobs:
   build-and-push-images:
     strategy:
       matrix:
-        release: ['16.04', '18.04', '20.04', '22.04', '22.10', '23.04']
+        release: ['16.04', '18.04', '20.04', '22.04', '23.04', '23.10']
 
     runs-on: ubuntu-latest
     steps:
