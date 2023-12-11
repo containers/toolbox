@@ -22,6 +22,8 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+type Option func(*unix.Termios)
+
 func GetState(file *os.File) (*unix.Termios, error) {
 	fileFD := file.Fd()
 	fileFDInt := int(fileFD)
@@ -35,4 +37,44 @@ func IsTerminal(file *os.File) bool {
 	}
 
 	return true
+}
+
+func NewStateFrom(oldState *unix.Termios, options ...Option) *unix.Termios {
+	newState := *oldState
+	for _, option := range options {
+		option(&newState)
+	}
+
+	return &newState
+}
+
+func SetState(file *os.File, state *unix.Termios) error {
+	fileFD := file.Fd()
+	fileFDInt := int(fileFD)
+	err := unix.IoctlSetTermios(fileFDInt, unix.TCSETS, state)
+	return err
+}
+
+func WithVMIN(vmin uint8) Option {
+	return func(state *unix.Termios) {
+		state.Cc[unix.VMIN] = vmin
+	}
+}
+
+func WithVTIME(vtime uint8) Option {
+	return func(state *unix.Termios) {
+		state.Cc[unix.VTIME] = vtime
+	}
+}
+
+func WithoutECHO() Option {
+	return func(state *unix.Termios) {
+		state.Lflag &^= unix.ECHO
+	}
+}
+
+func WithoutICANON() Option {
+	return func(state *unix.Termios) {
+		state.Lflag &^= unix.ICANON
+	}
 }
