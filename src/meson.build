@@ -24,6 +24,8 @@ sources = files(
   'pkg/shell/shell.go',
   'pkg/shell/shell_test.go',
   'pkg/skopeo/skopeo.go',
+  'pkg/term/term.go',
+  'pkg/term/term_test.go',
   'pkg/utils/libsubid-wrappers.c',
   'pkg/utils/errors.go',
   'pkg/utils/utils.go',

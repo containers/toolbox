@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2022 Red Hat Inc.
+ * Copyright © 2019 – 2023 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,10 @@ import (
 	"text/tabwriter"
 
 	"github.com/containers/toolbox/pkg/podman"
+	"github.com/containers/toolbox/pkg/term"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"golang.org/x/term"
 )
 
 type toolboxContainer struct {
@@ -247,11 +247,9 @@ func listOutput(images []podman.Image, containers []toolboxContainer) {
 		const defaultColor = "\033[0;00m" // identical to resetColor, but same length as boldGreenColor
 		const resetColor = "\033[0m"
 
-		stdoutFd := os.Stdout.Fd()
-		stdoutFdInt := int(stdoutFd)
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 
-		if term.IsTerminal(stdoutFdInt) {
+		if term.IsTerminal(os.Stdout) {
 			fmt.Fprintf(writer, "%s", defaultColor)
 		}
 
@@ -263,7 +261,7 @@ func listOutput(images []podman.Image, containers []toolboxContainer) {
 			"STATUS",
 			"IMAGE NAME")
 
-		if term.IsTerminal(stdoutFdInt) {
+		if term.IsTerminal(os.Stdout) {
 			fmt.Fprintf(writer, "%s", resetColor)
 		}
 
@@ -275,7 +273,7 @@ func listOutput(images []podman.Image, containers []toolboxContainer) {
 				isRunning = container.Status == "running"
 			}
 
-			if term.IsTerminal(stdoutFdInt) {
+			if term.IsTerminal(os.Stdout) {
 				var color string
 				if isRunning {
 					color = boldGreenColor
@@ -293,7 +291,7 @@ func listOutput(images []podman.Image, containers []toolboxContainer) {
 				container.Status,
 				container.Image)
 
-			if term.IsTerminal(stdoutFdInt) {
+			if term.IsTerminal(os.Stdout) {
 				fmt.Fprintf(writer, "%s", resetColor)
 			}
 

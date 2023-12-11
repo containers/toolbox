@@ -26,10 +26,10 @@ import (
 
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
+	"github.com/containers/toolbox/pkg/term"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"golang.org/x/term"
 )
 
 var (
@@ -317,13 +317,7 @@ func runCommandWithFallbacks(container string,
 	var stderr io.Writer
 	var ttyNeeded bool
 
-	stdinFd := os.Stdin.Fd()
-	stdinFdInt := int(stdinFd)
-
-	stdoutFd := os.Stdout.Fd()
-	stdoutFdInt := int(stdoutFd)
-
-	if term.IsTerminal(stdinFdInt) && term.IsTerminal(stdoutFdInt) {
+	if term.IsTerminal(os.Stdin) && term.IsTerminal(os.Stdout) {
 		ttyNeeded = true
 		if logLevel := logrus.GetLevel(); logLevel >= logrus.DebugLevel {
 			stderr = os.Stderr

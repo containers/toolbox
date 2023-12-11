@@ -14,5 +14,4 @@ require (
 	github.com/spf13/viper v1.10.1
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/sys v0.1.0
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 )

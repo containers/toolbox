@@ -28,12 +28,12 @@ import (
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/skopeo"
+	"github.com/containers/toolbox/pkg/term"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/docker/go-units"
 	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"golang.org/x/term"
 )
 
 const (
@@ -449,10 +449,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	}
 
 	s := spinner.New(spinner.CharSets[9], 500*time.Millisecond)
-
-	stdoutFd := os.Stdout.Fd()
-	stdoutFdInt := int(stdoutFd)
-	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel && term.IsTerminal(stdoutFdInt) {
+	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel && term.IsTerminal(os.Stdout) {
 		s.Prefix = fmt.Sprintf("Creating container %s: ", container)
 		s.Writer = os.Stdout
 		s.Start()
@@ -731,9 +728,7 @@ func pullImage(image, release, authFile string) (bool, error) {
 
 	logrus.Debugf("Pulling image %s", imageFull)
 
-	stdoutFd := os.Stdout.Fd()
-	stdoutFdInt := int(stdoutFd)
-	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel && term.IsTerminal(stdoutFdInt) {
+	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel && term.IsTerminal(os.Stdout) {
 		s := spinner.New(spinner.CharSets[9], 500*time.Millisecond)
 		s.Prefix = fmt.Sprintf("Pulling %s: ", imageFull)
 		s.Writer = os.Stdout
