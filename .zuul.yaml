@@ -81,24 +81,12 @@
     pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test.yaml
 
-- job:
-    name: system-test-fedora-37
-    description: Run Toolbx's system tests in Fedora 37
-    timeout: 3000
-    nodeset:
-      nodes:
-        - name: fedora-37
-          label: cloud-fedora-37
-    pre-run: playbooks/setup-env.yaml
-    run: playbooks/system-test.yaml
-
 - project:
     periodic:
       jobs:
         - system-test-fedora-rawhide
         - system-test-fedora-39
         - system-test-fedora-38
-        - system-test-fedora-37
     check:
       jobs:
         - unit-test
@@ -107,7 +95,6 @@
         - system-test-fedora-rawhide
         - system-test-fedora-39
         - system-test-fedora-38
-        - system-test-fedora-37
     gate:
       jobs:
         - unit-test
@@ -116,4 +103,3 @@
         - system-test-fedora-rawhide
         - system-test-fedora-39
         - system-test-fedora-38
-        - system-test-fedora-37
