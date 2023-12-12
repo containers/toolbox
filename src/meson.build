@@ -17,15 +17,18 @@ sources = files(
   'cmd/root.go',
   'cmd/rootDefault.go',
   'cmd/rootMigrationPath.go',
+  'cmd/root_test.go',
   'cmd/run.go',
   'cmd/utils.go',
   'pkg/podman/podman.go',
   'pkg/shell/shell.go',
+  'pkg/shell/shell_test.go',
   'pkg/skopeo/skopeo.go',
   'pkg/utils/libsubid-wrappers.c',
   'pkg/utils/errors.go',
   'pkg/utils/utils.go',
   'pkg/utils/utils_cgo.go',
+  'pkg/utils/utils_test.go',
   'pkg/version/version.go',
 )
 
