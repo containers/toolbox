@@ -172,6 +172,93 @@ func askForConfirmationAsync(ctx context.Context,
 	return retValCh, errCh
 }
 
+func discardInputAsync(ctx context.Context) (<-chan int, <-chan error) {
+	retValCh := make(chan int, 1)
+	errCh := make(chan error, 1)
+
+	done := ctx.Done()
+	eventFD := -1
+	if done != nil {
+		fd, err := unix.Eventfd(0, unix.EFD_CLOEXEC|unix.EFD_NONBLOCK)
+		if err != nil {
+			errCh <- fmt.Errorf("eventfd(2) failed: %w", err)
+			return retValCh, errCh
+		}
+
+		eventFD = fd
+	}
+
+	go func() {
+		var total int
+
+		for {
+			pollFn := func(errPoll error, pollFDs []unix.PollFd) error {
+				if len(pollFDs) != 1 {
+					panic("unexpected number of file descriptors")
+				}
+
+				if errPoll != nil && !errors.Is(errPoll, context.Canceled) {
+					return errPoll
+				}
+
+				if pollFDs[0].Revents&unix.POLLIN != 0 {
+					logrus.Debug("Returned from /dev/stdin: POLLIN")
+
+					buffer := make([]byte, 1)
+					n, err := os.Stdin.Read(buffer)
+					total += n
+
+					if errPoll != nil {
+						return errPoll
+					} else if err != nil {
+						return err
+					}
+
+					return nil
+				}
+
+				if pollFDs[0].Revents&unix.POLLHUP != 0 {
+					logrus.Debug("Returned from /dev/stdin: POLLHUP")
+
+					if errPoll != nil {
+						return errPoll
+					}
+
+					return errHUP
+				}
+
+				if pollFDs[0].Revents&unix.POLLNVAL != 0 {
+					logrus.Debug("Returned from /dev/stdin: POLLNVAL")
+
+					if errPoll != nil {
+						return errPoll
+					}
+
+					return errClosed
+				}
+
+				if errPoll != nil {
+					return errPoll
+				}
+
+				return errContinue
+			}
+
+			stdinFD := int32(os.Stdin.Fd())
+
+			err := poll(pollFn, int32(eventFD), stdinFD)
+			if err != nil {
+				retValCh <- total
+				errCh <- err
+				break
+			}
+		}
+	}()
+
+	watchContextForEventFD(ctx, eventFD)
+	return retValCh, errCh
+}
+
 func createErrorContainerNotFound(container string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "container %s not found\n", container)
