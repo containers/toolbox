@@ -18,7 +18,7 @@ the Wayland and X11 sockets, networking (including Avahi), removable devices
 udev database, etc..
 
 This is particularly useful on
-[OSTree](https://ostree.readthedocs.io/en/latest/) based operating systems like
+[OSTree](https://ostreedev.github.io/ostree/) based operating systems like
 [Fedora CoreOS](https://coreos.fedoraproject.org/) and
 [Silverblue](https://silverblue.fedoraproject.org/). The intention of these
 systems is to discourage installation of software on the host, and instead
