@@ -6,7 +6,7 @@ require (
 	github.com/HarryMichal/go-version v1.0.1
 	github.com/acobaugh/osrelease v0.1.0
 	github.com/briandowns/spinner v1.17.0
-	github.com/docker/go-units v0.4.0
+	github.com/docker/go-units v0.5.0
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/godbus/dbus/v5 v5.0.6
 	github.com/sirupsen/logrus v1.8.1
