@@ -32,6 +32,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"golang.org/x/sys/unix"
 )
 
 var (
@@ -295,15 +296,31 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 	logrus.Debug("Setting up watches for file system events")
 
+	var watcherForHostErrors chan error
+	var watcherForHostEvents chan fsnotify.Event
+
 	watcherForHost, err := fsnotify.NewWatcher()
 	if err != nil {
-		return err
+		if errors.Is(err, unix.EMFILE) || errors.Is(err, unix.ENFILE) || errors.Is(err, unix.ENOMEM) {
+			logrus.Debugf("Setting up watches for file system events: failed to create Watcher: %s", err)
+		} else {
+			return fmt.Errorf("failed to create Watcher: %w", err)
+		}
 	}
 
-	defer watcherForHost.Close()
+	if watcherForHost != nil {
+		defer watcherForHost.Close()
 
-	if err := watcherForHost.Add("/run/host/etc"); err != nil {
-		return err
+		watcherForHostErrors = watcherForHost.Errors
+		watcherForHostEvents = watcherForHost.Events
+
+		if err := watcherForHost.Add("/run/host/etc"); err != nil {
+			if errors.Is(err, unix.ENOMEM) || errors.Is(err, unix.ENOSPC) {
+				logrus.Debugf("Setting up watches for file system events: failed to add path: %s", err)
+			} else {
+				return fmt.Errorf("failed to add path: %w", err)
+			}
+		}
 	}
 
 	logrus.Debug("Finished initializing container")
@@ -343,9 +360,9 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		select {
 		case event := <-tickerDaily.C:
 			handleDailyTick(event)
-		case event := <-watcherForHost.Events:
+		case event := <-watcherForHostEvents:
 			handleFileSystemEvent(event)
-		case err := <-watcherForHost.Errors:
+		case err := <-watcherForHostErrors:
 			logrus.Warnf("Received an error from the file system watcher: %v", err)
 		}
 	}
