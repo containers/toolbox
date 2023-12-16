@@ -33,6 +33,7 @@ import (
 	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"golang.org/x/term"
 )
 
@@ -49,6 +50,7 @@ var (
 		distro    string
 		image     string
 		release   string
+		devices   []string
 	}
 
 	createToolboxShMounts = []struct {
@@ -98,6 +100,11 @@ func init() {
 		"r",
 		"",
 		"Create a toolbox container for a different operating system release than the host")
+
+	flags.StringSliceVar(&createFlags.devices,
+		"device",
+		nil,
+		"Add a host device to the container. Passed as is to podman-create(1).")
 
 	createCmd.SetHelpFunc(createHelp)
 
@@ -178,14 +185,32 @@ func create(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := createContainer(container, image, release, createFlags.authFile, true); err != nil {
+	var devices []string
+	var podmanCreateArgs []string
+
+	if viper.IsSet("general.devices") {
+		devices = viper.GetStringSlice("general.devices")
+	}
+
+	if cmd.Flag("device").Changed {
+		devices, err = cmd.Flags().GetStringSlice("device")
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	for _, device := range devices {
+		podmanCreateArgs = append(podmanCreateArgs, "--device", device)
+	}
+
+	if err := createContainer(container, image, release, createFlags.authFile, podmanCreateArgs, true); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createContainer(container, image, release, authFile string, showCommandToEnter bool) error {
+func createContainer(container, image, release, authFile string, podmanCreateArgs []string, showCommandToEnter bool) error {
 	if container == "" {
 		panic("container not specified")
 	}
@@ -435,6 +460,8 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	createArgs = append(createArgs, pcscSocketMount...)
 	createArgs = append(createArgs, runMediaMount...)
 	createArgs = append(createArgs, toolboxShMount...)
+
+	createArgs = append(createArgs, podmanCreateArgs...)
 
 	createArgs = append(createArgs, []string{
 		imageFull,
