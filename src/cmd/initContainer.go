@@ -200,7 +200,8 @@ func initContainer(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		if _, err := os.Readlink("/etc/resolv.conf"); err != nil {
+		if resolvConfTarget, err := os.Readlink("/etc/resolv.conf"); err != nil ||
+			resolvConfTarget != "/run/host/etc/resolv.conf" {
 			if err := redirectPath("/etc/resolv.conf",
 				"/run/host/etc/resolv.conf",
 				false); err != nil {
