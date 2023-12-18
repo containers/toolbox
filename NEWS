@@ -1,3 +1,48 @@
+Overview of changes in 0.0.99.5
+===============================
+
+* Add psmisc to the fedora-toolbox images
+* Add several new system and unit tests, and make the existing ones stricter
+* Add workaround to support configuring the user's password on some Active
+  Directory set-ups
+* Be aware of security hardened mount points marked with 'nosuid,nodev,noexec'
+* Bump the minimum Bats version to 1.7.0 to simplify running a subset of the
+  system tests and fix various warnings
+* Bump the minimum Go requirement to 1.20
+* Bump the minimum github.com/docker/go-units version to 0.5.0
+* Bump the minimum golang.org/x/sys version to 0.1.0 for CVE-2022-29526 or
+  GHSA-p782-xgp4-8hr8
+* Bump the minimum golang.org/x/text version to 0.3.8 for CVE-2022-32149 or
+  GHSA-69ch-w2m2-3vjp
+* Bump the minimum gopkg.in/yaml.v3 version to 3.0.0 for CVE-2022-28948 or
+  GHSA-hp87-p4gw-j4gq
+* Deprecate the --monitor-host option of 'init-container'
+* Don't leak the NAME and VERSION environment variables into containers made
+  from the fedora-toolbox images
+* Drop golang.org/x/term as a dependency
+* Ensure that Toolbx containers start even if there aren't sufficient resources
+  for inotify(7)
+* Ensure that the fedora-toolbox images retain documentation and translations
+* Ensure that toolbox(1) can be built without using podman(1) and validating
+  subordinate IDs
+* Fix DNS queries in Toolbx containers made from images with systemd-resolved,
+  when running on hosts that don't use it
+* Handle space-separated input when asking for confirmation
+* Let the terminal know the active container also on Fedora Linux Asahi Remix
+* Offer built-in support for Arch Linux
+* Offer built-in support for Ubuntu
+* Preserve the host's environment variables for Bash's history facility inside
+  Toolbx containers
+* Rely on podman >= 1.6.4 always being present
+* Report the size of the image that will be downloaded from a registry
+* Show welcome message on Fedora Sericea
+* Support 64-bit RISC-V
+* Update fallback release to 38 for non-fedora hosts
+* Unbreak the line count checks with Bats >= 1.10.0
+* Unbreak the manual page checks with GNU roff >= 1.23
+* Various updates to the documentation and manuals
+
+
 Overview of changes in 0.0.99.4
 ===============================
 
