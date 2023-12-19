@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/binary"
 	"errors"
@@ -204,7 +205,7 @@ func discardInputAsync(ctx context.Context) (<-chan int, <-chan error) {
 				if pollFDs[0].Revents&unix.POLLIN != 0 {
 					logrus.Debug("Returned from /dev/stdin: POLLIN")
 
-					buffer := make([]byte, 1)
+					buffer := make([]byte, bytes.MinRead)
 					n, err := os.Stdin.Read(buffer)
 					total += n
 
