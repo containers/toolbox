@@ -730,6 +730,16 @@ func pullImage(image, release, authFile string) (bool, error) {
 	}
 
 	if promptForDownload {
+		if !term.IsTerminal(os.Stdin) || !term.IsTerminal(os.Stdout) {
+			var builder strings.Builder
+			fmt.Fprintf(&builder, "image required to create toolbox container.\n")
+			fmt.Fprintf(&builder, "Use option '--assumeyes' to download the image.\n")
+			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+			errMsg := builder.String()
+			return false, errors.New(errMsg)
+		}
+
 		shouldPullImage = showPromptForDownload(imageFull)
 	}
 

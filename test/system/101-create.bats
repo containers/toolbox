@@ -1,3 +1,4 @@
+
 # shellcheck shell=bats
 #
 # Copyright © 2019 – 2023 Red Hat, Inc.
@@ -25,7 +26,7 @@ setup() {
 }
 
 teardown() {
-  cleanup_containers
+  cleanup_all
 }
 
 @test "create: Smoke test" {
@@ -50,6 +51,18 @@ teardown() {
   run "$TOOLBOX" --assumeyes create --container "fedora34" --image fedora-toolbox:34
 
   assert_success
+}
+
+@test "create: Try without --assumeyes" {
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" create
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: image required to create toolbox container."
+  assert_line --index 1 "Use option '--assumeyes' to download the image."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
 @test "create: Try with an invalid custom name (using positional argument)" {
@@ -81,6 +94,21 @@ teardown() {
   assert_line --index 2 "Container names must match '[a-zA-Z0-9][a-zA-Z0-9_.-]*'."
   assert_line --index 3 "Run 'toolbox --help' for usage."
   assert [ ${#lines[@]} -eq 4 ]
+}
+
+@test "create: Try with an invalid custom image (using --assumeyes)" {
+  local image="ßpeci@l.N@m€"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" --assumeyes create --image "$image"
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--image'"
+  assert_line --index 1 "Container name $image generated from image is invalid."
+  assert_line --index 2 "Container names must match '[a-zA-Z0-9][a-zA-Z0-9_.-]*'."
+  assert_line --index 3 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 4 ]
 }
 
 @test "create: Arch Linux" {
@@ -211,6 +239,18 @@ teardown() {
 }
 
 @test "create: Try a non-existent image" {
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" create --image foo.org/bar
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: image required to create toolbox container."
+  assert_line --index 1 "Use option '--assumeyes' to download the image."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "create: Try a non-existent image (using --assumeyes)" {
   run "$TOOLBOX" --assumeyes create --image foo.org/bar
 
   assert_failure
@@ -639,6 +679,17 @@ teardown() {
 }
 
 @test "create: Try using both --distro and --image" {
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" create --distro fedora --image fedora-toolbox:34
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: options --distro and --image cannot be used together"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
+@test "create: Try using both --distro and --image (using --assumeyes)" {
   pull_distro_image fedora 34
 
   run "$TOOLBOX" --assumeyes create --distro fedora --image fedora-toolbox:34
@@ -650,6 +701,17 @@ teardown() {
 }
 
 @test "create: Try using both --image and --release" {
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" create --image fedora-toolbox:34 --release 34
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: options --image and --release cannot be used together"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#lines[@]} -eq 2 ]
+}
+
+@test "create: Try using both --image and --release (using --assumeyes)" {
   pull_distro_image fedora 34
 
   run "$TOOLBOX" --assumeyes create --image fedora-toolbox:34 --release 34
@@ -670,6 +732,20 @@ teardown() {
   assert_line --index 1 "'podman login' can be used to create the file."
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#lines[@]} -eq 3 ]
+}
+
+@test "create: Try a non-existent authentication file (using --assumeyes)" {
+  local file="$BATS_RUN_TMPDIR/non-existent-file"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" --assumeyes create --authfile "$file"
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: file $file not found"
+  assert_line --index 1 "'podman login' can be used to create the file."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
 @test "create: With a custom image that needs an authentication file" {
