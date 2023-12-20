@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2022 Red Hat Inc.
+ * Copyright © 2019 – 2023 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,33 +124,7 @@ func enter(cmd *cobra.Command, args []string) error {
 
 	command := []string{userShell, "-l"}
 
-	hostID, err := utils.GetHostID()
-	if err != nil {
-		return fmt.Errorf("failed to get the host ID: %w", err)
-	}
-
-	hostVariantID, err := utils.GetHostVariantID()
-	if err != nil {
-		return errors.New("failed to get the host VARIANT_ID")
-	}
-
-	var emitEscapeSequence bool
-
-	if hostID == "fedora" && (hostVariantID == "silverblue" || hostVariantID == "workstation") {
-		emitEscapeSequence = true
-	} else if hostID == "fedora-asahi-remix" {
-		emitEscapeSequence = true
-	}
-
-	if err := runCommand(container,
-		defaultContainer,
-		image,
-		release,
-		0,
-		command,
-		emitEscapeSequence,
-		true,
-		false); err != nil {
+	if err := runCommand(container, defaultContainer, image, release, 0, command, true, true, false); err != nil {
 		return err
 	}
 
