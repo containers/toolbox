@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/spf13/cobra"
@@ -117,12 +118,18 @@ func enter(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	userShell := os.Getenv("SHELL")
-	if userShell == "" {
-		return errors.New("failed to get the current user's default shell")
+	userShellBinPath := os.Getenv("SHELL")
+	if userShellBinPath == "" {
+		return errors.New("failed to get the current path to user's default shell executable")
 	}
 
-	command := []string{userShell, "-l"}
+	_, userShellName := path.Split(userShellBinPath)
+
+	if userShellName == "" {
+		return errors.New("failed to get the current user's default shell name")
+	}
+
+	command := []string{"/usr/bin/env", userShellName, "-l"}
 
 	if err := runCommand(container, defaultContainer, image, release, 0, command, true, true, false); err != nil {
 		return err
