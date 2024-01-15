@@ -1,0 +1,45 @@
+FROM registry.access.redhat.com/ubi9:9.3
+
+ARG NAME=toolbox-container
+ARG VERSION=9.3
+LABEL com.github.containers.toolbox="true" \
+      com.redhat.component="$NAME" \
+      com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI" \
+      name="$NAME" \
+      version="$VERSION" \
+      usage="This image is meant to be used with the toolbox command" \
+      summary="Base image for creating UBI toolbox containers" \
+      maintainer="Debarshi Ray <debarshir@redhat.com>"
+
+COPY README.md /
+
+RUN rm /etc/rpm/macros.image-language-conf
+RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf
+
+RUN dnf -y upgrade
+RUN dnf -y swap coreutils-single coreutils-full
+RUN dnf -y swap glibc-minimal-langpack glibc-all-langpacks
+
+COPY missing-docs /
+RUN dnf -y reinstall $(<missing-docs)
+RUN rm /missing-docs
+
+COPY extra-packages /
+RUN dnf -y install $(<extra-packages)
+RUN rm /extra-packages
+
+COPY ensure-files /
+RUN ret_val=0; \
+  while read file; do \
+    if ! compgen -G "$file" >/dev/null; then \
+      echo "$file: No such file or directory" >&2; \
+      ret_val=1; \
+      break; \
+    fi; \
+  done <ensure-files; \
+  if [ "$ret_val" -ne 0 ]; then \
+    false; \
+  fi
+RUN rm /ensure-files
+
+RUN dnf clean all
