@@ -1,4 +1,3 @@
-
 # shellcheck shell=bats
 #
 # Copyright © 2019 – 2024 Red Hat, Inc.
