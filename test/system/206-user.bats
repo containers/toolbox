@@ -27,7 +27,7 @@ setup_file() {
   create_default_container
   create_distro_container arch latest arch-toolbox-latest
   create_distro_container fedora 34 fedora-toolbox-34
-  create_distro_container rhel 8.7 rhel-toolbox-8.7
+  create_distro_container rhel 8.9 rhel-toolbox-8.9
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
@@ -109,13 +109,13 @@ teardown_file() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "user: root in shadow(5) inside RHEL 8.7" {
-  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount rhel-toolbox-8.7)"
+@test "user: root in shadow(5) inside RHEL 8.9" {
+  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount rhel-toolbox-8.9)"
 
-  "$TOOLBOX" run --distro rhel --release 8.7 true
+  "$TOOLBOX" run --distro rhel --release 8.9 true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
-  "$PODMAN" unshare "$PODMAN" unmount rhel-toolbox-8.7
+  "$PODMAN" unshare "$PODMAN" unmount rhel-toolbox-8.9
 
   assert_success
   assert_line --regexp '^root::.+$'
@@ -224,14 +224,14 @@ teardown_file() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "user: $USER in passwd(5) inside RHEL 8.7" {
+@test "user: $USER in passwd(5) inside RHEL 8.9" {
   local user_gecos
   user_gecos="$(getent passwd "$USER" | cut --delimiter : --fields 5)"
 
   local user_id_real
   user_id_real="$(id --real --user)"
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.7 cat /etc/passwd
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.9 cat /etc/passwd
 
   assert_success
   assert_line --regexp "^$USER::$user_id_real:$user_id_real:$user_gecos:$HOME:$SHELL$"
@@ -343,13 +343,13 @@ teardown_file() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "user: $USER in shadow(5) inside RHEL 8.7" {
-  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount rhel-toolbox-8.7)"
+@test "user: $USER in shadow(5) inside RHEL 8.9" {
+  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount rhel-toolbox-8.9)"
 
-  "$TOOLBOX" run --distro rhel --release 8.7 true
+  "$TOOLBOX" run --distro rhel --release 8.9 true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
-  "$PODMAN" unshare "$PODMAN" unmount rhel-toolbox-8.7
+  "$PODMAN" unshare "$PODMAN" unmount rhel-toolbox-8.9
 
   assert_success
   refute_line --regexp "^$USER:.*$"
@@ -440,8 +440,8 @@ teardown_file() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "user: $USER in group(5) inside RHEL 8.7" {
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.7 cat /etc/group
+@test "user: $USER in group(5) inside RHEL 8.9" {
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.9 cat /etc/group
 
   assert_success
   assert_line --regexp "^wheel:x:[[:digit:]]+:$USER$"

@@ -39,7 +39,7 @@ setup_file() {
   create_default_container
   create_distro_container arch latest arch-toolbox-latest
   create_distro_container fedora 34 fedora-toolbox-34
-  create_distro_container rhel 8.7 rhel-toolbox-8.7
+  create_distro_container rhel 8.9 rhel-toolbox-8.9
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
@@ -117,8 +117,8 @@ teardown_file() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "network: /etc/resolv.conf inside RHEL 8.7" {
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.7 readlink /etc/resolv.conf
+@test "network: /etc/resolv.conf inside RHEL 8.9" {
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.9 readlink /etc/resolv.conf
 
   assert_success
   assert_line --index 0 "/run/host/etc/resolv.conf"
@@ -335,7 +335,7 @@ teardown_file() {
   fi
 }
 
-@test "network: DNS inside RHEL 8.7" {
+@test "network: DNS inside RHEL 8.9" {
   local ipv4_skip=false
   local ipv4_addr
   if ! ipv4_addr="$(python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net)"; then
@@ -355,7 +355,7 @@ teardown_file() {
   if ! $ipv4_skip; then
     run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
       --distro rhel \
-      --release 8.7 \
+      --release 8.9 \
       /usr/libexec/platform-python3.6 -c "$RESOLVER_PYTHON3" A k.root-servers.net
 
     assert_success
@@ -373,7 +373,7 @@ teardown_file() {
   if ! $ipv6_skip; then
     run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
       --distro rhel \
-      --release 8.7 \
+      --release 8.9 \
       /usr/libexec/platform-python3.6 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net
 
     assert_success
@@ -593,8 +593,8 @@ teardown_file() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "network: ping(8) inside RHEL 8.7" {
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.7 ping -c 2 f.root-servers.net
+@test "network: ping(8) inside RHEL 8.9" {
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.9 ping -c 2 f.root-servers.net
 
   if [ "$status" -eq 1 ]; then
     skip "lost packets"
