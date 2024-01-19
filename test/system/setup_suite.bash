@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 #
-# Copyright © 2021 – 2023 Red Hat, Inc.
+# Copyright © 2021 – 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ setup_suite() {
   # Cache all images that will be needed during the tests
   _pull_and_cache_distro_image arch latest || false
   _pull_and_cache_distro_image fedora 34 || false
-  _pull_and_cache_distro_image rhel 8.7 || false
+  _pull_and_cache_distro_image rhel 8.9 || false
   _pull_and_cache_distro_image ubuntu 16.04 || false
   _pull_and_cache_distro_image ubuntu 18.04 || false
   _pull_and_cache_distro_image ubuntu 20.04 || false

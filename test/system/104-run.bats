@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2021 – 2023 Red Hat, Inc.
+# Copyright © 2021 – 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -89,10 +89,10 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "run: Smoke test with RHEL 8.7" {
-  create_distro_container rhel 8.7 rhel-toolbox-8.7
+@test "run: Smoke test with RHEL 8.9" {
+  create_distro_container rhel 8.9 rhel-toolbox-8.9
 
-  run --separate-stderr "$TOOLBOX" run --distro rhel --release 8.7 true
+  run --separate-stderr "$TOOLBOX" run --distro rhel --release 8.9 true
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]

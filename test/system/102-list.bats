@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2019 – 2023 Red Hat, Inc.
+# Copyright © 2019 – 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -215,8 +215,8 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "list: RHEL 8.7 image" {
-  pull_distro_image rhel 8.7
+@test "list: RHEL 8.9 image" {
+  pull_distro_image rhel 8.9
 
   local num_of_images
   num_of_images="$(list_images)"
@@ -225,7 +225,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list
 
   assert_success
-  assert_line --index 1 --partial "registry.access.redhat.com/ubi8/toolbox:8.7"
+  assert_line --index 1 --partial "registry.access.redhat.com/ubi8/toolbox:8.9"
 
   if check_bats_version 1.10.0; then
     assert [ ${#lines[@]} -eq 2 ]
@@ -236,8 +236,8 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "list: RHEL 8.7 image (using --images)" {
-  pull_distro_image rhel 8.7
+@test "list: RHEL 8.9 image (using --images)" {
+  pull_distro_image rhel 8.9
 
   local num_of_images
   num_of_images="$(list_images)"
@@ -246,7 +246,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBOX" list --images
 
   assert_success
-  assert_line --index 1 --partial "registry.access.redhat.com/ubi8/toolbox:8.7"
+  assert_line --index 1 --partial "registry.access.redhat.com/ubi8/toolbox:8.9"
 
   if check_bats_version 1.10.0; then
     assert [ ${#lines[@]} -eq 2 ]

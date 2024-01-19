@@ -1,7 +1,7 @@
 
 # shellcheck shell=bats
 #
-# Copyright © 2019 – 2023 Red Hat, Inc.
+# Copyright © 2019 – 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -167,18 +167,18 @@ teardown() {
   assert_output --regexp "Created[[:blank:]]+fedora-toolbox-34"
 }
 
-@test "create: RHEL 8.7" {
-  pull_distro_image rhel 8.7
+@test "create: RHEL 8.9" {
+  pull_distro_image rhel 8.9
 
-  run "$TOOLBOX" --assumeyes create --distro rhel --release 8.7
+  run "$TOOLBOX" --assumeyes create --distro rhel --release 8.9
 
   assert_success
-  assert_output --partial "Created container: rhel-toolbox-8.7"
-  assert_output --partial "Enter with: toolbox enter rhel-toolbox-8.7"
+  assert_output --partial "Created container: rhel-toolbox-8.9"
+  assert_output --partial "Enter with: toolbox enter rhel-toolbox-8.9"
 
   run podman ps -a
 
-  assert_output --regexp "Created[[:blank:]]+rhel-toolbox-8.7"
+  assert_output --regexp "Created[[:blank:]]+rhel-toolbox-8.9"
 }
 
 @test "create: Ubuntu 16.04" {

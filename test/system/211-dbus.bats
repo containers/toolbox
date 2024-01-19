@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2023 Red Hat, Inc.
+# Copyright © 2023 – 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "dbus: session bus inside RHEL 8.7" {
+@test "dbus: session bus inside RHEL 8.9" {
   local expected_response
   expected_response="$(gdbus call \
                          --session \
@@ -129,11 +129,11 @@ teardown() {
                          --object-path /org/freedesktop/DBus \
                          --method org.freedesktop.DBus.Peer.Ping)"
 
-  create_distro_container rhel 8.7 rhel-toolbox-8.7
+  create_distro_container rhel 8.9 rhel-toolbox-8.9
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro rhel \
-    --release 8.7 \
+    --release 8.9 \
     gdbus call \
       --session \
       --dest org.freedesktop.DBus \
@@ -314,7 +314,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "dbus: system bus inside RHEL 8.7" {
+@test "dbus: system bus inside RHEL 8.9" {
   local expected_response
   expected_response="$(gdbus call \
                          --system \
@@ -324,11 +324,11 @@ teardown() {
                          org.freedesktop.systemd1.Manager \
                          Version)"
 
-  create_distro_container rhel 8.7 rhel-toolbox-8.7
+  create_distro_container rhel 8.9 rhel-toolbox-8.9
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro rhel \
-    --release 8.7 \
+    --release 8.9 \
     gdbus call \
       --system \
       --dest org.freedesktop.systemd1 \
