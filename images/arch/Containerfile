@@ -13,7 +13,7 @@ RUN pacman -Syu --needed --noconfirm - < extra-packages
 RUN rm /extra-packages
 
 # Clean up cache
-RUN pacman -Scc --noconfirm
+RUN yes | pacman -Scc
 
 # Enable sudo permission for wheel users
 RUN echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/toolbox
