@@ -29,7 +29,7 @@ skopeo = find_program('skopeo', required: false)
 
 bashcompletionsdir = get_option('bash_completions_dir')
 if bashcompletionsdir == ''
-  bash_completion_dep = dependency('bash-completion', required: false)
+  bash_completion_dep = dependency('bash-completion', required: get_option('bash_completions'))
   if bash_completion_dep.found()
     bashcompletionsdir = bash_completion_dep.get_variable(pkgconfig: 'completionsdir')
   endif
@@ -37,7 +37,7 @@ endif
 
 fishcompletionsdir = get_option('fish_completions_dir')
 if fishcompletionsdir == ''
-  fish_completion_dep = dependency('fish', required: false)
+  fish_completion_dep = dependency('fish', required: get_option('fish_completions'))
   if fish_completion_dep.found()
     fishcompletionsdir = fish_completion_dep.get_variable(pkgconfig: 'completionsdir')
   endif

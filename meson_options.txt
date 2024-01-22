@@ -1,7 +1,19 @@
 option(
+  'bash_completions',
+  description: 'Install Bash completion scripts',
+  type: 'feature',
+)
+
+option(
   'bash_completions_dir',
   description: 'Directory for Bash completion scripts',
   type: 'string',
+)
+
+option(
+  'fish_completions',
+  description: 'Install fish completion scripts',
+  type: 'feature',
 )
 
 option(
