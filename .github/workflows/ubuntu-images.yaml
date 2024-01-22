@@ -94,3 +94,30 @@ jobs:
           image: ${{ env.distro }}-toolbox
           registry: ${{ env.registry }}
           tags: ${{ matrix.release }} latest
+
+      - name: Login to Container Registry
+        uses: redhat-actions/podman-login@v1
+        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
+        with:
+          registry: ${{ env.registry }}
+          username: ${{ env.username }}
+          password: ${{ secrets.QUAY_ROBOT_TOKEN }}
+
+      - uses: sigstore/cosign-installer@v3.3.0
+        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
+
+      - name: Sign container image
+        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main' && env.latest_release != matrix.release
+        run: |
+          cosign sign -y --recursive --key env://COSIGN_PRIVATE_KEY ${{ env.registry }}/${{ env.distro }}-toolbox@${{ steps.push.outputs.digest }}
+        env:
+          COSIGN_EXPERIMENTAL: false
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+
+      - name: Sign container image (latest)
+        if: (github.event_name == 'push' || github.event_name == 'schedule') && github.ref == 'refs/heads/main' && env.latest_release == matrix.release
+        run: |
+          cosign sign -y --recursive --key env://COSIGN_PRIVATE_KEY ${{ env.registry }}/${{ env.distro }}-toolbox@${{ steps.push-latest.outputs.digest }}
+        env:
+          COSIGN_EXPERIMENTAL: false
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
