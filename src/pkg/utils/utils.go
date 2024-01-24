@@ -547,7 +547,8 @@ func GetRuntimeDirectory(targetUser *user.User) (string, error) {
 
 	if uid == 0 {
 		runtimeDirectory = "/run"
-	} else {
+	} 
+	if _, ok := os.LookupEnv("XDG_RUNTIME_DIR"); ok {
 		runtimeDirectory = os.Getenv("XDG_RUNTIME_DIR")
 	}
 
