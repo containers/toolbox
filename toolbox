@@ -1078,7 +1078,7 @@ create()
     $podman_command create \
             --dns none \
             --env TOOLBOX_PATH="$TOOLBOX_PATH" \
-            --hostname toolbox \
+            --hostname "toolbox.${HOSTNAME:-localhost}" \
             --ipc host \
             --label "com.github.containers.toolbox=true" \
             --label "com.github.debarshiray.toolbox=true" \
