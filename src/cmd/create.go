@@ -407,8 +407,20 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 
 	createArgs = append(createArgs, xdgRuntimeDirEnv...)
 
+	hostname, err := os.Hostname()
+	containerHostname := ""
+	if err == nil {
+		containerHostname = "toolbox" + "." + hostname
+		logrus.Debugf("using container hostname: %s", containerHostname)
+	} else {
+		logrus.Warnf("could not get hostname, failed to deduce container hostname defaulting to plain 'toolbox'")
+		containerHostname = "toolbox"
+	}
 	createArgs = append(createArgs, []string{
-		"--hostname", "toolbox",
+		"--hostname", containerHostname,
+	}...)
+
+	createArgs = append(createArgs, []string{
 		"--ipc", "host",
 		"--label", "com.github.containers.toolbox=true",
 	}...)
