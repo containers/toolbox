@@ -124,9 +124,33 @@ custom_target(
 )
 
 if shellcheck.found()
-  test('shellcheck src/go-build-wrapper', shellcheck, args: [go_build_wrapper_file])
+  test(
+    'shellcheck go-build-wrapper',
+    shellcheck,
+    args: [go_build_wrapper_file],
+    suite: 'linting'
+  )
 endif
 
-test('go fmt', meson_go_fmt_program, args: [meson.current_source_dir()])
-test('go vet', go, args: ['vet', '-c', '3', './...'], workdir: meson.current_source_dir())
-test('go test', go, args: ['test', '-vet', 'off', './...'], workdir: meson.current_source_dir())
+test(
+  'go fmt',
+  meson_go_fmt_program,
+  args: [meson.current_source_dir()],
+  suite: 'linting'
+)
+
+test(
+  'go vet',
+  go,
+  args: ['vet', '-c', '3', './...'],
+  suite: 'linting',
+  workdir: meson.current_source_dir()
+)
+
+test(
+  'go test',
+  go,
+  args: ['test', '-vet', 'off', './...'],
+  suite: 'unit',
+  workdir: meson.current_source_dir()
+)

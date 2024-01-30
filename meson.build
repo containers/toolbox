@@ -19,13 +19,8 @@ subid_dep = cc.find_library('subid', has_headers: ['shadow/subid.h'])
 go = find_program('go')
 go_md2man = find_program('go-md2man')
 
-bats = find_program('bats', required: false)
 codespell = find_program('codespell', required: false)
-htpasswd = find_program('htpasswd', required: false)
-openssl = find_program('openssl', required: false)
-podman = find_program('podman', required: false)
 shellcheck = find_program('shellcheck', required: false)
-skopeo = find_program('skopeo', required: false)
 
 bashcompletionsdir = get_option('bash_completions_dir')
 if bashcompletionsdir == ''
@@ -83,29 +78,6 @@ endif
 if shellcheck.found()
   test('shellcheck toolbox (deprecated)', shellcheck, args: [toolbox_sh])
 endif
-
-install_subdir(
-  'test',
-  install_dir: get_option('datadir') / meson.project_name(),
-  exclude_files: [
-    'system/libs/bats-assert/.git',
-    'system/libs/bats-assert/.gitignore',
-    'system/libs/bats-assert/.travis.yml',
-    'system/libs/bats-assert/package.json',
-    'system/libs/bats-support/.git',
-    'system/libs/bats-support/.gitignore',
-    'system/libs/bats-support/.travis.yml',
-    'system/libs/bats-support/package.json'
-    ],
-  exclude_directories: [
-    'system/libs/bats-assert/.git',
-    'system/libs/bats-assert/script',
-    'system/libs/bats-assert/test',
-    'system/libs/bats-support/.git',
-    'system/libs/bats-support/script',
-    'system/libs/bats-support/test'
-  ]
-)
 
 subdir('data')
 subdir('doc')

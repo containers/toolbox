@@ -20,9 +20,9 @@
     - include_tasks: build.yaml
 
     - name: Run system tests
-      command: bats --timing ./test/system
+      command: meson test --verbose --suite system
       environment:
         PODMAN: '/usr/bin/podman'
         TOOLBOX: '/usr/local/bin/toolbox'
       args:
-        chdir: '{{ zuul.project.src_dir }}'
+        chdir: '{{ zuul.project.src_dir }}/builddir'

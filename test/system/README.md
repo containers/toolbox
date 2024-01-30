@@ -29,8 +29,19 @@ by running `git submodule init` and `git submodule update`.
 
 First, make sure you have all the dependencies installed.
 
-- Enter the toolbox root folder
-- Invoke command `bats ./test/system/` and the test suite should fire up
+### Meson (recommended)
+
+> This method is optimal when bulding from source
+
+- Set up the project per instructions at https://containertoolbx.org/install
+- Invoke command `meson test --suite system` and the test suite should fire up
+
+### Manually (legacy)
+
+> This method is optimal if you want to test an existing build of Toolbx
+
+- Enter the `test/system` directory in the project root directory
+- Invoke command `bats ./` and the test suite should fire up
 
 Mocking of images is done automatically to prevent potential networking issues
 and to speed up the cases.
@@ -41,7 +52,7 @@ By default the test suite uses the system versions of `podman`, `skopeo` and
 If you have a `podman`, `skopeo` or `toolbox` installed in a nonstandard
 location then you can use the `PODMAN`, `SKOPEO` and `TOOLBOX` environmental
 variables to set the path to the binaries. So the command to invoke the test
-suite could look something like this: `PODMAN=/usr/libexec/podman TOOLBOX=./toolbox bats ./test/system/`.
+suite could look something like this: `PODMAN=/usr/libexec/podman TOOLBOX=./toolbox bats ./`.
 
 When running the tests, make sure the `test suite: [job]` jobs are successful.
 These jobs set up the whole environment and are a strict requirement for other
