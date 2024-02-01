@@ -1,6 +1,7 @@
 bash-completion
 bc
 bzip2
+cracklib-dicts
 diffutils
 dnf-plugins-core
 findutils

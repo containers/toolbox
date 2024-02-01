@@ -6,6 +6,9 @@
 /usr/share/man/man1/cp.1*
 /usr/share/man/man1/ls.1*
 
+/usr/share/cracklib/cracklib-small.pwd*
+/usr/share/cracklib/pw_dict.pwd*
+
 /usr/share/man/man8/dnf.8*
 /usr/share/man/man5/dnf.conf.5*
 
