@@ -33,6 +33,7 @@ libassuan
 libblkid
 libcap
 libcap-ng
+libcomps
 libdb
 libdnf
 libeconf
