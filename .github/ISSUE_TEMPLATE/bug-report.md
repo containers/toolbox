@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Toolbox's bug report template
+about: Toolbx's bug report template
 title: ''
 labels: 1. Bug
 assignees: ''
@@ -28,7 +28,7 @@ If applicable, add screenshots to help explain your problem.
 **Output of `toolbox --version` (v0.0.90+)**
 e.g., `toolbox version 0.0.90`
 
-**Toolbox package info (`rpm -q toolbox`)**
+**Toolbx package info (`rpm -q toolbox`)**
 e.g., `toolbox-0.0.18-2.fc32.noarch`
 
 **Output of `podman version`**
@@ -49,6 +49,6 @@ e.g., Fedora Silverblue 32
 **Additional context**
 Add any other context about the problem here.
 When did the issue start occurring? After an update (what packages were updated)?
-If the issue is about operating with containers/images (creating, using, deleting,..), share here what image you used. If you're unsure, share here the output of `toolbox list -i` (shows all toolbox images on your system).
+If the issue is about operating with containers/images (creating, using, deleting,..), share here what image you used. If you're unsure, share here the output of `toolbox list -i` (shows all Toolbx images on your system).
 
 If you see an error message saying: `Error: invalid entry point PID of container <name-of-container>`, add to the ticket output of command `podman start --attach <name-of-container>`.

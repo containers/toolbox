@@ -4,7 +4,7 @@ load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 
 # Helpful globals
-readonly TEMP_BASE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/toolbox"
+readonly TEMP_BASE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/toolbx"
 readonly TEMP_STORAGE_DIR="${TEMP_BASE_DIR}/system-test-storage"
 
 readonly IMAGE_CACHE_DIR="${BATS_RUN_TMPDIR}/image-cache"
@@ -17,9 +17,9 @@ readonly DOCKER_REG_AUTH_DIR="${BATS_RUN_TMPDIR}/auth"
 readonly DOCKER_REG_URI="localhost:50000"
 readonly DOCKER_REG_NAME="docker-registry"
 
-# Podman and Toolbox commands to run
+# Podman and Toolbx commands to run
 readonly PODMAN="${PODMAN:-$(command -v podman)}"
-readonly TOOLBOX="${TOOLBOX:-$(command -v toolbox)}"
+readonly TOOLBX="${TOOLBX:-$(command -v toolbox)}"
 readonly SKOPEO="${SKOPEO:-$(command -v skopeo)}"
 
 # Images
@@ -402,8 +402,8 @@ function create_distro_container() {
 
   pull_distro_image "${distro}" "${version}"
 
-  "$TOOLBOX" --assumeyes create --container "${container_name}" --distro "${distro}" --release "${version}" >/dev/null \
-    || fail "Toolbox couldn't create container '$container_name'"
+  "$TOOLBX" --assumeyes create --container "${container_name}" --distro "${distro}" --release "${version}" >/dev/null \
+    || fail "Toolbx couldn't create container '$container_name'"
 }
 
 
@@ -425,8 +425,8 @@ function create_container() {
 function create_default_container() {
   pull_default_image
 
-  "$TOOLBOX" --assumeyes create >/dev/null \
-    || fail "Toolbox couldn't create default container"
+  "$TOOLBX" --assumeyes create >/dev/null \
+    || fail "Toolbx couldn't create default container"
 }
 
 
@@ -439,7 +439,7 @@ function start_container() {
 }
 
 
-# Checks if a toolbox container started
+# Checks if a Toolbx container started
 #
 # Parameters:
 # ===========

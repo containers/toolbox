@@ -1,7 +1,7 @@
 % toolbox-run 1
 
 ## NAME
-toolbox\-run - Run a command in an existing toolbox container
+toolbox\-run - Run a command in an existing Toolbx container
 
 ## SYNOPSIS
 **toolbox run** [*--container NAME* | *-c NAME*]
@@ -12,14 +12,14 @@ toolbox\-run - Run a command in an existing toolbox container
 
 ## DESCRIPTION
 
-Runs a command inside an existing toolbox container. The container should have
+Runs a command inside an existing Toolbx container. The container should have
 been created using the `toolbox create` command.
 
 On Fedora, the default container is known as `fedora-toolbox-N`, where N is
 the release of the host. A specific container can be selected using the
 `--container` option.
 
-A toolbox container is an OCI container. Therefore, `toolbox run` is analogous
+A Toolbx container is an OCI container. Therefore, `toolbox run` is analogous
 to a `podman start` followed by a `podman exec`.
 
 ## OPTIONS ##
@@ -28,13 +28,13 @@ The following options are understood:
 
 **--container** NAME, **-c** NAME
 
-Run command inside a toolbox container with the given NAME. This is useful
-when there are multiple toolbox containers created from the same image, or
+Run command inside a Toolbx container with the given NAME. This is useful
+when there are multiple Toolbx containers created from the same image, or
 entirely customized containers created from custom-built images.
 
 **--distro** DISTRO, **-d** DISTRO
 
-Run command inside a toolbox container for a different operating system DISTRO
+Run command inside a Toolbx container for a different operating system DISTRO
 than the host. Has to be coupled with `--release` unless the selected DISTRO
 matches the host system.
 
@@ -45,7 +45,7 @@ Pass down to command N additional file descriptors (in addition to 0, 1,
 
 **--release** RELEASE, **-r** RELEASE
 
-Run command inside a toolbox container for a different operating system
+Run command inside a Toolbx container for a different operating system
 RELEASE than the host.
 
 ## EXIT STATUS
@@ -53,7 +53,7 @@ RELEASE than the host.
 The exit code gives information about why the command within the container
 failed to run or why it exited.
 
-**1** There was an internal error in Toolbox
+**1** There was an internal error in Toolbx
 
 **125** There was an internal error in Podman
 
@@ -85,19 +85,19 @@ $ toolbox run false; echo $?
 
 ## EXAMPLES
 
-### Run ls inside the default toolbox container matching the host OS
+### Run ls inside the default Toolbx container matching the host OS
 
 ```
 $ toolbox run ls -la
 ```
 
-### Run emacs inside the default toolbox container for Fedora 36
+### Run emacs inside the default Toolbx container for Fedora 36
 
 ```
 $ toolbox run --distro fedora --release f36 emacs
 ```
 
-### Run uptime inside a toolbox container with a custom name
+### Run uptime inside a Toolbx container with a custom name
 
 ```
 $ toolbox run --container foo uptime

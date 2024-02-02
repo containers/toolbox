@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2023 Red Hat Inc.
+ * Copyright © 2019 – 2024 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,12 +84,12 @@ func init() {
 	flags.IntVar(&initContainerFlags.gid,
 		"gid",
 		0,
-		"Create a user inside the toolbox container whose numerical group ID is GID")
+		"Create a user inside the Toolbx container whose numerical group ID is GID")
 
 	flags.StringVar(&initContainerFlags.home,
 		"home",
 		"",
-		"Create a user inside the toolbox container whose login directory is HOME")
+		"Create a user inside the Toolbx container whose login directory is HOME")
 	if err := initContainerCmd.MarkFlagRequired("home"); err != nil {
 		panic("Could not mark flag --home as required")
 	}
@@ -118,7 +118,7 @@ func init() {
 	flags.StringVar(&initContainerFlags.shell,
 		"shell",
 		"",
-		"Create a user inside the toolbox container whose login shell is SHELL")
+		"Create a user inside the Toolbx container whose login shell is SHELL")
 	if err := initContainerCmd.MarkFlagRequired("shell"); err != nil {
 		panic("Could not mark flag --shell as required")
 	}
@@ -126,7 +126,7 @@ func init() {
 	flags.IntVar(&initContainerFlags.uid,
 		"uid",
 		0,
-		"Create a user inside the toolbox container whose numerical user ID is UID")
+		"Create a user inside the Toolbx container whose numerical user ID is UID")
 	if err := initContainerCmd.MarkFlagRequired("uid"); err != nil {
 		panic("Could not mark flag --uid as required")
 	}
@@ -134,7 +134,7 @@ func init() {
 	flags.StringVar(&initContainerFlags.user,
 		"user",
 		"",
-		"Create a user inside the toolbox container whose login name is USER")
+		"Create a user inside the Toolbx container whose login name is USER")
 	if err := initContainerCmd.MarkFlagRequired("user"); err != nil {
 		panic("Could not mark flag --user as required")
 	}
@@ -249,7 +249,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 	if utils.PathExists("/etc/krb5.conf.d") && !utils.PathExists("/etc/krb5.conf.d/kcm_default_ccache") {
 		logrus.Debug("Setting KCM as the default Kerberos credential cache")
 
-		kcmConfigString := `# Written by Toolbox
+		kcmConfigString := `# Written by Toolbx
 # https://github.com/containers/toolbox
 #
 # # To disable the KCM credential cache, comment out the following lines.
@@ -270,7 +270,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		logrus.Debug("Configuring RPM to ignore bind mounts")
 
 		var builder strings.Builder
-		fmt.Fprintf(&builder, "# Written by Toolbox\n")
+		fmt.Fprintf(&builder, "# Written by Toolbx\n")
 		fmt.Fprintf(&builder, "# https://github.com/containers/toolbox\n")
 		fmt.Fprintf(&builder, "\n")
 		fmt.Fprintf(&builder, "%%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt\n")
@@ -374,7 +374,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 func initContainerHelp(cmd *cobra.Command, args []string) {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a toolbox container\n")
+			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
 			return
 		}
 

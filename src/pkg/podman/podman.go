@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2022 Red Hat Inc.
+ * Copyright © 2019 – 2024 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -288,7 +288,7 @@ func IsToolboxContainer(container string) (bool, error) {
 
 	labels, _ := info["Config"].(map[string]interface{})["Labels"].(map[string]interface{})
 	if labels["com.github.containers.toolbox"] != "true" && labels["com.github.debarshiray.toolbox"] != "true" {
-		return false, fmt.Errorf("%s is not a toolbox container", container)
+		return false, fmt.Errorf("%s is not a Toolbx container", container)
 	}
 
 	return true, nil
@@ -301,12 +301,12 @@ func IsToolboxImage(image string) (bool, error) {
 	}
 
 	if info["Labels"] == nil {
-		return false, fmt.Errorf("%s is not a toolbox image", image)
+		return false, fmt.Errorf("%s is not a Toolbx image", image)
 	}
 
 	labels := info["Labels"].(map[string]interface{})
 	if labels["com.github.containers.toolbox"] != "true" && labels["com.github.debarshiray.toolbox"] != "true" {
-		return false, fmt.Errorf("%s is not a toolbox image", image)
+		return false, fmt.Errorf("%s is not a Toolbx image", image)
 	}
 
 	return true, nil

@@ -33,7 +33,7 @@ if [ -f /run/ostree-booted ] \
     echo "Welcome to ${PRETTY_NAME:-Linux}."
     echo ""
     echo "This terminal is running on the host system. You may want to try"
-    echo "out the Toolbox for a directly mutable environment that allows "
+    echo "out the Toolbx for a directly mutable environment that allows "
     echo "package installation with DNF."
     echo ""
     printf "For more information, see the "
@@ -53,7 +53,7 @@ if [ -f /run/.containerenv ] \
 
     if ! [ -f "$toolbox_welcome_stub" ]; then
         echo ""
-        echo "Welcome to the Toolbox; a container where you can install and run"
+        echo "Welcome to the Toolbx; a container where you can install and run"
         echo "all your tools."
         echo ""
 

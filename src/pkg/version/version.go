@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2022 Red Hat Inc.
+ * Copyright © 2019 – 2024 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ var (
 	currentVersion string
 )
 
-// GetVersion returns string with the version of Toolbox
+// GetVersion returns string with the version of Toolbx
 func GetVersion() string {
 	return currentVersion
 }

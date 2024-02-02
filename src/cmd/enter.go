@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2023 Red Hat Inc.
+ * Copyright © 2019 – 2024 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ var (
 
 var enterCmd = &cobra.Command{
 	Use:               "enter",
-	Short:             "Enter a toolbox container for interactive use",
+	Short:             "Enter a Toolbx container for interactive use",
 	RunE:              enter,
 	ValidArgsFunction: completionContainerNamesFiltered,
 }
@@ -47,19 +47,19 @@ func init() {
 		"container",
 		"c",
 		"",
-		"Enter a toolbox container with the given name")
+		"Enter a Toolbx container with the given name")
 
 	flags.StringVarP(&enterFlags.distro,
 		"distro",
 		"d",
 		"",
-		"Enter a toolbox container for a different operating system distribution than the host")
+		"Enter a Toolbx container for a different operating system distribution than the host")
 
 	flags.StringVarP(&enterFlags.release,
 		"release",
 		"r",
 		"",
-		"Enter a toolbox container for a different operating system release than the host")
+		"Enter a Toolbx container for a different operating system release than the host")
 
 	if err := enterCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
 		panicMsg := fmt.Sprintf("failed to register flag completion function: %v", err)
@@ -77,7 +77,7 @@ func init() {
 func enter(cmd *cobra.Command, args []string) error {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a toolbox container")
+			return errors.New("this is not a Toolbx container")
 		}
 
 		if _, err := utils.ForwardToHost(); err != nil {
@@ -134,7 +134,7 @@ func enter(cmd *cobra.Command, args []string) error {
 func enterHelp(cmd *cobra.Command, args []string) {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a toolbox container\n")
+			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
 			return
 		}
 

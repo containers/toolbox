@@ -2,8 +2,8 @@
 
 These tests are built with BATS (Bash Automated Testing System).
 
-The tests are meant to ensure that Toolbox's functionality remains stable
-throughout updates of both Toolbox and Podman/libpod.
+The tests are meant to ensure that Toolbx's functionality remains stable
+throughout updates of both Toolbx and Podman/libpod.
 
 The tests are set up in a way that does not affect the host environment.
 Running them won't remove any existing containers or images.
@@ -39,9 +39,9 @@ By default the test suite uses the system versions of `podman`, `skopeo` and
 `toolbox`.
 
 If you have a `podman`, `skopeo` or `toolbox` installed in a nonstandard
-location then you can use the `PODMAN`, `SKOPEO` and `TOOLBOX` environmental
+location then you can use the `PODMAN`, `SKOPEO` and `TOOLBX` environmental
 variables to set the path to the binaries. So the command to invoke the test
-suite could look something like this: `PODMAN=/usr/libexec/podman TOOLBOX=./toolbox bats ./test/system/`.
+suite could look something like this: `PODMAN=/usr/libexec/podman TOOLBX=./toolbox bats ./test/system/`.
 
 When running the tests, make sure the `test suite: [job]` jobs are successful.
 These jobs set up the whole environment and are a strict requirement for other

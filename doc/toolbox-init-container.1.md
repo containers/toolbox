@@ -16,21 +16,21 @@ toolbox\-init\-container - Initialize a running container
 ## DESCRIPTION
 
 Initializes a newly created container that's running. It is primarily meant to
-be used as the entry point for all toolbox containers, and must be run inside
+be used as the entry point for all Toolbx containers, and must be run inside
 the container that's to be initialized. It is not expected to be directly
 invoked by humans, and cannot be used on the host.
 
-A key feature of toolbox containers is their entry point, the `toolbox
+A key feature of Toolbx containers is their entry point, the `toolbox
 init-container` command.
 
 OCI containers are inherently immutable. Configuration options passed through
 `podman create` are baked into the definition of the OCI container, and can't
 be changed later. This means that changes and improvements made in newer
-versions of Toolbox can't be applied to pre-existing toolbox containers
-created by older versions of Toolbox. This is avoided by using the entry point
+versions of Toolbx can't be applied to pre-existing Toolbx containers
+created by older versions of Toolbx. This is avoided by using the entry point
 to configure the container at runtime.
 
-The entry point of a toolbox container customizes the container to fit the
+The entry point of a Toolbx container customizes the container to fit the
 current user by ensuring that it has a user that matches the one on the host,
 and grants it `sudo` and `root` access.
 
@@ -53,12 +53,12 @@ The following options are understood:
 
 **--gid** GID
 
-Pass GID as the user's numerical group ID from the host to the toolbox
+Pass GID as the user's numerical group ID from the host to the Toolbx
 container.
 
 **--home** HOME
 
-Create a user inside the toolbox container whose login directory is HOME. This
+Create a user inside the Toolbx container whose login directory is HOME. This
 option is required.
 
 **--home-link**
@@ -77,24 +77,24 @@ Make `/mnt` a symbolic link to `/var/mnt`.
 
 Deprecated, does nothing.
 
-Crucial configuration files inside the toolbox container are always kept
+Crucial configuration files inside the Toolbx container are always kept
 synchronized with their counterparts on the host, and various subsets of the
 host's file system hierarchy are always bind mounted to their corresponding
-locations inside the toolbox container.
+locations inside the Toolbx container.
 
 **--shell** SHELL
 
-Create a user inside the toolbox container whose login shell is SHELL. This
+Create a user inside the Toolbx container whose login shell is SHELL. This
 option is required.
 
 **--uid** UID
 
-Create a user inside the toolbox container whose numerical user ID is UID. This
+Create a user inside the Toolbx container whose numerical user ID is UID. This
 option is required.
 
 **--user** USER
 
-Create a user inside the toolbox container whose login name is LOGIN. This
+Create a user inside the Toolbx container whose login name is LOGIN. This
 option is required.
 
 ## SEE ALSO

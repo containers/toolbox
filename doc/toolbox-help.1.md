@@ -1,7 +1,7 @@
 % toolbox-help 1
 
 ## NAME
-toolbox\-help - Display help information about Toolbox
+toolbox\-help - Display help information about Toolbx
 
 ## SYNOPSIS
 **toolbox help** [*COMMAND*]

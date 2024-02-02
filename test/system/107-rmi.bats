@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2021 – 2023 Red Hat, Inc.
+# Copyright © 2021 – 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 0
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi --all
+  run --keep-empty-lines --separate-stderr "$TOOLBX" rmi --all
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -53,7 +53,7 @@ teardown() {
 
   pull_default_image
 
-  run --keep-empty-lines "$TOOLBOX" rmi --all
+  run --keep-empty-lines "$TOOLBX" rmi --all
 
   assert_success
   assert_output ""
@@ -76,7 +76,7 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 1
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" rmi "$default_image"
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -96,7 +96,7 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 1
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi --all
+  run --keep-empty-lines --separate-stderr "$TOOLBX" rmi --all
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -116,7 +116,7 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 1
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$image"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" rmi "$image"
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -139,13 +139,13 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 2
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" rmi "$default_image"
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image-copy"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" rmi "$default_image-copy"
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -168,13 +168,13 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 2
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image-copy"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" rmi "$default_image-copy"
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" rmi "$default_image"
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -197,7 +197,7 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 2
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image" "$default_image-copy"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" rmi "$default_image" "$default_image-copy"
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -220,7 +220,7 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 2
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi "$default_image-copy" "$default_image"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" rmi "$default_image-copy" "$default_image"
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
@@ -238,7 +238,7 @@ teardown() {
   create_container foo
   start_container foo
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi --all
+  run --keep-empty-lines --separate-stderr "$TOOLBX" rmi --all
 
   assert_failure
   lines=("${stderr_lines[@]}")
@@ -256,7 +256,7 @@ teardown() {
   create_container foo
   start_container foo
 
-  run --keep-empty-lines "$TOOLBOX" rmi --all --force
+  run --keep-empty-lines "$TOOLBX" rmi --all --force
 
   assert_success
   assert_output ""

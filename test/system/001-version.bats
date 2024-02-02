@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2019 – 2023 Red Hat, Inc.
+# Copyright © 2019 – 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ setup() {
 }
 
 @test "version: Check version using option --version" {
-  run --separate-stderr "$TOOLBOX" --version
+  run --separate-stderr "$TOOLBX" --version
 
   assert_success
   assert_output --regexp '^toolbox version [0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$'

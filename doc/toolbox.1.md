@@ -13,7 +13,7 @@ toolbox - Tool for containerized command line environments on Linux
 
 ## DESCRIPTION
 
-Toolbox is a tool for Linux operating systems, which allows the use of
+Toolbx is a tool for Linux operating systems, which allows the use of
 containerized command line environments. It is built on top of Podman and
 other standard container technologies from OCI.
 
@@ -24,7 +24,7 @@ containers — they mostly don't even have package managers like DNF or YUM.
 This makes it difficult to set up a development environment or install tools
 for debugging in the usual way.
 
-Toolbox solves this problem by providing a fully mutable container within
+Toolbx solves this problem by providing a fully mutable container within
 which one can install their favourite development and debugging tools, editors
 and SDKs. For example, it's possible to do `yum install ansible` without
 affecting the base operating system.
@@ -33,8 +33,8 @@ However, this tool doesn't *require* using an OSTree based system. It works
 equally well on Fedora Workstation and Server, and that's a useful way to
 incrementally adopt containerization.
 
-The toolbox environment is based on an OCI image. On Fedora this is the
-`fedora-toolbox` image. This image is used to create a toolbox container that
+The Toolbx environment is based on an OCI image. On Fedora this is the
+`fedora-toolbox` image. This image is used to create a Toolbx container that
 seamlessly integrates with the rest of the operating system by providing
 access to the user's home directory, the Wayland and X11 sockets, networking
 (including Avahi), removable devices (like USB sticks), systemd journal, SSH
@@ -42,7 +42,7 @@ agent, D-Bus, ulimits, /dev and the udev database, etc..
 
 ## Supported operating system distributions
 
-By default, Toolbox tries to use an image matching the host operating system
+By default, Toolbx tries to use an image matching the host operating system
 distribution for creating containers. If the host is not supported, then it
 falls back to a Fedora image. Supported host operating systems are:
 
@@ -66,7 +66,7 @@ ubuntu |\<YY\>.\<MM\> eg., 22.04
 
 ## USAGE
 
-### Create a Toolbox container:
+### Create a Toolbx container:
 
 ```
 [user@hostname ~]$ toolbox create
@@ -77,14 +77,14 @@ Enter with: toolbox enter
 [user@hostname ~]$
 ```
 
-### Enter the Toolbox container:
+### Enter the Toolbx container:
 
 ```
 [user@hostname ~]$ toolbox enter
 ⬢[user@toolbox ~]$
 ```
 
-### Remove the Toolbox container:
+### Remove the Toolbx container:
 
 ```
 [user@hostname ~]$ toolbox rm fedora-toolbox-36
@@ -119,19 +119,19 @@ Same as `--log-level=debug`. Use `-vv` to include `--log-podman`.
 
 ## COMMANDS
 
-Commands for working with toolbox containers and images:
+Commands for working with Toolbx containers and images:
 
 **toolbox-create(1)**
 
-Create a new toolbox container.
+Create a new Toolbx container.
 
 **toolbox-enter(1)**
 
-Enter a toolbox container for interactive use.
+Enter a Toolbx container for interactive use.
 
 **toolbox-help(1)**
 
-Display help information about Toolbox.
+Display help information about Toolbx.
 
 **toolbox-init-container(1)**
 
@@ -139,25 +139,25 @@ Initialize a running container.
 
 **toolbox-list(1)**
 
-List existing toolbox containers and images.
+List existing Toolbx containers and images.
 
 **toolbox-rm(1)**
 
-Remove one or more toolbox containers.
+Remove one or more Toolbx containers.
 
 **toolbox-rmi(1)**
 
-Remove one or more toolbox images.
+Remove one or more Toolbx images.
 
 **toolbox-run(1)**
 
-Run a command in an existing toolbox container.
+Run a command in an existing Toolbx container.
 
 ## FILES ##
 
 **toolbox.conf(5)**
 
-Toolbox configuration file.
+Toolbx configuration file.
 
 ## SEE ALSO
 

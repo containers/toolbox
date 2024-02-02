@@ -36,7 +36,7 @@ var (
 
 var rmiCmd = &cobra.Command{
 	Use:               "rmi",
-	Short:             "Remove one or more toolbox images",
+	Short:             "Remove one or more Toolbx images",
 	RunE:              rmi,
 	ValidArgsFunction: completionImageNamesFiltered,
 }
@@ -44,13 +44,13 @@ var rmiCmd = &cobra.Command{
 func init() {
 	flags := rmiCmd.Flags()
 
-	flags.BoolVarP(&rmiFlags.deleteAll, "all", "a", false, "Remove all toolbox images")
+	flags.BoolVarP(&rmiFlags.deleteAll, "all", "a", false, "Remove all Toolbx images")
 
 	flags.BoolVarP(&rmiFlags.forceDelete,
 		"force",
 		"f",
 		false,
-		"Force the removal of toolbox images that are used by toolbox containers")
+		"Force the removal of Toolbx images that are used by Toolbx containers")
 
 	rmiCmd.SetHelpFunc(rmiHelp)
 	rootCmd.AddCommand(rmiCmd)
@@ -59,7 +59,7 @@ func init() {
 func rmi(cmd *cobra.Command, args []string) error {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a toolbox container")
+			return errors.New("this is not a Toolbx container")
 		}
 
 		if _, err := utils.ForwardToHost(); err != nil {
@@ -111,7 +111,7 @@ func rmi(cmd *cobra.Command, args []string) error {
 func rmiHelp(cmd *cobra.Command, args []string) {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a toolbox container\n")
+			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
 			return
 		}
 

@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2023 Red Hat, Inc.
+# Copyright © 2023 – 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run sh -c 'readlink /proc/$$/ns/ipc'
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run sh -c 'readlink /proc/$$/ns/ipc'
 
   assert_success
   assert_line --index 0 "$ns_host"

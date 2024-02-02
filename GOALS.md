@@ -13,7 +13,7 @@
 
 ### Non-goals
 
-- Supporting multiple container runtimes. Toolbox will use Podman exclusively
+- Supporting multiple container runtimes. Toolbx will use Podman exclusively
 - Adding significant features on top of Podman
   - Significant feature requests should be driven into Podman upstream
 - To run containers that aren't tightly integrated with the host
@@ -26,9 +26,9 @@
   - Some cases: user needs root for testing
 - Desktop Development:
   - Developers need things like D-Bus, display, etc. to be forwarded into the
-    toolbox container
+    Toolbx container
 - Headless Development:
-  - Toolbox works properly in headless environments (no display, etc)
+  - Toolbx works properly in headless environments (no display, etc)
 - Need development tools like GDB, strace, etc. to work
 
 ### Debugging and System Management Use Cases
@@ -50,8 +50,8 @@
 - Fedora Silverblue
   - Silverblue comes with a subset of packages and discourages host software
     changes
-    - Users need a toolbox container as a working environment
-    - Future: use toolbox container by default when a user opens a shell
+    - Users need a Toolbx container as a working environment
+    - Future: use Toolbx container by default when a user opens a shell
 - Fedora CoreOS
   - Similar to Silverblue, but non-graphical and smaller package set
 - RHEL CoreOS
@@ -59,8 +59,8 @@
     operating system for OpenShift
   - Need to [use default authfile on pull](https://github.com/coreos/toolbox/pull/58/commits/413f83f7240d3c31121b557bfd55e489fad24489)
   - Need to ensure compatibility with the rhel7/support-tools container
-    - Currently not a toolbox image, opportunity for collaboration
+    - Currently not a Toolbx image, opportunity for collaboration
   - Alignment with `oc debug node/` (OpenShift)
     - `oc debug node` opens a shell on a kubernetes node
-    - Value in having a consistent environment for both Toolbox's debugging
+    - Value in having a consistent environment for both Toolbx's debugging
       mode and `oc debug node`

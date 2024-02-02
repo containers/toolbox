@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2023 Red Hat Inc.
+ * Copyright © 2019 – 2024 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ var (
 
 var createCmd = &cobra.Command{
 	Use:               "create",
-	Short:             "Create a new toolbox container",
+	Short:             "Create a new Toolbx container",
 	RunE:              create,
 	ValidArgsFunction: completionEmpty,
 }
@@ -84,25 +84,25 @@ func init() {
 		"container",
 		"c",
 		"",
-		"Assign a different name to the toolbox container")
+		"Assign a different name to the Toolbx container")
 
 	flags.StringVarP(&createFlags.distro,
 		"distro",
 		"d",
 		"",
-		"Create a toolbox container for a different operating system distribution than the host")
+		"Create a Toolbx container for a different operating system distribution than the host")
 
 	flags.StringVarP(&createFlags.image,
 		"image",
 		"i",
 		"",
-		"Change the name of the base image used to create the toolbox container")
+		"Change the name of the base image used to create the Toolbx container")
 
 	flags.StringVarP(&createFlags.release,
 		"release",
 		"r",
 		"",
-		"Create a toolbox container for a different operating system release than the host")
+		"Create a Toolbx container for a different operating system release than the host")
 
 	createCmd.SetHelpFunc(createHelp)
 
@@ -122,7 +122,7 @@ func init() {
 func create(cmd *cobra.Command, args []string) error {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a toolbox container")
+			return errors.New("this is not a Toolbx container")
 		}
 
 		if _, err := utils.ForwardToHost(); err != nil {
@@ -408,7 +408,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	createArgs = append(createArgs, xdgRuntimeDirEnv...)
 
 	createArgs = append(createArgs, []string{
-		"--hostname", "toolbox",
+		"--hostname", "toolbx",
 		"--ipc", "host",
 		"--label", "com.github.containers.toolbox=true",
 	}...)
@@ -479,7 +479,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 func createHelp(cmd *cobra.Command, args []string) {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a toolbox container\n")
+			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
 			return
 		}
 
@@ -732,7 +732,7 @@ func pullImage(image, release, authFile string) (bool, error) {
 	if promptForDownload {
 		if !term.IsTerminal(os.Stdin) || !term.IsTerminal(os.Stdout) {
 			var builder strings.Builder
-			fmt.Fprintf(&builder, "image required to create toolbox container.\n")
+			fmt.Fprintf(&builder, "image required to create Toolbx container.\n")
 			fmt.Fprintf(&builder, "Use option '--assumeyes' to download the image.\n")
 			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
 
@@ -961,7 +961,7 @@ func showPromptForDownloadSecond(imageFull string, errFirst *promptForDownloadEr
 }
 
 func showPromptForDownload(imageFull string) bool {
-	fmt.Println("Image required to create toolbox container.")
+	fmt.Println("Image required to create Toolbx container.")
 
 	shouldPullImage, err := showPromptForDownloadFirst(imageFull)
 	if err == nil {

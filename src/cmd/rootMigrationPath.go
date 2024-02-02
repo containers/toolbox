@@ -1,5 +1,5 @@
 //
-// Copyright © 2021 – 2023 Red Hat Inc.
+// Copyright © 2021 – 2024 Red Hat Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ func rootRunImpl(cmd *cobra.Command, args []string) error {
 
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a toolbox container")
+			return errors.New("this is not a Toolbx container")
 		}
 
 		if _, err := utils.ForwardToHost(); err != nil {

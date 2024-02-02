@@ -4,7 +4,7 @@ LABEL com.github.containers.toolbox="true" \
       name="ubuntu-toolbox" \
       version="23.04" \
       usage="This image is meant to be used with the toolbox command" \
-      summary="Base image for creating Ubuntu toolbox containers" \
+      summary="Base image for creating Ubuntu Toolbx containers" \
       maintainer="Ievgen Popovych <jmennius@gmail.com>"
 
 # Remove apt configuration optimized for containers

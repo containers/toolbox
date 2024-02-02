@@ -1,8 +1,8 @@
 ![Contributing](data/gfx/CONTRIBUTING.gif)
 
-# Contributing to Toolbox
+# Contributing to Toolbx
 
-Thank you for wanting to contribute to Toolbox! We greatly appreciate your
+Thank you for wanting to contribute to Toolbx! We greatly appreciate your
 interest!
 
 # Reporting Bugs
@@ -13,7 +13,7 @@ interest!
   - If the issue is already reported and is marked as **OPEN**, comment on it
     and if possible and needed, share info about the issue just as if you were
     submitting a new issue
-  - If the issue is marked as **CLOSED**, check if your version of Toolbox is
+  - If the issue is marked as **CLOSED**, check if your version of Toolbx is
     up-to-date or if there are some steps, described in the closed issue, that
     you should follow. If you are still experiencing the issue, please file a
     new issue
@@ -37,14 +37,14 @@ When writing a bug report:
   reproduce it.
 - **Describe the behavior you received and what you expected** - Sometimes it
   may not be clear what the *right* behavior should look like.
-- **Provide info about the version of used software** - What version of Toolbox
+- **Provide info about the version of used software** - What version of Toolbx
   and Podman do you use?
 - **Provide info about your system** - What distribution do you use? Which
   desktop environment? Is it a VM or a real machine?
 
 # Making Suggestions
 
-Toolbox is not feature-complete and some of it's functionality is not-there-yet.
+Toolbx is not feature-complete and some of it's functionality is not-there-yet.
 We are thankful for all suggestions and ideas but be ready that your suggestion
 may be rejected.
 
@@ -63,7 +63,7 @@ may be rejected.
 When writing a suggestion:
 
 - **Use a clear and descriptive title**
-- **Describe the idea** - What parts of Toolbox does it affect? Is it a major
+- **Describe the idea** - What parts of Toolbx does it affect? Is it a major
   functionality or a minor tweak?
 - **Provide step-by-step description of the suggested behavior** so that we
   will understand.
@@ -72,13 +72,13 @@ When writing a suggestion:
 
 # First Contribution
 
-Toolbox is written in [Go](https://golang.org) and uses [Meson](https://mesonbuild.com)
+Toolbx is written in [Go](https://golang.org) and uses [Meson](https://mesonbuild.com)
 as it's buildsystem.
 
-Instructions for building Toolbox from source are in our [README](https://github.com/containers/toolbox/blob/main/README.md).
+Instructions for building Toolbx from source are in our [README](https://github.com/containers/toolbox/blob/main/README.md).
 
 > You may not need to build the project from source if your contribution is not
-> related to the code of Toolbox itself (e.g., documentation, updating CI
+> related to the code of Toolbx itself (e.g., documentation, updating CI
 > config, playing with image definitions,...).
 
 Here are some ideas of what you could contribute with:
@@ -88,18 +88,18 @@ Here are some ideas of what you could contribute with:
 - Write tests - Go has [tools](https://golang.org/pkg/testing/) for writing tests.
   There are also [some](https://github.com/stretchr/testify) [libraries](https://github.com/onsi/ginkgo)
   used for creating even more sophisticated tests.
-- Play with custom images - Toolbox currently officially works with Fedora-based
+- Play with custom images - Toolbx currently officially works with Fedora-based
   images. Ultimately there should be a wide variety of supported distro images.
   You can help with testing other people's image definitions or creating your
   own. **Beware**, maintainers still don't have a clear idea of how the image
   infrastructure should look like.
-- Write documentation - Some functions in Toolbox's code don't have comments and
-  it's not very clear what they do. Toolbox has it's [documentation](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/)
+- Write documentation - Some functions in Toolbx's code don't have comments and
+  it's not very clear what they do. Toolbx has it's [documentation](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/)
   hosted by Fedora. It's not very large and could use some attention.
 - Hack on the code and share the result - Seriously! Sometimes random ideas are
   the best.
 
-Toolbox currently does not have an infrastructure for translations. You can help
+Toolbx currently does not have an infrastructure for translations. You can help
 us to set it up!
 
 # Pull Requests
@@ -115,7 +115,7 @@ documentation, code comments and much more.
   code you're contributing to, consider opening another PR if you want to
   implement it yourself or file an issue so that somebody else can pick it up.
 - Update documentation to reflect your changes - Manual pages can be found in
-  directory `doc`. If your changes affect Toolbox's [documentation](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/),
+  directory `doc`. If your changes affect Toolbx's [documentation](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/),
   consider creating a PR there (but to save yourself time, you can do it
   after your changes are accepted), too.
 - After creating a PR add to the bottom of all your commits a link to the PR. This helps the future maintainers find discussions around the changes.
@@ -131,16 +131,16 @@ If it takes us a very long time to even respond to your Pull Request, you can
 try to @ping us at our communication channels (see section #Communication).
 
 ## 
-Toolbox has a CI (Continuous Integration) setup for running tests. Their goal is to check if your
-changes don't affect adversely Toolbox's functionality. Sometimes these tests
+Toolbx has a CI (Continuous Integration) setup for running tests. Their goal is to check if your
+changes don't affect adversely Toolbx's functionality. Sometimes these tests
 mail fail with a false-positive. If you are not sure about the outcome of the
 tests, you can try to trigger a new test run by writing a comment with text `recheck` (really just that). If the issue persists, reach out to the maintainers!
 
-Toolbox's CI system is [Zuul](https://zuul-ci.org/) hosted at [softwarefactory](https://softwarefactory-project.io/). The CI is defined using [Ansible](https://www.ansible.com) playbooks. For more information on writing Zuul jobs see their [documentation](https://zuul-ci.org/docs/zuul/reference/user.html).
+Toolbx's CI system is [Zuul](https://zuul-ci.org/) hosted at [softwarefactory](https://softwarefactory-project.io/). The CI is defined using [Ansible](https://www.ansible.com) playbooks. For more information on writing Zuul jobs see their [documentation](https://zuul-ci.org/docs/zuul/reference/user.html).
 
 # Little Style Guide
 
-Toolbox is written in [Go](https://golang.org) and uses its default set of tools
+Toolbx is written in [Go](https://golang.org) and uses its default set of tools
 including `gofmt` and `golint`.
 
 Here are some good materials to learn from about the way how to write nice and

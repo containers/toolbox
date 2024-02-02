@@ -1,5 +1,5 @@
 #
-# Copyright © 2020 – 2023 Red Hat, Inc.
+# Copyright © 2020 – 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 ---
 - job:
     name: unit-test
-    description: Run Toolbox's unit tests declared in Meson
+    description: Run Toolbx's unit tests declared in Meson
     timeout: 1800
     nodeset:
       nodes:
@@ -28,7 +28,7 @@
 
 - job:
     name: unit-test-migration-path-for-coreos-toolbox
-    description: Run Toolbox's unit tests declared in Meson when built with -Dmigration_path_for_coreos_toolbox
+    description: Run Toolbx's unit tests declared in Meson when built with -Dmigration_path_for_coreos_toolbox
     timeout: 600
     nodeset:
       nodes:
@@ -39,7 +39,7 @@
 
 - job:
     name: unit-test-restricted
-    description: Run Toolbox's unit tests declared in Meson in a restricted build environment
+    description: Run Toolbx's unit tests declared in Meson in a restricted build environment
     timeout: 1800
     nodeset:
       nodes:
@@ -50,7 +50,7 @@
 
 - job:
     name: system-test-fedora-rawhide
-    description: Run Toolbox's system tests in Fedora Rawhide
+    description: Run Toolbx's system tests in Fedora Rawhide
     timeout: 4800
     nodeset:
       nodes:

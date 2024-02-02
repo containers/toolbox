@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2023 Red Hat, Inc.
+# Copyright © 2023 – 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -R
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -R
 
   assert_success
   assert_line --index 0 "$limit"
@@ -56,7 +56,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -R
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -R
 
   assert_success
   assert_line --index 0 "$limit"
@@ -77,7 +77,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -c
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -c
 
   assert_success
   assert_line --index 0 "$limit"
@@ -98,7 +98,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -c
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -c
 
   assert_success
   assert_line --index 0 "$limit"
@@ -119,7 +119,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -d
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -d
 
   assert_success
   assert_line --index 0 "$limit"
@@ -140,7 +140,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -d
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -d
 
   assert_success
   assert_line --index 0 "$limit"
@@ -161,7 +161,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -e
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -e
 
   assert_success
   assert_line --index 0 "$limit"
@@ -182,7 +182,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -e
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -e
 
   assert_success
   assert_line --index 0 "$limit"
@@ -203,7 +203,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -f
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -f
 
   assert_success
   assert_line --index 0 "$limit"
@@ -224,7 +224,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -f
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -f
 
   assert_success
   assert_line --index 0 "$limit"
@@ -245,7 +245,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -i
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -i
 
   assert_success
   assert_line --index 0 "$limit"
@@ -266,7 +266,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -i
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -i
 
   assert_success
   assert_line --index 0 "$limit"
@@ -287,7 +287,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -l
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -l
 
   assert_success
   assert_line --index 0 "$limit"
@@ -308,7 +308,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -l
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -l
 
   assert_success
   assert_line --index 0 "$limit"
@@ -329,7 +329,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -m
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -m
 
   assert_success
   assert_line --index 0 "$limit"
@@ -350,7 +350,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -m
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -m
 
   assert_success
   assert_line --index 0 "$limit"
@@ -371,7 +371,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -n
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -n
 
   assert_success
   assert_line --index 0 "$limit"
@@ -392,7 +392,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -n
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -n
 
   assert_success
   assert_line --index 0 "$limit"
@@ -413,7 +413,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -p
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -p
 
   assert_success
   assert_line --index 0 "$limit"
@@ -434,7 +434,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -p
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -p
 
   assert_success
   assert_line --index 0 "$limit"
@@ -455,7 +455,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -q
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -q
 
   assert_success
   assert_line --index 0 "$limit"
@@ -476,7 +476,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -q
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -q
 
   assert_success
   assert_line --index 0 "$limit"
@@ -497,7 +497,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -r
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -r
 
   assert_success
   assert_line --index 0 "$limit"
@@ -518,7 +518,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -r
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -r
 
   assert_success
   assert_line --index 0 "$limit"
@@ -539,7 +539,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -s
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -s
 
   assert_success
   assert_line --index 0 "$limit"
@@ -560,7 +560,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -s
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -s
 
   assert_success
   assert_line --index 0 "$limit"
@@ -581,7 +581,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -t
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -t
 
   assert_success
   assert_line --index 0 "$limit"
@@ -602,7 +602,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -t
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -t
 
   assert_success
   assert_line --index 0 "$limit"
@@ -623,7 +623,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -u
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -u
 
   assert_success
   assert_line --index 0 "$limit"
@@ -644,7 +644,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -u
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -u
 
   assert_success
   assert_line --index 0 "$limit"
@@ -665,7 +665,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -v
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -v
 
   assert_success
   assert_line --index 0 "$limit"
@@ -686,7 +686,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -v
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -v
 
   assert_success
   assert_line --index 0 "$limit"
@@ -707,7 +707,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -H -x
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -x
 
   assert_success
   assert_line --index 0 "$limit"
@@ -728,7 +728,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ulimit -S -x
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -x
 
   assert_success
   assert_line --index 0 "$limit"

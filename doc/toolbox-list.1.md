@@ -1,14 +1,14 @@
 % toolbox-list 1
 
 ## NAME
-toolbox\-list - List existing toolbox containers and images
+toolbox\-list - List existing Toolbx containers and images
 
 ## SYNOPSIS
 **toolbox list** [*--containers* | *-c*] [*--images* | *-i*]
 
 ## DESCRIPTION
 
-Lists existing toolbox containers and images. These are OCI containers and
+Lists existing Toolbx containers and images. These are OCI containers and
 images, which can be managed directly with a tool like `podman`.
 
 ## OPTIONS ##
@@ -17,27 +17,27 @@ The following options are understood:
 
 **--containers, -c**
 
-List only toolbox containers, not images.
+List only Toolbx containers, not images.
 
 **--images, -i**
 
-List only toolbox images, not containers.
+List only Toolbx images, not containers.
 
 ## EXAMPLES
 
-### List all existing toolbox containers and images
+### List all existing Toolbx containers and images
 
 ```
 $ toolbox list
 ```
 
-### List existing toolbox containers only
+### List existing Toolbx containers only
 
 ```
 $ toolbox list --containers
 ```
 
-### List existing toolbox images only
+### List existing Toolbx images only
 
 ```
 $ toolbox list --images

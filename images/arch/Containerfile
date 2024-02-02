@@ -4,7 +4,7 @@ LABEL com.github.containers.toolbox="true" \
       name="arch-toolbox" \
       version="base-devel" \
       usage="This image is meant to be used with the toolbox command" \
-      summary="Base image for creating Arch Linux toolbox containers" \
+      summary="Base image for creating Arch Linux Toolbx containers" \
       maintainer="Morten Linderud <foxboron@archlinux.org>"
 
 # Install extra packages

@@ -47,7 +47,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run sh -c 'readlink /proc/$$/ns/net'
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run sh -c 'readlink /proc/$$/ns/net'
 
   assert_success
   assert_line --index 0 "$ns_host"
@@ -65,7 +65,7 @@ teardown() {
 @test "network: /etc/resolv.conf inside the default container" {
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run readlink /etc/resolv.conf
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /etc/resolv.conf
 
   assert_success
   assert_line --index 0 "/run/host/etc/resolv.conf"
@@ -83,7 +83,7 @@ teardown() {
 @test "network: /etc/resolv.conf inside Arch Linux" {
   create_distro_container arch latest arch-toolbox-latest
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro arch readlink /etc/resolv.conf
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro arch readlink /etc/resolv.conf
 
   assert_success
   assert_line --index 0 "/run/host/etc/resolv.conf"
@@ -101,7 +101,7 @@ teardown() {
 @test "network: /etc/resolv.conf inside Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro fedora --release 34 readlink /etc/resolv.conf
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro fedora --release 34 readlink /etc/resolv.conf
 
   assert_success
   assert_line --index 0 "/run/host/etc/resolv.conf"
@@ -119,7 +119,7 @@ teardown() {
 @test "network: /etc/resolv.conf inside RHEL 8.9" {
   create_distro_container rhel 8.9 rhel-toolbox-8.9
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.9 readlink /etc/resolv.conf
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 readlink /etc/resolv.conf
 
   assert_success
   assert_line --index 0 "/run/host/etc/resolv.conf"
@@ -137,7 +137,7 @@ teardown() {
 @test "network: /etc/resolv.conf inside Ubuntu 16.04" {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 16.04 readlink /etc/resolv.conf
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 readlink /etc/resolv.conf
 
   assert_success
   assert_line --index 0 "/run/host/etc/resolv.conf"
@@ -155,7 +155,7 @@ teardown() {
 @test "network: /etc/resolv.conf inside Ubuntu 18.04" {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 18.04 readlink /etc/resolv.conf
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 readlink /etc/resolv.conf
 
   assert_success
   assert_line --index 0 "/run/host/etc/resolv.conf"
@@ -173,7 +173,7 @@ teardown() {
 @test "network: /etc/resolv.conf inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 20.04 readlink /etc/resolv.conf
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 20.04 readlink /etc/resolv.conf
 
   assert_success
   assert_line --index 0 "/run/host/etc/resolv.conf"
@@ -208,7 +208,7 @@ teardown() {
   create_default_container
 
   if ! $ipv4_skip; then
-    run --keep-empty-lines --separate-stderr "$TOOLBOX" run python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net
+    run --keep-empty-lines --separate-stderr "$TOOLBX" run python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net
 
     assert_success
     assert_line --index 0 "$ipv4_addr"
@@ -223,7 +223,7 @@ teardown() {
   fi
 
   if ! $ipv6_skip; then
-    run --keep-empty-lines --separate-stderr "$TOOLBOX" run python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net
+    run --keep-empty-lines --separate-stderr "$TOOLBX" run python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net
 
     assert_success
     assert_line --index 0 "$ipv6_addr"
@@ -258,7 +258,7 @@ teardown() {
   create_distro_container arch latest arch-toolbox-latest
 
   if ! $ipv4_skip; then
-    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+    run --keep-empty-lines --separate-stderr "$TOOLBX" run \
       --distro arch \
       sh -c "$RESOLVER_SH" A k.root-servers.net
 
@@ -275,7 +275,7 @@ teardown() {
   fi
 
   if ! $ipv6_skip; then
-    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+    run --keep-empty-lines --separate-stderr "$TOOLBX" run \
       --distro arch \
       sh -c "$RESOLVER_SH" AAAA k.root-servers.net
 
@@ -312,7 +312,7 @@ teardown() {
   create_distro_container fedora 34 fedora-toolbox-34
 
   if ! $ipv4_skip; then
-    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+    run --keep-empty-lines --separate-stderr "$TOOLBX" run \
       --distro fedora \
       --release 34 \
       python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net
@@ -330,7 +330,7 @@ teardown() {
   fi
 
   if ! $ipv6_skip; then
-    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+    run --keep-empty-lines --separate-stderr "$TOOLBX" run \
       --distro fedora \
       --release 34 \
       python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net
@@ -368,7 +368,7 @@ teardown() {
   create_distro_container rhel 8.9 rhel-toolbox-8.9
 
   if ! $ipv4_skip; then
-    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+    run --keep-empty-lines --separate-stderr "$TOOLBX" run \
       --distro rhel \
       --release 8.9 \
       /usr/libexec/platform-python3.6 -c "$RESOLVER_PYTHON3" A k.root-servers.net
@@ -386,7 +386,7 @@ teardown() {
   fi
 
   if ! $ipv6_skip; then
-    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+    run --keep-empty-lines --separate-stderr "$TOOLBX" run \
       --distro rhel \
       --release 8.9 \
       /usr/libexec/platform-python3.6 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net
@@ -424,7 +424,7 @@ teardown() {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
   if ! $ipv4_skip; then
-    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+    run --keep-empty-lines --separate-stderr "$TOOLBX" run \
       --distro ubuntu \
       --release 16.04 \
       python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net
@@ -442,7 +442,7 @@ teardown() {
   fi
 
   if ! $ipv6_skip; then
-    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+    run --keep-empty-lines --separate-stderr "$TOOLBX" run \
       --distro ubuntu \
       --release 16.04 \
       python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net
@@ -480,7 +480,7 @@ teardown() {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
   if ! $ipv4_skip; then
-    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+    run --keep-empty-lines --separate-stderr "$TOOLBX" run \
       --distro ubuntu \
       --release 18.04 \
       python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net
@@ -498,7 +498,7 @@ teardown() {
   fi
 
   if ! $ipv6_skip; then
-    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+    run --keep-empty-lines --separate-stderr "$TOOLBX" run \
       --distro ubuntu \
       --release 18.04 \
       python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net
@@ -536,7 +536,7 @@ teardown() {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
   if ! $ipv4_skip; then
-    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+    run --keep-empty-lines --separate-stderr "$TOOLBX" run \
       --distro ubuntu \
       --release 20.04 \
       python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net
@@ -554,7 +554,7 @@ teardown() {
   fi
 
   if ! $ipv6_skip; then
-    run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+    run --keep-empty-lines --separate-stderr "$TOOLBX" run \
       --distro ubuntu \
       --release 20.04 \
       python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net
@@ -575,7 +575,7 @@ teardown() {
 @test "network: ping(8) inside the default container" {
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run ping -c 2 f.root-servers.net
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run ping -c 2 f.root-servers.net
 
   if [ "$status" -eq 1 ]; then
     skip "lost packets"
@@ -591,7 +591,7 @@ teardown() {
 @test "network: ping(8) inside Arch Linux" {
   create_distro_container arch latest arch-toolbox-latest
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro arch ping -c 2 f.root-servers.net
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro arch ping -c 2 f.root-servers.net
 
   if [ "$status" -eq 1 ]; then
     skip "lost packets"
@@ -607,7 +607,7 @@ teardown() {
 @test "network: ping(8) inside Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro fedora --release 34 ping -c 2 f.root-servers.net
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro fedora --release 34 ping -c 2 f.root-servers.net
 
   if [ "$status" -eq 1 ]; then
     skip "lost packets"
@@ -623,7 +623,7 @@ teardown() {
 @test "network: ping(8) inside RHEL 8.9" {
   create_distro_container rhel 8.9 rhel-toolbox-8.9
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.9 ping -c 2 f.root-servers.net
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 ping -c 2 f.root-servers.net
 
   if [ "$status" -eq 1 ]; then
     skip "lost packets"
@@ -639,7 +639,7 @@ teardown() {
 @test "network: ping(8) inside Ubuntu 16.04" {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
-  run -2 --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 16.04 ping -c 2 f.root-servers.net
+  run -2 --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 ping -c 2 f.root-servers.net
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -653,7 +653,7 @@ teardown() {
 @test "network: ping(8) inside Ubuntu 18.04" {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 18.04 ping -c 2 f.root-servers.net
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 ping -c 2 f.root-servers.net
 
   if [ "$status" -eq 1 ]; then
     skip "lost packets"
@@ -669,7 +669,7 @@ teardown() {
 @test "network: ping(8) inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 20.04 ping -c 2 f.root-servers.net
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 20.04 ping -c 2 f.root-servers.net
 
   if [ "$status" -eq 1 ]; then
     skip "lost packets"

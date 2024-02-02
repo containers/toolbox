@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Toolbox's feature request template
+about: Toolbx's feature request template
 title: ''
 labels: 1. Feature request
 assignees: ''

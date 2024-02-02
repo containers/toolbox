@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2023 Red Hat Inc.
+ * Copyright © 2019 – 2024 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,7 +175,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 func rootHelp(cmd *cobra.Command, args []string) {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a toolbox container\n")
+			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
 			return
 		}
 
@@ -227,7 +227,7 @@ func migrate(cmd *cobra.Command, args []string) error {
 
 	toolboxConfigDir := configDir + "/toolbox"
 	stampPath := toolboxConfigDir + "/podman-system-migrate"
-	logrus.Debugf("Toolbox config directory is %s", toolboxConfigDir)
+	logrus.Debugf("Toolbx config directory is %s", toolboxConfigDir)
 
 	podmanVersion, err := podman.GetVersion()
 	if err != nil {

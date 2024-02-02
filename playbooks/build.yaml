@@ -1,5 +1,5 @@
 #
-# Copyright © 2022 Red Hat, Inc.
+# Copyright © 2022 – 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
 # limitations under the License.
 #
 
-- name: Build Toolbox
+- name: Build Toolbx
   command: meson compile -C builddir
   args:
     chdir: '{{ zuul.project.src_dir }}'
     creates: builddir/src/toolbox
 
-- name: Install Toolbox
+- name: Install Toolbx
   become: yes
   command: meson install -C builddir
   args:

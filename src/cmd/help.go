@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2022 Red Hat Inc.
+ * Copyright © 2019 – 2024 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import (
 
 var helpCmd = &cobra.Command{
 	Use:               "help",
-	Short:             "Display help information about Toolbox",
+	Short:             "Display help information about Toolbx",
 	RunE:              help,
 	ValidArgsFunction: completionCommands,
 }
@@ -40,7 +40,7 @@ func init() {
 func help(cmd *cobra.Command, args []string) error {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a toolbox container")
+			return errors.New("this is not a Toolbx container")
 		}
 
 		if _, err := utils.ForwardToHost(); err != nil {
@@ -60,7 +60,7 @@ func help(cmd *cobra.Command, args []string) error {
 func helpHelp(cmd *cobra.Command, args []string) {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a toolbox container\n")
+			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
 			return
 		}
 

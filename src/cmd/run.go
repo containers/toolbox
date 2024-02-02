@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2023 Red Hat Inc.
+ * Copyright © 2019 – 2024 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ var (
 
 var runCmd = &cobra.Command{
 	Use:               "run",
-	Short:             "Run a command in an existing toolbox container",
+	Short:             "Run a command in an existing Toolbx container",
 	RunE:              run,
 	ValidArgsFunction: completionEmpty,
 }
@@ -59,13 +59,13 @@ func init() {
 		"container",
 		"c",
 		"",
-		"Run command inside a toolbox container with the given name")
+		"Run command inside a Toolbx container with the given name")
 
 	flags.StringVarP(&runFlags.distro,
 		"distro",
 		"d",
 		"",
-		"Run command inside a toolbox container for a different operating system distribution than the host")
+		"Run command inside a Toolbx container for a different operating system distribution than the host")
 
 	flags.UintVar(&runFlags.preserveFDs,
 		"preserve-fds",
@@ -76,7 +76,7 @@ func init() {
 		"release",
 		"r",
 		"",
-		"Run command inside a toolbox container for a different operating system release than the host")
+		"Run command inside a Toolbx container for a different operating system release than the host")
 
 	runCmd.SetHelpFunc(runHelp)
 
@@ -95,7 +95,7 @@ func init() {
 func run(cmd *cobra.Command, args []string) error {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a toolbox container")
+			return errors.New("this is not a Toolbx container")
 		}
 
 		if _, err := utils.ForwardToHost(); err != nil {
@@ -206,7 +206,7 @@ func runCommand(container string,
 			}
 
 			if promptForCreate {
-				prompt := "No toolbox containers found. Create now? [y/N]"
+				prompt := "No Toolbx containers found. Create now? [y/N]"
 				shouldCreateContainer = askForConfirmation(prompt)
 			}
 
@@ -224,12 +224,12 @@ func runCommand(container string,
 
 			container = containers[0].Names[0]
 			fmt.Fprintf(os.Stderr, "Entering container %s instead.\n", container)
-			fmt.Fprintf(os.Stderr, "Use the 'create' command to create a different toolbox.\n")
+			fmt.Fprintf(os.Stderr, "Use the 'create' command to create a different Toolbx.\n")
 			fmt.Fprintf(os.Stderr, "Run '%s --help' for usage.\n", executableBase)
 		} else {
 			var builder strings.Builder
 			fmt.Fprintf(&builder, "container %s not found\n", container)
-			fmt.Fprintf(&builder, "Use the '--container' option to select a toolbox.\n")
+			fmt.Fprintf(&builder, "Use the '--container' option to select a Toolbx.\n")
 			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
 
 			errMsg := builder.String()
@@ -254,7 +254,7 @@ func runCommand(container string,
 	if entryPoint != "toolbox" {
 		var builder strings.Builder
 		fmt.Fprintf(&builder, "container %s is too old and no longer supported \n", container)
-		fmt.Fprintf(&builder, "Recreate it with Toolbox version 0.0.17 or newer.\n")
+		fmt.Fprintf(&builder, "Recreate it with Toolbx version 0.0.17 or newer.\n")
 
 		errMsg := builder.String()
 		return errors.New(errMsg)
@@ -412,7 +412,7 @@ func runCommandWithFallbacks(container string,
 func runHelp(cmd *cobra.Command, args []string) {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a toolbox container\n")
+			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
 			return
 		}
 

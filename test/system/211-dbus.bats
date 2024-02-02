@@ -39,11 +39,11 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run gdbus call \
-                                                            --session \
-                                                            --dest org.freedesktop.DBus \
-                                                            --object-path /org/freedesktop/DBus \
-                                                            --method org.freedesktop.DBus.Peer.Ping
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run gdbus call \
+                                                           --session \
+                                                           --dest org.freedesktop.DBus \
+                                                           --object-path /org/freedesktop/DBus \
+                                                           --method org.freedesktop.DBus.Peer.Ping
 
   assert_success
   assert_line --index 0 "$expected_response"
@@ -68,7 +68,7 @@ teardown() {
 
   create_distro_container arch latest arch-toolbox-latest
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro arch \
     gdbus call \
       --session \
@@ -99,7 +99,7 @@ teardown() {
 
   create_distro_container fedora 34 fedora-toolbox-34
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro fedora \
     --release 34 \
     gdbus call \
@@ -131,7 +131,7 @@ teardown() {
 
   create_distro_container rhel 8.9 rhel-toolbox-8.9
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro rhel \
     --release 8.9 \
     gdbus call \
@@ -158,7 +158,7 @@ teardown() {
 
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro ubuntu \
     --release 16.04 \
     busctl --user call \
@@ -177,7 +177,7 @@ teardown() {
 
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro ubuntu \
     --release 18.04 \
     busctl --user call \
@@ -196,7 +196,7 @@ teardown() {
 
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro ubuntu \
     --release 20.04 \
     busctl --user call \
@@ -222,13 +222,13 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run gdbus call \
-                                                            --system \
-                                                            --dest org.freedesktop.systemd1 \
-                                                            --object-path /org/freedesktop/systemd1 \
-                                                            --method org.freedesktop.DBus.Properties.Get \
-                                                            org.freedesktop.systemd1.Manager \
-                                                            Version
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run gdbus call \
+                                                           --system \
+                                                           --dest org.freedesktop.systemd1 \
+                                                           --object-path /org/freedesktop/systemd1 \
+                                                           --method org.freedesktop.DBus.Properties.Get \
+                                                           org.freedesktop.systemd1.Manager \
+                                                           Version
 
   assert_success
   assert_line --index 0 "$expected_response"
@@ -255,7 +255,7 @@ teardown() {
 
   create_distro_container arch latest arch-toolbox-latest
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro arch \
     gdbus call \
       --system \
@@ -290,7 +290,7 @@ teardown() {
 
   create_distro_container fedora 34 fedora-toolbox-34
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro fedora \
     --release 34 \
     gdbus call \
@@ -326,7 +326,7 @@ teardown() {
 
   create_distro_container rhel 8.9 rhel-toolbox-8.9
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro rhel \
     --release 8.9 \
     gdbus call \
@@ -360,7 +360,7 @@ teardown() {
 
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro ubuntu \
     --release 16.04 \
     busctl --system get-property \
@@ -392,7 +392,7 @@ teardown() {
 
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro ubuntu \
     --release 18.04 \
     busctl --system get-property \
@@ -424,7 +424,7 @@ teardown() {
 
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro ubuntu \
     --release 20.04 \
     busctl --system get-property \

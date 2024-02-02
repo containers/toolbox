@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2022 Red Hat Inc.
+ * Copyright © 2019 – 2024 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ var (
 
 var rmCmd = &cobra.Command{
 	Use:               "rm",
-	Short:             "Remove one or more toolbox containers",
+	Short:             "Remove one or more Toolbx containers",
 	RunE:              rm,
 	ValidArgsFunction: completionContainerNamesFiltered,
 }
@@ -44,13 +44,13 @@ var rmCmd = &cobra.Command{
 func init() {
 	flags := rmCmd.Flags()
 
-	flags.BoolVarP(&rmFlags.deleteAll, "all", "a", false, "Remove all toolbox containers")
+	flags.BoolVarP(&rmFlags.deleteAll, "all", "a", false, "Remove all Toolbx containers")
 
 	flags.BoolVarP(&rmFlags.forceDelete,
 		"force",
 		"f",
 		false,
-		"Force the removal of running and paused toolbox containers")
+		"Force the removal of running and paused Toolbx containers")
 
 	rmCmd.SetHelpFunc(rmHelp)
 	rootCmd.AddCommand(rmCmd)
@@ -59,7 +59,7 @@ func init() {
 func rm(cmd *cobra.Command, args []string) error {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a toolbox container")
+			return errors.New("this is not a Toolbx container")
 		}
 
 		if _, err := utils.ForwardToHost(); err != nil {
@@ -111,7 +111,7 @@ func rm(cmd *cobra.Command, args []string) error {
 func rmHelp(cmd *cobra.Command, args []string) {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a toolbox container\n")
+			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
 			return
 		}
 

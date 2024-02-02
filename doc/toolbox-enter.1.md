@@ -1,7 +1,7 @@
 % toolbox-enter 1
 
 ## NAME
-toolbox\-enter - Enter a toolbox container for interactive use
+toolbox\-enter - Enter a Toolbx container for interactive use
 
 ## SYNOPSIS
 **toolbox enter** [*--distro DISTRO* | *-d DISTRO*]
@@ -10,19 +10,19 @@ toolbox\-enter - Enter a toolbox container for interactive use
 
 ## DESCRIPTION
 
-Spawns an interactive shell inside a toolbox container that was created using
+Spawns an interactive shell inside a Toolbx container that was created using
 the `toolbox create` command. It tries to spawn the user's default shell, but
 if it's not available inside the container then it falls back to `/bin/bash`.
 
 When invoked without any options, `toolbox enter` will try to enter the default
-toolbox container for the host, or if there's only one container available then
+Toolbx container for the host, or if there's only one container available then
 it will use it. On Fedora, the default container is known as
 `fedora-toolbox-N`, where N is the release of the host. If there aren't any
 containers, `toolbox enter` will offer to create the default one for you.
 
 A specific container can be selected using the CONTAINER argument.
 
-A toolbox container is an OCI container. Therefore, `toolbox enter` is
+A Toolbx container is an OCI container. Therefore, `toolbox enter` is
 analogous to a `podman start` followed by a `podman exec`.
 
 ## OPTIONS ##
@@ -31,30 +31,30 @@ The following options are understood:
 
 **--distro** DISTRO, **-d** DISTRO
 
-Enter a toolbox container for a different operating system DISTRO than the
+Enter a Toolbx container for a different operating system DISTRO than the
 host. Has to be coupled with `--release` unless the selected DISTRO matches the
 host.
 
 **--release** RELEASE, **-r** RELEASE
 
-Enter a toolbox container for a different operating system RELEASE than the
+Enter a Toolbx container for a different operating system RELEASE than the
 host.
 
 ## EXAMPLES
 
-### Enter the default toolbox container matching the host OS
+### Enter the default Toolbx container matching the host OS
 
 ```
 $ toolbox enter
 ```
 
-### Enter the default toolbox container for Fedora 36
+### Enter the default Toolbx container for Fedora 36
 
 ```
 $ toolbox enter --distro fedora --release f36
 ```
 
-### Enter a toolbox container with a custom name
+### Enter a Toolbx container with a custom name
 
 ```
 $ toolbox enter foo

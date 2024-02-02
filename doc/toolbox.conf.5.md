@@ -1,7 +1,7 @@
 % toolbox.conf 5
 
 ## NAME
-toolbox.conf - Toolbox configuration file
+toolbox.conf - Toolbx configuration file
 
 ## DESCRIPTION
 
@@ -13,12 +13,12 @@ Currently, the only supported section is *general*.
 
 **distro** = "DISTRO"
 
-Create a toolbox container for a different operating system DISTRO than the
+Create a Toolbx container for a different operating system DISTRO than the
 host. Cannot be used with `image`.
 
 **image** = "NAME"
 
-Change the NAME of the image used to create the toolbox container. This is
+Change the NAME of the image used to create the Toolbx container. This is
 useful for creating containers from custom-built images. Cannot be used with
 `distro` and `release`.
 
@@ -28,7 +28,7 @@ remote registry.
 
 **release** = "RELEASE"
 
-Create a toolbox container for a different operating system RELEASE than the
+Create a Toolbx container for a different operating system RELEASE than the
 host. Cannot be used with `image`.
 
 ## FILES

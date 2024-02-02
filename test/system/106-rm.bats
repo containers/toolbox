@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2021 – 2023 Red Hat, Inc.
+# Copyright © 2021 – 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ teardown() {
 
 @test "rm: Try to remove a non-existent container" {
   container_name="nonexistentcontainer"
-  run "$TOOLBOX" rm "$container_name"
+  run "$TOOLBX" rm "$container_name"
 
   #assert_failure  #BUG: it should return 1
   assert_output "Error: failed to inspect container $container_name"
@@ -42,7 +42,7 @@ teardown() {
   create_container running
   start_container running
 
-  run "$TOOLBOX" rm running
+  run "$TOOLBX" rm running
 
   #assert_failure  #BUG: it should return 1
   assert_output "Error: container running is running"
@@ -51,7 +51,7 @@ teardown() {
 @test "rm: Remove a not running container" {
   create_container not-running
 
-  run "$TOOLBOX" rm not-running
+  run "$TOOLBX" rm not-running
 
   assert_success
   assert_output ""
@@ -61,7 +61,7 @@ teardown() {
   create_container running
   start_container running
 
-  run "$TOOLBOX" rm --force running
+  run "$TOOLBX" rm --force running
 
   assert_success
   assert_output ""
@@ -75,7 +75,7 @@ teardown() {
   create_container not-running
   start_container running
 
-  run "$TOOLBOX" rm --force --all
+  run "$TOOLBX" rm --force --all
 
   assert_success
   assert_output ""

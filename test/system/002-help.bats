@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2020 – 2023 Red Hat, Inc.
+# Copyright © 2020 – 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,15 +24,15 @@ setup() {
 }
 
 @test "help: Smoke test" {
-  run --keep-empty-lines --separate-stderr "$TOOLBOX"
+  run --keep-empty-lines --separate-stderr "$TOOLBX"
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: missing command"
-  assert_line --index 2 "create    Create a new toolbox container"
-  assert_line --index 3 "enter     Enter an existing toolbox container"
-  assert_line --index 4 "list      List all existing toolbox containers and images"
+  assert_line --index 2 "create    Create a new Toolbx container"
+  assert_line --index 3 "enter     Enter an existing Toolbx container"
+  assert_line --index 4 "list      List all existing Toolbx containers and images"
   assert_line --index 6 "Run 'toolbox --help' for usage."
   assert [ ${#stderr_lines[@]} -eq 7 ]
 }
@@ -42,7 +42,7 @@ setup() {
     skip "not found man(1)"
   fi
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" help
+  run --keep-empty-lines --separate-stderr "$TOOLBX" help
 
   assert_success
   assert_line --index 0 --partial "toolbox(1)"
@@ -57,14 +57,14 @@ setup() {
     skip "found man(1)"
   fi
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" help
+  run --keep-empty-lines --separate-stderr "$TOOLBX" help
 
   assert_success
   assert_line --index 0 "toolbox - Tool for containerized command line environments on Linux"
   assert_line --index 2 "Common commands are:"
-  assert_line --index 3 "create    Create a new toolbox container"
-  assert_line --index 4 "enter     Enter an existing toolbox container"
-  assert_line --index 5 "list      List all existing toolbox containers and images"
+  assert_line --index 3 "create    Create a new Toolbx container"
+  assert_line --index 4 "enter     Enter an existing Toolbx container"
+  assert_line --index 5 "list      List all existing Toolbx containers and images"
   assert_line --index 7 "Go to https://github.com/containers/toolbox for further information."
   assert [ ${#lines[@]} -eq 8 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
@@ -75,7 +75,7 @@ setup() {
     skip "not found man(1)"
   fi
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" --help
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --help
 
   assert_success
   assert_line --index 0 --partial "toolbox(1)"
@@ -90,14 +90,14 @@ setup() {
     skip "found man(1)"
   fi
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" --help
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --help
 
   assert_success
   assert_line --index 0 "toolbox - Tool for containerized command line environments on Linux"
   assert_line --index 2 "Common commands are:"
-  assert_line --index 3 "create    Create a new toolbox container"
-  assert_line --index 4 "enter     Enter an existing toolbox container"
-  assert_line --index 5 "list      List all existing toolbox containers and images"
+  assert_line --index 3 "create    Create a new Toolbx container"
+  assert_line --index 4 "enter     Enter an existing Toolbx container"
+  assert_line --index 5 "list      List all existing Toolbx containers and images"
   assert_line --index 7 "Go to https://github.com/containers/toolbox for further information."
 
   if check_bats_version 1.10.0; then
@@ -111,7 +111,7 @@ setup() {
 }
 
 @test "help: Try unknown command" {
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -122,7 +122,7 @@ setup() {
 }
 
 @test "help: Try unknown flag" {
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" --foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -133,7 +133,7 @@ setup() {
 }
 
 @test "help: Try 'create' with unknown flag" {
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" create --foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -144,7 +144,7 @@ setup() {
 }
 
 @test "help: Try 'enter' with unknown flag" {
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" enter --foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" enter --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -155,7 +155,7 @@ setup() {
 }
 
 @test "help: Try 'help' with unknown flag" {
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" help --foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" help --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -166,7 +166,7 @@ setup() {
 }
 
 @test "help: Try 'init-container' with unknown flag" {
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" init-container --foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" init-container --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -177,7 +177,7 @@ setup() {
 }
 
 @test "help: Try 'list' with unknown flag" {
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" list --foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" list --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -188,7 +188,7 @@ setup() {
 }
 
 @test "help: Try 'rm' with unknown flag" {
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" rm --foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" rm --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -199,7 +199,7 @@ setup() {
 }
 
 @test "help: Try 'rmi' with unknown flag" {
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" rmi --foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" rmi --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -210,7 +210,7 @@ setup() {
 }
 
 @test "help: Try 'run' with unknown flag" {
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]

@@ -1,5 +1,5 @@
 #
-# Copyright © 2021 – 2022 Red Hat, Inc.
+# Copyright © 2021 – 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,6 @@
       command: bats --timing ./test/system
       environment:
         PODMAN: '/usr/bin/podman'
-        TOOLBOX: '/usr/local/bin/toolbox'
+        TOOLBX: '/usr/local/bin/toolbox'
       args:
         chdir: '{{ zuul.project.src_dir }}'

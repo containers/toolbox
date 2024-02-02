@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 Red Hat Inc.
+ * Copyright © 2023 – 2024 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,13 +55,13 @@ func TestShellRun(t *testing.T) {
 			input: input{
 				commandName: "echo",
 				stdIn:       os.Stdin,
-				args:        []string{"toolbox test"},
+				args:        []string{"Toolbx test"},
 				loglevel:    logrus.InfoLevel,
 				useStdErr:   false,
 			},
 			expect: expect{
 				err:    nil,
-				stdout: []byte("toolbox test\n"),
+				stdout: []byte("Toolbx test\n"),
 				stderr: nil,
 			},
 		},
@@ -70,7 +70,7 @@ func TestShellRun(t *testing.T) {
 			input: input{
 				commandName: "no-exist-executable",
 				stdIn:       os.Stdin,
-				args:        []string{"toolbox test"},
+				args:        []string{"Toolbx test"},
 				loglevel:    logrus.InfoLevel,
 				useStdErr:   false,
 			},
@@ -265,14 +265,14 @@ func TestShellRunWithExitCode(t *testing.T) {
 			input: input{
 				commandName: "echo",
 				stdIn:       os.Stdin,
-				args:        []string{"toolbox test"},
+				args:        []string{"Toolbx test"},
 				loglevel:    logrus.InfoLevel,
 				useStdErr:   false,
 			},
 			expect: expect{
 				err:    nil,
 				code:   0,
-				stdout: []byte("toolbox test\n"),
+				stdout: []byte("Toolbx test\n"),
 				stderr: nil,
 			},
 		},
@@ -281,14 +281,14 @@ func TestShellRunWithExitCode(t *testing.T) {
 			input: input{
 				commandName: "echo",
 				stdIn:       os.Stdin,
-				args:        []string{"toolbox test"},
+				args:        []string{"Toolbx test"},
 				loglevel:    logrus.DebugLevel,
 				useStdErr:   false,
 			},
 			expect: expect{
 				err:    nil,
 				code:   0,
-				stdout: []byte("toolbox test\n"),
+				stdout: []byte("Toolbx test\n"),
 				stderr: nil,
 			},
 		},
@@ -313,7 +313,7 @@ func TestShellRunWithExitCode(t *testing.T) {
 			input: input{
 				commandName: "no-exist-executable",
 				stdIn:       os.Stdin,
-				args:        []string{"toolbox test"},
+				args:        []string{"Toolbx test"},
 				loglevel:    logrus.InfoLevel,
 				useStdErr:   false,
 			},

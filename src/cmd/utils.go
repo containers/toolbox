@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 – 2023 Red Hat Inc.
+ * Copyright © 2020 – 2024 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -263,7 +263,7 @@ func discardInputAsync(ctx context.Context) (<-chan int, <-chan error) {
 func createErrorContainerNotFound(container string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "container %s not found\n", container)
-	fmt.Fprintf(&builder, "Use the 'create' command to create a toolbox.\n")
+	fmt.Fprintf(&builder, "Use the 'create' command to create a Toolbx.\n")
 	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
 
 	errMsg := builder.String()
@@ -333,9 +333,9 @@ func createErrorInvalidRelease(hint string) error {
 
 func getUsageForCommonCommands() string {
 	var builder strings.Builder
-	fmt.Fprintf(&builder, "create    Create a new toolbox container\n")
-	fmt.Fprintf(&builder, "enter     Enter an existing toolbox container\n")
-	fmt.Fprintf(&builder, "list      List all existing toolbox containers and images\n")
+	fmt.Fprintf(&builder, "create    Create a new Toolbx container\n")
+	fmt.Fprintf(&builder, "enter     Enter an existing Toolbx container\n")
+	fmt.Fprintf(&builder, "list      List all existing Toolbx containers and images\n")
 
 	usage := builder.String()
 	return usage

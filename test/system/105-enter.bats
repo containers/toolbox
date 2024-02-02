@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2021 – 2023 Red Hat, Inc.
+# Copyright © 2021 – 2024 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,10 +29,10 @@ teardown() {
 }
 
 @test "enter: Try to enter the default container with no containers created" {
-  run $TOOLBOX enter <<< "n"
+  run $TOOLBX enter <<< "n"
 
   assert_success
-  assert_line --index 0 "No toolbox containers found. Create now? [y/N] A container can be created later with the 'create' command."
+  assert_line --index 0 "No Toolbx containers found. Create now? [y/N] A container can be created later with the 'create' command."
   assert_line --index 1 "Run 'toolbox --help' for usage."
 }
 
@@ -43,37 +43,37 @@ teardown() {
   create_container first
   create_container second
 
-  run $TOOLBOX enter
+  run $TOOLBX enter
 
   assert_failure
   assert_line --index 0 "Error: container $default_container_name not found"
-  assert_line --index 1 "Use the '--container' option to select a toolbox."
+  assert_line --index 1 "Use the '--container' option to select a Toolbx."
   assert_line --index 2 "Run 'toolbox --help' for usage."
 }
 
 @test "enter: Try to enter a specific container with no containers created " {
-  run $TOOLBOX enter wrong-container <<< "n"
+  run $TOOLBX enter wrong-container <<< "n"
 
   assert_success
-  assert_line --index 0 "No toolbox containers found. Create now? [y/N] A container can be created later with the 'create' command."
+  assert_line --index 0 "No Toolbx containers found. Create now? [y/N] A container can be created later with the 'create' command."
   assert_line --index 1 "Run 'toolbox --help' for usage."
 }
 
 @test "enter: Try to enter a specific non-existent container with other containers present" {
   create_container other-container
 
-  run $TOOLBOX enter wrong-container
+  run $TOOLBX enter wrong-container
 
   assert_failure
   assert_line --index 0 "Error: container wrong-container not found"
-  assert_line --index 1 "Use the '--container' option to select a toolbox."
+  assert_line --index 1 "Use the '--container' option to select a Toolbx."
   assert_line --index 2 "Run 'toolbox --help' for usage."
 }
 
 @test "enter: Try to enter a container based on unsupported distribution" {
   local distro="foo"
 
-  run $TOOLBOX --assumeyes enter --distro "$distro"
+  run $TOOLBX --assumeyes enter --distro "$distro"
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--distro'"
@@ -83,7 +83,7 @@ teardown() {
 }
 
 @test "enter: Try to enter a container based on Fedora but with wrong version" {
-  run $TOOLBOX enter -d fedora -r foobar
+  run $TOOLBX enter -d fedora -r foobar
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -91,7 +91,7 @@ teardown() {
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#lines[@]} -eq 3 ]
 
-  run $TOOLBOX enter --distro fedora --release -3
+  run $TOOLBX enter --distro fedora --release -3
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -101,7 +101,7 @@ teardown() {
 }
 
 @test "enter: Try to enter a container based on RHEL but with wrong version" {
-  run $TOOLBOX enter --distro rhel --release 8
+  run $TOOLBX enter --distro rhel --release 8
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -109,7 +109,7 @@ teardown() {
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#lines[@]} -eq 3 ]
 
-  run $TOOLBOX enter --distro rhel --release 8.2foo
+  run $TOOLBX enter --distro rhel --release 8.2foo
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -117,7 +117,7 @@ teardown() {
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#lines[@]} -eq 3 ]
 
-  run $TOOLBOX enter --distro rhel --release -2.1
+  run $TOOLBX enter --distro rhel --release -2.1
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -136,7 +136,7 @@ teardown() {
     distro="rhel"
   fi
 
-  run $TOOLBOX enter -d "$distro"
+  run $TOOLBX enter -d "$distro"
 
   assert_failure
   assert_line --index 0 "Error: option '--release' is needed"
@@ -146,16 +146,16 @@ teardown() {
 }
 
 # TODO: Write the test
-@test "enter: Enter the default toolbox" {
-  skip "Testing of entering toolboxes is not implemented"
+@test "enter: Enter the default Toolbx" {
+  skip "Testing of entering Toolbxes is not implemented"
 }
 
 # TODO: Write the test
-@test "enter: Enter the default toolbox when only 1 non-default toolbox is present" {
-  skip "Testing of entering toolboxes is not implemented"
+@test "enter: Enter the default Toolbx when only 1 non-default Toolbx is present" {
+  skip "Testing of entering Toolbxes is not implemented"
 }
 
 # TODO: Write the test
-@test "enter: Enter a specific toolbox" {
-  skip "Testing of entering toolboxes is not implemented"
+@test "enter: Enter a specific Toolbx" {
+  skip "Testing of entering Toolbxes is not implemented"
 }

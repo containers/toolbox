@@ -35,7 +35,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run sh -c 'readlink /proc/$$/ns/user'
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run sh -c 'readlink /proc/$$/ns/user'
 
   assert_success
   assert_line --index 0 --regexp '^user:\[[[:digit:]]+\]$'
@@ -58,7 +58,7 @@ teardown() {
   create_default_container
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount "$default_container")"
 
-  "$TOOLBOX" run true
+  "$TOOLBX" run true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount "$default_container"
@@ -75,7 +75,7 @@ teardown() {
   create_distro_container arch latest arch-toolbox-latest
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount arch-toolbox-latest)"
 
-  "$TOOLBOX" run --distro arch true
+  "$TOOLBX" run --distro arch true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount arch-toolbox-latest
@@ -92,7 +92,7 @@ teardown() {
   create_distro_container fedora 34 fedora-toolbox-34
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount fedora-toolbox-34)"
 
-  "$TOOLBOX" run --distro fedora --release 34 true
+  "$TOOLBX" run --distro fedora --release 34 true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount fedora-toolbox-34
@@ -109,7 +109,7 @@ teardown() {
   create_distro_container rhel 8.9 rhel-toolbox-8.9
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount rhel-toolbox-8.9)"
 
-  "$TOOLBOX" run --distro rhel --release 8.9 true
+  "$TOOLBX" run --distro rhel --release 8.9 true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount rhel-toolbox-8.9
@@ -126,7 +126,7 @@ teardown() {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-16.04)"
 
-  "$TOOLBOX" run --distro ubuntu --release 16.04 true
+  "$TOOLBX" run --distro ubuntu --release 16.04 true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-16.04
@@ -143,7 +143,7 @@ teardown() {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-18.04)"
 
-  "$TOOLBOX" run --distro ubuntu --release 18.04 true
+  "$TOOLBX" run --distro ubuntu --release 18.04 true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-18.04
@@ -160,7 +160,7 @@ teardown() {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-20.04)"
 
-  "$TOOLBOX" run --distro ubuntu --release 20.04 true
+  "$TOOLBX" run --distro ubuntu --release 20.04 true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-20.04
@@ -182,7 +182,7 @@ teardown() {
 
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run cat /etc/passwd
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run cat /etc/passwd
 
   assert_success
   assert_line --regexp "^$USER::$user_id_real:$user_id_real:$user_gecos:$HOME:$SHELL$"
@@ -201,7 +201,7 @@ teardown() {
 
   create_distro_container arch latest arch-toolbox-latest
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro arch cat /etc/passwd
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro arch cat /etc/passwd
 
   assert_success
   assert_line --regexp "^$USER::$user_id_real:$user_id_real:$user_gecos:$HOME:$SHELL$"
@@ -220,7 +220,7 @@ teardown() {
 
   create_distro_container fedora 34 fedora-toolbox-34
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro fedora --release 34 cat /etc/passwd
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro fedora --release 34 cat /etc/passwd
 
   assert_success
   assert_line --regexp "^$USER::$user_id_real:$user_id_real:$user_gecos:$HOME:$SHELL$"
@@ -239,7 +239,7 @@ teardown() {
 
   create_distro_container rhel 8.9 rhel-toolbox-8.9
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.9 cat /etc/passwd
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 cat /etc/passwd
 
   assert_success
   assert_line --regexp "^$USER::$user_id_real:$user_id_real:$user_gecos:$HOME:$SHELL$"
@@ -258,7 +258,7 @@ teardown() {
 
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 16.04 cat /etc/passwd
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 cat /etc/passwd
 
   assert_success
   assert_line --regexp "^$USER::$user_id_real:$user_id_real:$user_gecos:$HOME:$SHELL$"
@@ -277,7 +277,7 @@ teardown() {
 
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 18.04 cat /etc/passwd
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 cat /etc/passwd
 
   assert_success
   assert_line --regexp "^$USER::$user_id_real:$user_id_real:$user_gecos:$HOME:$SHELL$"
@@ -296,7 +296,7 @@ teardown() {
 
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 20.04 cat /etc/passwd
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 20.04 cat /etc/passwd
 
   assert_success
   assert_line --regexp "^$USER::$user_id_real:$user_id_real:$user_gecos:$HOME:$SHELL$"
@@ -313,7 +313,7 @@ teardown() {
   create_default_container
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount "$default_container")"
 
-  "$TOOLBOX" run true
+  "$TOOLBX" run true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount "$default_container"
@@ -330,7 +330,7 @@ teardown() {
   create_distro_container arch latest arch-toolbox-latest
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount arch-toolbox-latest)"
 
-  "$TOOLBOX" run --distro arch true
+  "$TOOLBX" run --distro arch true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount arch-toolbox-latest
@@ -347,7 +347,7 @@ teardown() {
   create_distro_container fedora 34 fedora-toolbox-34
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount fedora-toolbox-34)"
 
-  "$TOOLBOX" run --distro fedora --release 34 true
+  "$TOOLBX" run --distro fedora --release 34 true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount fedora-toolbox-34
@@ -364,7 +364,7 @@ teardown() {
   create_distro_container rhel 8.9 rhel-toolbox-8.9
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount rhel-toolbox-8.9)"
 
-  "$TOOLBOX" run --distro rhel --release 8.9 true
+  "$TOOLBX" run --distro rhel --release 8.9 true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount rhel-toolbox-8.9
@@ -381,7 +381,7 @@ teardown() {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-16.04)"
 
-  "$TOOLBOX" run --distro ubuntu --release 16.04 true
+  "$TOOLBX" run --distro ubuntu --release 16.04 true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-16.04
@@ -398,7 +398,7 @@ teardown() {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-18.04)"
 
-  "$TOOLBOX" run --distro ubuntu --release 18.04 true
+  "$TOOLBX" run --distro ubuntu --release 18.04 true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-18.04
@@ -415,7 +415,7 @@ teardown() {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-20.04)"
 
-  "$TOOLBOX" run --distro ubuntu --release 20.04 true
+  "$TOOLBX" run --distro ubuntu --release 20.04 true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-20.04
@@ -431,7 +431,7 @@ teardown() {
 @test "user: $USER in group(5) inside the default container" {
   create_default_container
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run cat /etc/group
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run cat /etc/group
 
   assert_success
   assert_line --regexp "^(sudo|wheel):x:[[:digit:]]+:$USER$"
@@ -444,7 +444,7 @@ teardown() {
 @test "user: $USER in group(5) inside Arch Linux" {
   create_distro_container arch latest arch-toolbox-latest
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro arch cat /etc/group
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro arch cat /etc/group
 
   assert_success
   assert_line --regexp "^wheel:x:[[:digit:]]+:$USER$"
@@ -457,7 +457,7 @@ teardown() {
 @test "user: $USER in group(5) inside Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro fedora --release 34 cat /etc/group
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro fedora --release 34 cat /etc/group
 
   assert_success
   assert_line --regexp "^wheel:x:[[:digit:]]+:$USER$"
@@ -470,7 +470,7 @@ teardown() {
 @test "user: $USER in group(5) inside RHEL 8.9" {
   create_distro_container rhel 8.9 rhel-toolbox-8.9
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.9 cat /etc/group
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 cat /etc/group
 
   assert_success
   assert_line --regexp "^wheel:x:[[:digit:]]+:$USER$"
@@ -483,7 +483,7 @@ teardown() {
 @test "user: $USER in group(5) inside Ubuntu 16.04" {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 16.04 cat /etc/group
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 cat /etc/group
 
   assert_success
   assert_line --regexp "^sudo:x:[[:digit:]]+:$USER$"
@@ -496,7 +496,7 @@ teardown() {
 @test "user: $USER in group(5) inside Ubuntu 18.04" {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 18.04 cat /etc/group
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 cat /etc/group
 
   assert_success
   assert_line --regexp "^sudo:x:[[:digit:]]+:$USER$"
@@ -509,7 +509,7 @@ teardown() {
 @test "user: $USER in group(5) inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 20.04 cat /etc/group
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 20.04 cat /etc/group
 
   assert_success
   assert_line --regexp "^sudo:x:[[:digit:]]+:$USER$"

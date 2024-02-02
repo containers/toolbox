@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2023 Red Hat Inc.
+ * Copyright © 2019 – 2024 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ var (
 		onlyImages     bool
 	}
 
-	// toolboxLabels holds labels used by containers/images that mark them as compatible with Toolbox
+	// toolboxLabels holds labels used by containers/images that mark them as compatible with Toolbx
 	toolboxLabels = map[string]string{
 		"com.github.debarshiray.toolbox": "true",
 		"com.github.containers.toolbox":  "true",
@@ -55,7 +55,7 @@ var (
 
 var listCmd = &cobra.Command{
 	Use:               "list",
-	Short:             "List existing toolbox containers and images",
+	Short:             "List existing Toolbx containers and images",
 	RunE:              list,
 	ValidArgsFunction: completionEmpty,
 }
@@ -67,13 +67,13 @@ func init() {
 		"containers",
 		"c",
 		false,
-		"List only toolbox containers, not images")
+		"List only Toolbx containers, not images")
 
 	flags.BoolVarP(&listFlags.onlyImages,
 		"images",
 		"i",
 		false,
-		"List only toolbox images, not containers")
+		"List only Toolbx images, not containers")
 
 	listCmd.SetHelpFunc(listHelp)
 	rootCmd.AddCommand(listCmd)
@@ -82,7 +82,7 @@ func init() {
 func list(cmd *cobra.Command, args []string) error {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			return errors.New("this is not a toolbox container")
+			return errors.New("this is not a Toolbx container")
 		}
 
 		if _, err := utils.ForwardToHost(); err != nil {
@@ -163,7 +163,7 @@ func getContainers() ([]toolboxContainer, error) {
 func listHelp(cmd *cobra.Command, args []string) {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
-			fmt.Fprintf(os.Stderr, "Error: this is not a toolbox container\n")
+			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
 			return
 		}
 
