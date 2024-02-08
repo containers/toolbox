@@ -434,6 +434,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" run cat /etc/group
 
   assert_success
+  assert_line --regexp "^$USER:x:[[:digit:]]+:$USER$"
   assert_line --regexp "^(sudo|wheel):x:[[:digit:]]+:$USER$"
   assert [ ${#lines[@]} -gt 1 ]
 
@@ -447,6 +448,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro arch cat /etc/group
 
   assert_success
+  assert_line --regexp "^$USER:x:[[:digit:]]+:$USER$"
   assert_line --regexp "^wheel:x:[[:digit:]]+:$USER$"
   assert [ ${#lines[@]} -gt 1 ]
 
@@ -460,6 +462,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro fedora --release 34 cat /etc/group
 
   assert_success
+  assert_line --regexp "^$USER:x:[[:digit:]]+:$USER$"
   assert_line --regexp "^wheel:x:[[:digit:]]+:$USER$"
   assert [ ${#lines[@]} -gt 1 ]
 
@@ -473,6 +476,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 cat /etc/group
 
   assert_success
+  assert_line --regexp "^$USER:x:[[:digit:]]+:$USER$"
   assert_line --regexp "^wheel:x:[[:digit:]]+:$USER$"
   assert [ ${#lines[@]} -gt 1 ]
 
@@ -486,6 +490,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 cat /etc/group
 
   assert_success
+  assert_line --regexp "^$USER:x:[[:digit:]]+:$USER$"
   assert_line --regexp "^sudo:x:[[:digit:]]+:$USER$"
   assert [ ${#lines[@]} -gt 1 ]
 
@@ -499,6 +504,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 cat /etc/group
 
   assert_success
+  assert_line --regexp "^$USER:x:[[:digit:]]+:$USER$"
   assert_line --regexp "^sudo:x:[[:digit:]]+:$USER$"
   assert [ ${#lines[@]} -gt 1 ]
 
@@ -512,6 +518,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 20.04 cat /etc/group
 
   assert_success
+  assert_line --regexp "^$USER:x:[[:digit:]]+:$USER$"
   assert_line --regexp "^sudo:x:[[:digit:]]+:$USER$"
   assert [ ${#lines[@]} -gt 1 ]
 
