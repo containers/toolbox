@@ -6,6 +6,7 @@ diffutils
 dnf-plugins-core
 findutils
 flatpak-spawn
+flatpak-xdg-utils
 fpaste
 git
 gnupg2
