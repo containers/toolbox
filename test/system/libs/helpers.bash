@@ -7,13 +7,13 @@ load 'libs/bats-assert/load'
 readonly TEMP_BASE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/toolbx"
 readonly TEMP_STORAGE_DIR="${TEMP_BASE_DIR}/system-test-storage"
 
-readonly IMAGE_CACHE_DIR="${BATS_RUN_TMPDIR}/image-cache"
+readonly IMAGE_CACHE_DIR="${BATS_SUITE_TMPDIR}/image-cache"
 readonly ROOTLESS_PODMAN_STORE_DIR="${TEMP_STORAGE_DIR}/storage"
 readonly ROOTLESS_PODMAN_RUNROOT_DIR="${TEMP_STORAGE_DIR}/runroot"
 readonly PODMAN_STORE_CONFIG_FILE="${TEMP_STORAGE_DIR}/storage.conf"
 readonly DOCKER_REG_ROOT="${TEMP_STORAGE_DIR}/docker-registry-root"
-readonly DOCKER_REG_CERTS_DIR="${BATS_RUN_TMPDIR}/certs"
-readonly DOCKER_REG_AUTH_DIR="${BATS_RUN_TMPDIR}/auth"
+readonly DOCKER_REG_CERTS_DIR="${BATS_SUITE_TMPDIR}/certs"
+readonly DOCKER_REG_AUTH_DIR="${BATS_SUITE_TMPDIR}/auth"
 readonly DOCKER_REG_URI="localhost:50000"
 readonly DOCKER_REG_NAME="docker-registry"
 
