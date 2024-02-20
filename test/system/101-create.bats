@@ -722,7 +722,7 @@ teardown() {
 }
 
 @test "create: Try a non-existent authentication file" {
-  local file="$BATS_RUN_TMPDIR/non-existent-file"
+  local file="$BATS_TEST_TMPDIR/non-existent-file"
 
   run "$TOOLBX" create --authfile "$file"
 
@@ -734,7 +734,7 @@ teardown() {
 }
 
 @test "create: Try a non-existent authentication file (using --assumeyes)" {
-  local file="$BATS_RUN_TMPDIR/non-existent-file"
+  local file="$BATS_TEST_TMPDIR/non-existent-file"
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --authfile "$file"
 
@@ -748,7 +748,7 @@ teardown() {
 }
 
 @test "create: With a custom image that needs an authentication file" {
-  local authfile="$BATS_RUN_TMPDIR/authfile"
+  local authfile="$BATS_TEST_TMPDIR/authfile"
   local image="fedora-toolbox:34"
 
   run $PODMAN login --authfile "$authfile" --username user --password user "$DOCKER_REG_URI"
