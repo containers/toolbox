@@ -565,3 +565,176 @@ teardown() {
 
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
+
+@test "environment variables: KONSOLE_VERSION inside the default container" {
+  create_default_container
+
+  if [ "$KONSOLE_VERSION" = "" ]; then
+    # shellcheck disable=SC2030
+    export KONSOLE_VERSION=230804
+  fi
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'echo "$KONSOLE_VERSION"'
+
+  assert_success
+  assert_line --index 0 "$KONSOLE_VERSION"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: KONSOLE_VERSION inside Arch Linux" {
+  create_distro_container arch latest arch-toolbox-latest
+
+  # shellcheck disable=SC2031
+  if [ "$KONSOLE_VERSION" = "" ]; then
+    # shellcheck disable=SC2030
+    export KONSOLE_VERSION=230804
+  fi
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro arch bash -c 'echo "$KONSOLE_VERSION"'
+
+  assert_success
+  assert_line --index 0 "$KONSOLE_VERSION"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: KONSOLE_VERSION inside Fedora 34" {
+  create_distro_container fedora 34 fedora-toolbox-34
+
+  # shellcheck disable=SC2031
+  if [ "$KONSOLE_VERSION" = "" ]; then
+    # shellcheck disable=SC2030
+    export KONSOLE_VERSION=230804
+  fi
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro fedora --release 34 bash -c 'echo "$KONSOLE_VERSION"'
+
+  assert_success
+  assert_line --index 0 "$KONSOLE_VERSION"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: KONSOLE_VERSION inside RHEL 8.9" {
+  create_distro_container rhel 8.9 rhel-toolbox-8.9
+
+  # shellcheck disable=SC2031
+  if [ "$KONSOLE_VERSION" = "" ]; then
+    # shellcheck disable=SC2030
+    export KONSOLE_VERSION=230804
+  fi
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 bash -c 'echo "$KONSOLE_VERSION"'
+
+  assert_success
+  assert_line --index 0 "$KONSOLE_VERSION"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: KONSOLE_VERSION inside Ubuntu 16.04" {
+  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
+
+  # shellcheck disable=SC2031
+  if [ "$KONSOLE_VERSION" = "" ]; then
+    # shellcheck disable=SC2030
+    export KONSOLE_VERSION=230804
+  fi
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 bash -c 'echo "$KONSOLE_VERSION"'
+
+  assert_success
+  assert_line --index 0 "$KONSOLE_VERSION"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: KONSOLE_VERSION inside Ubuntu 18.04" {
+  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
+
+  # shellcheck disable=SC2031
+  if [ "$KONSOLE_VERSION" = "" ]; then
+    # shellcheck disable=SC2030
+    export KONSOLE_VERSION=230804
+  fi
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 bash -c 'echo "$KONSOLE_VERSION"'
+
+  assert_success
+  assert_line --index 0 "$KONSOLE_VERSION"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: KONSOLE_VERSION inside Ubuntu 20.04" {
+  create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
+
+  # shellcheck disable=SC2031
+  if [ "$KONSOLE_VERSION" = "" ]; then
+    export KONSOLE_VERSION=230804
+  fi
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 20.04 bash -c 'echo "$KONSOLE_VERSION"'
+
+  assert_success
+  assert_line --index 0 "$KONSOLE_VERSION"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
