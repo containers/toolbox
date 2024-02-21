@@ -15,6 +15,9 @@
 /usr/share/locale/de/LC_MESSAGES/elfutils.mo
 /usr/share/locale/ja/LC_MESSAGES/elfutils.mo
 
+/usr/share/locale/fr/LC_MESSAGES/gawk.mo
+/usr/share/locale/ko/LC_MESSAGES/gawk.mo
+
 /usr/share/man/man1/gpg2.1*
 /usr/share/man/man7/gnupg2.7*
 
