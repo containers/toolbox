@@ -7,7 +7,7 @@ LABEL com.github.containers.toolbox="true" \
       name="$NAME" \
       version="$VERSION" \
       usage="This image is meant to be used with the toolbox command" \
-      summary="Base image for creating Fedora Toolbx containers" \
+      summary="Image for creating Fedora Toolbx containers" \
       maintainer="Debarshi Ray <rishi@fedoraproject.org>"
 
 COPY README.md /
