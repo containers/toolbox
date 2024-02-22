@@ -9,6 +9,7 @@ flatpak-spawn
 fpaste
 gawk-all-langpacks
 git
+glibc-gconv-extra
 gnupg2
 gnupg2-smime
 gvfs-client
