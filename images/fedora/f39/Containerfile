@@ -27,7 +27,7 @@ COPY extra-packages /
 RUN dnf -y install $(<extra-packages)
 RUN rm /extra-packages
 
-RUN ln -s /usr/bin/flatpak-xdg-open /usr/bin/xdg-open
+RUN ln --symbolic /usr/bin/flatpak-xdg-open /usr/bin/xdg-open
 
 COPY ensure-files /
 RUN ret_val=0; \
