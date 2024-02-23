@@ -22,9 +22,11 @@ load 'libs/helpers'
 setup() {
   _setup_environment
   cleanup_containers
+  pushd "$HOME" || return 1
 }
 
 teardown() {
+  popd || return 1
   cleanup_containers
 }
 
