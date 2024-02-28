@@ -23,6 +23,7 @@
       command: bats --timing ./test/system
       environment:
         PODMAN: '/usr/bin/podman'
+        TMPDIR: '/var/tmp'
         TOOLBX: '/usr/local/bin/toolbox'
       args:
         chdir: '{{ zuul.project.src_dir }}'

@@ -43,6 +43,12 @@ location then you can use the `PODMAN`, `SKOPEO` and `TOOLBX` environmental
 variables to set the path to the binaries. So the command to invoke the test
 suite could look something like this: `PODMAN=/usr/libexec/podman TOOLBX=./toolbox bats ./test/system/`.
 
+It's recommended to set the [TMPDIR](https://systemd.io/TEMPORARY_DIRECTORIES/)
+environment variable to `/var/tmp` when running the tests.  Otherwise, the
+images downloaded during the tests will be cached in `/tmp`, which is
+typically on tmpfs backed by RAM or swap and should be used for smaller
+size-bounded files only.
+
 When running the tests, make sure the `test suite: [job]` jobs are successful.
 These jobs set up the whole environment and are a strict requirement for other
 jobs to run correctly.
