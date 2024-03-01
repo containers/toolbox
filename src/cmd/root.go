@@ -144,6 +144,10 @@ func preRun(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	if utils.IsInsideContainer() && !utils.IsInsideToolboxContainer() {
+		return createErrorNonToolboxContainer()
+	}
+
 	toolboxPath := os.Getenv("TOOLBOX_PATH")
 
 	if toolboxPath == "" {
