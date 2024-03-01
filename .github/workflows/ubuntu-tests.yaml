@@ -146,5 +146,5 @@ jobs:
       - name: System tests
         run: bats --timing test/system/001-version.bats test/system/002-help.bats test/system/108-completion.bats
         env:
-          TOOLBOX: /usr/local/bin/toolbox
+          TOOLBX: /usr/local/bin/toolbox
         working-directory: containers/toolbox
