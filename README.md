@@ -5,6 +5,7 @@
 
 [![Arch Linux package](https://img.shields.io/archlinux/v/extra/x86_64/toolbox?logo=archlinux)](https://www.archlinux.org/packages/extra/x86_64/toolbox/)
 [![Fedora package](https://img.shields.io/fedora/v/toolbox/rawhide?logo=fedora)](https://src.fedoraproject.org/rpms/toolbox/)
+[![Ubuntu package](https://img.shields.io/badge/ubuntu-0.0.99.3%2Bgit20230118%2B446d7bfdef6a-orange?logo=ubuntu)](https://packages.ubuntu.com/noble/podman-toolbox)
 
 [Toolbx](https://containertoolbx.org/) is a tool for Linux, which allows the
 use of interactive command line environments for development and
