@@ -1,12 +1,5 @@
 ![README](data/gfx/README.gif)
 
-[![Zuul](https://zuul-ci.org/gated.svg)](https://softwarefactory-project.io/zuul/t/local/builds?project=containers/toolbox)
-[![Daily Pipeline](https://softwarefactory-project.io/zuul/api/tenant/local/badge?project=containers/toolbox&pipeline=periodic)](https://softwarefactory-project.io/zuul/t/local/builds?project=containers%2Ftoolbox&pipeline=periodic)
-
-[![Arch Linux package](https://img.shields.io/archlinux/v/extra/x86_64/toolbox?logo=archlinux)](https://www.archlinux.org/packages/extra/x86_64/toolbox/)
-[![Fedora package](https://img.shields.io/fedora/v/toolbox/rawhide?logo=fedora)](https://src.fedoraproject.org/rpms/toolbox/)
-[![Ubuntu package](https://img.shields.io/badge/ubuntu-0.0.99.3%2Bgit20230118%2B446d7bfdef6a-orange?logo=ubuntu)](https://packages.ubuntu.com/noble/podman-toolbox)
-
 [Toolbx](https://containertoolbx.org/) is a tool for Linux, which allows the
 use of interactive command line environments for development and
 troubleshooting the host operating system, without having to install software
@@ -51,3 +44,13 @@ familiar with.
 See our guides on
 [installing & getting started](https://containertoolbx.org/install/) with
 Toolbx and [Linux distro support](https://containertoolbx.org/distros/).
+
+
+##
+
+[![Zuul](https://zuul-ci.org/gated.svg)](https://softwarefactory-project.io/zuul/t/local/builds?project=containers/toolbox)
+[![Daily Pipeline](https://softwarefactory-project.io/zuul/api/tenant/local/badge?project=containers/toolbox&pipeline=periodic)](https://softwarefactory-project.io/zuul/t/local/builds?project=containers%2Ftoolbox&pipeline=periodic)
+
+[![Arch Linux package](https://img.shields.io/archlinux/v/extra/x86_64/toolbox?logo=archlinux)](https://www.archlinux.org/packages/extra/x86_64/toolbox/)
+[![Fedora package](https://img.shields.io/fedora/v/toolbox/rawhide?logo=fedora)](https://src.fedoraproject.org/rpms/toolbox/)
+[![Ubuntu package](https://img.shields.io/badge/ubuntu-0.0.99.3%2Bgit20230118%2B446d7bfdef6a-orange?logo=ubuntu)](https://packages.ubuntu.com/noble/podman-toolbox)
