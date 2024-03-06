@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: containers/toolbox
           submodules: true
@@ -59,7 +59,7 @@ jobs:
           echo "PATH=/usr/lib/go-1.20/bin:$PATH" >> "$GITHUB_ENV"
 
       - name: Checkout Bats
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: bats-core/bats-core
           ref: v1.10.0
@@ -78,7 +78,7 @@ jobs:
         working-directory: bats-core/bats-core
 
       - name: Checkout shadow
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: shadow-maint/shadow
           ref: 4.13
