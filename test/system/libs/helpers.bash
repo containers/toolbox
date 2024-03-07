@@ -25,6 +25,7 @@ readonly SKOPEO="${SKOPEO:-$(command -v skopeo)}"
 # Images
 declare -Ag IMAGES=([arch]="quay.io/toolbx/arch-toolbox" \
                    [busybox]="quay.io/toolbox_tests/busybox" \
+                   [debian]="quay.io/toolbx/debian-toolbox"\
                    [docker-reg]="quay.io/toolbox_tests/registry" \
                    [fedora]="registry.fedoraproject.org/fedora-toolbox" \
                    [rhel]="registry.access.redhat.com/ubi8/toolbox" \
