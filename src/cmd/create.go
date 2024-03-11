@@ -54,6 +54,7 @@ var (
 		distro    string
 		image     string
 		release   string
+		build     string
 	}
 
 	createToolboxShMounts = []struct {
@@ -104,6 +105,12 @@ func init() {
 		"",
 		"Create a Toolbx container for a different operating system release than the host")
 
+	flags.StringVarP(&createFlags.build,
+		"build",
+		"b",
+		"",
+		"Build a Toolbx container for use of this container")
+
 	createCmd.SetHelpFunc(createHelp)
 
 	if err := createCmd.RegisterFlagCompletionFunc("distro", completionDistroNames); err != nil {
@@ -150,6 +157,15 @@ func create(cmd *cobra.Command, args []string) error {
 		return errors.New(errMsg)
 	}
 
+	if cmd.Flag("build").Changed && (cmd.Flag("image").Changed || cmd.Flag("release").Changed || cmd.Flag("distro").Changed) {
+		var builder strings.Builder
+		fmt.Fprintf(&builder, "options --build and --release, --image or -- distro cannot be used together\n")
+		fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+		errMsg := builder.String()
+		return errors.New(errMsg)
+	}
+
 	if cmd.Flag("authfile").Changed {
 		if !utils.PathExists(createFlags.authFile) {
 			var builder strings.Builder
@@ -177,7 +193,8 @@ func create(cmd *cobra.Command, args []string) error {
 		containerArg,
 		createFlags.distro,
 		createFlags.image,
-		createFlags.release)
+		createFlags.release,
+		createFlags.build)
 
 	if err != nil {
 		return err

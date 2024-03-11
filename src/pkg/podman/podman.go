@@ -19,8 +19,11 @@ package podman
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"os"
+	"strings"
 
 	"github.com/HarryMichal/go-version"
 	"github.com/containers/toolbox/pkg/shell"
@@ -43,6 +46,12 @@ var (
 
 var (
 	LogLevel = logrus.ErrorLevel
+)
+
+var (
+	ErrBuildContextDoesNotExist = errors.New("build context does not exist")
+
+	ErrBuildContextInvalid = errors.New("build context is not a directory with a Containerfile")
 )
 
 func (image *Image) FlattenNames(fillNameWithID bool) []Image {
@@ -426,4 +435,42 @@ func SystemMigrate(ociRuntimeRequired string) error {
 	}
 
 	return nil
+}
+
+func BuildImage(buildContext string) (string, error) {
+	if !utils.PathExists(buildContext) {
+		return "", &utils.BuildError{BuildContext: buildContext, Err: ErrBuildContextDoesNotExist}
+	}
+	if stat, err := os.Stat(buildContext); err != nil {
+		return "", err
+	} else {
+		if !stat.Mode().IsDir() {
+			return "", &utils.BuildError{BuildContext: buildContext, Err: ErrBuildContextInvalid}
+		}
+	}
+	if !utils.PathExists(buildContext+"/Containerfile") && !utils.PathExists(buildContext+"/Dockerfile") {
+		return "", &utils.BuildError{BuildContext: buildContext, Err: ErrBuildContextInvalid}
+	}
+	logLevelString := LogLevel.String()
+	args := []string{"--log-level", logLevelString, "build", buildContext}
+
+	stdout := new(bytes.Buffer)
+	if err := shell.Run("podman", nil, stdout, nil, args...); err != nil {
+		return "", err
+	}
+	output := strings.TrimRight(stdout.String(), "\n")
+	imageIdBegin := strings.LastIndex(output, "\n") + 1
+	imageId := output[imageIdBegin:]
+
+	info, err := Inspect("image", imageId)
+	if err != nil {
+		return "", err
+	}
+	name := "localhost/" + info["Labels"].(map[string]interface{})["name"].(string)
+	args = []string{"--log-level", logLevelString, "tag", imageId, name}
+	if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
+		return "", err
+	}
+
+	return name, nil
 }
