@@ -38,6 +38,11 @@ type Image struct {
 	Labels  map[string]string
 }
 
+type BuildOptions struct {
+	Context string
+	Tag     string
+}
+
 type ImageSlice []Image
 
 var (
@@ -437,22 +442,25 @@ func SystemMigrate(ociRuntimeRequired string) error {
 	return nil
 }
 
-func BuildImage(buildContext string) (string, error) {
-	if !utils.PathExists(buildContext) {
-		return "", &utils.BuildError{BuildContext: buildContext, Err: ErrBuildContextDoesNotExist}
+func BuildImage(build BuildOptions) (string, error) {
+	if !utils.PathExists(build.Context) {
+		return "", &utils.BuildError{BuildContext: build.Context, Err: ErrBuildContextDoesNotExist}
 	}
-	if stat, err := os.Stat(buildContext); err != nil {
+	if stat, err := os.Stat(build.Context); err != nil {
 		return "", err
 	} else {
 		if !stat.Mode().IsDir() {
-			return "", &utils.BuildError{BuildContext: buildContext, Err: ErrBuildContextInvalid}
+			return "", &utils.BuildError{BuildContext: build.Context, Err: ErrBuildContextInvalid}
 		}
 	}
-	if !utils.PathExists(buildContext+"/Containerfile") && !utils.PathExists(buildContext+"/Dockerfile") {
-		return "", &utils.BuildError{BuildContext: buildContext, Err: ErrBuildContextInvalid}
+	if !utils.PathExists(build.Context+"/Containerfile") && !utils.PathExists(build.Context+"/Dockerfile") {
+		return "", &utils.BuildError{BuildContext: build.Context, Err: ErrBuildContextInvalid}
 	}
 	logLevelString := LogLevel.String()
-	args := []string{"--log-level", logLevelString, "build", buildContext}
+	args := []string{"--log-level", logLevelString, "build", build.Context}
+	if build.Tag != "" {
+		args = append(args, "--tag", build.Tag)
+	}
 
 	stdout := new(bytes.Buffer)
 	if err := shell.Run("podman", nil, stdout, nil, args...); err != nil {
@@ -462,14 +470,19 @@ func BuildImage(buildContext string) (string, error) {
 	imageIdBegin := strings.LastIndex(output, "\n") + 1
 	imageId := output[imageIdBegin:]
 
-	info, err := Inspect("image", imageId)
-	if err != nil {
-		return "", err
-	}
-	name := "localhost/" + info["Labels"].(map[string]interface{})["name"].(string)
-	args = []string{"--log-level", logLevelString, "tag", imageId, name}
-	if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
-		return "", err
+	var name string
+	if build.Tag == "" {
+		info, err := Inspect("image", imageId)
+		if err != nil {
+			return "", err
+		}
+		name = info["Labels"].(map[string]interface{})["name"].(string)
+		args = []string{"--log-level", logLevelString, "tag", imageId, name}
+		if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
+			return "", err
+		}
+	} else {
+		name = build.Tag
 	}
 
 	return name, nil
