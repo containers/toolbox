@@ -8,6 +8,7 @@ toolbox\-create - Create a new Toolbx container
                [*--distro DISTRO* | *-d DISTRO*]
                [*--image NAME* | *-i NAME*]
                [*--release RELEASE* | *-r RELEASE*]
+               [*--build BUILDCONTEXT* | *-b BUILDCONTEXT*]
                [*CONTAINER*]
 
 ## DESCRIPTION
@@ -109,6 +110,14 @@ remote registry.
 
 Create a Toolbx container for a different operating system RELEASE than the
 host. Cannot be used with `--image`.
+
+**--build** BUILDCONTEXT, **-b** BUILDCONTEXT
+
+Build a toolbx image from the build context found at BUILDCONTEXT by passing it
+to `podman build`. Afterwards it sets the tag to `localhost/<name of the image>`
+by extracting the name from the image and then creates the container like normal.
+
+You cannot use `--distro`, `--release` or `--image` together with this option.
 
 ## EXAMPLES
 
