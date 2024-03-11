@@ -55,6 +55,7 @@ var (
 		image     string
 		release   string
 		build     string
+		buildtag  string
 	}
 
 	createToolboxShMounts = []struct {
@@ -111,6 +112,12 @@ func init() {
 		"",
 		"Build a Toolbx container for use of this container")
 
+	flags.StringVarP(&createFlags.buildtag,
+		"build-tag",
+		"t",
+		"",
+		"Tag the image built")
+
 	createCmd.SetHelpFunc(createHelp)
 
 	if err := createCmd.RegisterFlagCompletionFunc("distro", completionDistroNames); err != nil {
@@ -166,6 +173,15 @@ func create(cmd *cobra.Command, args []string) error {
 		return errors.New(errMsg)
 	}
 
+	if cmd.Flag("build-tag").Changed && !cmd.Flag("build").Changed {
+		var builder strings.Builder
+		fmt.Fprintf(&builder, "--build-tag must be used together with --build\n")
+		fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+		errMsg := builder.String()
+		return errors.New(errMsg)
+	}
+
 	if cmd.Flag("authfile").Changed {
 		if !utils.PathExists(createFlags.authFile) {
 			var builder strings.Builder
@@ -194,7 +210,7 @@ func create(cmd *cobra.Command, args []string) error {
 		createFlags.distro,
 		createFlags.image,
 		createFlags.release,
-		createFlags.build)
+		podman.BuildOptions{Context: createFlags.build, Tag: createFlags.buildtag})
 
 	if err != nil {
 		return err

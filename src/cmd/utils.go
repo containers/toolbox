@@ -403,12 +403,12 @@ func poll(pollFn pollFunc, eventFD int32, fds ...int32) error {
 	}
 }
 
-func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI, releaseCLI, buildCLI string) (
+func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI, releaseCLI string, buildCLI podman.BuildOptions) (
 	string, string, string, error,
 ) {
 	var image, release string
 	var err error
-	if buildCLI == "" {
+	if buildCLI.Context == "" {
 		container, image, release, err = utils.ResolveContainerAndImageNames(container,
 			distroCLI,
 			imageCLI,

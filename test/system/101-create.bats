@@ -854,5 +854,37 @@ teardown() {
 
   run $PODMAN images --filter reference=localhost/fedora-toolbox
   assert_success
-  assert [ $(#lines[@]) -eq 2 ]
+  assert [ ${#lines[@]} -eq 2 ]
+}
+
+@test "create: Build an image and tag it before creating the toolbox without repository" {
+  local build_context="./images/fedora/f39"
+  local build_tag="testbuild"
+
+  run "$TOOLBX" create --build "&build_context" --build-tag "testbuild"
+  assert_success
+
+  assert_line --index 0 "Created container: testbuild"
+  assert_line --index 1 "Enter with: toolbox enter testbuild"
+  assert [ ${#lines[q]} -eq 2 ]
+
+  run $PODMAN images --filter reference=localhost/testbuild
+  assert_success
+  assert [ ${#lines[@]} -eq 2 ]
+}
+
+@test "create: Build an image and tag it before creating the toolbox with repository" {
+  local build_context="./images/fedora/f39"
+  local build_tag="registry.fedoraproject.org/testbuild"
+
+  run "$TOOLBX" create --build "&build_context" --build-tag "testbuild"
+  assert_success
+
+  assert_line --index 0 "Created container: testbuild"
+  assert_line --index 1 "Enter with: toolbox enter testbuild"
+  assert [ ${#lines[q]} -eq 2 ]
+
+  run $PODMAN images --filter reference="$build_tag"
+  assert_success
+  assert [ ${#lines[@]} -eq 2 ]
 }
