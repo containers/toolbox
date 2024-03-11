@@ -31,6 +31,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -402,13 +403,26 @@ func poll(pollFn pollFunc, eventFD int32, fds ...int32) error {
 	}
 }
 
-func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI, releaseCLI string) (
+func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI, releaseCLI, buildCLI string) (
 	string, string, string, error,
 ) {
-	container, image, release, err := utils.ResolveContainerAndImageNames(container,
-		distroCLI,
-		imageCLI,
-		releaseCLI)
+	var image, release string
+	var err error
+	if buildCLI == "" {
+		container, image, release, err = utils.ResolveContainerAndImageNames(container,
+			distroCLI,
+			imageCLI,
+			releaseCLI)
+	} else {
+		image, err = podman.BuildImage(buildCLI)
+		if err != nil {
+			return "", "", "", err
+		}
+		container, image, release, err = utils.ResolveContainerAndImageNames(container,
+			distroCLI,
+			image,
+			releaseCLI)
+	}
 
 	if err != nil {
 		var errContainer *utils.ContainerError

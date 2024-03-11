@@ -111,7 +111,8 @@ func enter(cmd *cobra.Command, args []string) error {
 		containerArg,
 		enterFlags.distro,
 		"",
-		enterFlags.release)
+		enterFlags.release,
+		"")
 
 	if err != nil {
 		return err

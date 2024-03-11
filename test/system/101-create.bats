@@ -841,3 +841,18 @@ teardown() {
   assert_line --index 1 "Enter with: toolbox enter fedora-toolbox-34"
   assert [ ${#lines[@]} -eq 2 ]
 }
+
+@test "create: Build an image before creating the toolbox" {
+  local build_context="./images/fedora/f39"
+
+  run "$TOOLBX" create --build "$build_context"
+  assert_success
+
+  assert_line --index 0 "Created container: fedora-toolbox"
+  assert_line --index 1 "Enter with: toolbox enter fedora-toolbox"
+  assert [ ${#lines[@]} -eq 2 ]
+
+  run $PODMAN images --filter reference=localhost/fedora-toolbox
+  assert_success
+  assert [ $(#lines[@]) -eq 2 ]
+}
