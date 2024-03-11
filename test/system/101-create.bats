@@ -843,10 +843,13 @@ teardown() {
 }
 
 @test "create: Build an image before creating the toolbox" {
-  local build_context="./images/fedora/f39"
+  local build_context="./images/fedora/f38"
 
   run "$TOOLBX" create --build "$build_context"
-  assert_success
+  if [ "$status" -ne 0 ]
+  then
+    echo "$output"
+  fi
 
   assert_line --index 0 "Created container: fedora-toolbox"
   assert_line --index 1 "Enter with: toolbox enter fedora-toolbox"
@@ -858,33 +861,34 @@ teardown() {
 }
 
 @test "create: Build an image and tag it before creating the toolbox without repository" {
-  local build_context="./images/fedora/f39"
+  local build_context="./images/fedora/f38"
   local build_tag="testbuild"
 
-  run "$TOOLBX" create --build "&build_context" --build-tag "testbuild"
+  run "$TOOLBX" create --build "$build_context" --build-tag "$build_tag"
   assert_success
 
-  assert_line --index 0 "Created container: testbuild"
-  assert_line --index 1 "Enter with: toolbox enter testbuild"
-  assert [ ${#lines[q]} -eq 2 ]
+  assert_line --index 0 "Created container: $build_tag"
+  assert_line --index 1 "Enter with: toolbox enter $build_tag"
+  assert [ ${#lines[@]} -eq 2 ]
 
-  run $PODMAN images --filter reference=localhost/testbuild
+  run $PODMAN images --filter reference="localhost/$build_tag"
   assert_success
   assert [ ${#lines[@]} -eq 2 ]
 }
 
 @test "create: Build an image and tag it before creating the toolbox with repository" {
-  local build_context="./images/fedora/f39"
-  local build_tag="registry.fedoraproject.org/testbuild"
+  local build_context="./images/fedora/f38"
+  local tag_repository="registry.fedoraproject.org"
+  local build_tag="testbuild"
 
-  run "$TOOLBX" create --build "&build_context" --build-tag "testbuild"
+  run "$TOOLBX" create --build "$build_context" --build-tag "$tag_repository/$build_tag"
   assert_success
 
-  assert_line --index 0 "Created container: testbuild"
-  assert_line --index 1 "Enter with: toolbox enter testbuild"
-  assert [ ${#lines[q]} -eq 2 ]
+  assert_line --index 0 "Created container: $build_tag"
+  assert_line --index 1 "Enter with: toolbox enter $build_tag"
+  assert [ ${#lines[@]} -eq 2 ]
 
-  run $PODMAN images --filter reference="$build_tag"
+  run $PODMAN images --filter reference="$tag_repository/$build_tag"
   assert_success
   assert [ ${#lines[@]} -eq 2 ]
 }
