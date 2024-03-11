@@ -791,7 +791,7 @@ teardown() {
   local build_context="./images/fedora/f39"
   local build_tag="testbuild"
 
-  run "$TOOLBX" create --build "&build_context" --build-tag "testbuild"
+  run "$TOOLBX" create --build "$build_context" --build-tag "testbuild"
   assert_success
 
   assert_line --index 0 "Created container: testbuild"
@@ -807,7 +807,7 @@ teardown() {
   local build_context="./images/fedora/f39"
   local build_tag="registry.fedoraproject.org/testbuild"
 
-  run "$TOOLBX" create --build "&build_context" --build-tag "testbuild"
+  run "$TOOLBX" create --build "$build_context" --build-tag "testbuild"
   assert_success
 
   assert_line --index 0 "Created container: testbuild"
