@@ -111,6 +111,7 @@ var (
 		"XDG_SESSION_TYPE",
 		"XDG_VTNR",
 		"XTERM_VERSION",
+		"ZDOTDIR",
 	}
 
 	releaseDefault string
