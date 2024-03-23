@@ -1,5 +1,9 @@
 # shellcheck shell=sh
 
+# Toolbox provides shim binaries for executing commands on the host from inside
+# of a toolbox container
+export PATH="/usr/libexec/toolbox:$PATH"
+
 # shellcheck disable=SC2153
 [ "${BASH_VERSION:-}" != "" ] || [ "${ZSH_VERSION:-}" != "" ] || return 0
 [ "$PS1" != "" ] || return 0
