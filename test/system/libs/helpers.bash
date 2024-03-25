@@ -202,6 +202,7 @@ function _setup_docker_registry() {
     -e REGISTRY_HTTP_ADDR=0.0.0.0:443 \
     -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \
     -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
+    --network slirp4netns \
     -p 50000:443 \
     "${IMAGES[docker-reg]}"
   assert_success
