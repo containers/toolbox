@@ -56,7 +56,7 @@ setup_suite() {
     _pull_and_cache_distro_image fedora "$((system_version-2))" || false
   fi
 
-  _setup_docker_registry
+  #_setup_docker_registry
 }
 
 teardown_suite() {
@@ -70,6 +70,6 @@ teardown_suite() {
   _setup_environment
 
   _clean_cached_images
-  _clean_docker_registry
+  #_clean_docker_registry
   _clean_temporary_storage
 }
