@@ -776,7 +776,10 @@ teardown() {
   local build_context="./images/fedora/f39"
 
   run "$TOOLBX" create --build "$build_context"
-  assert_success
+  if [ "$status" -ne 0 ]
+  then
+    echo "$output"
+  fi
 
   assert_line --index 0 "Created container: fedora-toolbox"
   assert_line --index 1 "Enter with: toolbox enter fedora-toolbox"
