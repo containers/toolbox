@@ -796,7 +796,11 @@ teardown() {
 
   assert_line --index 0 "Created container: testbuild"
   assert_line --index 1 "Enter with: toolbox enter testbuild"
-  assert [ ${#lines[q]} -eq 2 ]
+  if [ ${#lines[q]} -ne 2 ]
+  then
+    echo "${output}"
+    assert 1
+  fi
 
   run $PODMAN images --filter reference=localhost/testbuild
   assert_success
@@ -812,7 +816,11 @@ teardown() {
 
   assert_line --index 0 "Created container: testbuild"
   assert_line --index 1 "Enter with: toolbox enter testbuild"
-  assert [ ${#lines[q]} -eq 2 ]
+  if [ ${#lines[q]} -ne 2 ]
+  then
+    echo "${output}"
+    assert 1
+  fi
 
   run $PODMAN images --filter reference="$build_tag"
   assert_success
