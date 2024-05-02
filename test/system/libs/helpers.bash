@@ -192,19 +192,19 @@ function _setup_docker_registry() {
   # Create a Docker registry
   run "$PODMAN" --root "${DOCKER_REG_ROOT}" run \
     --detach \
-    --rm \
-    --name "${DOCKER_REG_NAME}" \
-    --privileged \
-    --volume "${DOCKER_REG_AUTH_DIR}":/auth \
     --env REGISTRY_AUTH=htpasswd \
-    --env REGISTRY_AUTH_HTPASSWD_REALM="Registry Realm" \
     --env REGISTRY_AUTH_HTPASSWD_PATH="/auth/htpasswd" \
-    --volume "${DOCKER_REG_CERTS_DIR}":/certs \
+    --env REGISTRY_AUTH_HTPASSWD_REALM="Registry Realm" \
     --env REGISTRY_HTTP_ADDR=0.0.0.0:443 \
     --env REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \
     --env REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
+    --name "${DOCKER_REG_NAME}" \
     --network slirp4netns \
+    --privileged \
     --publish 50000:443 \
+    --rm \
+    --volume "${DOCKER_REG_AUTH_DIR}":/auth \
+    --volume "${DOCKER_REG_CERTS_DIR}":/certs \
     "${IMAGES[docker-reg]}"
   assert_success
 
