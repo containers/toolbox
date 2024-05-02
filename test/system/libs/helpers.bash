@@ -195,13 +195,12 @@ function _setup_docker_registry() {
     --env REGISTRY_AUTH=htpasswd \
     --env REGISTRY_AUTH_HTPASSWD_PATH="/auth/htpasswd" \
     --env REGISTRY_AUTH_HTPASSWD_REALM="Registry Realm" \
-    --env REGISTRY_HTTP_ADDR=0.0.0.0:443 \
     --env REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \
     --env REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
     --name "${DOCKER_REG_NAME}" \
     --network slirp4netns \
     --privileged \
-    --publish 50000:443 \
+    --publish 50000:5000 \
     --rm \
     --volume "${DOCKER_REG_AUTH_DIR}":/auth \
     --volume "${DOCKER_REG_CERTS_DIR}":/certs \
