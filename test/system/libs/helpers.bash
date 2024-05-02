@@ -190,20 +190,21 @@ function _setup_docker_registry() {
   assert_success
 
   # Create a Docker registry
-  run "$PODMAN" --root "${DOCKER_REG_ROOT}" run -d \
+  run "$PODMAN" --root "${DOCKER_REG_ROOT}" run \
+    --detach \
     --rm \
     --name "${DOCKER_REG_NAME}" \
     --privileged \
-    -v "${DOCKER_REG_AUTH_DIR}":/auth \
-    -e REGISTRY_AUTH=htpasswd \
-    -e REGISTRY_AUTH_HTPASSWD_REALM="Registry Realm" \
-    -e REGISTRY_AUTH_HTPASSWD_PATH="/auth/htpasswd" \
-    -v "${DOCKER_REG_CERTS_DIR}":/certs \
-    -e REGISTRY_HTTP_ADDR=0.0.0.0:443 \
-    -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \
-    -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
+    --volume "${DOCKER_REG_AUTH_DIR}":/auth \
+    --env REGISTRY_AUTH=htpasswd \
+    --env REGISTRY_AUTH_HTPASSWD_REALM="Registry Realm" \
+    --env REGISTRY_AUTH_HTPASSWD_PATH="/auth/htpasswd" \
+    --volume "${DOCKER_REG_CERTS_DIR}":/certs \
+    --env REGISTRY_HTTP_ADDR=0.0.0.0:443 \
+    --env REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \
+    --env REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
     --network slirp4netns \
-    -p 50000:443 \
+    --publish 50000:443 \
     "${IMAGES[docker-reg]}"
   assert_success
 
