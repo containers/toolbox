@@ -126,8 +126,14 @@ func list(cmd *cobra.Command, args []string) error {
 func getContainers() ([]toolboxContainer, error) {
 	logrus.Debug("Fetching all containers")
 	args := []string{"--all", "--sort", "names"}
-	containers, err := podman.GetContainers(args...)
+	data, err := podman.GetContainersJSON(args...)
 	if err != nil {
+		logrus.Debugf("Fetching all containers failed: %s", err)
+		return nil, errors.New("failed to get containers")
+	}
+
+	var containers []toolboxContainer
+	if err := json.Unmarshal(data, &containers); err != nil {
 		logrus.Debugf("Fetching all containers failed: %s", err)
 		return nil, errors.New("failed to get containers")
 	}
@@ -135,23 +141,9 @@ func getContainers() ([]toolboxContainer, error) {
 	var toolboxContainers []toolboxContainer
 
 	for _, container := range containers {
-		var c toolboxContainer
-
-		containerJSON, err := json.Marshal(container)
-		if err != nil {
-			logrus.Errorf("failed to marshal container: %v", err)
-			continue
-		}
-
-		err = c.UnmarshalJSON(containerJSON)
-		if err != nil {
-			logrus.Errorf("failed to unmarshal container: %v", err)
-			continue
-		}
-
 		for label := range toolboxLabels {
-			if _, ok := c.Labels[label]; ok {
-				toolboxContainers = append(toolboxContainers, c)
+			if _, ok := container.Labels[label]; ok {
+				toolboxContainers = append(toolboxContainers, container)
 				break
 			}
 		}

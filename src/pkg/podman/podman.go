@@ -155,14 +155,14 @@ func ContainerExists(container string) (bool, error) {
 	return true, nil
 }
 
-// GetContainers is a wrapper function around `podman ps --format json` command.
+// GetContainersJSON is a wrapper function around `podman ps --format json` command.
 //
 // Parameter args accepts an array of strings to be passed to the wrapped command (eg. ["-a", "--filter", "123"]).
 //
-// Returned value is a slice of dynamically unmarshalled json, so it needs to be treated properly.
+// Returned value is the JSON representing the containers.
 //
 // If a problem happens during execution, first argument is nil and second argument holds the error message.
-func GetContainers(args ...string) ([]map[string]interface{}, error) {
+func GetContainersJSON(args ...string) ([]byte, error) {
 	var stdout bytes.Buffer
 
 	logLevelString := LogLevel.String()
@@ -172,14 +172,8 @@ func GetContainers(args ...string) ([]map[string]interface{}, error) {
 		return nil, err
 	}
 
-	output := stdout.Bytes()
-	var containers []map[string]interface{}
-
-	if err := json.Unmarshal(output, &containers); err != nil {
-		return nil, err
-	}
-
-	return containers, nil
+	data := stdout.Bytes()
+	return data, nil
 }
 
 // GetImages is a wrapper function around `podman images --format json` command.
