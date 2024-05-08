@@ -294,7 +294,7 @@ func listOutput(images []podman.Image, containers []toolboxContainer) {
 	}
 }
 
-func (c *toolboxContainer) UnmarshalJSON(data []byte) error {
+func (container *toolboxContainer) UnmarshalJSON(data []byte) error {
 	var raw struct {
 		ID      string
 		Names   interface{}
@@ -309,15 +309,15 @@ func (c *toolboxContainer) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	c.ID = raw.ID
+	container.ID = raw.ID
 	// In Podman V1 the field 'Names' held a single string but since Podman V2 the
 	// field holds an array of strings
 	switch value := raw.Names.(type) {
 	case string:
-		c.Names = append(c.Names, value)
+		container.Names = append(container.Names, value)
 	case []interface{}:
 		for _, v := range value {
-			c.Names = append(c.Names, v.(string))
+			container.Names = append(container.Names, v.(string))
 		}
 	}
 
@@ -326,9 +326,9 @@ func (c *toolboxContainer) UnmarshalJSON(data []byte) error {
 	// Podman V2 the string was moved to 'State' and field 'Status' was dropped.
 	switch value := raw.State.(type) {
 	case string:
-		c.Status = value
+		container.Status = value
 	case float64:
-		c.Status = raw.Status
+		container.Status = raw.Status
 	}
 
 	// In Podman V1 the field 'Created' held a human-readable string in format
@@ -340,12 +340,12 @@ func (c *toolboxContainer) UnmarshalJSON(data []byte) error {
 	// JSON as float64.
 	switch value := raw.Created.(type) {
 	case string:
-		c.Created = value
+		container.Created = value
 	case float64:
-		c.Created = utils.HumanDuration(int64(value))
+		container.Created = utils.HumanDuration(int64(value))
 	}
-	c.Image = raw.Image
-	c.Labels = raw.Labels
+	container.Image = raw.Image
+	container.Labels = raw.Labels
 
 	return nil
 }
