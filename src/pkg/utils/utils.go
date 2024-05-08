@@ -561,10 +561,10 @@ func GetRuntimeDirectory(targetUser *user.User) (string, error) {
 	}
 
 	if err := os.Chown(toolboxRuntimeDirectory, uid, gid); err != nil {
-		wrapped_err := fmt.Errorf("failed to change ownership of the runtime directory %s: %w",
+		wrappedErr := fmt.Errorf("failed to change ownership of the runtime directory %s: %w",
 			toolboxRuntimeDirectory,
 			err)
-		return "", wrapped_err
+		return "", wrappedErr
 	}
 
 	return toolboxRuntimeDirectory, nil
