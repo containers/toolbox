@@ -310,6 +310,7 @@ func (container *toolboxContainer) UnmarshalJSON(data []byte) error {
 	}
 
 	container.ID = raw.ID
+
 	// In Podman V1 the field 'Names' held a single string but since Podman V2 the
 	// field holds an array of strings
 	switch value := raw.Names.(type) {
@@ -344,8 +345,8 @@ func (container *toolboxContainer) UnmarshalJSON(data []byte) error {
 	case float64:
 		container.Created = utils.HumanDuration(int64(value))
 	}
+
 	container.Image = raw.Image
 	container.Labels = raw.Labels
-
 	return nil
 }
