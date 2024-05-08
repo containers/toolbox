@@ -17,7 +17,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -30,15 +29,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
-
-type toolboxContainer struct {
-	ID      string
-	Names   []string
-	Status  string
-	Created string
-	Image   string
-	Labels  map[string]string
-}
 
 var (
 	listFlags struct {
@@ -102,7 +92,7 @@ func list(cmd *cobra.Command, args []string) error {
 	}
 
 	var images []podman.Image
-	var containers []toolboxContainer
+	var containers []podman.Container
 	var err error
 
 	if lsImages {
@@ -123,22 +113,16 @@ func list(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func getContainers() ([]toolboxContainer, error) {
+func getContainers() ([]podman.Container, error) {
 	logrus.Debug("Fetching all containers")
 	args := []string{"--all", "--sort", "names"}
-	data, err := podman.GetContainersJSON(args...)
+	containers, err := podman.GetContainers(args...)
 	if err != nil {
 		logrus.Debugf("Fetching all containers failed: %s", err)
 		return nil, errors.New("failed to get containers")
 	}
 
-	var containers []toolboxContainer
-	if err := json.Unmarshal(data, &containers); err != nil {
-		logrus.Debugf("Fetching all containers failed: %s", err)
-		return nil, errors.New("failed to get containers")
-	}
-
-	var toolboxContainers []toolboxContainer
+	var toolboxContainers []podman.Container
 
 	for _, container := range containers {
 		for label := range toolboxLabels {
@@ -211,7 +195,7 @@ func getImages(fillNameWithID bool) ([]podman.Image, error) {
 	return toolboxImages, nil
 }
 
-func listOutput(images []podman.Image, containers []toolboxContainer) {
+func listOutput(images []podman.Image, containers []podman.Container) {
 	if len(images) != 0 {
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
@@ -292,61 +276,4 @@ func listOutput(images []podman.Image, containers []toolboxContainer) {
 
 		writer.Flush()
 	}
-}
-
-func (container *toolboxContainer) UnmarshalJSON(data []byte) error {
-	var raw struct {
-		ID      string
-		Names   interface{}
-		Status  string
-		State   interface{}
-		Created interface{}
-		Image   string
-		Labels  map[string]string
-	}
-
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return err
-	}
-
-	container.ID = raw.ID
-
-	// In Podman V1 the field 'Names' held a single string but since Podman V2 the
-	// field holds an array of strings
-	switch value := raw.Names.(type) {
-	case string:
-		container.Names = append(container.Names, value)
-	case []interface{}:
-		for _, v := range value {
-			container.Names = append(container.Names, v.(string))
-		}
-	}
-
-	// In Podman V1 the field holding a string about the container's state was
-	// called 'Status' and field 'State' held a number representing the state. In
-	// Podman V2 the string was moved to 'State' and field 'Status' was dropped.
-	switch value := raw.State.(type) {
-	case string:
-		container.Status = value
-	case float64:
-		container.Status = raw.Status
-	}
-
-	// In Podman V1 the field 'Created' held a human-readable string in format
-	// "5 minutes ago". Since Podman V2 the field holds an integer with Unix time.
-	// After a discussion in https://github.com/containers/podman/issues/6594 the
-	// previous value was moved to field 'CreatedAt'. Since we're already using
-	// the 'github.com/docker/go-units' library, we'll stop using the provided
-	// human-readable string and assemble it ourselves. Go interprets numbers in
-	// JSON as float64.
-	switch value := raw.Created.(type) {
-	case string:
-		container.Created = value
-	case float64:
-		container.Created = utils.HumanDuration(int64(value))
-	}
-
-	container.Image = raw.Image
-	container.Labels = raw.Labels
-	return nil
 }

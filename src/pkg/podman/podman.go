@@ -28,6 +28,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type Container struct {
+	ID      string
+	Names   []string
+	Status  string
+	Created string
+	Image   string
+	Labels  map[string]string
+}
+
 type Image struct {
 	ID      string
 	Names   []string
@@ -44,6 +53,63 @@ var (
 var (
 	LogLevel = logrus.ErrorLevel
 )
+
+func (container *Container) UnmarshalJSON(data []byte) error {
+	var raw struct {
+		ID      string
+		Names   interface{}
+		Status  string
+		State   interface{}
+		Created interface{}
+		Image   string
+		Labels  map[string]string
+	}
+
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	container.ID = raw.ID
+
+	// In Podman V1 the field 'Names' held a single string but since Podman V2 the
+	// field holds an array of strings
+	switch value := raw.Names.(type) {
+	case string:
+		container.Names = append(container.Names, value)
+	case []interface{}:
+		for _, v := range value {
+			container.Names = append(container.Names, v.(string))
+		}
+	}
+
+	// In Podman V1 the field holding a string about the container's state was
+	// called 'Status' and field 'State' held a number representing the state. In
+	// Podman V2 the string was moved to 'State' and field 'Status' was dropped.
+	switch value := raw.State.(type) {
+	case string:
+		container.Status = value
+	case float64:
+		container.Status = raw.Status
+	}
+
+	// In Podman V1 the field 'Created' held a human-readable string in format
+	// "5 minutes ago". Since Podman V2 the field holds an integer with Unix time.
+	// After a discussion in https://github.com/containers/podman/issues/6594 the
+	// previous value was moved to field 'CreatedAt'. Since we're already using
+	// the 'github.com/docker/go-units' library, we'll stop using the provided
+	// human-readable string and assemble it ourselves. Go interprets numbers in
+	// JSON as float64.
+	switch value := raw.Created.(type) {
+	case string:
+		container.Created = value
+	case float64:
+		container.Created = utils.HumanDuration(int64(value))
+	}
+
+	container.Image = raw.Image
+	container.Labels = raw.Labels
+	return nil
+}
 
 func (image *Image) FlattenNames(fillNameWithID bool) []Image {
 	var ret []Image
@@ -155,14 +221,14 @@ func ContainerExists(container string) (bool, error) {
 	return true, nil
 }
 
-// GetContainersJSON is a wrapper function around `podman ps --format json` command.
+// GetContainers is a wrapper function around `podman ps --format json` command.
 //
 // Parameter args accepts an array of strings to be passed to the wrapped command (eg. ["-a", "--filter", "123"]).
 //
-// Returned value is the JSON representing the containers.
+// Returned value is a slice of Containers.
 //
 // If a problem happens during execution, first argument is nil and second argument holds the error message.
-func GetContainersJSON(args ...string) ([]byte, error) {
+func GetContainers(args ...string) ([]Container, error) {
 	var stdout bytes.Buffer
 
 	logLevelString := LogLevel.String()
@@ -173,7 +239,12 @@ func GetContainersJSON(args ...string) ([]byte, error) {
 	}
 
 	data := stdout.Bytes()
-	return data, nil
+	var containers []Container
+	if err := json.Unmarshal(data, &containers); err != nil {
+		return nil, err
+	}
+
+	return containers, nil
 }
 
 // GetImages is a wrapper function around `podman images --format json` command.
