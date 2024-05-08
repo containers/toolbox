@@ -557,10 +557,7 @@ func GetRuntimeDirectory(targetUser *user.User) (string, error) {
 	logrus.Debugf("Creating runtime directory %s", toolboxRuntimeDirectory)
 
 	if err := os.MkdirAll(toolboxRuntimeDirectory, 0700); err != nil {
-		wrapped_err := fmt.Errorf("failed to create runtime directory %s: %w",
-			toolboxRuntimeDirectory,
-			err)
-		return "", wrapped_err
+		return "", fmt.Errorf("failed to create runtime directory %s: %w", toolboxRuntimeDirectory, err)
 	}
 
 	if err := os.Chown(toolboxRuntimeDirectory, uid, gid); err != nil {
