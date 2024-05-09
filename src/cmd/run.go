@@ -433,7 +433,7 @@ func runHelp(cmd *cobra.Command, args []string) {
 func callFlatpakSessionHelper(container string) error {
 	logrus.Debugf("Inspecting mounts of container %s", container)
 
-	info, err := podman.Inspect("container", container)
+	info, err := podman.InspectContainer(container)
 	if err != nil {
 		return fmt.Errorf("failed to inspect entry point of container %s", container)
 	}
@@ -526,7 +526,7 @@ func constructExecArgs(container, preserveFDs string,
 func getEntryPointAndPID(container string) (string, int, error) {
 	logrus.Debugf("Inspecting entry point of container %s", container)
 
-	info, err := podman.Inspect("container", container)
+	info, err := podman.InspectContainer(container)
 	if err != nil {
 		return "", 0, fmt.Errorf("failed to inspect entry point of container %s", container)
 	}

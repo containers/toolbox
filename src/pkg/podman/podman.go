@@ -316,7 +316,7 @@ func GetFullyQualifiedImageFromRepoTags(image string) (string, error) {
 	if utils.ImageReferenceHasDomain(image) {
 		imageFull = image
 	} else {
-		info, err := Inspect("image", image)
+		info, err := InspectImage(image)
 		if err != nil {
 			return "", fmt.Errorf("failed to inspect image %s", image)
 		}
@@ -368,14 +368,33 @@ func ImageExists(image string) (bool, error) {
 	return true, nil
 }
 
-// Inspect is a wrapper around 'podman inspect' command
-//
-// Parameter 'typearg' takes in values 'container' or 'image' that is passed to the --type flag
-func Inspect(typearg string, target string) (map[string]interface{}, error) {
+// InspectContainer is a wrapper around 'podman inspect --type container' command
+func InspectContainer(container string) (map[string]interface{}, error) {
 	var stdout bytes.Buffer
 
 	logLevelString := LogLevel.String()
-	args := []string{"--log-level", logLevelString, "inspect", "--format", "json", "--type", typearg, target}
+	args := []string{"--log-level", logLevelString, "inspect", "--format", "json", "--type", "container", container}
+
+	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
+		return nil, err
+	}
+
+	output := stdout.Bytes()
+	var info []map[string]interface{}
+
+	if err := json.Unmarshal(output, &info); err != nil {
+		return nil, err
+	}
+
+	return info[0], nil
+}
+
+// InspectImage is a wrapper around 'podman inspect --type image' command
+func InspectImage(image string) (map[string]interface{}, error) {
+	var stdout bytes.Buffer
+
+	logLevelString := LogLevel.String()
+	args := []string{"--log-level", logLevelString, "inspect", "--format", "json", "--type", "image", image}
 
 	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
 		return nil, err
@@ -392,7 +411,7 @@ func Inspect(typearg string, target string) (map[string]interface{}, error) {
 }
 
 func IsToolboxContainer(container string) (bool, error) {
-	info, err := Inspect("container", container)
+	info, err := InspectContainer(container)
 	if err != nil {
 		return false, fmt.Errorf("failed to inspect container %s", container)
 	}
@@ -406,7 +425,7 @@ func IsToolboxContainer(container string) (bool, error) {
 }
 
 func IsToolboxImage(image string) (bool, error) {
-	info, err := Inspect("image", image)
+	info, err := InspectImage(image)
 	if err != nil {
 		return false, fmt.Errorf("failed to inspect image %s", image)
 	}
