@@ -303,6 +303,47 @@ func GetVersion() (string, error) {
 	return podmanVersion, nil
 }
 
+func GetFullyQualifiedImageFromRepoTags(image string) (string, error) {
+	logrus.Debugf("Resolving fully qualified name for image %s from RepoTags", image)
+
+	var imageFull string
+
+	if utils.ImageReferenceHasDomain(image) {
+		imageFull = image
+	} else {
+		info, err := Inspect("image", image)
+		if err != nil {
+			return "", fmt.Errorf("failed to inspect image %s", image)
+		}
+
+		if info["RepoTags"] == nil {
+			return "", fmt.Errorf("missing RepoTag for image %s", image)
+		}
+
+		repoTags := info["RepoTags"].([]interface{})
+		if len(repoTags) == 0 {
+			return "", fmt.Errorf("empty RepoTag for image %s", image)
+		}
+
+		for _, repoTag := range repoTags {
+			repoTagString := repoTag.(string)
+			tag := utils.ImageReferenceGetTag(repoTagString)
+			if tag != "latest" {
+				imageFull = repoTagString
+				break
+			}
+		}
+
+		if imageFull == "" {
+			imageFull = repoTags[0].(string)
+		}
+	}
+
+	logrus.Debugf("Resolved image %s to %s", image, imageFull)
+
+	return imageFull, nil
+}
+
 // ImageExists checks using Podman if an image with given ID/name exists.
 //
 // Parameter image is a name or an id of an image.

@@ -225,7 +225,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		return nil
 	}
 
-	imageFull, err := getFullyQualifiedImageFromRepoTags(image)
+	imageFull, err := podman.GetFullyQualifiedImageFromRepoTags(image)
 	if err != nil {
 		return err
 	}
@@ -534,47 +534,6 @@ func getEnterCommand(container string) string {
 	}
 
 	return enterCommand
-}
-
-func getFullyQualifiedImageFromRepoTags(image string) (string, error) {
-	logrus.Debugf("Resolving fully qualified name for image %s from RepoTags", image)
-
-	var imageFull string
-
-	if utils.ImageReferenceHasDomain(image) {
-		imageFull = image
-	} else {
-		info, err := podman.Inspect("image", image)
-		if err != nil {
-			return "", fmt.Errorf("failed to inspect image %s", image)
-		}
-
-		if info["RepoTags"] == nil {
-			return "", fmt.Errorf("missing RepoTag for image %s", image)
-		}
-
-		repoTags := info["RepoTags"].([]interface{})
-		if len(repoTags) == 0 {
-			return "", fmt.Errorf("empty RepoTag for image %s", image)
-		}
-
-		for _, repoTag := range repoTags {
-			repoTagString := repoTag.(string)
-			tag := utils.ImageReferenceGetTag(repoTagString)
-			if tag != "latest" {
-				imageFull = repoTagString
-				break
-			}
-		}
-
-		if imageFull == "" {
-			imageFull = repoTags[0].(string)
-		}
-	}
-
-	logrus.Debugf("Resolved image %s to %s", image, imageFull)
-
-	return imageFull, nil
 }
 
 func getImageSizeFromRegistry(ctx context.Context, imageFull string) (string, error) {
