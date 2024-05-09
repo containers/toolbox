@@ -226,6 +226,75 @@ teardown() {
   assert_output --regexp "Created[[:blank:]]+ubuntu-toolbox-20.04"
 }
 
+@test "create: With a custom image without a name" {
+  image="$(build_image_without_name)"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --image "$image"
+
+  assert_success
+  assert_line --index 0 "Created container: $image"
+  assert_line --index 1 "Enter with: toolbox enter $image"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 2 ]
+  else
+    assert [ ${#lines[@]} -eq 3 ]
+  fi
+
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run $PODMAN ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$image"
+}
+
+@test "create: With a custom image without a name, and container name (using positional argument)" {
+  image="$(build_image_without_name)"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --image "$image" non-default
+
+  assert_success
+  assert_line --index 0 "Created container: non-default"
+  assert_line --index 1 "Enter with: toolbox enter non-default"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 2 ]
+  else
+    assert [ ${#lines[@]} -eq 3 ]
+  fi
+
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run $PODMAN ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+non-default"
+}
+
+@test "create: With a custom image without a name, and container name (using option --container)" {
+  image="$(build_image_without_name)"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --image "$image" --container non-default
+
+  assert_success
+  assert_line --index 0 "Created container: non-default"
+  assert_line --index 1 "Enter with: toolbox enter non-default"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 2 ]
+  else
+    assert [ ${#lines[@]} -eq 3 ]
+  fi
+
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run $PODMAN ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+non-default"
+}
+
 @test "create: Try an unsupported distribution" {
   local distro="foo"
 
