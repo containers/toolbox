@@ -23,6 +23,7 @@ sources = files(
   'pkg/podman/container.go',
   'pkg/podman/errors.go',
   'pkg/podman/podman.go',
+  'pkg/podman/containerInspect_test.go',
   'pkg/shell/shell.go',
   'pkg/shell/shell_test.go',
   'pkg/skopeo/skopeo.go',

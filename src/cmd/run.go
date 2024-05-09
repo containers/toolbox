@@ -433,17 +433,16 @@ func runHelp(cmd *cobra.Command, args []string) {
 func callFlatpakSessionHelper(container string) error {
 	logrus.Debugf("Inspecting mounts of container %s", container)
 
-	info, err := podman.InspectContainer(container)
+	containerObj, err := podman.InspectContainer(container)
 	if err != nil {
 		return fmt.Errorf("failed to inspect entry point of container %s", container)
 	}
 
 	var needsFlatpakSessionHelper bool
 
-	mounts := info["Mounts"].([]interface{})
+	mounts := containerObj.Mounts()
 	for _, mount := range mounts {
-		destination := mount.(map[string]interface{})["Destination"].(string)
-		if destination == "/run/host/monitor" {
+		if mount == "/run/host/monitor" {
 			logrus.Debug("Requires org.freedesktop.Flatpak.SessionHelper")
 			needsFlatpakSessionHelper = true
 			break
@@ -526,30 +525,17 @@ func constructExecArgs(container, preserveFDs string,
 func getEntryPointAndPID(container string) (string, int, error) {
 	logrus.Debugf("Inspecting entry point of container %s", container)
 
-	info, err := podman.InspectContainer(container)
+	containerObj, err := podman.InspectContainer(container)
 	if err != nil {
 		return "", 0, fmt.Errorf("failed to inspect entry point of container %s", container)
 	}
 
-	config := info["Config"].(map[string]interface{})
-	entryPoint := config["Cmd"].([]interface{})[0].(string)
+	entryPoint := containerObj.EntryPoint()
+	entryPointPID := containerObj.EntryPointPID()
 
-	state := info["State"].(map[string]interface{})
-	entryPointPID := state["Pid"]
-	logrus.Debugf("Entry point PID is a %T", entryPointPID)
+	logrus.Debugf("Entry point of container %s is %s (PID=%d)", container, entryPoint, entryPointPID)
 
-	var entryPointPIDInt int
-
-	switch entryPointPID := entryPointPID.(type) {
-	case float64:
-		entryPointPIDInt = int(entryPointPID)
-	default:
-		return "", 0, fmt.Errorf("failed to inspect entry point PID of container %s", container)
-	}
-
-	logrus.Debugf("Entry point of container %s is %s (PID=%d)", container, entryPoint, entryPointPIDInt)
-
-	return entryPoint, entryPointPIDInt, nil
+	return entryPoint, entryPointPID, nil
 }
 
 func isCommandPresent(container, command string) (bool, error) {

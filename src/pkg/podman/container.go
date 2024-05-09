@@ -18,27 +18,46 @@ package podman
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/containers/toolbox/pkg/utils"
 )
 
 type Container interface {
 	Created() string
+	EntryPoint() string
+	EntryPointPID() int
 	ID() string
 	Image() string
 	Labels() map[string]string
+	Mounts() []string
 	Name() string
 	Names() []string
 	Status() string
 }
 
+type containerInspect struct {
+	created       string
+	entryPoint    string
+	entryPointPID int
+	id            string
+	image         string
+	labels        map[string]string
+	mounts        []string
+	name          string
+	status        string
+}
+
 type containerPS struct {
-	created string
-	id      string
-	image   string
-	labels  map[string]string
-	names   []string
-	status  string
+	created       string
+	entryPoint    string
+	entryPointPID int
+	id            string
+	image         string
+	labels        map[string]string
+	mounts        []string
+	names         []string
+	status        string
 }
 
 type Containers struct {
@@ -46,8 +65,103 @@ type Containers struct {
 	i    int
 }
 
+func (container *containerInspect) Created() string {
+	return container.created
+}
+
+func (container *containerInspect) EntryPoint() string {
+	return container.entryPoint
+}
+
+func (container *containerInspect) EntryPointPID() int {
+	return container.entryPointPID
+}
+
+func (container *containerInspect) ID() string {
+	return container.id
+}
+
+func (container *containerInspect) Image() string {
+	return container.image
+}
+
+func (container *containerInspect) Labels() map[string]string {
+	return container.labels
+}
+
+func (container *containerInspect) Mounts() []string {
+	return container.mounts
+}
+
+func (container *containerInspect) Name() string {
+	return container.name
+}
+
+func (container *containerInspect) Names() []string {
+	return []string{container.name}
+}
+
+func (container *containerInspect) Status() string {
+	return container.status
+}
+
+func (container *containerInspect) UnmarshalJSON(data []byte) error {
+	var raw struct {
+		Config struct {
+			Cmd    []string
+			Labels map[string]string
+		}
+		Created   time.Time
+		ID        string
+		ImageName string
+		Mounts    []struct {
+			Destination string
+		}
+		Name  string
+		State struct {
+			PID    int
+			Status string
+		}
+	}
+
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	if len(raw.Config.Cmd) > 0 {
+		container.entryPoint = raw.Config.Cmd[0]
+	}
+
+	container.entryPointPID = raw.State.PID
+
+	created := raw.Created.Unix()
+	container.created = utils.HumanDuration(created)
+
+	container.id = raw.ID
+	container.image = raw.ImageName
+	container.labels = raw.Config.Labels
+
+	for _, mount := range raw.Mounts {
+		if mount.Destination != "" {
+			container.mounts = append(container.mounts, mount.Destination)
+		}
+	}
+
+	container.name = raw.Name
+	container.status = raw.State.Status
+	return nil
+}
+
 func (container *containerPS) Created() string {
 	return container.created
+}
+
+func (container *containerPS) EntryPoint() string {
+	return container.entryPoint
+}
+
+func (container *containerPS) EntryPointPID() int {
+	return container.entryPointPID
 }
 
 func (container *containerPS) ID() string {
@@ -60,6 +174,10 @@ func (container *containerPS) Image() string {
 
 func (container *containerPS) Labels() map[string]string {
 	return container.labels
+}
+
+func (container *containerPS) Mounts() []string {
+	return container.mounts
 }
 
 func (container *containerPS) Name() string {
@@ -76,11 +194,14 @@ func (container *containerPS) Status() string {
 
 func (container *containerPS) UnmarshalJSON(data []byte) error {
 	var raw struct {
+		Command []string
 		Created interface{}
 		ID      string
 		Image   string
 		Labels  map[string]string
+		Mounts  []string
 		Names   interface{}
+		PID     int
 		State   interface{}
 		Status  string
 	}
@@ -88,6 +209,12 @@ func (container *containerPS) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
 	}
+
+	if len(raw.Command) > 0 {
+		container.entryPoint = raw.Command[0]
+	}
+
+	container.entryPointPID = raw.PID
 
 	// In Podman V1 the field 'Created' held a human-readable string in format
 	// "5 minutes ago". Since Podman V2 the field holds an integer with Unix time.
@@ -106,6 +233,7 @@ func (container *containerPS) UnmarshalJSON(data []byte) error {
 	container.id = raw.ID
 	container.image = raw.Image
 	container.labels = raw.Labels
+	container.mounts = raw.Mounts
 
 	// In Podman V1 the field 'Names' held a single string but since Podman V2 the
 	// field holds an array of strings

@@ -302,7 +302,7 @@ func ImageExists(image string) (bool, error) {
 }
 
 // InspectContainer is a wrapper around 'podman inspect --type container' command
-func InspectContainer(container string) (map[string]interface{}, error) {
+func InspectContainer(container string) (Container, error) {
 	var stdout bytes.Buffer
 
 	logLevelString := LogLevel.String()
@@ -313,13 +313,12 @@ func InspectContainer(container string) (map[string]interface{}, error) {
 	}
 
 	output := stdout.Bytes()
-	var info []map[string]interface{}
-
-	if err := json.Unmarshal(output, &info); err != nil {
+	var containers []containerInspect
+	if err := json.Unmarshal(output, &containers); err != nil {
 		return nil, err
 	}
 
-	return info[0], nil
+	return &containers[0], nil
 }
 
 // InspectImage is a wrapper around 'podman inspect --type image' command
@@ -344,12 +343,12 @@ func InspectImage(image string) (map[string]interface{}, error) {
 }
 
 func IsToolboxContainer(container string) (bool, error) {
-	info, err := InspectContainer(container)
+	containerObj, err := InspectContainer(container)
 	if err != nil {
 		return false, fmt.Errorf("failed to inspect container %s", container)
 	}
 
-	labels, _ := info["Config"].(map[string]interface{})["Labels"].(map[string]interface{})
+	labels := containerObj.Labels()
 	if labels["com.github.containers.toolbox"] != "true" && labels["com.github.debarshiray.toolbox"] != "true" {
 		return false, fmt.Errorf("%s is not a Toolbx container", container)
 	}
