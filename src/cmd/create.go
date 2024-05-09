@@ -227,7 +227,21 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 
 	imageFull, err := podman.GetFullyQualifiedImageFromRepoTags(image)
 	if err != nil {
-		return err
+		var errImage *podman.ImageError
+
+		if errors.As(err, &errImage) {
+			if errors.Is(err, podman.ErrImageRepoTagsEmpty) {
+				logrus.Debugf("Image %s has empty RepoTags, likely because it is without a name", image)
+				imageFull = image
+			} else if errors.Is(err, podman.ErrImageRepoTagsMissing) {
+				return fmt.Errorf("missing RepoTags for image %s", image)
+			} else {
+				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
+				panic(panicMsg)
+			}
+		} else {
+			return err
+		}
 	}
 
 	toolboxPath := os.Getenv("TOOLBOX_PATH")

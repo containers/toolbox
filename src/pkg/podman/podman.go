@@ -19,6 +19,7 @@ package podman
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 
@@ -51,6 +52,10 @@ var (
 )
 
 var (
+	ErrImageRepoTagsEmpty = errors.New("image has empty RepoTags")
+
+	ErrImageRepoTagsMissing = errors.New("image has no RepoTags")
+
 	LogLevel = logrus.ErrorLevel
 )
 
@@ -317,12 +322,12 @@ func GetFullyQualifiedImageFromRepoTags(image string) (string, error) {
 		}
 
 		if info["RepoTags"] == nil {
-			return "", fmt.Errorf("missing RepoTag for image %s", image)
+			return "", &ImageError{image, ErrImageRepoTagsMissing}
 		}
 
 		repoTags := info["RepoTags"].([]interface{})
 		if len(repoTags) == 0 {
-			return "", fmt.Errorf("empty RepoTag for image %s", image)
+			return "", &ImageError{image, ErrImageRepoTagsEmpty}
 		}
 
 		for _, repoTag := range repoTags {
