@@ -30,19 +30,19 @@ import (
 )
 
 type Container struct {
-	ID      string
-	Names   []string
-	Status  string
 	Created string
+	ID      string
 	Image   string
 	Labels  map[string]string
+	Names   []string
+	Status  string
 }
 
 type Image struct {
-	ID      string
-	Names   []string
 	Created string
+	ID      string
 	Labels  map[string]string
+	Names   []string
 }
 
 type ImageSlice []Image
@@ -61,20 +61,36 @@ var (
 
 func (container *Container) UnmarshalJSON(data []byte) error {
 	var raw struct {
-		ID      string
-		Names   interface{}
-		Status  string
-		State   interface{}
 		Created interface{}
+		ID      string
 		Image   string
 		Labels  map[string]string
+		Names   interface{}
+		State   interface{}
+		Status  string
 	}
 
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
 	}
 
+	// In Podman V1 the field 'Created' held a human-readable string in format
+	// "5 minutes ago". Since Podman V2 the field holds an integer with Unix time.
+	// After a discussion in https://github.com/containers/podman/issues/6594 the
+	// previous value was moved to field 'CreatedAt'. Since we're already using
+	// the 'github.com/docker/go-units' library, we'll stop using the provided
+	// human-readable string and assemble it ourselves. Go interprets numbers in
+	// JSON as float64.
+	switch value := raw.Created.(type) {
+	case string:
+		container.Created = value
+	case float64:
+		container.Created = utils.HumanDuration(int64(value))
+	}
+
 	container.ID = raw.ID
+	container.Image = raw.Image
+	container.Labels = raw.Labels
 
 	// In Podman V1 the field 'Names' held a single string but since Podman V2 the
 	// field holds an array of strings
@@ -97,22 +113,6 @@ func (container *Container) UnmarshalJSON(data []byte) error {
 		container.Status = raw.Status
 	}
 
-	// In Podman V1 the field 'Created' held a human-readable string in format
-	// "5 minutes ago". Since Podman V2 the field holds an integer with Unix time.
-	// After a discussion in https://github.com/containers/podman/issues/6594 the
-	// previous value was moved to field 'CreatedAt'. Since we're already using
-	// the 'github.com/docker/go-units' library, we'll stop using the provided
-	// human-readable string and assemble it ourselves. Go interprets numbers in
-	// JSON as float64.
-	switch value := raw.Created.(type) {
-	case string:
-		container.Created = value
-	case float64:
-		container.Created = utils.HumanDuration(int64(value))
-	}
-
-	container.Image = raw.Image
-	container.Labels = raw.Labels
 	return nil
 }
 
@@ -146,18 +146,15 @@ func (image *Image) FlattenNames(fillNameWithID bool) []Image {
 
 func (image *Image) UnmarshalJSON(data []byte) error {
 	var raw struct {
-		ID      string
-		Names   []string
 		Created interface{}
+		ID      string
 		Labels  map[string]string
+		Names   []string
 	}
 
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
 	}
-
-	image.ID = raw.ID
-	image.Names = raw.Names
 
 	// Until Podman 2.0.x the field 'Created' held a human-readable string in
 	// format "5 minutes ago". Since Podman 2.1 the field holds an integer with
@@ -169,7 +166,9 @@ func (image *Image) UnmarshalJSON(data []byte) error {
 		image.Created = utils.HumanDuration(int64(value))
 	}
 
+	image.ID = raw.ID
 	image.Labels = raw.Labels
+	image.Names = raw.Names
 	return nil
 }
 
