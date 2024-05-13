@@ -352,6 +352,9 @@ func TestParseRelease(t *testing.T) {
 			} else {
 				assert.Error(t, err)
 				assert.EqualError(t, err, tc.errMsg)
+
+				var errParseRelease *ParseReleaseError
+				assert.ErrorAs(t, err, &errParseRelease)
 			}
 
 			assert.Equal(t, tc.output, release)
