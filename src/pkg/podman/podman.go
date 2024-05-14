@@ -342,20 +342,6 @@ func InspectImage(image string) (map[string]interface{}, error) {
 	return info[0], nil
 }
 
-func IsToolboxContainer(container string) (bool, error) {
-	containerObj, err := InspectContainer(container)
-	if err != nil {
-		return false, fmt.Errorf("failed to inspect container %s", container)
-	}
-
-	labels := containerObj.Labels()
-	if labels["com.github.containers.toolbox"] != "true" && labels["com.github.debarshiray.toolbox"] != "true" {
-		return false, fmt.Errorf("%s is not a Toolbx container", container)
-	}
-
-	return true, nil
-}
-
 func IsToolboxImage(image string) (bool, error) {
 	info, err := InspectImage(image)
 	if err != nil {

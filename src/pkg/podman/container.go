@@ -29,6 +29,7 @@ type Container interface {
 	EntryPointPID() int
 	ID() string
 	Image() string
+	IsToolbx() bool
 	Labels() map[string]string
 	Mounts() []string
 	Name() string
@@ -83,6 +84,14 @@ func (container *containerInspect) ID() string {
 
 func (container *containerInspect) Image() string {
 	return container.image
+}
+
+func (container *containerInspect) IsToolbx() bool {
+	if isToolbx(container.labels) {
+		return true
+	}
+
+	return false
 }
 
 func (container *containerInspect) Labels() map[string]string {
@@ -170,6 +179,14 @@ func (container *containerPS) ID() string {
 
 func (container *containerPS) Image() string {
 	return container.image
+}
+
+func (container *containerPS) IsToolbx() bool {
+	if isToolbx(container.labels) {
+		return true
+	}
+
+	return false
 }
 
 func (container *containerPS) Labels() map[string]string {
@@ -279,4 +296,12 @@ func (containers *Containers) Next() bool {
 
 func (containers *Containers) Reset() {
 	containers.i = 0
+}
+
+func isToolbx(labels map[string]string) bool {
+	if labels["com.github.containers.toolbox"] == "true" || labels["com.github.debarshiray.toolbox"] == "true" {
+		return true
+	}
+
+	return false
 }

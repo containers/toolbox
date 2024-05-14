@@ -93,8 +93,14 @@ func rm(cmd *cobra.Command, args []string) error {
 		}
 
 		for _, container := range args {
-			if _, err := podman.IsToolboxContainer(container); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+			containerObj, err := podman.InspectContainer(container)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: failed to inspect container %s\n", container)
+				continue
+			}
+
+			if !containerObj.IsToolbx() {
+				fmt.Fprintf(os.Stderr, "Error: %s is not a Toolbx container\n", container)
 				continue
 			}
 

@@ -29,6 +29,7 @@ func TestContainerInspect(t *testing.T) {
 		entryPointPID int
 		id            string
 		image         string
+		isToolbx      bool
 		labels        map[string]string
 		mounts        []string
 		name          string
@@ -110,6 +111,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 0,
 				id:            "b23f7c69ddec697f803b8acc40e85d212198c1baea9ffe193e7b3e0d2a020a39",
 				image:         "localhost/fedora-toolbox-user:29",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox":  "true",
 					"com.github.debarshiray.toolbox": "true",
@@ -196,6 +198,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 5302,
 				id:            "b23f7c69ddec697f803b8acc40e85d212198c1baea9ffe193e7b3e0d2a020a39",
 				image:         "localhost/fedora-toolbox-user:29",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox":  "true",
 					"com.github.debarshiray.toolbox": "true",
@@ -282,6 +285,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 5302,
 				id:            "b23f7c69ddec697f803b8acc40e85d212198c1baea9ffe193e7b3e0d2a020a39",
 				image:         "localhost/fedora-toolbox-user:29",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox":  "true",
 					"com.github.debarshiray.toolbox": "true",
@@ -407,6 +411,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 0,
 				id:            "4f8922191fc19f51fa120eda6b0bf0ca3c498469f30ee57a673e6c9ac2d0d4bb",
 				image:         "registry.fedoraproject.org/f30/fedora-toolbox:30",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox":  "true",
 					"com.github.debarshiray.toolbox": "true",
@@ -533,6 +538,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 0,
 				id:            "4f8922191fc19f51fa120eda6b0bf0ca3c498469f30ee57a673e6c9ac2d0d4bb",
 				image:         "registry.fedoraproject.org/f30/fedora-toolbox:30",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox":  "true",
 					"com.github.debarshiray.toolbox": "true",
@@ -659,6 +665,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 11175,
 				id:            "4f8922191fc19f51fa120eda6b0bf0ca3c498469f30ee57a673e6c9ac2d0d4bb",
 				image:         "registry.fedoraproject.org/f30/fedora-toolbox:30",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox":  "true",
 					"com.github.debarshiray.toolbox": "true",
@@ -781,6 +788,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 0,
 				id:            "7dfa257361547c0c67ed8678fe1c4de784b647c848deec2b0541cf040a1c64ee",
 				image:         "registry.fedoraproject.org/fedora-toolbox:32",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox":  "true",
 					"com.github.debarshiray.toolbox": "true",
@@ -903,6 +911,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 0,
 				id:            "7dfa257361547c0c67ed8678fe1c4de784b647c848deec2b0541cf040a1c64ee",
 				image:         "registry.fedoraproject.org/fedora-toolbox:32",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox":  "true",
 					"com.github.debarshiray.toolbox": "true",
@@ -1025,6 +1034,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 4407,
 				id:            "7dfa257361547c0c67ed8678fe1c4de784b647c848deec2b0541cf040a1c64ee",
 				image:         "registry.fedoraproject.org/fedora-toolbox:32",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox":  "true",
 					"com.github.debarshiray.toolbox": "true",
@@ -1146,6 +1156,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 0,
 				id:            "9effd41d07eea253926c08b7e61182d2cb6563abffc41c1ff7c1e57c42da1dab",
 				image:         "registry.fedoraproject.org/fedora-toolbox:35",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox":  "true",
 					"com.github.debarshiray.toolbox": "true",
@@ -1267,6 +1278,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 0,
 				id:            "9effd41d07eea253926c08b7e61182d2cb6563abffc41c1ff7c1e57c42da1dab",
 				image:         "registry.fedoraproject.org/fedora-toolbox:35",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox":  "true",
 					"com.github.debarshiray.toolbox": "true",
@@ -1388,6 +1400,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 8253,
 				id:            "9effd41d07eea253926c08b7e61182d2cb6563abffc41c1ff7c1e57c42da1dab",
 				image:         "registry.fedoraproject.org/fedora-toolbox:35",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox":  "true",
 					"com.github.debarshiray.toolbox": "true",
@@ -1507,6 +1520,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 0,
 				id:            "a4599f0effa73cb8051d0b5650e28be7f7f9cd6655a584c48c14e7075201b7d7",
 				image:         "registry.fedoraproject.org/fedora-toolbox:38",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox": "true",
 					"com.redhat.component":          "fedora-toolbox",
@@ -1625,6 +1639,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 0,
 				id:            "a4599f0effa73cb8051d0b5650e28be7f7f9cd6655a584c48c14e7075201b7d7",
 				image:         "registry.fedoraproject.org/fedora-toolbox:38",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox": "true",
 					"com.redhat.component":          "fedora-toolbox",
@@ -1743,6 +1758,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 11686,
 				id:            "a4599f0effa73cb8051d0b5650e28be7f7f9cd6655a584c48c14e7075201b7d7",
 				image:         "registry.fedoraproject.org/fedora-toolbox:38",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox": "true",
 					"com.redhat.component":          "fedora-toolbox",
@@ -1855,6 +1871,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 0,
 				id:            "6571a3f51998bccbee1608495c7bf28d42264b883c7cca9d03cfb6b5ef5f44f1",
 				image:         "registry.fedoraproject.org/fedora-toolbox:40",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox": "true",
 					"name":                          "fedora-toolbox",
@@ -1966,6 +1983,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 0,
 				id:            "6571a3f51998bccbee1608495c7bf28d42264b883c7cca9d03cfb6b5ef5f44f1",
 				image:         "registry.fedoraproject.org/fedora-toolbox:40",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox": "true",
 					"name":                          "fedora-toolbox",
@@ -2077,6 +2095,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 3792,
 				id:            "6571a3f51998bccbee1608495c7bf28d42264b883c7cca9d03cfb6b5ef5f44f1",
 				image:         "registry.fedoraproject.org/fedora-toolbox:40",
+				isToolbx:      true,
 				labels: map[string]string{
 					"com.github.containers.toolbox": "true",
 					"name":                          "fedora-toolbox",
@@ -2125,6 +2144,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 0,
 				id:            "f62203a35f867cbdeb0d340741455cea23bd5fccff19c33ef453aaa163152142",
 				image:         "registry.fedoraproject.org/fedora:40",
+				isToolbx:      false,
 				labels: map[string]string{
 					"name":    "fedora",
 					"version": "40",
@@ -2166,6 +2186,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 0,
 				id:            "f62203a35f867cbdeb0d340741455cea23bd5fccff19c33ef453aaa163152142",
 				image:         "registry.fedoraproject.org/fedora:40",
+				isToolbx:      false,
 				labels: map[string]string{
 					"name":    "fedora",
 					"version": "40",
@@ -2207,6 +2228,7 @@ func TestContainerInspect(t *testing.T) {
 				entryPointPID: 4462,
 				id:            "f62203a35f867cbdeb0d340741455cea23bd5fccff19c33ef453aaa163152142",
 				image:         "registry.fedoraproject.org/fedora:40",
+				isToolbx:      false,
 				labels: map[string]string{
 					"name":    "fedora",
 					"version": "40",
@@ -2230,6 +2252,7 @@ func TestContainerInspect(t *testing.T) {
 			assert.Equal(t, tc.expect.entryPointPID, container.EntryPointPID())
 			assert.Equal(t, tc.expect.id, container.ID())
 			assert.Equal(t, tc.expect.image, container.Image())
+			assert.Equal(t, tc.expect.isToolbx, container.IsToolbx())
 			assert.Equal(t, tc.expect.labels, container.Labels())
 			assert.Equal(t, tc.expect.mounts, container.Mounts())
 			assert.Equal(t, tc.expect.name, container.Name())
