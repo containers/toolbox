@@ -75,7 +75,8 @@ func completionContainerNames(_ *cobra.Command, _ []string, _ string) ([]string,
 	var containerNames []string
 	if containers, err := getContainers(); err == nil {
 		for _, container := range containers {
-			containerNames = append(containerNames, container.Names[0])
+			name := container.Name()
+			containerNames = append(containerNames, name)
 		}
 	}
 
@@ -90,9 +91,10 @@ func completionContainerNamesFiltered(cmd *cobra.Command, args []string, _ strin
 	var containerNames []string
 	if containers, err := getContainers(); err == nil {
 		for _, container := range containers {
+			name := container.Name()
 			skip := false
 			for _, arg := range args {
-				if container.Names[0] == arg {
+				if name == arg {
 					skip = true
 					break
 				}
@@ -102,7 +104,7 @@ func completionContainerNamesFiltered(cmd *cobra.Command, args []string, _ strin
 				continue
 			}
 
-			containerNames = append(containerNames, container.Names[0])
+			containerNames = append(containerNames, name)
 		}
 	}
 

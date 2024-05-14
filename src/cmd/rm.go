@@ -76,7 +76,7 @@ func rm(cmd *cobra.Command, args []string) error {
 		}
 
 		for _, container := range toolboxContainers {
-			containerID := container.ID
+			containerID := container.ID()
 			if err := podman.RemoveContainer(containerID, rmFlags.forceDelete); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 				continue

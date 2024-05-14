@@ -124,9 +124,11 @@ func getContainers() ([]podman.Container, error) {
 
 	var toolboxContainers []podman.Container
 
-	for _, container := range containers {
+	for containers.Next() {
+		container := containers.Get()
 		for label := range toolboxLabels {
-			if _, ok := container.Labels[label]; ok {
+			labels := container.Labels()
+			if _, ok := labels[label]; ok {
 				toolboxContainers = append(toolboxContainers, container)
 				break
 			}
@@ -246,7 +248,8 @@ func listOutput(images []podman.Image, containers []podman.Container) {
 		for _, container := range containers {
 			isRunning := false
 			if podman.CheckVersion("2.0.0") {
-				isRunning = container.Status == "running"
+				status := container.Status()
+				isRunning = status == "running"
 			}
 
 			if term.IsTerminal(os.Stdout) {
@@ -260,12 +263,12 @@ func listOutput(images []podman.Image, containers []podman.Container) {
 				fmt.Fprintf(writer, "%s", color)
 			}
 
-			fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s",
-				utils.ShortID(container.ID),
-				container.Names[0],
-				container.Created,
-				container.Status,
-				container.Image)
+			created := container.Created()
+			id := container.ID()
+			image := container.Image()
+			name := container.Name()
+			status := container.Status()
+			fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s", utils.ShortID(id), name, created, status, image)
 
 			if term.IsTerminal(os.Stdout) {
 				fmt.Fprintf(writer, "%s", resetColor)
