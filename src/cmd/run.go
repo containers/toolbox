@@ -237,19 +237,15 @@ func runCommand(container string,
 		}
 	}
 
-	if err := callFlatpakSessionHelper(container); err != nil {
-		return err
-	}
-
-	logrus.Debugf("Starting container %s", container)
-	if err := startContainer(container); err != nil {
-		return err
-	}
-
-	entryPoint, entryPointPID, err := getEntryPointAndPID(container)
+	logrus.Debugf("Inspecting container %s", container)
+	containerObj, err := podman.InspectContainer(container)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to inspect container %s", container)
 	}
+
+	entryPoint := containerObj.EntryPoint()
+	entryPointPID := containerObj.EntryPointPID()
+	logrus.Debugf("Entry point of container %s is %s (PID=%d)", container, entryPoint, entryPointPID)
 
 	if entryPoint != "toolbox" {
 		var builder strings.Builder
@@ -260,11 +256,31 @@ func runCommand(container string,
 		return errors.New(errMsg)
 	}
 
-	if entryPointPID <= 0 {
-		return fmt.Errorf("invalid entry point PID of container %s", container)
+	if err := callFlatpakSessionHelper(containerObj); err != nil {
+		return err
 	}
 
-	logrus.Debugf("Waiting for container %s to finish initializing", container)
+	if entryPointPID <= 0 {
+		logrus.Debugf("Starting container %s", container)
+		if err := startContainer(container); err != nil {
+			return err
+		}
+
+		logrus.Debugf("Inspecting container %s", container)
+		containerObj, err := podman.InspectContainer(container)
+		if err != nil {
+			return fmt.Errorf("failed to inspect container %s", container)
+		}
+
+		entryPointPID = containerObj.EntryPointPID()
+		logrus.Debugf("Entry point of container %s is %s (PID=%d)", container, entryPoint, entryPointPID)
+
+		if entryPointPID <= 0 {
+			return fmt.Errorf("invalid entry point PID of container %s", container)
+		}
+
+		logrus.Debugf("Waiting for container %s to finish initializing", container)
+	}
 
 	toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(currentUser)
 	if err != nil {
@@ -430,17 +446,13 @@ func runHelp(cmd *cobra.Command, args []string) {
 	}
 }
 
-func callFlatpakSessionHelper(container string) error {
-	logrus.Debugf("Inspecting mounts of container %s", container)
-
-	containerObj, err := podman.InspectContainer(container)
-	if err != nil {
-		return fmt.Errorf("failed to inspect entry point of container %s", container)
-	}
+func callFlatpakSessionHelper(container podman.Container) error {
+	name := container.Name()
+	logrus.Debugf("Inspecting mounts of container %s", name)
 
 	var needsFlatpakSessionHelper bool
 
-	mounts := containerObj.Mounts()
+	mounts := container.Mounts()
 	for _, mount := range mounts {
 		if mount == "/run/host/monitor" {
 			logrus.Debug("Requires org.freedesktop.Flatpak.SessionHelper")
@@ -520,22 +532,6 @@ func constructExecArgs(container, preserveFDs string,
 	execArgs = append(execArgs, capShArgs...)
 
 	return execArgs
-}
-
-func getEntryPointAndPID(container string) (string, int, error) {
-	logrus.Debugf("Inspecting entry point of container %s", container)
-
-	containerObj, err := podman.InspectContainer(container)
-	if err != nil {
-		return "", 0, fmt.Errorf("failed to inspect entry point of container %s", container)
-	}
-
-	entryPoint := containerObj.EntryPoint()
-	entryPointPID := containerObj.EntryPointPID()
-
-	logrus.Debugf("Entry point of container %s is %s (PID=%d)", container, entryPoint, entryPointPID)
-
-	return entryPoint, entryPointPID, nil
 }
 
 func isCommandPresent(container, command string) (bool, error) {
