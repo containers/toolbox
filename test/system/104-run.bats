@@ -40,6 +40,26 @@ teardown() {
   assert_output ""
 }
 
+@test "run: Smoke test with true(1) (using polling fallback)" {
+  local default_container_name
+  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+
+  create_default_container
+
+  export TOOLBX_RUN_USE_POLLING=1
+  run --separate-stderr "$TOOLBX" run --verbose true
+
+  assert_success
+  assert_output ""
+
+  # shellcheck disable=SC2154
+  output="$stderr"
+
+  assert_output --partial "Setting up polling ticker for container $default_container_name"
+  refute_output --partial "Setting up watches for file system events from container $default_container_name"
+  assert_output --partial "Handling polling tick"
+}
+
 @test "run: Smoke test with false(1)" {
   create_default_container
 

@@ -22,6 +22,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -29,8 +30,10 @@ import (
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/term"
 	"github.com/containers/toolbox/pkg/utils"
+	"github.com/fsnotify/fsnotify"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"golang.org/x/sys/unix"
 )
 
 var (
@@ -283,23 +286,8 @@ func runCommand(container string,
 		logrus.Debugf("Waiting for container %s to finish initializing", container)
 	}
 
-	toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(currentUser)
-	if err != nil {
+	if err := ensureContainerIsInitialized(container, entryPointPID); err != nil {
 		return err
-	}
-
-	initializedStampBase := fmt.Sprintf("container-initialized-%d", entryPointPID)
-	initializedStamp := filepath.Join(toolboxRuntimeDirectory, initializedStampBase)
-
-	logrus.Debugf("Checking if initialization stamp %s exists", initializedStamp)
-
-	initializedTimeout := 25 // seconds
-	for i := 0; !utils.PathExists(initializedStamp); i++ {
-		if i == initializedTimeout {
-			return fmt.Errorf("failed to initialize container %s", container)
-		}
-
-		time.Sleep(time.Second)
 	}
 
 	logrus.Debugf("Container %s is initialized", container)
@@ -536,6 +524,130 @@ func constructExecArgs(container, preserveFDs string,
 	return execArgs
 }
 
+func ensureContainerIsInitialized(container string, entryPointPID int) error {
+	toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(currentUser)
+	if err != nil {
+		return err
+	}
+
+	initializedStampBase := fmt.Sprintf("container-initialized-%d", entryPointPID)
+	initializedStamp := filepath.Join(toolboxRuntimeDirectory, initializedStampBase)
+	logrus.Debugf("Checking if initialization stamp %s exists", initializedStamp)
+
+	shouldUsePolling := isUsePollingSet()
+
+	// Optional shortcut for containers that are already initialized
+	if !shouldUsePolling && utils.PathExists(initializedStamp) {
+		return nil
+	}
+
+	logrus.Debugf("Setting up initialization timeout for container %s", container)
+	initializedTimeout := time.NewTimer(25 * time.Second)
+	defer initializedTimeout.Stop()
+
+	fallbackToPolling := shouldUsePolling
+	var watcherForStamp *fsnotify.Watcher
+
+	if !fallbackToPolling {
+		logrus.Debugf("Setting up watches for file system events from container %s", container)
+
+		var err error
+		watcherForStamp, err = fsnotify.NewWatcher()
+		if err != nil {
+			if errors.Is(err, unix.EMFILE) || errors.Is(err, unix.ENFILE) || errors.Is(err, unix.ENOMEM) {
+				logrus.Debugf("Setting up watches for file system events: failed to create Watcher: %s",
+					err)
+				logrus.Debug("Using polling instead")
+				fallbackToPolling = true
+			} else {
+				return fmt.Errorf("failed to create Watcher: %w", err)
+			}
+		}
+	}
+
+	var watcherForStampErrors chan error
+	var watcherForStampEvents chan fsnotify.Event
+
+	if watcherForStamp != nil {
+		defer watcherForStamp.Close()
+
+		if err := watcherForStamp.Add(toolboxRuntimeDirectory); err != nil {
+			if errors.Is(err, unix.ENOMEM) || errors.Is(err, unix.ENOSPC) {
+				logrus.Debugf("Setting up watches for file system events: failed to add path: %s", err)
+				logrus.Debug("Using polling instead")
+				fallbackToPolling = true
+			} else {
+				return fmt.Errorf("failed to add path to Watcher: %w", err)
+			}
+		}
+
+		if !fallbackToPolling {
+			watcherForStampErrors = watcherForStamp.Errors
+			watcherForStampEvents = watcherForStamp.Events
+		}
+	}
+
+	var tickerPolling *time.Ticker
+	var tickerPollingCh <-chan time.Time
+
+	if fallbackToPolling {
+		logrus.Debugf("Setting up polling ticker for container %s", container)
+
+		tickerPolling = time.NewTicker(time.Second)
+		defer tickerPolling.Stop()
+
+		tickerPollingCh = tickerPolling.C
+	}
+
+	// Initialization could have finished before the Watcher was set up
+	if !shouldUsePolling && utils.PathExists(initializedStamp) {
+		return nil
+	}
+
+	logrus.Debug("Listening to file system, ticker and timeout events")
+
+	for {
+		select {
+		case <-initializedTimeout.C:
+			return fmt.Errorf("failed to initialize container %s", container)
+		case time := <-tickerPollingCh:
+			if done := handlePollingTickForStamp(time, initializedStamp); done {
+				return nil
+			}
+		case event := <-watcherForStampEvents:
+			if done := handleFileSystemEventForStamp(event, initializedStamp); done {
+				return nil
+			}
+		case err := <-watcherForStampErrors:
+			logrus.Debugf("Received an error from the file system watcher: %s", err)
+		}
+	}
+
+	// code should not be reached
+}
+
+func handleFileSystemEventForStamp(event fsnotify.Event, initializedStamp string) bool {
+	eventOpString := event.Op.String()
+	logrus.Debugf("Handling file system event: operation %s on %s", eventOpString, event.Name)
+
+	if event.Name == initializedStamp && utils.PathExists(initializedStamp) {
+		return true
+	}
+
+	return false
+}
+
+func handlePollingTickForStamp(time time.Time, initializedStamp string) bool {
+	timeString := time.String()
+	logrus.Debugf("Handling polling tick %s", timeString)
+
+	if utils.PathExists(initializedStamp) {
+		return true
+	}
+
+	return false
+}
+
 func isCommandPresent(container, command string) (bool, error) {
 	logrus.Debugf("Looking up command %s in container %s", command, container)
 
@@ -572,6 +684,19 @@ func isPathPresent(container, path string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func isUsePollingSet() bool {
+	valueString := os.Getenv("TOOLBX_RUN_USE_POLLING")
+	if valueString == "" {
+		return false
+	}
+
+	if valueBool, err := strconv.ParseBool(valueString); err == nil {
+		return valueBool
+	}
+
+	return true
 }
 
 func startContainer(container string) error {
