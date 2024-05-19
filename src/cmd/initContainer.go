@@ -286,13 +286,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 	logrus.Debug("Setting up daily ticker")
 
-	daily, err := time.ParseDuration("24h")
-	if err != nil {
-		panicMsg := fmt.Sprintf("failed to parse duration: %v", err)
-		panic(panicMsg)
-	}
-
-	tickerDaily := time.NewTicker(daily)
+	tickerDaily := time.NewTicker(24 * time.Hour)
 	defer tickerDaily.Stop()
 
 	logrus.Debug("Setting up watches for file system events")
