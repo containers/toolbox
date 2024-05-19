@@ -662,3 +662,31 @@ teardown() {
   assert_line --index 1 "Error: command $cmd not found in container $(get_latest_container_name)"
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
+
+@test "run: Try an old unsupported container" {
+  local default_image
+  default_image="$(get_default_image)"
+
+  pull_default_image
+
+  local container="ancient"
+
+  run "$PODMAN" create --name "$container" "$default_image" true
+
+  assert_success
+
+  run $PODMAN ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$container"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --container "$container" true
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: container $container is too old and no longer supported "
+  assert_line --index 1 "Recreate it with Toolbx version 0.0.17 or newer."
+  assert_line --index 2 ""
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
