@@ -118,8 +118,6 @@ func askForConfirmationAsync(ctx context.Context,
 					logrus.Debug("Returned from /dev/stdin: POLLIN")
 
 					scanner := bufio.NewScanner(os.Stdin)
-					scanner.Split(bufio.ScanLines)
-
 					if !scanner.Scan() {
 						if err := scanner.Err(); err != nil {
 							return err
