@@ -685,8 +685,7 @@ teardown() {
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
-  assert_line --index 0 "Error: container $container is too old and no longer supported "
+  assert_line --index 0 "Error: container $container is too old and no longer supported"
   assert_line --index 1 "Recreate it with Toolbx version 0.0.17 or newer."
-  assert_line --index 2 ""
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
