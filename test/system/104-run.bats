@@ -656,10 +656,7 @@ teardown() {
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
-
-  regexp="^Error: (invalid entry point PID of container|failed to initialize container) $default_container_name$"
-  assert_line --index 0 --regexp "$regexp"
-
+  assert_line --index 0 "Error: TOOLBX_FAIL_ENTRY_POINT is set"
   assert [ ${#stderr_lines[@]} -eq 1 ]
 }
 
@@ -680,12 +677,7 @@ teardown() {
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
-
-  if [ "${lines[0]}" = "Error: invalid entry point PID of container $default_container_name" ]; then
-    skip "wrong timing"
-  fi
-
-  assert_line --index 0 "Error: failed to initialize container $default_container_name"
+  assert_line --index 0 "Error: TOOLBX_FAIL_ENTRY_POINT is set"
   assert [ ${#stderr_lines[@]} -eq 1 ]
 }
 
@@ -724,11 +716,9 @@ teardown() {
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
-
-  regexp="^Error: (invalid entry point PID of container|failed to initialize container) $default_container_name$"
-  assert_line --index 0 --regexp "$regexp"
-
-  assert [ ${#stderr_lines[@]} -eq 1 ]
+  assert_line --index 0 "Error: TOOLBX_FAIL_ENTRY_POINT is set"
+  assert_line --index 1 "This environment variable should only be set when testing."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
 @test "run: Try a failing entry point with a long error and 5s delay" {
@@ -748,13 +738,9 @@ teardown() {
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
-
-  if [ "${lines[0]}" = "Error: invalid entry point PID of container $default_container_name" ]; then
-    skip "wrong timing"
-  fi
-
-  assert_line --index 0 "Error: failed to initialize container $default_container_name"
-  assert [ ${#stderr_lines[@]} -eq 1 ]
+  assert_line --index 0 "Error: TOOLBX_FAIL_ENTRY_POINT is set"
+  assert_line --index 1 "This environment variable should only be set when testing."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
 @test "run: Try a failing entry point with a long error and 30s delay" {

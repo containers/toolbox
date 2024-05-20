@@ -17,6 +17,8 @@
 package cmd
 
 import (
+	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -31,10 +33,17 @@ import (
 	"github.com/containers/toolbox/pkg/term"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/fsnotify/fsnotify"
+	"github.com/go-logfmt/logfmt"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"golang.org/x/sys/unix"
 )
+
+type collectEntryPointErrorFunc func(err error)
+
+type entryPointError struct {
+	msg string
+}
 
 var (
 	runFlags struct {
@@ -264,7 +273,11 @@ func runCommand(container string,
 		return err
 	}
 
+	startContainerTimestamp := time.Unix(-1, 0)
+
 	if entryPointPID <= 0 {
+		startContainerTimestamp = time.Now()
+
 		logrus.Debugf("Starting container %s", container)
 		if err := startContainer(container); err != nil {
 			return err
@@ -280,13 +293,22 @@ func runCommand(container string,
 		logrus.Debugf("Entry point of container %s is %s (PID=%d)", container, entryPoint, entryPointPID)
 
 		if entryPointPID <= 0 {
+			if err := showEntryPointLogs(container, startContainerTimestamp); err != nil {
+				var errEntryPoint *entryPointError
+				if errors.As(err, &errEntryPoint) {
+					return err
+				}
+
+				logrus.Debugf("Reading logs from container %s failed: %s", container, err)
+			}
+
 			return fmt.Errorf("invalid entry point PID of container %s", container)
 		}
 
 		logrus.Debugf("Waiting for container %s to finish initializing", container)
 	}
 
-	if err := ensureContainerIsInitialized(container, entryPointPID); err != nil {
+	if err := ensureContainerIsInitialized(container, entryPointPID, startContainerTimestamp); err != nil {
 		return err
 	}
 
@@ -524,7 +546,7 @@ func constructExecArgs(container, preserveFDs string,
 	return execArgs
 }
 
-func ensureContainerIsInitialized(container string, entryPointPID int) error {
+func ensureContainerIsInitialized(container string, entryPointPID int, timestamp time.Time) error {
 	toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(currentUser)
 	if err != nil {
 		return err
@@ -544,6 +566,14 @@ func ensureContainerIsInitialized(container string, entryPointPID int) error {
 	logrus.Debugf("Setting up initialization timeout for container %s", container)
 	initializedTimeout := time.NewTimer(25 * time.Second)
 	defer initializedTimeout.Stop()
+
+	logrus.Debugf("Following logs for container %s", container)
+
+	parentCtx := context.Background()
+	logsCtx, logsCancel := context.WithCancelCause(parentCtx)
+	defer logsCancel(errors.New("clean-up"))
+
+	logsCh, logsErrCh := followEntryPointLogsAsync(logsCtx, container, timestamp)
 
 	fallbackToPolling := shouldUsePolling
 	var watcherForStamp *fsnotify.Watcher
@@ -604,19 +634,54 @@ func ensureContainerIsInitialized(container string, entryPointPID int) error {
 		return nil
 	}
 
-	logrus.Debug("Listening to file system, ticker and timeout events")
+	logrus.Debug("Listening to container, ticker and timeout events")
+
+	var errReceivedFromEntryPoint error
 
 	for {
 		select {
 		case <-initializedTimeout.C:
-			return fmt.Errorf("failed to initialize container %s", container)
+			logsCancel(context.DeadlineExceeded)
+			if utils.PathExists(initializedStamp) {
+				return nil
+			} else {
+				return fmt.Errorf("failed to initialize container %s", container)
+			}
+		case line, ok := <-logsCh:
+			collectEntryPointErrorFn := func(err error) {
+				if !errors.Is(errReceivedFromEntryPoint, err) {
+					errReceivedFromEntryPoint = errors.Join(errReceivedFromEntryPoint, err)
+				}
+			}
+
+			if err := handleEntryPointLog(logsCtx,
+				container,
+				!ok,
+				line,
+				collectEntryPointErrorFn); err != nil {
+				if errors.Is(err, context.Canceled) {
+					return nil
+				} else if errReceivedFromEntryPoint != nil {
+					return errReceivedFromEntryPoint
+				} else {
+					logsCh = nil
+				}
+			}
+		case err := <-logsErrCh:
+			logrus.Debugf("Received an error while following the logs: %s", err)
 		case time := <-tickerPollingCh:
 			if done := handlePollingTickForStamp(time, initializedStamp); done {
-				return nil
+				cause := fmt.Errorf("%w: initialization stamp %s exists",
+					context.Canceled,
+					initializedStamp)
+				logsCancel(cause)
 			}
 		case event := <-watcherForStampEvents:
 			if done := handleFileSystemEventForStamp(event, initializedStamp); done {
-				return nil
+				cause := fmt.Errorf("%w: initialization stamp %s exists",
+					context.Canceled,
+					initializedStamp)
+				logsCancel(cause)
 			}
 		case err := <-watcherForStampErrors:
 			logrus.Debugf("Received an error from the file system watcher: %s", err)
@@ -624,6 +689,70 @@ func ensureContainerIsInitialized(container string, entryPointPID int) error {
 	}
 
 	// code should not be reached
+}
+
+func followEntryPointLogsAsync(ctx context.Context, container string, since time.Time) (<-chan string, <-chan error) {
+	reader, writer := io.Pipe()
+	retValCh := make(chan string)
+	errCh := make(chan error)
+
+	go func() {
+		defer writer.Close()
+
+		if err := podman.LogsContext(ctx, container, true, since, writer); err != nil {
+			errCh <- err
+			return
+		}
+	}()
+
+	go func() {
+		defer reader.Close()
+		defer close(retValCh)
+
+		scanner := bufio.NewScanner(reader)
+		for scanner.Scan() {
+			line := scanner.Text()
+			retValCh <- line
+		}
+
+		if err := scanner.Err(); err != nil {
+			errCh <- err
+		} else {
+			errCh <- io.EOF
+		}
+	}()
+
+	return retValCh, errCh
+}
+
+func handleEntryPointLog(ctx context.Context,
+	container string,
+	end bool,
+	line string,
+	collectEntryPointErrorFn collectEntryPointErrorFunc) error {
+	if end {
+		if cause := context.Cause(ctx); errors.Is(cause, context.Canceled) {
+			return cause
+		} else {
+			logrus.Debugf("Reading logs from container %s failed: 'podman logs' finished unexpectedly",
+				container)
+			return errors.New("'podman logs' finished unexpectedly")
+		}
+	} else {
+		if err := showEntryPointLog(line); err != nil {
+			var errEntryPoint *entryPointError
+
+			if errors.As(err, &errEntryPoint) {
+				collectEntryPointErrorFn(err)
+				return nil
+			}
+
+			logrus.Debugf("Parsing entry point log failed: %s:", err)
+			logrus.Debugf("%s", line)
+		}
+	}
+
+	return nil
 }
 
 func handleFileSystemEventForStamp(event fsnotify.Event, initializedStamp string) bool {
@@ -699,6 +828,87 @@ func isUsePollingSet() bool {
 	return true
 }
 
+func showEntryPointLog(line string) error {
+	var logLevel logrus.Level
+	var logLevelFound bool
+	var logMsg string
+
+	reader := strings.NewReader(line)
+	decoder := logfmt.NewDecoder(reader)
+
+	if decoder.ScanRecord() {
+		for decoder.ScanKeyval() {
+			value := decoder.Value()
+			valueString := string(value)
+
+			switch key := decoder.Key(); string(key) {
+			case "level":
+				logLevelFound = true
+
+				var err error
+				logLevel, err = logrus.ParseLevel(valueString)
+				if err != nil {
+					logrus.Debugf("Parsing entry point log-level %s failed: %s", valueString, err)
+					logLevel = logrus.DebugLevel
+				}
+			case "msg":
+				logMsg = valueString
+			}
+		}
+	}
+
+	if err := decoder.Err(); err != nil {
+		return err
+	}
+
+	if !logLevelFound {
+		errMsg, _ := strings.CutPrefix(line, "Error: ")
+		return &entryPointError{errMsg}
+	}
+
+	logger := logrus.StandardLogger()
+	logger.Logf(logLevel, "> %s", logMsg)
+	return nil
+}
+
+func showEntryPointLogs(container string, since time.Time) error {
+	var stderr strings.Builder
+	if err := podman.Logs(container, since, &stderr); err != nil {
+		return err
+	}
+
+	var errReceived error
+	logs := stderr.String()
+	reader := strings.NewReader(logs)
+	scanner := bufio.NewScanner(reader)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if err := showEntryPointLog(line); err != nil {
+			var errEntryPoint *entryPointError
+
+			if errors.As(err, &errEntryPoint) {
+				if !errors.Is(errReceived, err) {
+					errReceived = errors.Join(errReceived, err)
+				}
+			} else {
+				logrus.Debugf("Parsing entry point log failed: %s:", err)
+				logrus.Debugf("%s", line)
+			}
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		if errReceived == nil {
+			return err
+		}
+
+		logrus.Debugf("Reading logs from container %s failed: %s", container, err)
+	}
+
+	return errReceived
+}
+
 func startContainer(container string) error {
 	var stderr strings.Builder
 	if err := podman.Start(container, &stderr); err == nil {
@@ -736,4 +946,13 @@ func startContainer(container string) error {
 	}
 
 	return nil
+}
+
+func (err *entryPointError) Error() string {
+	return err.msg
+}
+
+func (err *entryPointError) Is(target error) bool {
+	targetErrMsg := target.Error()
+	return err.msg == targetErrMsg
 }
