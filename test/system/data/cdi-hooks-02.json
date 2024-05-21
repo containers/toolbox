@@ -1,0 +1,19 @@
+{
+  "containerEdits": {
+    "hooks": [
+      {
+        "args": [
+          "nvidia-ctk",
+          "hook",
+          "update-ldcache",
+          "--folder",
+          "/usr/lib",
+          "--folder",
+          "/usr/lib64"
+        ],
+        "hookName": "createContainer",
+        "path": "/usr/bin/nvidia-ctk"
+      }
+    ]
+  }
+}

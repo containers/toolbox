@@ -26,6 +26,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/containers/toolbox/pkg/nvidia"
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/containers/toolbox/pkg/version"
@@ -382,6 +383,7 @@ func setUpLoggers() error {
 	logrus.SetLevel(logLevel)
 
 	if rootFlags.verbose > 1 {
+		nvidia.SetLogLevel(logLevel)
 		rootFlags.logPodman = true
 	}
 

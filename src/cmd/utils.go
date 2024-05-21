@@ -26,6 +26,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"os/user"
+	"path/filepath"
 	"strings"
 	"syscall"
 
@@ -327,6 +329,16 @@ func createErrorInvalidRelease(hint string) error {
 
 	errMsg := builder.String()
 	return errors.New(errMsg)
+}
+
+func getCDIFileForNvidia(targetUser *user.User) (string, error) {
+	toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(targetUser)
+	if err != nil {
+		return "", err
+	}
+
+	cdiFile := filepath.Join(toolboxRuntimeDirectory, "cdi-nvidia.json")
+	return cdiFile, nil
 }
 
 func getUsageForCommonCommands() string {

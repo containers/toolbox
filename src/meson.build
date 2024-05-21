@@ -20,6 +20,7 @@ sources = files(
   'cmd/root_test.go',
   'cmd/run.go',
   'cmd/utils.go',
+  'pkg/nvidia/nvidia.go',
   'pkg/podman/container.go',
   'pkg/podman/errors.go',
   'pkg/podman/podman.go',

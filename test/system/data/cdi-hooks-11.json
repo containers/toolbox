@@ -1,0 +1,15 @@
+{
+  "containerEdits": {
+    "hooks": [
+      {
+        "args": [
+          "unknown",
+          "hook",
+          "update-ldcache"
+        ],
+        "hookName": "createContainer",
+        "path": "/usr/bin/unknown"
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "containerEdits": {
+    "hooks": [
+      {
+        "args": [
+          "nvidia-ctk",
+          "unknown",
+          "update-ldcache"
+        ],
+        "hookName": "createContainer",
+        "path": "/usr/bin/nvidia-ctk"
+      }
+    ]
+  }
+}

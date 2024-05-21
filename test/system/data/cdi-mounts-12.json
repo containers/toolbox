@@ -1,0 +1,10 @@
+{
+  "containerEdits": {
+    "mounts": [
+      {
+        "containerPath": "/non/existent/path",
+        "hostPath": "/non/existent/path"
+      }
+    ]
+  }
+}

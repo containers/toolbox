@@ -30,9 +30,12 @@ import (
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/fsnotify/fsnotify"
+	"github.com/google/renameio/v2"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"golang.org/x/sys/unix"
+	"tags.cncf.io/container-device-interface/pkg/cdi"
+	"tags.cncf.io/container-device-interface/specs-go"
 )
 
 var (
@@ -264,6 +267,36 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	uidString := strconv.Itoa(initContainerFlags.uid)
+	targetUser, err := user.LookupId(uidString)
+	if err != nil {
+		return fmt.Errorf("failed to look up user ID %s: %w", uidString, err)
+	}
+
+	cdiFileForNvidia, err := getCDIFileForNvidia(targetUser)
+	if err != nil {
+		return err
+	}
+
+	logrus.Debugf("Loading Container Device Interface for NVIDIA from file %s", cdiFileForNvidia)
+
+	cdiSpecForNvidia, err := loadCDISpecFrom(cdiFileForNvidia)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			logrus.Debugf("Loading Container Device Interface for NVIDIA: file %s not found",
+				cdiFileForNvidia)
+		} else {
+			logrus.Debugf("Loading Container Device Interface for NVIDIA: failed: %s", err)
+			return errors.New("failed to load Container Device Interface for NVIDIA")
+		}
+	}
+
+	if cdiSpecForNvidia != nil {
+		if err := applyCDISpecForNvidia(cdiSpecForNvidia); err != nil {
+			return err
+		}
+	}
+
 	if utils.PathExists("/etc/krb5.conf.d") && !utils.PathExists("/etc/krb5.conf.d/kcm_default_ccache") {
 		logrus.Debug("Setting KCM as the default Kerberos credential cache")
 
@@ -338,12 +371,6 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 	logrus.Debug("Finished initializing container")
 
-	uidString := strconv.Itoa(initContainerFlags.uid)
-	targetUser, err := user.LookupId(uidString)
-	if err != nil {
-		return fmt.Errorf("failed to look up user ID %s: %w", uidString, err)
-	}
-
 	toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(targetUser)
 	if err != nil {
 		return err
@@ -402,6 +429,83 @@ func initContainerHelp(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}
+}
+
+func applyCDISpecForNvidia(spec *specs.Spec) error {
+	if spec == nil {
+		panic("spec not specified")
+	}
+
+	logrus.Debug("Applying Container Device Interface for NVIDIA")
+
+	for _, mount := range spec.ContainerEdits.Mounts {
+		if err := (&cdi.Mount{Mount: mount}).Validate(); err != nil {
+			logrus.Debugf("Applying Container Device Interface for NVIDIA: invalid mount: %s", err)
+			return errors.New("invalid mount in Container Device Interface for NVIDIA")
+		}
+
+		if mount.Type == "" {
+			mount.Type = "bind"
+		}
+
+		if mount.Type != "bind" {
+			logrus.Debugf("Applying Container Device Interface for NVIDIA: unknown mount type %s",
+				mount.Type)
+			continue
+		}
+
+		flags := strings.Join(mount.Options, ",")
+		hostPath := filepath.Join(string(filepath.Separator), "run", "host", mount.HostPath)
+		if err := mountBind(mount.ContainerPath, hostPath, flags); err != nil {
+			logrus.Debugf("Applying Container Device Interface for NVIDIA: %s", err)
+			return errors.New("failed to apply mount from Container Device Interface for NVIDIA")
+		}
+	}
+
+	for _, hook := range spec.ContainerEdits.Hooks {
+		if err := (&cdi.Hook{Hook: hook}).Validate(); err != nil {
+			logrus.Debugf("Applying Container Device Interface for NVIDIA: invalid hook: %s", err)
+			return errors.New("invalid hook in Container Device Interface for NVIDIA")
+		}
+
+		if hook.HookName != cdi.CreateContainerHook {
+			logrus.Debugf("Applying Container Device Interface for NVIDIA: unknown hook name %s",
+				hook.HookName)
+			continue
+		}
+
+		if len(hook.Args) < 3 ||
+			hook.Args[0] != "nvidia-ctk" ||
+			hook.Args[1] != "hook" ||
+			hook.Args[2] != "update-ldcache" {
+			logrus.Debugf("Applying Container Device Interface for NVIDIA: unknown hook arguments")
+			continue
+		}
+
+		var folderFlag bool
+		var folders []string
+		hookArgs := hook.Args[3:]
+
+		for _, hookArg := range hookArgs {
+			if hookArg == "--folder" {
+				folderFlag = true
+				continue
+			}
+
+			if folderFlag {
+				folders = append(folders, hookArg)
+			}
+
+			folderFlag = false
+		}
+
+		if err := ldConfig("toolbx-nvidia.conf", folders); err != nil {
+			logrus.Debugf("Applying Container Device Interface for NVIDIA: %s", err)
+			return errors.New("failed to update ldcache for Container Device Interface for NVIDIA")
+		}
+	}
+
+	return nil
 }
 
 func configureUsers(targetUserUid int, targetUser, targetUserHome, targetUserShell string, homeLink bool) error {
@@ -517,6 +621,73 @@ func handleFileSystemEvent(event fsnotify.Event) {
 	}
 }
 
+func ldConfig(configFileBase string, dirs []string) error {
+	logrus.Debug("Updating dynamic linker cache")
+
+	var args []string
+
+	if !utils.PathExists("/etc/ld.so.cache") {
+		logrus.Debug("Updating dynamic linker cache: no /etc/ld.so.cache found")
+		args = append(args, "-N")
+	}
+
+	if utils.PathExists("/etc/ld.so.conf.d") {
+		if len(dirs) > 0 {
+			var builder strings.Builder
+			builder.WriteString("# Written by Toolbx\n")
+			builder.WriteString("# https://containertoolbx.org/\n")
+			builder.WriteString("\n")
+
+			configured := make(map[string]struct{})
+
+			for _, dir := range dirs {
+				if _, ok := configured[dir]; ok {
+					continue
+				}
+
+				configured[dir] = struct{}{}
+				builder.WriteString(dir)
+				builder.WriteString("\n")
+			}
+
+			dirConfigString := builder.String()
+			dirConfigBytes := []byte(dirConfigString)
+			configFile := filepath.Join("/etc/ld.so.conf.d", configFileBase)
+			if err := renameio.WriteFile(configFile, dirConfigBytes, 0644); err != nil {
+				logrus.Debugf("Updating dynamic linker cache: failed to update configuration: %s", err)
+				return errors.New("failed to update dynamic linker cache configuration")
+			}
+		}
+	} else {
+		logrus.Debug("Updating dynamic linker cache: no /etc/ld.so.conf.d found")
+		args = append(args, dirs...)
+	}
+
+	if err := shell.Run("ldconfig", nil, nil, nil, args...); err != nil {
+		logrus.Debugf("Updating dynamic linker cache: failed: %s", err)
+		return errors.New("failed to update dynamic linker cache")
+	}
+
+	return nil
+}
+
+func loadCDISpecFrom(path string) (*specs.Spec, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	spec, err := cdi.ParseSpec(data)
+	if err != nil {
+		return nil, err
+	}
+	if spec == nil {
+		return nil, errors.New("missing data")
+	}
+
+	return spec, nil
+}
+
 func mountBind(containerPath, source, flags string) error {
 	fi, err := os.Stat(source)
 	if err != nil {
@@ -536,6 +707,11 @@ func mountBind(containerPath, source, flags string) error {
 		}
 	} else if fileMode.IsRegular() {
 		logrus.Debugf("Creating regular file %s", containerPath)
+
+		containerPathDir := filepath.Dir(containerPath)
+		if err := os.MkdirAll(containerPathDir, 0755); err != nil {
+			return fmt.Errorf("failed to create directory %s: %w", containerPathDir, err)
+		}
 
 		containerPathFile, err := os.Create(containerPath)
 		if err != nil && !os.IsExist(err) {

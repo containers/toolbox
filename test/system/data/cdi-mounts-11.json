@@ -1,0 +1,10 @@
+{
+  "containerEdits": {
+    "mounts": [
+      {
+        "containerPath": "/tmp",
+        "hostPath": ""
+      }
+    ]
+  }
+}

@@ -19,6 +19,7 @@ package cmd
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -28,15 +29,18 @@ import (
 	"strings"
 	"time"
 
+	"github.com/containers/toolbox/pkg/nvidia"
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/term"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/fsnotify/fsnotify"
 	"github.com/go-logfmt/logfmt"
+	"github.com/google/renameio/v2"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"golang.org/x/sys/unix"
+	"tags.cncf.io/container-device-interface/specs-go"
 )
 
 type collectEntryPointErrorFunc func(err error)
@@ -273,9 +277,31 @@ func runCommand(container string,
 		return err
 	}
 
+	var cdiEnviron []string
+
+	cdiSpecForNvidia, err := nvidia.GenerateCDISpec()
+	if err != nil {
+		if !errors.Is(err, nvidia.ErrPlatformUnsupported) {
+			return err
+		}
+	} else {
+		cdiEnviron = append(cdiEnviron, cdiSpecForNvidia.ContainerEdits.Env...)
+	}
+
 	startContainerTimestamp := time.Unix(-1, 0)
 
 	if entryPointPID <= 0 {
+		if cdiSpecForNvidia != nil {
+			cdiFileForNvidia, err := getCDIFileForNvidia(currentUser)
+			if err != nil {
+				return err
+			}
+
+			if err := saveCDISpecTo(cdiSpecForNvidia, cdiFileForNvidia); err != nil {
+				return err
+			}
+		}
+
 		startContainerTimestamp = time.Now()
 
 		logrus.Debugf("Starting container %s", container)
@@ -317,6 +343,7 @@ func runCommand(container string,
 	if err := runCommandWithFallbacks(container,
 		preserveFDs,
 		command,
+		cdiEnviron,
 		emitEscapeSequence,
 		fallbackToBash); err != nil {
 		return err
@@ -327,7 +354,7 @@ func runCommand(container string,
 
 func runCommandWithFallbacks(container string,
 	preserveFDs uint,
-	command []string,
+	command, environ []string,
 	emitEscapeSequence, fallbackToBash bool) error {
 
 	logrus.Debug("Checking if 'podman exec' supports disabling the detach keys")
@@ -340,6 +367,12 @@ func runCommandWithFallbacks(container string,
 	}
 
 	envOptions := utils.GetEnvOptionsForPreservedVariables()
+	for _, env := range environ {
+		logrus.Debugf("%s", env)
+		envOption := "--env=" + env
+		envOptions = append(envOptions, envOption)
+	}
+
 	preserveFDsString := fmt.Sprint(preserveFDs)
 
 	var stderr io.Writer
@@ -826,6 +859,36 @@ func isUsePollingSet() bool {
 	}
 
 	return true
+}
+
+func saveCDISpecTo(spec *specs.Spec, path string) error {
+	if path == "" {
+		panic("path not specified")
+	}
+
+	if spec == nil {
+		panic("spec not specified")
+	}
+
+	logrus.Debugf("Saving Container Device Interface to file %s", path)
+
+	if extension := filepath.Ext(path); extension != ".json" {
+		panicMsg := fmt.Sprintf("path has invalid extension %s", extension)
+		panic(panicMsg)
+	}
+
+	data, err := json.MarshalIndent(spec, "", "  ")
+	if err != nil {
+		logrus.Debugf("Saving Container Device Interface: failed to marshal JSON: %s", err)
+		return errors.New("failed to marshal Container Device Interface to JSON")
+	}
+
+	if err := renameio.WriteFile(path, data, 0644); err != nil {
+		logrus.Debugf("Saving Container Device Interface: failed to write file: %s", err)
+		return errors.New("failed to write Container Device Interface to file")
+	}
+
+	return nil
 }
 
 func showEntryPointLog(line string) error {
