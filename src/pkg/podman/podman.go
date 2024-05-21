@@ -18,10 +18,13 @@ package podman
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"strconv"
+	"time"
 
 	"github.com/HarryMichal/go-version"
 	"github.com/containers/toolbox/pkg/shell"
@@ -358,6 +361,34 @@ func IsToolboxImage(image string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func Logs(container string, since time.Time, stderr io.Writer) error {
+	ctx := context.Background()
+	err := LogsContext(ctx, container, false, since, stderr)
+	return err
+}
+
+func LogsContext(ctx context.Context, container string, follow bool, since time.Time, stderr io.Writer) error {
+	logLevelString := LogLevel.String()
+	args := []string{"--log-level", logLevelString, "logs"}
+
+	if follow {
+		args = append(args, "--follow")
+	}
+
+	if sinceUnix := since.Unix(); sinceUnix >= 0 {
+		sinceUnixString := strconv.FormatInt(sinceUnix, 10)
+		args = append(args, []string{"--since", sinceUnixString}...)
+	}
+
+	args = append(args, container)
+
+	if err := shell.RunContext(ctx, "podman", nil, nil, stderr, args...); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Pull pulls an image
