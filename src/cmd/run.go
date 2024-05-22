@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -287,7 +288,8 @@ func runCommand(container string,
 		return err
 	}
 
-	initializedStamp := fmt.Sprintf("%s/container-initialized-%d", toolboxRuntimeDirectory, entryPointPID)
+	initializedStampBase := fmt.Sprintf("container-initialized-%d", entryPointPID)
+	initializedStamp := filepath.Join(toolboxRuntimeDirectory, initializedStampBase)
 
 	logrus.Debugf("Checking if initialization stamp %s exists", initializedStamp)
 
