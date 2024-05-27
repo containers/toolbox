@@ -22,6 +22,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
+	"strings"
 
 	"github.com/HarryMichal/go-version"
 	"github.com/containers/toolbox/pkg/shell"
@@ -36,6 +38,11 @@ type Image struct {
 	Names   []string
 }
 
+type BuildOptions struct {
+	Context string
+	Tag     string
+}
+
 type ImageSlice []Image
 
 var (
@@ -48,6 +55,12 @@ var (
 	ErrImageRepoTagsMissing = errors.New("image has no RepoTags")
 
 	LogLevel = logrus.ErrorLevel
+)
+
+var (
+	ErrBuildContextDoesNotExist = errors.New("build context does not exist")
+
+	ErrBuildContextInvalid = errors.New("build context is not a directory with a Containerfile")
 )
 
 func (image *Image) FlattenNames(fillNameWithID bool) []Image {
@@ -474,4 +487,50 @@ func SystemMigrate(ociRuntimeRequired string) error {
 	}
 
 	return nil
+}
+
+func BuildImage(build BuildOptions) (string, error) {
+	if !utils.PathExists(build.Context) {
+		return "", &utils.BuildError{BuildContext: build.Context, Err: ErrBuildContextDoesNotExist}
+	}
+	if stat, err := os.Stat(build.Context); err != nil {
+		return "", err
+	} else {
+		if !stat.Mode().IsDir() {
+			return "", &utils.BuildError{BuildContext: build.Context, Err: ErrBuildContextInvalid}
+		}
+	}
+	if !utils.PathExists(build.Context+"/Containerfile") && !utils.PathExists(build.Context+"/Dockerfile") {
+		return "", &utils.BuildError{BuildContext: build.Context, Err: ErrBuildContextInvalid}
+	}
+	logLevelString := LogLevel.String()
+	args := []string{"--log-level", logLevelString, "build", build.Context}
+	if build.Tag != "" {
+		args = append(args, "--tag", build.Tag)
+	}
+
+	stdout := new(bytes.Buffer)
+	if err := shell.Run("podman", nil, stdout, nil, args...); err != nil {
+		return "", err
+	}
+	output := strings.TrimRight(stdout.String(), "\n")
+	imageIdBegin := strings.LastIndex(output, "\n") + 1
+	imageId := output[imageIdBegin:]
+
+	var name string
+	if build.Tag == "" {
+		info, err := Inspect("image", imageId)
+		if err != nil {
+			return "", err
+		}
+		name = info["Labels"].(map[string]interface{})["name"].(string)
+		args = []string{"--log-level", logLevelString, "tag", imageId, name}
+		if err := shell.Run("podman", nil, nil, nil, args...); err != nil {
+			return "", err
+		}
+	} else {
+		name = build.Tag
+	}
+
+	return name, nil
 }

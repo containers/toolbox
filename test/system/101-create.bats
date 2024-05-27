@@ -841,3 +841,61 @@ teardown() {
   assert_line --index 1 "Enter with: toolbox enter fedora-toolbox-34"
   assert [ ${#lines[@]} -eq 2 ]
 }
+
+@test "create: Build an image before creating the toolbox" {
+  local build_context="./images/fedora/f39"
+
+  run "$TOOLBX" create --build "$build_context"
+  if [ "$status" -ne 0 ]
+  then
+    echo "$output"
+  fi
+
+  assert_line --index 0 "Created container: fedora-toolbox"
+  assert_line --index 1 "Enter with: toolbox enter fedora-toolbox"
+  assert [ ${#lines[@]} -eq 2 ]
+
+  run $PODMAN images --filter reference=localhost/fedora-toolbox
+  assert_success
+  assert [ ${#lines[@]} -eq 2 ]
+}
+
+@test "create: Build an image and tag it before creating the toolbox without repository" {
+  local build_context="./images/fedora/f39"
+  local build_tag="testbuild"
+
+  run "$TOOLBX" create --build "$build_context" --build-tag "testbuild"
+  assert_success
+
+  assert_line --index 0 "Created container: testbuild"
+  assert_line --index 1 "Enter with: toolbox enter testbuild"
+  if [ ${#lines[q]} -ne 2 ]
+  then
+    echo "${output}"
+    assert 1
+  fi
+
+  run $PODMAN images --filter reference=localhost/testbuild
+  assert_success
+  assert [ ${#lines[@]} -eq 2 ]
+}
+
+@test "create: Build an image and tag it before creating the toolbox with repository" {
+  local build_context="./images/fedora/f39"
+  local build_tag="registry.fedoraproject.org/testbuild"
+
+  run "$TOOLBX" create --build "$build_context" --build-tag "testbuild"
+  assert_success
+
+  assert_line --index 0 "Created container: testbuild"
+  assert_line --index 1 "Enter with: toolbox enter testbuild"
+  if [ ${#lines[q]} -ne 2 ]
+  then
+    echo "${output}"
+    assert 1
+  fi
+
+  run $PODMAN images --filter reference="$build_tag"
+  assert_success
+  assert [ ${#lines[@]} -eq 2 ]
+}
