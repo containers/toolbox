@@ -244,6 +244,20 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		}
 	}
 
+	var toolbxDelayEntryPointEnv []string
+
+	if toolbxDelayEntryPoint, ok := os.LookupEnv("TOOLBX_DELAY_ENTRY_POINT"); ok {
+		toolbxDelayEntryPointEnvArg := "TOOLBX_DELAY_ENTRY_POINT=" + toolbxDelayEntryPoint
+		toolbxDelayEntryPointEnv = []string{"--env", toolbxDelayEntryPointEnvArg}
+	}
+
+	var toolbxFailEntryPointEnv []string
+
+	if toolbxFailEntryPoint, ok := os.LookupEnv("TOOLBX_FAIL_ENTRY_POINT"); ok {
+		toolbxFailEntryPointEnvArg := "TOOLBX_FAIL_ENTRY_POINT=" + toolbxFailEntryPoint
+		toolbxFailEntryPointEnv = []string{"--env", toolbxFailEntryPointEnvArg}
+	}
+
 	toolboxPath := os.Getenv("TOOLBOX_PATH")
 	toolboxPathEnvArg := "TOOLBOX_PATH=" + toolboxPath
 	toolboxPathMountArg := toolboxPath + ":/usr/bin/toolbox:ro"
@@ -416,8 +430,14 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		"create",
 		"--cgroupns", "host",
 		"--dns", "none",
-		"--env", toolboxPathEnvArg,
 	}
+
+	createArgs = append(createArgs, toolbxDelayEntryPointEnv...)
+	createArgs = append(createArgs, toolbxFailEntryPointEnv...)
+
+	createArgs = append(createArgs, []string{
+		"--env", toolboxPathEnvArg,
+	}...)
 
 	createArgs = append(createArgs, xdgRuntimeDirEnv...)
 

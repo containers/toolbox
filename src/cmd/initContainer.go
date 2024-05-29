@@ -168,6 +168,24 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 	defer toolboxEnvFile.Close()
 
+	if toolbxDelayEntryPoint, ok := getDelayEntryPoint(); ok {
+		delayString := toolbxDelayEntryPoint.String()
+		logrus.Debugf("Adding a delay of %s", delayString)
+		time.Sleep(toolbxDelayEntryPoint)
+	}
+
+	if toolbxFailEntryPoint, ok := getFailEntryPoint(); ok {
+		var builder strings.Builder
+		fmt.Fprintf(&builder, "TOOLBX_FAIL_ENTRY_POINT is set")
+		if toolbxFailEntryPoint > 1 {
+			fmt.Fprintf(&builder, "\n")
+			fmt.Fprintf(&builder, "This environment variable should only be set when testing.")
+		}
+
+		errMsg := builder.String()
+		return errors.New(errMsg)
+	}
+
 	if utils.PathExists("/run/host/etc") {
 		logrus.Debug("Path /run/host/etc exists")
 
@@ -449,6 +467,33 @@ func configureUsers(targetUserUid int, targetUser, targetUserHome, targetUserShe
 	}
 
 	return nil
+}
+
+func getDelayEntryPoint() (time.Duration, bool) {
+	valueString := os.Getenv("TOOLBX_DELAY_ENTRY_POINT")
+	if valueString == "" {
+		return 0, false
+	}
+
+	if valueN, err := strconv.Atoi(valueString); valueN > 0 && err == nil {
+		delay := time.Duration(valueN) * time.Second
+		return delay, true
+	}
+
+	return 0, false
+}
+
+func getFailEntryPoint() (uint, bool) {
+	valueString := os.Getenv("TOOLBX_FAIL_ENTRY_POINT")
+	if valueString == "" {
+		return 0, false
+	}
+
+	if valueN, err := strconv.Atoi(valueString); valueN > 0 && err == nil {
+		return uint(valueN), true
+	}
+
+	return 0, false
 }
 
 func handleDailyTick(event time.Time) {

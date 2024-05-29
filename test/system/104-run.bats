@@ -60,6 +60,21 @@ teardown() {
   assert_output --partial "Handling polling tick"
 }
 
+@test "run: Smoke test with true(1) (using entry point with 5s delay)" {
+  # shellcheck disable=SC2030
+  export TOOLBX_DELAY_ENTRY_POINT=5
+
+  create_default_container
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run true
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
 @test "run: Smoke test with false(1)" {
   create_default_container
 
@@ -76,8 +91,6 @@ teardown() {
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]
-
-  # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -627,6 +640,160 @@ teardown() {
   assert_line --index 1 "Distribution $distro doesn't match the host."
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Try a failing entry point with a short error and no delay" {
+  local default_container_name
+  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+
+  # shellcheck disable=SC2030
+  export TOOLBX_FAIL_ENTRY_POINT=1
+
+  create_default_container
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run true
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+
+  regexp="^Error: (invalid entry point PID of container|failed to initialize container) $default_container_name$"
+  assert_line --index 0 --regexp "$regexp"
+
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "run: Try a failing entry point with a short error and 5s delay" {
+  local default_container_name
+  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+
+  # shellcheck disable=SC2030,SC2031
+  export TOOLBX_DELAY_ENTRY_POINT=5
+
+  # shellcheck disable=SC2030,SC2031
+  export TOOLBX_FAIL_ENTRY_POINT=1
+
+  create_default_container
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run true
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+
+  if [ "${lines[0]}" = "Error: invalid entry point PID of container $default_container_name" ]; then
+    skip "wrong timing"
+  fi
+
+  assert_line --index 0 "Error: failed to initialize container $default_container_name"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "run: Try a failing entry point with a short error and 30s delay" {
+  local default_container_name
+  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+
+  # shellcheck disable=SC2030,SC2031
+  export TOOLBX_DELAY_ENTRY_POINT=30
+
+  # shellcheck disable=SC2030,SC2031
+  export TOOLBX_FAIL_ENTRY_POINT=1
+
+  create_default_container
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run true
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: failed to initialize container $default_container_name"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "run: Try a failing entry point with a long error and no delay" {
+  local default_container_name
+  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+
+  # shellcheck disable=SC2030,SC2031
+  export TOOLBX_FAIL_ENTRY_POINT=2
+
+  create_default_container
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run true
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+
+  regexp="^Error: (invalid entry point PID of container|failed to initialize container) $default_container_name$"
+  assert_line --index 0 --regexp "$regexp"
+
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "run: Try a failing entry point with a long error and 5s delay" {
+  local default_container_name
+  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+
+  # shellcheck disable=SC2030,SC2031
+  export TOOLBX_DELAY_ENTRY_POINT=5
+
+  # shellcheck disable=SC2030,SC2031
+  export TOOLBX_FAIL_ENTRY_POINT=2
+
+  create_default_container
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run true
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+
+  if [ "${lines[0]}" = "Error: invalid entry point PID of container $default_container_name" ]; then
+    skip "wrong timing"
+  fi
+
+  assert_line --index 0 "Error: failed to initialize container $default_container_name"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "run: Try a failing entry point with a long error and 30s delay" {
+  local default_container_name
+  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+
+  # shellcheck disable=SC2030,SC2031
+  export TOOLBX_DELAY_ENTRY_POINT=30
+
+  # shellcheck disable=SC2031
+  export TOOLBX_FAIL_ENTRY_POINT=2
+
+  create_default_container
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run true
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: failed to initialize container $default_container_name"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "run: Try a slow entry point that times out" {
+  local default_container_name
+  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
+
+  # shellcheck disable=SC2031
+  export TOOLBX_DELAY_ENTRY_POINT=30
+
+  create_default_container
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run true
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: failed to initialize container $default_container_name"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
 }
 
 @test "run: Smoke test with 'exit 2'" {

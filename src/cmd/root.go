@@ -144,6 +144,12 @@ func preRun(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	toolbxDelayEntryPoint := os.Getenv("TOOLBX_DELAY_ENTRY_POINT")
+	logrus.Debugf("TOOLBX_DELAY_ENTRY_POINT is %s", toolbxDelayEntryPoint)
+
+	toolbxFailEntryPoint := os.Getenv("TOOLBX_FAIL_ENTRY_POINT")
+	logrus.Debugf("TOOLBX_FAIL_ENTRY_POINT is %s", toolbxFailEntryPoint)
+
 	toolboxPath := os.Getenv("TOOLBOX_PATH")
 
 	if toolboxPath == "" {
