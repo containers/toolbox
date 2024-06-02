@@ -20,7 +20,7 @@ on:
 
 env:
   distro: 'ubuntu'
-  latest_release: '22.04'
+  latest_release: '24.04'
   platforms: 'linux/amd64, linux/arm64'
   registry: 'quay.io/toolbx'
   username: 'toolbx+github'
@@ -36,7 +36,7 @@ jobs:
   build-push-images:
     strategy:
       matrix:
-        release: ['16.04', '18.04', '20.04', '22.04', '23.10']
+        release: ['16.04', '18.04', '20.04', '22.04', '23.10', '24.04']
 
     runs-on: ubuntu-latest
     steps:
