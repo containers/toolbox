@@ -7,7 +7,7 @@ require (
 	github.com/acobaugh/osrelease v0.1.0
 	github.com/briandowns/spinner v1.18.0
 	github.com/docker/go-units v0.5.0
-	github.com/fsnotify/fsnotify v1.6.0
+	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-logfmt/logfmt v0.5.0
 	github.com/godbus/dbus/v5 v5.0.6
 	github.com/sirupsen/logrus v1.8.1
