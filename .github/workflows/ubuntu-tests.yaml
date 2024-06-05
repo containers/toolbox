@@ -149,3 +149,56 @@ jobs:
           TMPDIR: /var/tmp
           TOOLBX: /usr/local/bin/toolbox
         working-directory: containers/toolbox
+
+  ubuntu-noble-tests:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install deb packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install \
+            apache2-utils \
+            bash-completion \
+            bats \
+            codespell \
+            fish \
+            gcc \
+            go-md2man \
+            golang \
+            libsubid-dev \
+            meson \
+            ninja-build \
+            openssl \
+            podman \
+            shellcheck \
+            skopeo \
+            systemd \
+            udisks2
+
+      - name: Download Go modules
+        run: go mod download -x
+        working-directory: src
+
+      - name: Set up build directory
+        run: meson setup --fatal-meson-warnings builddir
+
+      - name: Build
+        run: meson compile -C builddir --verbose
+
+      - name: Install
+        run: sudo meson install -C builddir
+
+      - name: Unit tests
+        run: meson test -C builddir --verbose
+
+      - name: System tests
+        run: bats --timing test/system/001-version.bats test/system/002-help.bats test/system/108-completion.bats
+        env:
+          TMPDIR: /var/tmp
+          TOOLBX: /usr/local/bin/toolbox
