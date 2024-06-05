@@ -203,16 +203,18 @@ teardown() {
 @test "run: 'sudo id' inside the default container" {
   create_default_container
 
-  output="$("$TOOLBX" run sudo id 2>"$BATS_TEST_TMPDIR/stderr")"
-  status="$?"
-
-  echo "# stderr"
-  cat "$BATS_TEST_TMPDIR/stderr"
-  echo "# stdout"
-  echo "$output"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run sudo id
 
   assert_success
-  assert_output --partial "uid=0(root)"
+  assert_line --index 0 "uid=0(root) gid=0(root) groups=0(root)"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
 @test "run: Ensure that /run/.containerenv exists" {
