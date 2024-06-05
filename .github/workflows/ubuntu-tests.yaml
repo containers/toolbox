@@ -144,8 +144,21 @@ jobs:
         working-directory: containers/toolbox
 
       - name: System tests
-        run: bats --timing test/system/001-version.bats test/system/002-help.bats test/system/108-completion.bats
+        run: |
+          bats --timing \
+            test/system/001-version.bats \
+            test/system/002-help.bats \
+            test/system/101-create.bats \
+            test/system/103-container.bats \
+            test/system/105-enter.bats \
+            test/system/106-rm.bats \
+            test/system/107-rmi.bats \
+            test/system/108-completion.bats \
+            test/system/201-ipc.bats \
+            test/system/203-network.bats \
+            test/system/220-environment-variables.bats
         env:
+          SHELL: /bin/bash
           TMPDIR: /var/tmp
           TOOLBX: /usr/local/bin/toolbox
         working-directory: containers/toolbox
