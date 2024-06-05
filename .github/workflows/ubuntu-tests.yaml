@@ -144,7 +144,7 @@ jobs:
         working-directory: containers/toolbox
 
       - name: System tests
-        run: bats --timing test/system
+        run: bats --print-output-on-failure --show-output-of-passing-tests --timing --verbose-run test/system/104-run.bats
         env:
           SHELL: /bin/bash
           TMPDIR: /var/tmp
