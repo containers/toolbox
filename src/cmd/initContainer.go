@@ -462,7 +462,10 @@ func configureUsers(targetUserUid int, targetUser, targetUserHome, targetUserShe
 
 	logrus.Debug("Removing password for user root")
 
-	if err := shell.Run("passwd", nil, nil, nil, "--delete", "root"); err != nil {
+	var stderr strings.Builder
+	if err := shell.Run("passwd", nil, nil, &stderr, "--delete", "root"); err != nil {
+		errString := stderr.String()
+		logrus.Debugf("Removing password for user root: failed: %s", errString)
 		return fmt.Errorf("failed to remove password for root: %w", err)
 	}
 
