@@ -550,7 +550,6 @@ func getDBusSystemSocket() (string, error) {
 		logrus.Debugf("Resolving path to the D-Bus system socket: failed to evaluate symbolic links in %s: %s",
 			path,
 			err)
-
 		return "", errors.New("failed to resolve the path to the D-Bus system socket")
 	}
 
@@ -619,7 +618,6 @@ func getServiceSocket(serviceName string, unitName string) (string, error) {
 		logrus.Debugf("Resolving path to the %s socket: failed to connect to the D-Bus system instance: %s",
 			serviceName,
 			err)
-
 		return "", errors.New("failed to connect to the D-Bus system instance")
 	}
 
@@ -635,7 +633,6 @@ func getServiceSocket(serviceName string, unitName string) (string, error) {
 			serviceName,
 			unitName,
 			err)
-
 		return "", fmt.Errorf("failed to get the properties of %s", unitName)
 	}
 

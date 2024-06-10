@@ -248,7 +248,6 @@ func migrate(cmd *cobra.Command, args []string) error {
 		logrus.Debugf("Migrating to newer Podman: failed to create configuration directory %s: %s",
 			toolboxConfigDir,
 			err)
-
 		return errors.New("failed to create configuration directory")
 	}
 
@@ -314,7 +313,6 @@ func migrate(cmd *cobra.Command, args []string) error {
 		logrus.Debugf("Migrating to newer Podman: failed to update Podman version in migration stamp file %s: %s",
 			stampPath,
 			err)
-
 		return errors.New("failed to update Podman version in migration stamp file")
 	}
 
