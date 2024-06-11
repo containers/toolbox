@@ -45,6 +45,7 @@
       - udisks2
     state: present
     update_cache: "{{ true if zuul.attempts > 1 else false }}"
+    use: "{{ 'dnf' if zuul.attempts > 1 else 'auto' }}"
 
 - name: Ensure that podman(1) is absent
   become: yes
@@ -53,6 +54,7 @@
       - podman
     state: absent
     update_cache: "{{ true if zuul.attempts > 1 else false }}"
+    use: "{{ 'dnf' if zuul.attempts > 1 else 'auto' }}"
 
 - name: Ensure that skopeo(1) is absent
   become: yes
@@ -61,6 +63,7 @@
       - skopeo
     state: absent
     update_cache: "{{ true if zuul.attempts > 1 else false }}"
+    use: "{{ 'dnf' if zuul.attempts > 1 else 'auto' }}"
 
 - name: Download Go modules
   command: go mod download -x
