@@ -219,22 +219,17 @@ function _clean_docker_registry() {
 function build_image_without_name() {
   echo -e "FROM scratch\n\nLABEL com.github.containers.toolbox=\"true\"" > "$BATS_TEST_TMPDIR"/Containerfile
 
-  run podman build "$BATS_TEST_TMPDIR"
+  run podman build --quiet "$BATS_TEST_TMPDIR"
 
   assert_success
-  assert_line --index 0 --partial "FROM scratch"
-  assert_line --index 1 --partial "LABEL com.github.containers.toolbox=\"true\""
-  assert_line --index 2 --partial "COMMIT"
-  assert_line --index 3 --regexp "^--> [a-f0-9]{6,64}$"
+  assert_line --index 0 --regexp "^[a-f0-9]{64}$"
 
   # shellcheck disable=SC2154
-  last=$((${#lines[@]}-1))
-
-  assert_line --index "$last" --regexp "^[a-f0-9]{64}$"
+  assert [ ${#lines[@]} -eq 1 ]
 
   rm -f "$BATS_TEST_TMPDIR"/Containerfile
 
-  echo "${lines[$last]}"
+  echo "${lines[0]}"
 }
 
 
