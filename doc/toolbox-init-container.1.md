@@ -9,6 +9,7 @@ toolbox\-init\-container - Initialize a running container
                        *--home-link*
                        *--media-link*
                        *--mnt-link*
+                       *--mount-devpts*
                        *--shell SHELL*
                        *--uid UID*
                        *--user USER*
@@ -81,6 +82,10 @@ Crucial configuration files inside the Toolbx container are always kept
 synchronized with their counterparts on the host, and various subsets of the
 host's file system hierarchy are always bind mounted to their corresponding
 locations inside the Toolbx container.
+
+**--mount-devpts**
+
+Mount a `devpts` file system at `/dev/pts`.
 
 **--shell** SHELL
 
