@@ -40,6 +40,11 @@ type ParseReleaseError struct {
 	Hint string
 }
 
+type BuildError struct {
+	BuildContext string
+	Err          error
+}
+
 func (err *ContainerError) Error() string {
 	errMsg := fmt.Sprintf("%s: %s", err.Container, err.Err)
 	return errMsg
@@ -69,4 +74,9 @@ func (err *ImageError) Unwrap() error {
 
 func (err *ParseReleaseError) Error() string {
 	return err.Hint
+}
+
+func (err *BuildError) Error() string {
+	errMsg := fmt.Sprintf("%s: %s", err.BuildContext, err.Err)
+	return errMsg
 }
