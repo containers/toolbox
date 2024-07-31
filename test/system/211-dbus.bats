@@ -27,7 +27,7 @@ setup_file() {
   create_default_container
   create_distro_container arch latest arch-toolbox-latest
   create_distro_container fedora 34 fedora-toolbox-34
-  create_distro_container rhel 8.9 rhel-toolbox-8.9
+  create_distro_container rhel 8.10 rhel-toolbox-8.10
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
@@ -124,7 +124,7 @@ teardown_file() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "dbus: session bus inside RHEL 8.9" {
+@test "dbus: session bus inside RHEL 8.10" {
   local expected_response
   expected_response="$(gdbus call \
                          --session \
@@ -134,7 +134,7 @@ teardown_file() {
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro rhel \
-    --release 8.9 \
+    --release 8.10 \
     gdbus call \
       --session \
       --dest org.freedesktop.DBus \
@@ -303,7 +303,7 @@ teardown_file() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "dbus: system bus inside RHEL 8.9" {
+@test "dbus: system bus inside RHEL 8.10" {
   local expected_response
   expected_response="$(gdbus call \
                          --system \
@@ -315,7 +315,7 @@ teardown_file() {
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro rhel \
-    --release 8.9 \
+    --release 8.10 \
     gdbus call \
       --system \
       --dest org.freedesktop.systemd1 \

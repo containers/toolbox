@@ -27,7 +27,7 @@ setup_file() {
   create_default_container
   create_distro_container arch latest arch-toolbox-latest
   create_distro_container fedora 34 fedora-toolbox-34
-  create_distro_container rhel 8.9 rhel-toolbox-8.9
+  create_distro_container rhel 8.10 rhel-toolbox-8.10
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
@@ -202,7 +202,7 @@ teardown_file() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "environment variables: HISTFILESIZE inside RHEL 8.9" {
+@test "environment variables: HISTFILESIZE inside RHEL 8.10" {
   # shellcheck disable=SC2031
   if [ "$HISTFILESIZE" = "" ]; then
     # shellcheck disable=SC2030
@@ -214,7 +214,7 @@ teardown_file() {
   export HISTFILESIZE
 
   # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.9 bash -c 'echo "$HISTFILESIZE"'
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.10 bash -c 'echo "$HISTFILESIZE"'
 
   assert_success
   assert_line --index 0 "$HISTFILESIZE"
@@ -229,7 +229,7 @@ teardown_file() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "environment variables: HISTSIZE inside RHEL 8.9" {
+@test "environment variables: HISTSIZE inside RHEL 8.10" {
   skip "https://pagure.io/setup/pull-request/48"
 
   # shellcheck disable=SC2031
@@ -243,7 +243,7 @@ teardown_file() {
   export HISTSIZE
 
   # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.9 bash -c 'echo "$HISTSIZE"'
+  run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.10 bash -c 'echo "$HISTSIZE"'
 
   assert_success
   assert_line --index 0 "$HISTSIZE"
