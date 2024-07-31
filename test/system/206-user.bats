@@ -107,14 +107,14 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "user: root in shadow(5) inside RHEL 8.9" {
-  create_distro_container rhel 8.9 rhel-toolbox-8.9
-  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount rhel-toolbox-8.9)"
+@test "user: root in shadow(5) inside RHEL 8.10" {
+  create_distro_container rhel 8.10 rhel-toolbox-8.10
+  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount rhel-toolbox-8.10)"
 
-  "$TOOLBX" run --distro rhel --release 8.9 true
+  "$TOOLBX" run --distro rhel --release 8.10 true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
-  "$PODMAN" unshare "$PODMAN" unmount rhel-toolbox-8.9
+  "$PODMAN" unshare "$PODMAN" unmount rhel-toolbox-8.10
 
   assert_success
   assert_line --regexp '^root::.+$'
@@ -232,16 +232,16 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "user: $USER in passwd(5) inside RHEL 8.9" {
+@test "user: $USER in passwd(5) inside RHEL 8.10" {
   local user_gecos
   user_gecos="$(getent passwd "$USER" | cut --delimiter : --fields 5)"
 
   local user_id_real
   user_id_real="$(id --real --user)"
 
-  create_distro_container rhel 8.9 rhel-toolbox-8.9
+  create_distro_container rhel 8.10 rhel-toolbox-8.10
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 cat /etc/passwd
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.10 cat /etc/passwd
 
   assert_success
   assert_line --regexp "^$USER::$user_id_real:$user_id_real:$user_gecos:$HOME:$SHELL$"
@@ -362,14 +362,14 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "user: $USER in shadow(5) inside RHEL 8.9" {
-  create_distro_container rhel 8.9 rhel-toolbox-8.9
-  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount rhel-toolbox-8.9)"
+@test "user: $USER in shadow(5) inside RHEL 8.10" {
+  create_distro_container rhel 8.10 rhel-toolbox-8.10
+  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount rhel-toolbox-8.10)"
 
-  "$TOOLBX" run --distro rhel --release 8.9 true
+  "$TOOLBX" run --distro rhel --release 8.10 true
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
-  "$PODMAN" unshare "$PODMAN" unmount rhel-toolbox-8.9
+  "$PODMAN" unshare "$PODMAN" unmount rhel-toolbox-8.10
 
   assert_success
   refute_line --regexp "^$USER:.*$"
@@ -472,10 +472,10 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "user: $USER in group(5) inside RHEL 8.9" {
-  create_distro_container rhel 8.9 rhel-toolbox-8.9
+@test "user: $USER in group(5) inside RHEL 8.10" {
+  create_distro_container rhel 8.10 rhel-toolbox-8.10
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 cat /etc/group
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.10 cat /etc/group
 
   assert_success
   assert_line --regexp "^$USER:x:[[:digit:]]+:$USER$"
@@ -627,10 +627,10 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "user: id(1) for $USER inside RHEL 8.9" {
-  create_distro_container rhel 8.9 rhel-toolbox-8.9
+@test "user: id(1) for $USER inside RHEL 8.10" {
+  create_distro_container rhel 8.10 rhel-toolbox-8.10
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 id
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.10 id
 
   assert_success
 
@@ -645,7 +645,7 @@ teardown() {
   # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 id "$USER"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.10 id "$USER"
 
   assert_success
   assert_line --index 0 "$output_id"

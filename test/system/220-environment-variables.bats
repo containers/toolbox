@@ -117,8 +117,8 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "environment variables: HISTFILESIZE inside RHEL 8.9" {
-  create_distro_container rhel 8.9 rhel-toolbox-8.9
+@test "environment variables: HISTFILESIZE inside RHEL 8.10" {
+  create_distro_container rhel 8.10 rhel-toolbox-8.10
 
   # shellcheck disable=SC2031
   if [ "$HISTFILESIZE" = "" ]; then
@@ -131,7 +131,7 @@ teardown() {
   export HISTFILESIZE
 
   # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 bash -c 'echo "$HISTFILESIZE"'
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.10 bash -c 'echo "$HISTFILESIZE"'
 
   assert_success
   assert_line --index 0 "$HISTFILESIZE"
@@ -325,10 +325,10 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "environment variables: HISTSIZE inside RHEL 8.9" {
+@test "environment variables: HISTSIZE inside RHEL 8.10" {
   skip "https://pagure.io/setup/pull-request/48"
 
-  create_distro_container rhel 8.9 rhel-toolbox-8.9
+  create_distro_container rhel 8.10 rhel-toolbox-8.10
 
   # shellcheck disable=SC2031
   if [ "$HISTSIZE" = "" ]; then
@@ -341,7 +341,7 @@ teardown() {
   export HISTSIZE
 
   # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 bash -c 'echo "$HISTSIZE"'
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.10 bash -c 'echo "$HISTSIZE"'
 
   assert_success
   assert_line --index 0 "$HISTSIZE"
@@ -496,11 +496,11 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "environment variables: HOSTNAME inside RHEL 8.9" {
-  create_distro_container rhel 8.9 rhel-toolbox-8.9
+@test "environment variables: HOSTNAME inside RHEL 8.10" {
+  create_distro_container rhel 8.10 rhel-toolbox-8.10
 
   # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 bash -c 'echo "$HOSTNAME"'
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.10 bash -c 'echo "$HOSTNAME"'
 
   assert_success
   assert_line --index 0 "toolbx"
@@ -642,8 +642,8 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "environment variables: KONSOLE_VERSION inside RHEL 8.9" {
-  create_distro_container rhel 8.9 rhel-toolbox-8.9
+@test "environment variables: KONSOLE_VERSION inside RHEL 8.10" {
+  create_distro_container rhel 8.10 rhel-toolbox-8.10
 
   # shellcheck disable=SC2031
   if [ "$KONSOLE_VERSION" = "" ]; then
@@ -652,7 +652,7 @@ teardown() {
   fi
 
   # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 bash -c 'echo "$KONSOLE_VERSION"'
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.10 bash -c 'echo "$KONSOLE_VERSION"'
 
   assert_success
   assert_line --index 0 "$KONSOLE_VERSION"
@@ -815,8 +815,8 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "environment variables: XTERM_VERSION inside RHEL 8.9" {
-  create_distro_container rhel 8.9 rhel-toolbox-8.9
+@test "environment variables: XTERM_VERSION inside RHEL 8.10" {
+  create_distro_container rhel 8.10 rhel-toolbox-8.10
 
   # shellcheck disable=SC2031
   if [ "$XTERM_VERSION" = "" ]; then
@@ -825,7 +825,7 @@ teardown() {
   fi
 
   # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 bash -c 'echo "$XTERM_VERSION"'
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro rhel --release 8.10 bash -c 'echo "$XTERM_VERSION"'
 
   assert_success
   assert_line --index 0 "$XTERM_VERSION"

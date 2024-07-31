@@ -124,10 +124,10 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "run: Smoke test with RHEL 8.9" {
-  create_distro_container rhel 8.9 rhel-toolbox-8.9
+@test "run: Smoke test with RHEL 8.10" {
+  create_distro_container rhel 8.10 rhel-toolbox-8.10
 
-  run --separate-stderr "$TOOLBX" run --distro rhel --release 8.9 true
+  run --separate-stderr "$TOOLBX" run --distro rhel --release 8.10 true
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]

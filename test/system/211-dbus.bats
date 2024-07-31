@@ -123,7 +123,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "dbus: session bus inside RHEL 8.9" {
+@test "dbus: session bus inside RHEL 8.10" {
   local expected_response
   expected_response="$(gdbus call \
                          --session \
@@ -131,11 +131,11 @@ teardown() {
                          --object-path /org/freedesktop/DBus \
                          --method org.freedesktop.DBus.Peer.Ping)"
 
-  create_distro_container rhel 8.9 rhel-toolbox-8.9
+  create_distro_container rhel 8.10 rhel-toolbox-8.10
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro rhel \
-    --release 8.9 \
+    --release 8.10 \
     gdbus call \
       --session \
       --dest org.freedesktop.DBus \
@@ -316,7 +316,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "dbus: system bus inside RHEL 8.9" {
+@test "dbus: system bus inside RHEL 8.10" {
   local expected_response
   expected_response="$(gdbus call \
                          --system \
@@ -326,11 +326,11 @@ teardown() {
                          org.freedesktop.systemd1.Manager \
                          Version)"
 
-  create_distro_container rhel 8.9 rhel-toolbox-8.9
+  create_distro_container rhel 8.10 rhel-toolbox-8.10
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro rhel \
-    --release 8.9 \
+    --release 8.10 \
     gdbus call \
       --system \
       --dest org.freedesktop.systemd1 \

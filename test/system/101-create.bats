@@ -167,18 +167,18 @@ teardown() {
   assert_output --regexp "Created[[:blank:]]+fedora-toolbox-34"
 }
 
-@test "create: RHEL 8.9" {
-  pull_distro_image rhel 8.9
+@test "create: RHEL 8.10" {
+  pull_distro_image rhel 8.10
 
-  run "$TOOLBX" --assumeyes create --distro rhel --release 8.9
+  run "$TOOLBX" --assumeyes create --distro rhel --release 8.10
 
   assert_success
-  assert_output --partial "Created container: rhel-toolbox-8.9"
-  assert_output --partial "Enter with: toolbox enter rhel-toolbox-8.9"
+  assert_output --partial "Created container: rhel-toolbox-8.10"
+  assert_output --partial "Enter with: toolbox enter rhel-toolbox-8.10"
 
   run podman ps -a
 
-  assert_output --regexp "Created[[:blank:]]+rhel-toolbox-8.9"
+  assert_output --regexp "Created[[:blank:]]+rhel-toolbox-8.10"
 }
 
 @test "create: Ubuntu 16.04" {

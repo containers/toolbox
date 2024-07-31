@@ -215,8 +215,8 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "list: RHEL 8.9 image" {
-  pull_distro_image rhel 8.9
+@test "list: RHEL 8.10 image" {
+  pull_distro_image rhel 8.10
 
   local num_of_images
   num_of_images="$(list_images)"
@@ -225,7 +225,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" list
 
   assert_success
-  assert_line --index 1 --partial "registry.access.redhat.com/ubi8/toolbox:8.9"
+  assert_line --index 1 --partial "registry.access.redhat.com/ubi8/toolbox:8.10"
 
   if check_bats_version 1.10.0; then
     assert [ ${#lines[@]} -eq 2 ]
@@ -236,8 +236,8 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "list: RHEL 8.9 image (using --images)" {
-  pull_distro_image rhel 8.9
+@test "list: RHEL 8.10 image (using --images)" {
+  pull_distro_image rhel 8.10
 
   local num_of_images
   num_of_images="$(list_images)"
@@ -246,7 +246,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" list --images
 
   assert_success
-  assert_line --index 1 --partial "registry.access.redhat.com/ubi8/toolbox:8.9"
+  assert_line --index 1 --partial "registry.access.redhat.com/ubi8/toolbox:8.10"
 
   if check_bats_version 1.10.0; then
     assert [ ${#lines[@]} -eq 2 ]
