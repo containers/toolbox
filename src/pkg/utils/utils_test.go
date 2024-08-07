@@ -101,6 +101,31 @@ func TestParseRelease(t *testing.T) {
 			errMsg:       "The release must be 'latest'.",
 		},
 		{
+			inputDistro:  "debian",
+			inputRelease: "testing",
+			output:       "testing",
+		},
+		{
+			inputDistro:  "debian",
+			inputRelease: "unstable",
+			output:       "unstable",
+		},
+		{
+			inputDistro:  "debian",
+			inputRelease: "10",
+			output:       "10",
+		},
+		{
+			inputDistro:  "debian",
+			inputRelease: "-10",
+			errMsg:       "The release must be a positive integer, 'testing', or 'unstable'.",
+		},
+		{
+			inputDistro:  "debian",
+			inputRelease: "foo",
+			errMsg:       "The release must be a positive integer, 'testing', or 'unstable'.",
+		},
+		{
 			inputDistro:  "fedora",
 			inputRelease: "f34",
 			output:       "34",
