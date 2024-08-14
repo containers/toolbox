@@ -22,13 +22,13 @@ load 'libs/helpers'
 setup() {
   bats_require_minimum_version 1.7.0
   _setup_environment
-  cleanup_containers
+  cleanup_all
   pushd "$HOME" || return 1
 }
 
 teardown() {
   popd || return 1
-  cleanup_containers
+  cleanup_all
 }
 
 @test "ipc: No namespace" {
