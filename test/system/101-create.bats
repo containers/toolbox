@@ -22,7 +22,7 @@ load 'libs/helpers'
 setup() {
   bats_require_minimum_version 1.7.0
   _setup_environment
-  cleanup_containers
+  cleanup_all
 }
 
 teardown() {

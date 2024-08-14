@@ -22,7 +22,7 @@ load 'libs/helpers'
 setup() {
   bats_require_minimum_version 1.7.0
   _setup_environment
-  cleanup_containers
+  cleanup_all
   pushd "$HOME" || return 1
   rm --force "$XDG_RUNTIME_DIR/toolbox/cdi-nvidia.json" || return 1
 }
@@ -30,7 +30,7 @@ setup() {
 teardown() {
   rm --force "$XDG_RUNTIME_DIR/toolbox/cdi-nvidia.json" || return 1
   popd || return 1
-  cleanup_containers
+  cleanup_all
 }
 
 @test "cdi: Smoke test" {

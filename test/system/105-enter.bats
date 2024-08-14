@@ -21,11 +21,11 @@ load 'libs/helpers'
 
 setup() {
   _setup_environment
-  cleanup_containers
+  cleanup_all
 }
 
 teardown() {
-  cleanup_containers
+  cleanup_all
 }
 
 @test "enter: Try to enter the default container with no containers created" {
