@@ -35,11 +35,6 @@ function cleanup_all() {
 }
 
 
-function cleanup_containers() {
-  $PODMAN rm --all --force >/dev/null
-}
-
-
 function _setup_environment() {
   _setup_containers_storage
   check_xdg_runtime_dir

@@ -21,13 +21,13 @@ load 'libs/helpers'
 
 setup() {
   _setup_environment
-  cleanup_containers
+  cleanup_all
   pushd "$HOME" || return 1
 }
 
 teardown() {
   popd || return 1
-  cleanup_containers
+  cleanup_all
 }
 
 @test "run: Smoke test with true(1)" {
