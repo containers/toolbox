@@ -269,7 +269,14 @@ func runCommand(container string,
 
 	cdiSpecForNvidia, err := nvidia.GenerateCDISpec()
 	if err != nil {
-		if !errors.Is(err, nvidia.ErrPlatformUnsupported) {
+		if errors.Is(err, nvidia.ErrNVMLDriverLibraryVersionMismatch) {
+			var builder strings.Builder
+			fmt.Fprintf(&builder, "the proprietary NVIDIA driver's kernel and user space don't match\n")
+			fmt.Fprintf(&builder, "Check the host operating system and systemd journal.")
+
+			errMsg := builder.String()
+			return errors.New(errMsg)
+		} else if !errors.Is(err, nvidia.ErrPlatformUnsupported) {
 			return err
 		}
 	} else {

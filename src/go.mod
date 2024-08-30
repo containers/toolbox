@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/HarryMichal/go-version v1.0.1
 	github.com/NVIDIA/go-nvlib v0.6.1
+	github.com/NVIDIA/go-nvml v0.12.4-0
 	github.com/NVIDIA/nvidia-container-toolkit v1.16.1
 	github.com/acobaugh/osrelease v0.1.0
 	github.com/briandowns/spinner v1.18.0
@@ -23,7 +24,6 @@ require (
 )
 
 require (
-	github.com/NVIDIA/go-nvml v0.12.4-0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
