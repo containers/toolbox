@@ -124,6 +124,16 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+@test "run: Smoke test with Fedora rawhide" {
+  create_distro_container fedora rawhide fedora-toolbox-rawhide
+
+  run --separate-stderr "$TOOLBX" run --distro fedora --release rawhide true
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
 @test "run: Smoke test with RHEL 8.10" {
   create_distro_container rhel 8.10 rhel-toolbox-8.10
 

@@ -167,6 +167,20 @@ teardown() {
   assert_output --regexp "Created[[:blank:]]+fedora-toolbox-34"
 }
 
+@test "create: Fedora rawhide" {
+  pull_distro_image fedora rawhide
+
+  run "$TOOLBX" --assumeyes create --distro fedora --release rawhide
+
+  assert_success
+  assert_output --partial "Created container: fedora-toolbox-rawhide"
+  assert_output --partial "Enter with: toolbox enter fedora-toolbox-rawhide"
+
+  run podman ps -a
+
+  assert_output --regexp "Created[[:blank:]]+fedora-toolbox-rawhide"
+}
+
 @test "create: RHEL 8.10" {
   pull_distro_image rhel 8.10
 

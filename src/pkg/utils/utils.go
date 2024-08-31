@@ -742,6 +742,10 @@ func parseReleaseArch(release string) (string, error) {
 }
 
 func parseReleaseFedora(release string) (string, error) {
+	if release == "rawhide" {
+		return release, nil
+	}
+
 	if strings.HasPrefix(release, "F") || strings.HasPrefix(release, "f") {
 		release = release[1:]
 	}
