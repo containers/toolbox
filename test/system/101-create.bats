@@ -20,7 +20,7 @@ load 'libs/bats-assert/load'
 load 'libs/helpers'
 
 setup() {
-  bats_require_minimum_version 1.7.0
+  bats_require_minimum_version 1.10.0
   _setup_environment
   cleanup_all
 }
@@ -234,13 +234,7 @@ teardown() {
   assert_success
   assert_line --index 0 "Created container: $image"
   assert_line --index 1 "Enter with: toolbox enter $image"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run $PODMAN ps --all
@@ -257,13 +251,7 @@ teardown() {
   assert_success
   assert_line --index 0 "Created container: non-default"
   assert_line --index 1 "Enter with: toolbox enter non-default"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run $PODMAN ps --all
@@ -280,13 +268,7 @@ teardown() {
   assert_success
   assert_line --index 0 "Created container: non-default"
   assert_line --index 1 "Enter with: toolbox enter non-default"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run $PODMAN ps --all

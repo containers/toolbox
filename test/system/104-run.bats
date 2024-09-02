@@ -207,13 +207,7 @@ teardown() {
 
   assert_success
   assert_line --index 0 "uid=0(root) gid=0(root) groups=0(root)"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 1 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 

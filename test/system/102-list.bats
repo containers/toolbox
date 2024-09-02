@@ -20,7 +20,7 @@ load 'libs/bats-assert/load'
 load 'libs/helpers'
 
 setup() {
-  bats_require_minimum_version 1.7.0
+  bats_require_minimum_version 1.10.0
   _setup_environment
   cleanup_all
 }
@@ -97,13 +97,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "$default_image"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -121,13 +115,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "$default_image"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -142,13 +130,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "quay.io/toolbx/arch-toolbox:latest"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -163,13 +145,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "quay.io/toolbx/arch-toolbox:latest"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -184,13 +160,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "registry.fedoraproject.org/fedora-toolbox:34"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -205,13 +175,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "registry.fedoraproject.org/fedora-toolbox:34"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -226,13 +190,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "registry.access.redhat.com/ubi8/toolbox:8.10"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -247,13 +205,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "registry.access.redhat.com/ubi8/toolbox:8.10"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -268,13 +220,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:16.04"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -289,13 +235,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:16.04"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -310,13 +250,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:18.04"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -331,13 +265,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:18.04"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -352,13 +280,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:20.04"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -373,13 +295,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:20.04"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -394,13 +310,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "<none>"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -415,13 +325,7 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "<none>"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 2 ]
-  else
-    assert [ ${#lines[@]} -eq 3 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -440,13 +344,7 @@ teardown() {
   assert_success
   assert_line --index 1 --partial "$default_image"
   assert_line --index 2 --partial "$default_image-copy"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 3 ]
-  else
-    assert [ ${#lines[@]} -eq 4 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 3 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -465,13 +363,7 @@ teardown() {
   assert_success
   assert_line --index 1 --partial "$default_image"
   assert_line --index 2 --partial "$default_image-copy"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 3 ]
-  else
-    assert [ ${#lines[@]} -eq 4 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 3 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -501,13 +393,7 @@ teardown() {
   assert_success
   assert_line --index 1 --partial "registry.fedoraproject.org/fedora-toolbox:34"
   assert_line --index 2 --partial "$default_image"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 3 ]
-  else
-    assert [ ${#lines[@]} -eq 4 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 3 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   # Check containers
@@ -517,13 +403,7 @@ teardown() {
   assert_line --index 1 --partial "$default_container"
   assert_line --index 2 --partial "non-default-one"
   assert_line --index 3 --partial "non-default-two"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 4 ]
-  else
-    assert [ ${#lines[@]} -eq 5 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 4 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   # Check all together
@@ -535,13 +415,7 @@ teardown() {
   assert_line --index 5 --partial "$default_container"
   assert_line --index 6 --partial "non-default-one"
   assert_line --index 7 --partial "non-default-two"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 8 ]
-  else
-    assert [ ${#lines[@]} -eq 9 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 8 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -563,13 +437,7 @@ teardown() {
   assert_line --index 1 --partial "<none>"
   assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
   assert_line --index 3 --partial "$default_image"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 4 ]
-  else
-    assert [ ${#lines[@]} -eq 5 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 4 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
@@ -587,13 +455,7 @@ teardown() {
   assert_line --index 1 --partial "<none>"
   assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
   assert_line --index 3 --partial "$default_image"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 4 ]
-  else
-    assert [ ${#lines[@]} -eq 5 ]
-  fi
-
+  assert [ ${#lines[@]} -eq 4 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 

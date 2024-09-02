@@ -20,6 +20,7 @@ load 'libs/bats-assert/load'
 load 'libs/helpers.bash'
 
 setup() {
+  bats_require_minimum_version 1.10.0
   _setup_environment
   cleanup_all
 }
@@ -104,12 +105,7 @@ teardown() {
   assert_line --index 4 "enter     Enter an existing Toolbx container"
   assert_line --index 5 "list      List all existing Toolbx containers and images"
   assert_line --index 7 "Go to https://github.com/containers/toolbox for further information."
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 8 ]
-  else
-    assert [ ${#lines[@]} -eq 9 ]
-  fi
+  assert [ ${#lines[@]} -eq 8 ]
 
   # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
