@@ -76,11 +76,14 @@ func (e *exitError) Error() string {
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
+		if rootCmd.SilenceErrors {
+			if errMsg := err.Error(); errMsg != "" {
+				fmt.Fprintf(os.Stderr, "Error: %s\n", errMsg)
+			}
+		}
+
 		var errExit *exitError
 		if errors.As(err, &errExit) {
-			if errExit.err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %s\n", errExit)
-			}
 			os.Exit(errExit.code)
 		}
 
@@ -128,6 +131,7 @@ func init() {
 }
 
 func preRun(cmd *cobra.Command, args []string) error {
+	cmd.Root().SilenceErrors = true
 	cmd.Root().SilenceUsage = true
 
 	if err := setUpLoggers(); err != nil {

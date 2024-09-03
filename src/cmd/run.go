@@ -162,15 +162,6 @@ func run(cmd *cobra.Command, args []string) error {
 		false,
 		false,
 		true); err != nil {
-		// runCommand returns exitError for the executed commands to properly
-		// propagate return codes. Cobra prints all non-nil errors which in
-		// that case is not desirable. In that scenario silence the errors and
-		// leave the error handling to the root command.
-		var errExit *exitError
-		if errors.As(err, &errExit) {
-			cmd.SilenceErrors = true
-		}
-
 		return err
 	}
 
