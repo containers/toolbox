@@ -66,7 +66,7 @@ func TestExitError(t *testing.T) {
 			var errExit *exitError
 
 			assert.ErrorAs(t, err, &errExit)
-			assert.Equal(t, tc.rc, errExit.Code)
+			assert.Equal(t, tc.rc, errExit.code)
 			if tc.err != nil {
 				assert.Equal(t, tc.err.Error(), errExit.Error())
 			}

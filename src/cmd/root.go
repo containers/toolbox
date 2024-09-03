@@ -62,7 +62,7 @@ var (
 )
 
 type exitError struct {
-	Code int
+	code int
 	err  error
 }
 
@@ -81,7 +81,7 @@ func Execute() {
 			if errExit.err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", errExit)
 			}
-			os.Exit(errExit.Code)
+			os.Exit(errExit.code)
 		}
 
 		os.Exit(1)
