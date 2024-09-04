@@ -277,6 +277,31 @@ teardown() {
   assert_output --regexp "Created[[:blank:]]+non-default"
 }
 
+@test "create: Try the same name again" {
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
+  pull_default_image
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create
+
+  assert_success
+  assert_line --index 0 "Created container: $default_container"
+  assert_line --index 1 "Enter with: toolbox enter"
+  assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" create
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: container $default_container already exists"
+  assert_line --index 1 "Enter with: toolbox enter"
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
 @test "create: Try an unsupported distribution" {
   local distro="foo"
 
