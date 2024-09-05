@@ -40,7 +40,7 @@ teardown() {
 @test "create: With a custom name (using option --container)" {
   pull_default_image
 
-  run "$TOOLBX" --assumeyes create --container "custom-containerName"
+  run "$TOOLBX" create --container "custom-containerName"
 
   assert_success
 }
@@ -48,7 +48,7 @@ teardown() {
 @test "create: With a custom image and name (using option --container)" {
   pull_distro_image fedora 34
 
-  run "$TOOLBX" --assumeyes create --container "fedora34" --image fedora-toolbox:34
+  run "$TOOLBX" create --container "fedora34" --image fedora-toolbox:34
 
   assert_success
 }
