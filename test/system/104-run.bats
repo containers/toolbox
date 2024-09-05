@@ -349,7 +349,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
-@test "run: Try a specific non-existent container with another present" {
+@test "run: Try a non-existent container with another present" {
   create_container other-container
 
   run --separate-stderr "$TOOLBX" run --container wrong-container true
