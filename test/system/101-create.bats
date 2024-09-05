@@ -30,11 +30,17 @@ teardown() {
 }
 
 @test "create: Smoke test" {
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
   pull_default_image
 
   run "$TOOLBX" --assumeyes create
 
   assert_success
+  assert_line --index 0 "Created container: $default_container"
+  assert_line --index 1 "Enter with: toolbox enter"
+  assert [ ${#lines[@]} -eq 2 ]
 }
 
 @test "create: With a custom name (using option --container)" {
@@ -43,6 +49,9 @@ teardown() {
   run "$TOOLBX" create --container "custom-containerName"
 
   assert_success
+  assert_line --index 0 "Created container: custom-containerName"
+  assert_line --index 1 "Enter with: toolbox enter custom-containerName"
+  assert [ ${#lines[@]} -eq 2 ]
 }
 
 @test "create: With a custom image and name (using option --container)" {
@@ -51,6 +60,9 @@ teardown() {
   run "$TOOLBX" create --container "fedora34" --image fedora-toolbox:34
 
   assert_success
+  assert_line --index 0 "Created container: fedora34"
+  assert_line --index 1 "Enter with: toolbox enter fedora34"
+  assert [ ${#lines[@]} -eq 2 ]
 }
 
 @test "create: Try without --assumeyes" {
