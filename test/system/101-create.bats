@@ -181,36 +181,6 @@ teardown() {
   assert_output --regexp "Created[[:blank:]]+rhel-toolbox-8.10"
 }
 
-@test "create: Ubuntu 16.04" {
-  pull_distro_image ubuntu 16.04
-
-  run "$TOOLBX" --assumeyes create --distro ubuntu --release 16.04
-
-  assert_success
-  assert_output --partial "Created container: ubuntu-toolbox-16.04"
-  assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-16.04"
-
-  run $PODMAN ps --all
-
-  assert_success
-  assert_output --regexp "Created[[:blank:]]+ubuntu-toolbox-16.04"
-}
-
-@test "create: Ubuntu 18.04" {
-  pull_distro_image ubuntu 18.04
-
-  run "$TOOLBX" --assumeyes create --distro ubuntu --release 18.04
-
-  assert_success
-  assert_output --partial "Created container: ubuntu-toolbox-18.04"
-  assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-18.04"
-
-  run $PODMAN ps --all
-
-  assert_success
-  assert_output --regexp "Created[[:blank:]]+ubuntu-toolbox-18.04"
-}
-
 @test "create: Ubuntu 20.04" {
   pull_distro_image ubuntu 20.04
 
@@ -224,6 +194,36 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+ubuntu-toolbox-20.04"
+}
+
+@test "create: Ubuntu 22.04" {
+  pull_distro_image ubuntu 22.04
+
+  run "$TOOLBX" --assumeyes create --distro ubuntu --release 22.04
+
+  assert_success
+  assert_output --partial "Created container: ubuntu-toolbox-22.04"
+  assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-22.04"
+
+  run $PODMAN ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+ubuntu-toolbox-22.04"
+}
+
+@test "create: Ubuntu 24.04" {
+  pull_distro_image ubuntu 24.04
+
+  run "$TOOLBX" --assumeyes create --distro ubuntu --release 24.04
+
+  assert_success
+  assert_output --partial "Created container: ubuntu-toolbox-24.04"
+  assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-24.04"
+
+  run $PODMAN ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+ubuntu-toolbox-24.04"
 }
 
 @test "create: With a custom image without a name" {

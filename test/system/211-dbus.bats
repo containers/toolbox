@@ -155,44 +155,6 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "dbus: session bus inside Ubuntu 16.04" {
-  busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer Ping
-
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
-    --distro ubuntu \
-    --release 16.04 \
-    busctl --user call \
-      org.freedesktop.DBus \
-      /org/freedesktop/DBus \
-      org.freedesktop.DBus.Peer \
-      Ping
-
-  assert_success
-  assert [ ${#lines[@]} -eq 0 ]
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "dbus: session bus inside Ubuntu 18.04" {
-  busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer Ping
-
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
-    --distro ubuntu \
-    --release 18.04 \
-    busctl --user call \
-      org.freedesktop.DBus \
-      /org/freedesktop/DBus \
-      org.freedesktop.DBus.Peer \
-      Ping
-
-  assert_success
-  assert [ ${#lines[@]} -eq 0 ]
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
 @test "dbus: session bus inside Ubuntu 20.04" {
   busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer Ping
 
@@ -201,6 +163,44 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro ubuntu \
     --release 20.04 \
+    busctl --user call \
+      org.freedesktop.DBus \
+      /org/freedesktop/DBus \
+      org.freedesktop.DBus.Peer \
+      Ping
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "dbus: session bus inside Ubuntu 22.04" {
+  busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer Ping
+
+  create_distro_container ubuntu 22.04 ubuntu-toolbox-22.04
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
+    --distro ubuntu \
+    --release 22.04 \
+    busctl --user call \
+      org.freedesktop.DBus \
+      /org/freedesktop/DBus \
+      org.freedesktop.DBus.Peer \
+      Ping
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "dbus: session bus inside Ubuntu 24.04" {
+  busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer Ping
+
+  create_distro_container ubuntu 24.04 ubuntu-toolbox-24.04
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
+    --distro ubuntu \
+    --release 24.04 \
     busctl --user call \
       org.freedesktop.DBus \
       /org/freedesktop/DBus \
@@ -352,70 +352,6 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "dbus: system bus inside Ubuntu 16.04" {
-  local expected_response
-  expected_response="$(busctl --system get-property \
-                         org.freedesktop.systemd1 \
-                         /org/freedesktop/systemd1 \
-                         org.freedesktop.systemd1.Manager \
-                         Version)"
-
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
-    --distro ubuntu \
-    --release 16.04 \
-    busctl --system get-property \
-      org.freedesktop.systemd1 \
-      /org/freedesktop/systemd1 \
-      org.freedesktop.systemd1.Manager \
-      Version
-
-  assert_success
-  assert_line --index 0 "$expected_response"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "dbus: system bus inside Ubuntu 18.04" {
-  local expected_response
-  expected_response="$(busctl --system get-property \
-                         org.freedesktop.systemd1 \
-                         /org/freedesktop/systemd1 \
-                         org.freedesktop.systemd1.Manager \
-                         Version)"
-
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
-    --distro ubuntu \
-    --release 18.04 \
-    busctl --system get-property \
-      org.freedesktop.systemd1 \
-      /org/freedesktop/systemd1 \
-      org.freedesktop.systemd1.Manager \
-      Version
-
-  assert_success
-  assert_line --index 0 "$expected_response"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
 @test "dbus: system bus inside Ubuntu 20.04" {
   local expected_response
   expected_response="$(busctl --system get-property \
@@ -429,6 +365,70 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" run \
     --distro ubuntu \
     --release 20.04 \
+    busctl --system get-property \
+      org.freedesktop.systemd1 \
+      /org/freedesktop/systemd1 \
+      org.freedesktop.systemd1.Manager \
+      Version
+
+  assert_success
+  assert_line --index 0 "$expected_response"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "dbus: system bus inside Ubuntu 22.04" {
+  local expected_response
+  expected_response="$(busctl --system get-property \
+                         org.freedesktop.systemd1 \
+                         /org/freedesktop/systemd1 \
+                         org.freedesktop.systemd1.Manager \
+                         Version)"
+
+  create_distro_container ubuntu 22.04 ubuntu-toolbox-22.04
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
+    --distro ubuntu \
+    --release 22.04 \
+    busctl --system get-property \
+      org.freedesktop.systemd1 \
+      /org/freedesktop/systemd1 \
+      org.freedesktop.systemd1.Manager \
+      Version
+
+  assert_success
+  assert_line --index 0 "$expected_response"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "dbus: system bus inside Ubuntu 24.04" {
+  local expected_response
+  expected_response="$(busctl --system get-property \
+                         org.freedesktop.systemd1 \
+                         /org/freedesktop/systemd1 \
+                         org.freedesktop.systemd1.Manager \
+                         Version)"
+
+  create_distro_container ubuntu 24.04 ubuntu-toolbox-24.04
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
+    --distro ubuntu \
+    --release 24.04 \
     busctl --system get-property \
       org.freedesktop.systemd1 \
       /org/freedesktop/systemd1 \

@@ -146,71 +146,12 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "environment variables: HISTFILESIZE inside Ubuntu 16.04" {
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
-  # shellcheck disable=SC2031
-  if [ "$HISTFILESIZE" = "" ]; then
-    # shellcheck disable=SC2030
-    HISTFILESIZE=1001
-  else
-    ((HISTFILESIZE++))
-  fi
-
-  export HISTFILESIZE
-
-  # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 \
-                                             bash -c 'echo "$HISTFILESIZE"'
-
-  assert_success
-  assert_line --index 0 "$HISTFILESIZE"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "environment variables: HISTFILESIZE inside Ubuntu 18.04" {
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
-  # shellcheck disable=SC2031
-  if [ "$HISTFILESIZE" = "" ]; then
-    # shellcheck disable=SC2030
-    HISTFILESIZE=1001
-  else
-    ((HISTFILESIZE++))
-  fi
-
-  export HISTFILESIZE
-
-  # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 \
-                                             bash -c 'echo "$HISTFILESIZE"'
-
-  assert_success
-  assert_line --index 0 "$HISTFILESIZE"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
 @test "environment variables: HISTFILESIZE inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
   # shellcheck disable=SC2031
   if [ "$HISTFILESIZE" = "" ]; then
+    # shellcheck disable=SC2030
     HISTFILESIZE=1001
   else
     ((HISTFILESIZE++))
@@ -220,6 +161,66 @@ teardown() {
 
   # shellcheck disable=SC2016
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 20.04 \
+                                             bash -c 'echo "$HISTFILESIZE"'
+
+  assert_success
+  assert_line --index 0 "$HISTFILESIZE"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: HISTFILESIZE inside Ubuntu 22.04" {
+  create_distro_container ubuntu 22.04 ubuntu-toolbox-22.04
+
+  # shellcheck disable=SC2031
+  if [ "$HISTFILESIZE" = "" ]; then
+    # shellcheck disable=SC2030
+    HISTFILESIZE=1001
+  else
+    ((HISTFILESIZE++))
+  fi
+
+  export HISTFILESIZE
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 22.04 \
+                                             bash -c 'echo "$HISTFILESIZE"'
+
+  assert_success
+  assert_line --index 0 "$HISTFILESIZE"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: HISTFILESIZE inside Ubuntu 24.04" {
+  create_distro_container ubuntu 24.04 ubuntu-toolbox-24.04
+
+  # shellcheck disable=SC2031
+  if [ "$HISTFILESIZE" = "" ]; then
+    # shellcheck disable=SC2030
+    HISTFILESIZE=1001
+  else
+    ((HISTFILESIZE++))
+  fi
+
+  export HISTFILESIZE
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 24.04 \
                                              bash -c 'echo "$HISTFILESIZE"'
 
   assert_success
@@ -356,69 +357,12 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "environment variables: HISTSIZE inside Ubuntu 16.04" {
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
-  # shellcheck disable=SC2031
-  if [ "$HISTSIZE" = "" ]; then
-    # shellcheck disable=SC2030
-    HISTSIZE=1001
-  else
-    ((HISTSIZE++))
-  fi
-
-  export HISTSIZE
-
-  # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 bash -c 'echo "$HISTSIZE"'
-
-  assert_success
-  assert_line --index 0 "$HISTSIZE"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "environment variables: HISTSIZE inside Ubuntu 18.04" {
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
-  # shellcheck disable=SC2031
-  if [ "$HISTSIZE" = "" ]; then
-    # shellcheck disable=SC2030
-    HISTSIZE=1001
-  else
-    ((HISTSIZE++))
-  fi
-
-  export HISTSIZE
-
-  # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 bash -c 'echo "$HISTSIZE"'
-
-  assert_success
-  assert_line --index 0 "$HISTSIZE"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
 @test "environment variables: HISTSIZE inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
   # shellcheck disable=SC2031
   if [ "$HISTSIZE" = "" ]; then
+    # shellcheck disable=SC2030
     HISTSIZE=1001
   else
     ((HISTSIZE++))
@@ -428,6 +372,64 @@ teardown() {
 
   # shellcheck disable=SC2016
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 20.04 bash -c 'echo "$HISTSIZE"'
+
+  assert_success
+  assert_line --index 0 "$HISTSIZE"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: HISTSIZE inside Ubuntu 22.04" {
+  create_distro_container ubuntu 22.04 ubuntu-toolbox-22.04
+
+  # shellcheck disable=SC2031
+  if [ "$HISTSIZE" = "" ]; then
+    # shellcheck disable=SC2030
+    HISTSIZE=1001
+  else
+    ((HISTSIZE++))
+  fi
+
+  export HISTSIZE
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 22.04 bash -c 'echo "$HISTSIZE"'
+
+  assert_success
+  assert_line --index 0 "$HISTSIZE"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: HISTSIZE inside Ubuntu 24.04" {
+  create_distro_container ubuntu 24.04 ubuntu-toolbox-24.04
+
+  # shellcheck disable=SC2031
+  if [ "$HISTSIZE" = "" ]; then
+    # shellcheck disable=SC2030
+    HISTSIZE=1001
+  else
+    ((HISTSIZE++))
+  fi
+
+  export HISTSIZE
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 24.04 bash -c 'echo "$HISTSIZE"'
 
   assert_success
   assert_line --index 0 "$HISTSIZE"
@@ -514,47 +516,47 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "environment variables: HOSTNAME inside Ubuntu 16.04" {
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
-  # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 bash -c 'echo "$HOSTNAME"'
-
-  assert_success
-  assert_line --index 0 "toolbx"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "environment variables: HOSTNAME inside Ubuntu 18.04" {
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
-  # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 bash -c 'echo "$HOSTNAME"'
-
-  assert_success
-  assert_line --index 0 "toolbx"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
 @test "environment variables: HOSTNAME inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
   # shellcheck disable=SC2016
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 20.04 bash -c 'echo "$HOSTNAME"'
+
+  assert_success
+  assert_line --index 0 "toolbx"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: HOSTNAME inside Ubuntu 22.04" {
+  create_distro_container ubuntu 22.04 ubuntu-toolbox-22.04
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 22.04 bash -c 'echo "$HOSTNAME"'
+
+  assert_success
+  assert_line --index 0 "toolbx"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: HOSTNAME inside Ubuntu 24.04" {
+  create_distro_container ubuntu 24.04 ubuntu-toolbox-24.04
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 24.04 bash -c 'echo "$HOSTNAME"'
 
   assert_success
   assert_line --index 0 "toolbx"
@@ -667,66 +669,67 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "environment variables: KONSOLE_VERSION inside Ubuntu 16.04" {
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
-  # shellcheck disable=SC2031
-  if [ "$KONSOLE_VERSION" = "" ]; then
-    # shellcheck disable=SC2030
-    export KONSOLE_VERSION=230804
-  fi
-
-  # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 bash -c 'echo "$KONSOLE_VERSION"'
-
-  assert_success
-  assert_line --index 0 "$KONSOLE_VERSION"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "environment variables: KONSOLE_VERSION inside Ubuntu 18.04" {
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
-  # shellcheck disable=SC2031
-  if [ "$KONSOLE_VERSION" = "" ]; then
-    # shellcheck disable=SC2030
-    export KONSOLE_VERSION=230804
-  fi
-
-  # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 bash -c 'echo "$KONSOLE_VERSION"'
-
-  assert_success
-  assert_line --index 0 "$KONSOLE_VERSION"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
 @test "environment variables: KONSOLE_VERSION inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
   # shellcheck disable=SC2031
   if [ "$KONSOLE_VERSION" = "" ]; then
+    # shellcheck disable=SC2030
     export KONSOLE_VERSION=230804
   fi
 
   # shellcheck disable=SC2016
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 20.04 bash -c 'echo "$KONSOLE_VERSION"'
+
+  assert_success
+  assert_line --index 0 "$KONSOLE_VERSION"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: KONSOLE_VERSION inside Ubuntu 22.04" {
+  create_distro_container ubuntu 22.04 ubuntu-toolbox-22.04
+
+  # shellcheck disable=SC2031
+  if [ "$KONSOLE_VERSION" = "" ]; then
+    # shellcheck disable=SC2030
+    export KONSOLE_VERSION=230804
+  fi
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 22.04 bash -c 'echo "$KONSOLE_VERSION"'
+
+  assert_success
+  assert_line --index 0 "$KONSOLE_VERSION"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: KONSOLE_VERSION inside Ubuntu 24.04" {
+  create_distro_container ubuntu 24.04 ubuntu-toolbox-24.04
+
+  # shellcheck disable=SC2031
+  if [ "$KONSOLE_VERSION" = "" ]; then
+    # shellcheck disable=SC2030
+    export KONSOLE_VERSION=230804
+  fi
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 24.04 bash -c 'echo "$KONSOLE_VERSION"'
 
   assert_success
   assert_line --index 0 "$KONSOLE_VERSION"
@@ -840,66 +843,67 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "environment variables: XTERM_VERSION inside Ubuntu 16.04" {
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
-  # shellcheck disable=SC2031
-  if [ "$XTERM_VERSION" = "" ]; then
-    # shellcheck disable=SC2030
-    export XTERM_VERSION="XTerm(385)"
-  fi
-
-  # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 bash -c 'echo "$XTERM_VERSION"'
-
-  assert_success
-  assert_line --index 0 "$XTERM_VERSION"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "environment variables: XTERM_VERSION inside Ubuntu 18.04" {
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
-  # shellcheck disable=SC2031
-  if [ "$XTERM_VERSION" = "" ]; then
-    # shellcheck disable=SC2030
-    export XTERM_VERSION="XTerm(385)"
-  fi
-
-  # shellcheck disable=SC2016
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 bash -c 'echo "$XTERM_VERSION"'
-
-  assert_success
-  assert_line --index 0 "$XTERM_VERSION"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
 @test "environment variables: XTERM_VERSION inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
   # shellcheck disable=SC2031
   if [ "$XTERM_VERSION" = "" ]; then
+    # shellcheck disable=SC2030
     export XTERM_VERSION="XTerm(385)"
   fi
 
   # shellcheck disable=SC2016
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 20.04 bash -c 'echo "$XTERM_VERSION"'
+
+  assert_success
+  assert_line --index 0 "$XTERM_VERSION"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: XTERM_VERSION inside Ubuntu 22.04" {
+  create_distro_container ubuntu 22.04 ubuntu-toolbox-22.04
+
+  # shellcheck disable=SC2031
+  if [ "$XTERM_VERSION" = "" ]; then
+    # shellcheck disable=SC2030
+    export XTERM_VERSION="XTerm(385)"
+  fi
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 22.04 bash -c 'echo "$XTERM_VERSION"'
+
+  assert_success
+  assert_line --index 0 "$XTERM_VERSION"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "environment variables: XTERM_VERSION inside Ubuntu 24.04" {
+  create_distro_container ubuntu 24.04 ubuntu-toolbox-24.04
+
+  # shellcheck disable=SC2031
+  if [ "$XTERM_VERSION" = "" ]; then
+    # shellcheck disable=SC2030
+    export XTERM_VERSION="XTerm(385)"
+  fi
+
+  # shellcheck disable=SC2016
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 24.04 bash -c 'echo "$XTERM_VERSION"'
 
   assert_success
   assert_line --index 0 "$XTERM_VERSION"

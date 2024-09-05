@@ -124,40 +124,6 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "user: root in shadow(5) inside Ubuntu 16.04" {
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-16.04)"
-
-  "$TOOLBX" run --distro ubuntu --release 16.04 true
-
-  run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
-  "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-16.04
-
-  assert_success
-  assert_line --regexp '^root::.+$'
-  assert [ ${#lines[@]} -gt 0 ]
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "user: root in shadow(5) inside Ubuntu 18.04" {
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-18.04)"
-
-  "$TOOLBX" run --distro ubuntu --release 18.04 true
-
-  run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
-  "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-18.04
-
-  assert_success
-  assert_line --regexp '^root::.+$'
-  assert [ ${#lines[@]} -gt 0 ]
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
 @test "user: root in shadow(5) inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-20.04)"
@@ -166,6 +132,40 @@ teardown() {
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-20.04
+
+  assert_success
+  assert_line --regexp '^root::.+$'
+  assert [ ${#lines[@]} -gt 0 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "user: root in shadow(5) inside Ubuntu 22.04" {
+  create_distro_container ubuntu 22.04 ubuntu-toolbox-22.04
+  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-22.04)"
+
+  "$TOOLBX" run --distro ubuntu --release 22.04 true
+
+  run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
+  "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-22.04
+
+  assert_success
+  assert_line --regexp '^root::.+$'
+  assert [ ${#lines[@]} -gt 0 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "user: root in shadow(5) inside Ubuntu 24.04" {
+  create_distro_container ubuntu 24.04 ubuntu-toolbox-24.04
+  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-24.04)"
+
+  "$TOOLBX" run --distro ubuntu --release 24.04 true
+
+  run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
+  "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-24.04
 
   assert_success
   assert_line --regexp '^root::.+$'
@@ -251,44 +251,6 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "user: $USER in passwd(5) inside Ubuntu 16.04" {
-  local user_gecos
-  user_gecos="$(getent passwd "$USER" | cut --delimiter : --fields 5)"
-
-  local user_id_real
-  user_id_real="$(id --real --user)"
-
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 cat /etc/passwd
-
-  assert_success
-  assert_line --regexp "^$USER::$user_id_real:$user_id_real:$user_gecos:$HOME:$SHELL$"
-  assert [ ${#lines[@]} -gt 1 ]
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "user: $USER in passwd(5) inside Ubuntu 18.04" {
-  local user_gecos
-  user_gecos="$(getent passwd "$USER" | cut --delimiter : --fields 5)"
-
-  local user_id_real
-  user_id_real="$(id --real --user)"
-
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 cat /etc/passwd
-
-  assert_success
-  assert_line --regexp "^$USER::$user_id_real:$user_id_real:$user_gecos:$HOME:$SHELL$"
-  assert [ ${#lines[@]} -gt 1 ]
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
 @test "user: $USER in passwd(5) inside Ubuntu 20.04" {
   local user_gecos
   user_gecos="$(getent passwd "$USER" | cut --delimiter : --fields 5)"
@@ -299,6 +261,44 @@ teardown() {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 20.04 cat /etc/passwd
+
+  assert_success
+  assert_line --regexp "^$USER::$user_id_real:$user_id_real:$user_gecos:$HOME:$SHELL$"
+  assert [ ${#lines[@]} -gt 1 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "user: $USER in passwd(5) inside Ubuntu 22.04" {
+  local user_gecos
+  user_gecos="$(getent passwd "$USER" | cut --delimiter : --fields 5)"
+
+  local user_id_real
+  user_id_real="$(id --real --user)"
+
+  create_distro_container ubuntu 22.04 ubuntu-toolbox-22.04
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 22.04 cat /etc/passwd
+
+  assert_success
+  assert_line --regexp "^$USER::$user_id_real:$user_id_real:$user_gecos:$HOME:$SHELL$"
+  assert [ ${#lines[@]} -gt 1 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "user: $USER in passwd(5) inside Ubuntu 24.04" {
+  local user_gecos
+  user_gecos="$(getent passwd "$USER" | cut --delimiter : --fields 5)"
+
+  local user_id_real
+  user_id_real="$(id --real --user)"
+
+  create_distro_container ubuntu 24.04 ubuntu-toolbox-24.04
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 24.04 cat /etc/passwd
 
   assert_success
   assert_line --regexp "^$USER::$user_id_real:$user_id_real:$user_gecos:$HOME:$SHELL$"
@@ -379,40 +379,6 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "user: $USER in shadow(5) inside Ubuntu 16.04" {
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-16.04)"
-
-  "$TOOLBX" run --distro ubuntu --release 16.04 true
-
-  run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
-  "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-16.04
-
-  assert_success
-  refute_line --regexp "^$USER:.*$"
-  assert [ ${#lines[@]} -gt 0 ]
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "user: $USER in shadow(5) inside Ubuntu 18.04" {
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-18.04)"
-
-  "$TOOLBX" run --distro ubuntu --release 18.04 true
-
-  run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
-  "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-18.04
-
-  assert_success
-  refute_line --regexp "^$USER:.*$"
-  assert [ ${#lines[@]} -gt 0 ]
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
 @test "user: $USER in shadow(5) inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-20.04)"
@@ -421,6 +387,40 @@ teardown() {
 
   run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
   "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-20.04
+
+  assert_success
+  refute_line --regexp "^$USER:.*$"
+  assert [ ${#lines[@]} -gt 0 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "user: $USER in shadow(5) inside Ubuntu 22.04" {
+  create_distro_container ubuntu 22.04 ubuntu-toolbox-22.04
+  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-22.04)"
+
+  "$TOOLBX" run --distro ubuntu --release 22.04 true
+
+  run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
+  "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-22.04
+
+  assert_success
+  refute_line --regexp "^$USER:.*$"
+  assert [ ${#lines[@]} -gt 0 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "user: $USER in shadow(5) inside Ubuntu 24.04" {
+  create_distro_container ubuntu 24.04 ubuntu-toolbox-24.04
+  container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-24.04)"
+
+  "$TOOLBX" run --distro ubuntu --release 24.04 true
+
+  run --keep-empty-lines --separate-stderr "$PODMAN" unshare cat "$container_root_file_system/etc/shadow"
+  "$PODMAN" unshare "$PODMAN" unmount ubuntu-toolbox-24.04
 
   assert_success
   refute_line --regexp "^$USER:.*$"
@@ -486,38 +486,38 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "user: $USER in group(5) inside Ubuntu 16.04" {
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 cat /etc/group
-
-  assert_success
-  assert_line --regexp "^$USER:x:[[:digit:]]+:$USER$"
-  assert_line --regexp "^sudo:x:[[:digit:]]+:$USER$"
-  assert [ ${#lines[@]} -gt 1 ]
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "user: $USER in group(5) inside Ubuntu 18.04" {
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 cat /etc/group
-
-  assert_success
-  assert_line --regexp "^$USER:x:[[:digit:]]+:$USER$"
-  assert_line --regexp "^sudo:x:[[:digit:]]+:$USER$"
-  assert [ ${#lines[@]} -gt 1 ]
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
 @test "user: $USER in group(5) inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 20.04 cat /etc/group
+
+  assert_success
+  assert_line --regexp "^$USER:x:[[:digit:]]+:$USER$"
+  assert_line --regexp "^sudo:x:[[:digit:]]+:$USER$"
+  assert [ ${#lines[@]} -gt 1 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "user: $USER in group(5) inside Ubuntu 22.04" {
+  create_distro_container ubuntu 22.04 ubuntu-toolbox-22.04
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 22.04 cat /etc/group
+
+  assert_success
+  assert_line --regexp "^$USER:x:[[:digit:]]+:$USER$"
+  assert_line --regexp "^sudo:x:[[:digit:]]+:$USER$"
+  assert [ ${#lines[@]} -gt 1 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "user: $USER in group(5) inside Ubuntu 24.04" {
+  create_distro_container ubuntu 24.04 ubuntu-toolbox-24.04
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 24.04 cat /etc/group
 
   assert_success
   assert_line --regexp "^$USER:x:[[:digit:]]+:$USER$"
@@ -660,72 +660,6 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "user: id(1) for $USER inside Ubuntu 16.04" {
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 id
-
-  assert_success
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  local output_id="${lines[0]}"
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 id "$USER"
-
-  assert_success
-  assert_line --index 0 "$output_id"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "user: id(1) for $USER inside Ubuntu 18.04" {
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 id
-
-  assert_success
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  local output_id="${lines[0]}"
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 id "$USER"
-
-  assert_success
-  assert_line --index 0 "$output_id"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
-
-  # shellcheck disable=SC2154
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
 @test "user: id(1) for $USER inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
@@ -745,6 +679,72 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 20.04 id "$USER"
+
+  assert_success
+  assert_line --index 0 "$output_id"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "user: id(1) for $USER inside Ubuntu 22.04" {
+  create_distro_container ubuntu 22.04 ubuntu-toolbox-22.04
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 22.04 id
+
+  assert_success
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  local output_id="${lines[0]}"
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 22.04 id "$USER"
+
+  assert_success
+  assert_line --index 0 "$output_id"
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "user: id(1) for $USER inside Ubuntu 24.04" {
+  create_distro_container ubuntu 24.04 ubuntu-toolbox-24.04
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 24.04 id
+
+  assert_success
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 1 ]
+  else
+    assert [ ${#lines[@]} -eq 2 ]
+  fi
+
+  local output_id="${lines[0]}"
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro ubuntu --release 24.04 id "$USER"
 
   assert_success
   assert_line --index 0 "$output_id"

@@ -46,9 +46,9 @@ setup_suite() {
   _pull_and_cache_distro_image arch latest || false
   _pull_and_cache_distro_image fedora 34 || false
   _pull_and_cache_distro_image rhel 8.10 || false
-  _pull_and_cache_distro_image ubuntu 16.04 || false
-  _pull_and_cache_distro_image ubuntu 18.04 || false
   _pull_and_cache_distro_image ubuntu 20.04 || false
+  _pull_and_cache_distro_image ubuntu 22.04 || false
+  _pull_and_cache_distro_image ubuntu 24.04 || false
   _pull_and_cache_distro_image busybox || false
   # If run on Fedora Rawhide, cache 2 extra images (previous Fedora versions)
   if is_fedora_rawhide; then
