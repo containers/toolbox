@@ -134,30 +134,30 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "run: Smoke test with Ubuntu 16.04" {
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
-  run --separate-stderr "$TOOLBX" run --distro ubuntu --release 16.04 true
-
-  assert_success
-  assert [ ${#lines[@]} -eq 0 ]
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "run: Smoke test with Ubuntu 18.04" {
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
-  run --separate-stderr "$TOOLBX" run --distro ubuntu --release 18.04 true
-
-  assert_success
-  assert [ ${#lines[@]} -eq 0 ]
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
 @test "run: Smoke test with Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
   run --separate-stderr "$TOOLBX" run --distro ubuntu --release 20.04 true
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "run: Smoke test with Ubuntu 22.04" {
+  create_distro_container ubuntu 22.04 ubuntu-toolbox-22.04
+
+  run --separate-stderr "$TOOLBX" run --distro ubuntu --release 22.04 true
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "run: Smoke test with Ubuntu 24.04" {
+  create_distro_container ubuntu 24.04 ubuntu-toolbox-24.04
+
+  run --separate-stderr "$TOOLBX" run --distro ubuntu --release 24.04 true
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]

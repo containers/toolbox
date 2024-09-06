@@ -551,6 +551,11 @@ function get_system_id() (
 function get_system_version() (
   local os_release
 
+  if [ "$(get_system_id)" = "arch" ]; then
+    echo "latest"
+    return
+  fi
+
   os_release="$(find_os_release)"
 
   if [[ -z "$os_release" ]]; then

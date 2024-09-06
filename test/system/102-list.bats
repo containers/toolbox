@@ -209,66 +209,6 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "list: Ubuntu 16.04 image" {
-  pull_distro_image ubuntu 16.04
-
-  local num_of_images
-  num_of_images="$(list_images)"
-  assert_equal "$num_of_images" 1
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" list
-
-  assert_success
-  assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:16.04"
-  assert [ ${#lines[@]} -eq 2 ]
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "list: Ubuntu 16.04 image (using --images)" {
-  pull_distro_image ubuntu 16.04
-
-  local num_of_images
-  num_of_images="$(list_images)"
-  assert_equal "$num_of_images" 1
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" list --images
-
-  assert_success
-  assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:16.04"
-  assert [ ${#lines[@]} -eq 2 ]
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "list: Ubuntu 18.04 image" {
-  pull_distro_image ubuntu 18.04
-
-  local num_of_images
-  num_of_images="$(list_images)"
-  assert_equal "$num_of_images" 1
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" list
-
-  assert_success
-  assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:18.04"
-  assert [ ${#lines[@]} -eq 2 ]
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "list: Ubuntu 18.04 image (using --images)" {
-  pull_distro_image ubuntu 18.04
-
-  local num_of_images
-  num_of_images="$(list_images)"
-  assert_equal "$num_of_images" 1
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" list --images
-
-  assert_success
-  assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:18.04"
-  assert [ ${#lines[@]} -eq 2 ]
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
 @test "list: Ubuntu 20.04 image" {
   pull_distro_image ubuntu 20.04
 
@@ -296,6 +236,66 @@ teardown() {
   assert_success
   assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:20.04"
   assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Ubuntu 22.04 image" {
+  pull_distro_image ubuntu 22.04
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" list
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:22.04"
+
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Ubuntu 22.04 image (using --images)" {
+  pull_distro_image ubuntu 22.04
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" list --images
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:22.04"
+
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Ubuntu 24.04 image" {
+  pull_distro_image ubuntu 24.04
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" list
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:24.04"
+
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Ubuntu 24.04 image (using --images)" {
+  pull_distro_image ubuntu 24.04
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" list --images
+
+  assert_success
+  assert_line --index 1 --partial "quay.io/toolbx/ubuntu-toolbox:24.04"
+
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
