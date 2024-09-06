@@ -118,7 +118,11 @@ teardown() {
 
   assert_success
   assert_output --partial "Created container: arch-toolbox-latest"
-  assert_output --partial "Enter with: toolbox enter arch-toolbox-latest"
+  if [ "$(get_system_id)-toolbox-$(get_system_version)" = "arch-toolbox-latest" ]; then
+    assert_output --partial "Enter with: toolbox enter"
+  else
+    assert_output --partial "Enter with: toolbox enter arch-toolbox-latest"
+  fi
 
   run podman ps -a
 
@@ -132,7 +136,11 @@ teardown() {
 
   assert_success
   assert_output --partial "Created container: arch-toolbox-latest"
-  assert_output --partial "Enter with: toolbox enter arch-toolbox-latest"
+  if [ "$(get_system_id)-toolbox-$(get_system_version)" = "arch-toolbox-latest" ]; then
+    assert_output --partial "Enter with: toolbox enter"
+  else
+    assert_output --partial "Enter with: toolbox enter arch-toolbox-latest"
+  fi
 
   run podman ps -a
 
@@ -146,7 +154,11 @@ teardown() {
 
   assert_success
   assert_output --partial "Created container: arch-toolbox-latest"
-  assert_output --partial "Enter with: toolbox enter arch-toolbox-latest"
+  if [ "$(get_system_id)-toolbox-$(get_system_version)" = "arch-toolbox-latest" ]; then
+    assert_output --partial "Enter with: toolbox enter"
+  else
+    assert_output --partial "Enter with: toolbox enter arch-toolbox-latest"
+  fi
 
   run podman ps -a
 
@@ -160,7 +172,11 @@ teardown() {
 
   assert_success
   assert_output --partial "Created container: fedora-toolbox-34"
-  assert_output --partial "Enter with: toolbox enter fedora-toolbox-34"
+  if [ "$(get_system_id)-toolbox-$(get_system_version)" = "fedora-toolbox-34" ]; then
+    assert_output --partial "Enter with: toolbox enter"
+  else
+    assert_output --partial "Enter with: toolbox enter fedora-toolbox-34"
+  fi
 
   run podman ps -a
 
@@ -174,7 +190,11 @@ teardown() {
 
   assert_success
   assert_output --partial "Created container: rhel-toolbox-8.10"
-  assert_output --partial "Enter with: toolbox enter rhel-toolbox-8.10"
+  if [ "$(get_system_id)-toolbox-$(get_system_version)" = "rhel-toolbox-8.10" ]; then
+    assert_output --partial "Enter with: toolbox enter"
+  else
+    assert_output --partial "Enter with: toolbox enter rhel-toolbox-8.10"
+  fi
 
   run podman ps -a
 
@@ -188,7 +208,11 @@ teardown() {
 
   assert_success
   assert_output --partial "Created container: ubuntu-toolbox-20.04"
-  assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-20.04"
+  if [ "$(get_system_id)-toolbox-$(get_system_version)" = "ubuntu-toolbox-20.04" ]; then
+    assert_output --partial "Enter with: toolbox enter"
+  else
+    assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-20.04"
+  fi
 
   run $PODMAN ps --all
 
@@ -203,7 +227,11 @@ teardown() {
 
   assert_success
   assert_output --partial "Created container: ubuntu-toolbox-22.04"
-  assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-22.04"
+  if [ "$(get_system_id)-toolbox-$(get_system_version)" = "ubuntu-toolbox-22.04" ]; then
+    assert_output --partial "Enter with: toolbox enter"
+  else
+    assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-22.04"
+  fi
 
   run $PODMAN ps --all
 
@@ -218,7 +246,11 @@ teardown() {
 
   assert_success
   assert_output --partial "Created container: ubuntu-toolbox-24.04"
-  assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-24.04"
+  if [ "$(get_system_id)-toolbox-$(get_system_version)" = "ubuntu-toolbox-24.04" ]; then
+    assert_output --partial "Enter with: toolbox enter"
+  else
+    assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-24.04"
+  fi
 
   run $PODMAN ps --all
 
