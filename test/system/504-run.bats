@@ -76,3 +76,20 @@ teardown() {
   assert [ ${#lines[@]} -eq 0 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
+
+@test "run: Try /etc as a command (forwarded to host)" {
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
+  create_default_container
+
+  run -126 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox run /etc
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "bash: line 1: /etc: Is a directory"
+  assert_line --index 1 "bash: line 1: exec: /etc: cannot execute: Is a directory"
+  assert_line --index 2 "Error: failed to invoke command /etc in container $default_container"
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}

@@ -415,8 +415,15 @@ func runCommandWithFallbacks(container string,
 			errMsg := fmt.Sprintf("failed to invoke 'podman exec' in container %s", container)
 			return &exitError{exitCode, errors.New(errMsg)}
 		case 126:
-			errMsg := fmt.Sprintf("failed to invoke command %s in container %s", command[0], container)
-			return &exitError{exitCode, errors.New(errMsg)}
+			var err error
+			if command[0] != "toolbox" {
+				errMsg := fmt.Sprintf("failed to invoke command %s in container %s",
+					command[0],
+					container)
+				err = errors.New(errMsg)
+			}
+
+			return &exitError{exitCode, err}
 		case 127:
 			if pathPresent, _ := isPathPresent(container, workDir); !pathPresent {
 				if runFallbackWorkDirsIndex < len(runFallbackWorkDirs) {
