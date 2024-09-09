@@ -93,3 +93,21 @@ teardown() {
   assert_line --index 2 "Error: failed to invoke command /etc in container $default_container"
   assert [ ${#stderr_lines[@]} -eq 3 ]
 }
+
+@test "run: Try a non-existent command (forwarded to host)" {
+  local cmd="non-existent-command"
+
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
+  create_default_container
+
+  run -127 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox run "$cmd"
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "bash: line 1: exec: $cmd: not found"
+  assert_line --index 1 "Error: command $cmd not found in container $default_container"
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}

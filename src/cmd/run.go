@@ -462,6 +462,8 @@ func runCommandWithFallbacks(container string,
 						container)
 					return &exitError{exitCode, errors.New(errMsg)}
 				}
+			} else if command[0] == "toolbox" {
+				return &exitError{exitCode, nil}
 			} else {
 				return nil
 			}
