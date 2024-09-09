@@ -29,6 +29,20 @@ teardown() {
   cleanup_all
 }
 
+@test "enter: Try a non-existent container (forwarded to host)" {
+  create_default_container
+
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox enter wrong-container
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: container wrong-container not found"
+  assert_line --index 1 "Use the '--container' option to select a Toolbx."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
 @test "enter: Try an unsupported distribution (forwarded to host)" {
   create_default_container
 

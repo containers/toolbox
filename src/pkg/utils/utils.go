@@ -80,6 +80,7 @@ var (
 
 	preservedEnvironmentVariables = []string{
 		"COLORTERM",
+		"CONTAINERS_STORAGE_CONF",
 		"DBUS_SESSION_BUS_ADDRESS",
 		"DBUS_SYSTEM_BUS_ADDRESS",
 		"DESKTOP_SESSION",

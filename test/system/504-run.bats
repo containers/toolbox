@@ -29,6 +29,28 @@ teardown() {
   cleanup_all
 }
 
+@test "run: Smoke test with true(1) (forwarded to host)" {
+  create_default_container
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox run true
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "run: Smoke test with false(1) (forwarded to host)" {
+  create_default_container
+
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox run false
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
 @test "run: Try an unsupported distribution (forwarded to host)" {
   create_default_container
 
@@ -43,4 +65,14 @@ teardown() {
   assert_line --index 1 "Distribution $distro is unsupported."
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Smoke test with 'exit 2' (forwarded to host)" {
+  create_default_container
+
+  run -2 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox run /bin/sh -c 'exit 2'
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 }
