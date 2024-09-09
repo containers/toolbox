@@ -12,6 +12,12 @@ COPY extra-packages /
 RUN pacman -Syu --needed --noconfirm - < extra-packages
 RUN rm /extra-packages
 
+# Enable man pages, enable progress bars
+RUN sed -i -e 's/NoProgressBar/#NoProgressBar/' -e 's/NoExtract/#NoExtract/' /etc/pacman.conf
+
+# Force reinstall of packages which have man pages (shouldn't redownload any that were just upgraded)
+RUN mkdir -p /usr/share/man && pacman -Qo /usr/share/man | awk '{print $5}' | xargs pacman -S --noconfirm man-db
+
 # Clean up cache
 RUN yes | pacman -Scc
 
