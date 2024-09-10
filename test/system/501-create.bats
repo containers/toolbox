@@ -57,6 +57,23 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
+@test "create: Try the same name again (forwarded to host)" {
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
+  create_default_container
+
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox create
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: container $default_container already exists"
+  assert_line --index 1 "Enter with: toolbox enter"
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
 @test "create: Try an unsupported distribution (forwarded to host)" {
   create_default_container
 
