@@ -74,7 +74,7 @@ func GenerateCDISpec() (*specs.Spec, error) {
 		logger = logrus.StandardLogger()
 	}
 
-	cdi, err := nvcdi.New(nvcdi.WithLogger(logger))
+	cdi, err := nvcdi.New(nvcdi.WithInfoLib(info), nvcdi.WithLogger(logger))
 	if err != nil {
 		logrus.Debugf("Generating Container Device Interface for NVIDIA: failed to create library: %s", err)
 		return nil, errors.New("failed to create Container Device Interface library for NVIDIA")
