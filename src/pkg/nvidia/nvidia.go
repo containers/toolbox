@@ -45,7 +45,14 @@ func createNullLogger() *logrus.Logger {
 func GenerateCDISpec() (*specs.Spec, error) {
 	logrus.Debugf("Generating Container Device Interface for NVIDIA")
 
-	info := info.New()
+	var logger *logrus.Logger
+	if logLevel < logrus.DebugLevel {
+		logger = createNullLogger()
+	} else {
+		logger = logrus.StandardLogger()
+	}
+
+	info := info.New(info.WithLogger(logger))
 
 	if ok, reason := info.HasDXCore(); ok {
 		logrus.Debugf("Generating Container Device Interface for NVIDIA: Windows is unsupported: %s", reason)
@@ -65,13 +72,6 @@ func GenerateCDISpec() (*specs.Spec, error) {
 	if !hasNvml && !isTegra {
 		logrus.Debug("Generating Container Device Interface for NVIDIA: skipping")
 		return nil, ErrPlatformUnsupported
-	}
-
-	var logger *logrus.Logger
-	if logLevel < logrus.DebugLevel {
-		logger = createNullLogger()
-	} else {
-		logger = logrus.StandardLogger()
 	}
 
 	cdi, err := nvcdi.New(nvcdi.WithInfoLib(info), nvcdi.WithLogger(logger))
