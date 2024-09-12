@@ -102,6 +102,11 @@ func TestParseRelease(t *testing.T) {
 		},
 		{
 			inputDistro:  "fedora",
+			inputRelease: "rawhide",
+			output:       "rawhide",
+		},
+		{
+			inputDistro:  "fedora",
 			inputRelease: "f34",
 			output:       "34",
 		},
