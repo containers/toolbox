@@ -114,12 +114,7 @@ func enter(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	userShell := os.Getenv("SHELL")
-	if userShell == "" {
-		return errors.New("failed to get the current user's default shell")
-	}
-
-	command := []string{userShell, "-l"}
+	command := []string{"toolbox", "sh", "--", "-l"}
 
 	if err := runCommand(container, defaultContainer, image, release, 0, command, true, true, false); err != nil {
 		return err
