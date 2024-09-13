@@ -61,7 +61,8 @@ func GenerateCDISpec() (*specs.Spec, error) {
 
 	hasNvml, reason := info.HasNvml()
 	if !hasNvml {
-		logrus.Debugf("Generating Container Device Interface for NVIDIA: NVML not found: %s", reason)
+		logrus.Debugf("Generating Container Device Interface for NVIDIA: Management Library not found: %s",
+			reason)
 	}
 
 	isTegra, reason := info.IsTegraSystem()
