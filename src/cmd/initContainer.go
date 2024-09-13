@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/user"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -147,6 +148,8 @@ func init() {
 }
 
 func initContainer(cmd *cobra.Command, args []string) error {
+	const factoryInitializedFlag string = "/var/lib/toolbox/factory-initialized"
+
 	if !utils.IsInsideContainer() {
 		var builder strings.Builder
 		fmt.Fprintf(&builder, "the 'init-container' command can only be used inside containers\n")
@@ -189,82 +192,136 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		return errors.New(errMsg)
 	}
 
-	if utils.PathExists("/run/host/etc") {
-		logrus.Debug("Path /run/host/etc exists")
+	if !utils.PathExists(factoryInitializedFlag) {
+		if utils.PathExists("/run/host/etc") {
+			logrus.Debug("Path /run/host/etc exists")
 
-		if _, err := os.Readlink("/etc/host.conf"); err != nil {
-			if err := redirectPath("/etc/host.conf",
-				"/run/host/etc/host.conf",
-				false); err != nil {
+			if _, err := os.Readlink("/etc/host.conf"); err != nil {
+				if err := redirectPath("/etc/host.conf",
+					"/run/host/etc/host.conf",
+					false); err != nil {
+					return err
+				}
+			}
+
+			if _, err := os.Readlink("/etc/hosts"); err != nil {
+				if err := redirectPath("/etc/hosts",
+					"/run/host/etc/hosts",
+					false); err != nil {
+					return err
+				}
+			}
+
+			if localtimeTarget, err := os.Readlink("/etc/localtime"); err != nil ||
+				localtimeTarget != "/run/host/etc/localtime" {
+				if err := redirectPath("/etc/localtime",
+					"/run/host/etc/localtime",
+					false); err != nil {
+					return err
+				}
+			}
+
+			if err := updateTimeZoneFromLocalTime(); err != nil {
+				return err
+			}
+
+			if resolvConfTarget, err := os.Readlink("/etc/resolv.conf"); err != nil ||
+				resolvConfTarget != "/run/host/etc/resolv.conf" {
+				if err := redirectPath("/etc/resolv.conf",
+					"/run/host/etc/resolv.conf",
+					false); err != nil {
+					return err
+				}
+			}
+		}
+
+		if initContainerFlags.mediaLink {
+			if _, err := os.Readlink("/media"); err != nil {
+				if err = redirectPath("/media", "/run/media", true); err != nil {
+					return err
+				}
+			}
+		}
+
+		if initContainerFlags.mntLink {
+			if _, err := os.Readlink("/mnt"); err != nil {
+				if err := redirectPath("/mnt", "/var/mnt", true); err != nil {
+					return err
+				}
+			}
+		}
+
+		for _, mount := range initContainerMounts {
+			if err := mountBind(mount.containerPath, mount.source, mount.flags); err != nil {
 				return err
 			}
 		}
 
-		if _, err := os.Readlink("/etc/hosts"); err != nil {
-			if err := redirectPath("/etc/hosts",
-				"/run/host/etc/hosts",
-				false); err != nil {
+		if utils.PathExists("/sys/fs/selinux") {
+			if err := mountBind("/sys/fs/selinux", "/usr/share/empty", ""); err != nil {
 				return err
 			}
 		}
 
-		if localtimeTarget, err := os.Readlink("/etc/localtime"); err != nil ||
-			localtimeTarget != "/run/host/etc/localtime" {
-			if err := redirectPath("/etc/localtime",
-				"/run/host/etc/localtime",
-				false); err != nil {
-				return err
-			}
-		}
-
-		if err := updateTimeZoneFromLocalTime(); err != nil {
+		if err := configureUsers(initContainerFlags.uid,
+			initContainerFlags.user,
+			initContainerFlags.home,
+			initContainerFlags.shell,
+			initContainerFlags.homeLink); err != nil {
 			return err
 		}
 
-		if resolvConfTarget, err := os.Readlink("/etc/resolv.conf"); err != nil ||
-			resolvConfTarget != "/run/host/etc/resolv.conf" {
-			if err := redirectPath("/etc/resolv.conf",
-				"/run/host/etc/resolv.conf",
-				false); err != nil {
-				return err
+		if utils.PathExists("/etc/krb5.conf.d") && !utils.PathExists("/etc/krb5.conf.d/kcm_default_ccache") {
+			logrus.Debug("Setting KCM as the default Kerberos credential cache")
+
+			kcmConfigString := `# Written by Toolbx
+# https://github.com/containers/toolbox
+#
+# # To disable the KCM credential cache, comment out the following lines.
+
+[libdefaults]
+    default_ccache_name = KCM:
+`
+
+			kcmConfigBytes := []byte(kcmConfigString)
+			if err := ioutil.WriteFile("/etc/krb5.conf.d/kcm_default_ccache",
+				kcmConfigBytes,
+				0644); err != nil {
+				return errors.New("failed to set KCM as the default Kerberos credential cache")
 			}
 		}
-	}
 
-	if initContainerFlags.mediaLink {
-		if _, err := os.Readlink("/media"); err != nil {
-			if err = redirectPath("/media", "/run/media", true); err != nil {
-				return err
+		if utils.PathExists("/usr/lib/rpm/macros.d") {
+			logrus.Debug("Configuring RPM to ignore bind mounts")
+
+			var builder strings.Builder
+			fmt.Fprintf(&builder, "# Written by Toolbx\n")
+			fmt.Fprintf(&builder, "# https://github.com/containers/toolbox\n")
+			fmt.Fprintf(&builder, "\n")
+			fmt.Fprintf(&builder, "%%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt\n")
+
+			rpmConfigString := builder.String()
+			rpmConfigBytes := []byte(rpmConfigString)
+			if err := ioutil.WriteFile("/usr/lib/rpm/macros.d/macros.toolbox",
+				rpmConfigBytes,
+				0644); err != nil {
+				return fmt.Errorf("failed to configure RPM to ignore bind mounts: %w", err)
 			}
 		}
-	}
 
-	if initContainerFlags.mntLink {
-		if _, err := os.Readlink("/mnt"); err != nil {
-			if err := redirectPath("/mnt", "/var/mnt", true); err != nil {
-				return err
-			}
+		logrus.Debugf("Creating factory initialization flag %s", factoryInitializedFlag)
+
+		err := os.MkdirAll(path.Base(factoryInitializedFlag), 0700)
+		if err != nil {
+			return errors.New("failed to create toolbox data directory")
 		}
-	}
 
-	for _, mount := range initContainerMounts {
-		if err := mountBind(mount.containerPath, mount.source, mount.flags); err != nil {
-			return err
+		factoryInitializedFlagFile, err := os.Create(factoryInitializedFlag)
+		if err != nil {
+			return errors.New("failed to create initialization flag")
 		}
-	}
 
-	if utils.PathExists("/sys/fs/selinux") {
-		if err := mountBind("/sys/fs/selinux", "/usr/share/empty", ""); err != nil {
-			return err
-		}
-	}
-
-	if err := configureUsers(initContainerFlags.uid,
-		initContainerFlags.user,
-		initContainerFlags.home,
-		initContainerFlags.shell,
-		initContainerFlags.homeLink); err != nil {
-		return err
+		defer factoryInitializedFlagFile.Close()
 	}
 
 	uidString := strconv.Itoa(initContainerFlags.uid)
@@ -294,44 +351,6 @@ func initContainer(cmd *cobra.Command, args []string) error {
 	if cdiSpecForNvidia != nil {
 		if err := applyCDISpecForNvidia(cdiSpecForNvidia); err != nil {
 			return err
-		}
-	}
-
-	if utils.PathExists("/etc/krb5.conf.d") && !utils.PathExists("/etc/krb5.conf.d/kcm_default_ccache") {
-		logrus.Debug("Setting KCM as the default Kerberos credential cache")
-
-		kcmConfigString := `# Written by Toolbx
-# https://github.com/containers/toolbox
-#
-# # To disable the KCM credential cache, comment out the following lines.
-
-[libdefaults]
-    default_ccache_name = KCM:
-`
-
-		kcmConfigBytes := []byte(kcmConfigString)
-		if err := ioutil.WriteFile("/etc/krb5.conf.d/kcm_default_ccache",
-			kcmConfigBytes,
-			0644); err != nil {
-			return errors.New("failed to set KCM as the default Kerberos credential cache")
-		}
-	}
-
-	if utils.PathExists("/usr/lib/rpm/macros.d") {
-		logrus.Debug("Configuring RPM to ignore bind mounts")
-
-		var builder strings.Builder
-		fmt.Fprintf(&builder, "# Written by Toolbx\n")
-		fmt.Fprintf(&builder, "# https://github.com/containers/toolbox\n")
-		fmt.Fprintf(&builder, "\n")
-		fmt.Fprintf(&builder, "%%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt\n")
-
-		rpmConfigString := builder.String()
-		rpmConfigBytes := []byte(rpmConfigString)
-		if err := ioutil.WriteFile("/usr/lib/rpm/macros.d/macros.toolbox",
-			rpmConfigBytes,
-			0644); err != nil {
-			return fmt.Errorf("failed to configure RPM to ignore bind mounts: %w", err)
 		}
 	}
 
