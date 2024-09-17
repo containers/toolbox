@@ -3,12 +3,11 @@
     "hooks": [
       {
         "args": [
-          "nvidia-ctk",
-          "hook",
+          "nvidia-cdi-hook",
           "update-ldcache"
         ],
         "hookName": "createContainer",
-        "path": "/usr/bin/nvidia-ctk"
+        "path": "/usr/bin/nvidia-cdi-hook"
       }
     ]
   }

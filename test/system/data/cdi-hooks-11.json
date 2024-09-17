@@ -4,7 +4,6 @@
       {
         "args": [
           "unknown",
-          "hook",
           "update-ldcache"
         ],
         "hookName": "createContainer",

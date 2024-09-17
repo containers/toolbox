@@ -474,10 +474,9 @@ func applyCDISpecForNvidia(spec *specs.Spec) error {
 			continue
 		}
 
-		if len(hook.Args) < 3 ||
-			hook.Args[0] != "nvidia-ctk" ||
-			hook.Args[1] != "hook" ||
-			hook.Args[2] != "update-ldcache" {
+		if len(hook.Args) < 2 ||
+			hook.Args[0] != "nvidia-cdi-hook" ||
+			hook.Args[1] != "update-ldcache" {
 			logrus.Debug("Applying Container Device Interface for NVIDIA: unknown hook arguments:")
 			for _, arg := range hook.Args {
 				logrus.Debugf("%s", arg)
@@ -488,7 +487,7 @@ func applyCDISpecForNvidia(spec *specs.Spec) error {
 
 		var folderFlag bool
 		var folders []string
-		hookArgs := hook.Args[3:]
+		hookArgs := hook.Args[2:]
 
 		for _, hookArg := range hookArgs {
 			if hookArg == "--folder" {

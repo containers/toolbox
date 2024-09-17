@@ -280,7 +280,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "cdi: Try hook with unknown args (a)" {
+@test "cdi: Try hook with unknown args" {
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
 
   create_default_container
@@ -295,35 +295,6 @@ teardown() {
     test /etc/ld.so.cache -ot "$toolbx_runtime_directory/cdi-nvidia.json"
 
   if ! cmp --silent "$BATS_TEST_DIRNAME/data/cdi-hooks-12.json" "$toolbx_runtime_directory/cdi-nvidia.json"; then
-    skip "found NVIDIA hardware"
-  fi
-
-  assert_success
-  assert [ ${#lines[@]} -eq 0 ]
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /etc/ld.so.conf.d/toolbx-nvidia.conf
-
-  assert_failure
-  assert [ ${#lines[@]} -eq 0 ]
-  assert [ ${#stderr_lines[@]} -eq 0 ]
-}
-
-@test "cdi: Try hook with unknown args (b)" {
-  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
-
-  create_default_container
-
-  # shellcheck disable=SC2174
-  mkdir --mode 700 --parents "$toolbx_runtime_directory"
-
-  cp "$BATS_TEST_DIRNAME/data/cdi-hooks-13.json" "$toolbx_runtime_directory/cdi-nvidia.json"
-  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
-
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
-    test /etc/ld.so.cache -ot "$toolbx_runtime_directory/cdi-nvidia.json"
-
-  if ! cmp --silent "$BATS_TEST_DIRNAME/data/cdi-hooks-13.json" "$toolbx_runtime_directory/cdi-nvidia.json"; then
     skip "found NVIDIA hardware"
   fi
 
