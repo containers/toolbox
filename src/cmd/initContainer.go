@@ -474,38 +474,46 @@ func applyCDISpecForNvidia(spec *specs.Spec) error {
 			continue
 		}
 
-		if len(hook.Args) < 2 ||
-			hook.Args[0] != "nvidia-cdi-hook" ||
-			hook.Args[1] != "update-ldcache" {
-			logrus.Debug("Applying Container Device Interface for NVIDIA: unknown hook arguments:")
-			for _, arg := range hook.Args {
-				logrus.Debugf("%s", arg)
+		if len(hook.Args) >= 2 &&
+			hook.Args[0] == "nvidia-cdi-hook" &&
+			hook.Args[1] == "update-ldcache" {
+			hookArgs := hook.Args[2:]
+			if err := applyCDISpecForNvidiaHookUpdateLDCache(hookArgs); err != nil {
+				logrus.Debugf("Applying Container Device Interface for NVIDIA: %s", err)
+				return errors.New("failed to update ldcache for Container Device Interface for NVIDIA")
 			}
 
 			continue
 		}
 
-		var folderFlag bool
-		var folders []string
-		hookArgs := hook.Args[2:]
+		logrus.Debug("Applying Container Device Interface for NVIDIA: unknown hook arguments:")
+		for _, arg := range hook.Args {
+			logrus.Debugf("%s", arg)
+		}
+	}
 
-		for _, hookArg := range hookArgs {
-			if hookArg == "--folder" {
-				folderFlag = true
-				continue
-			}
+	return nil
+}
 
-			if folderFlag {
-				folders = append(folders, hookArg)
-			}
+func applyCDISpecForNvidiaHookUpdateLDCache(hookArgs []string) error {
+	var folderFlag bool
+	var folders []string
 
-			folderFlag = false
+	for _, hookArg := range hookArgs {
+		if hookArg == "--folder" {
+			folderFlag = true
+			continue
 		}
 
-		if err := ldConfig("toolbx-nvidia.conf", folders); err != nil {
-			logrus.Debugf("Applying Container Device Interface for NVIDIA: %s", err)
-			return errors.New("failed to update ldcache for Container Device Interface for NVIDIA")
+		if folderFlag {
+			folders = append(folders, hookArg)
 		}
+
+		folderFlag = false
+	}
+
+	if err := ldConfig("toolbx-nvidia.conf", folders); err != nil {
+		return err
 	}
 
 	return nil
