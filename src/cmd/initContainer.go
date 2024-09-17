@@ -478,7 +478,7 @@ func applyCDISpecForNvidia(spec *specs.Spec) error {
 			hook.Args[0] != "nvidia-ctk" ||
 			hook.Args[1] != "hook" ||
 			hook.Args[2] != "update-ldcache" {
-			logrus.Debugf("Applying Container Device Interface for NVIDIA: unknown hook arguments")
+			logrus.Debug("Applying Container Device Interface for NVIDIA: unknown hook arguments")
 			continue
 		}
 
