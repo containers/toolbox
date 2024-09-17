@@ -476,6 +476,16 @@ func applyCDISpecForNvidia(spec *specs.Spec) error {
 
 		if len(hook.Args) >= 2 &&
 			hook.Args[0] == "nvidia-cdi-hook" &&
+			hook.Args[1] == "create-symlinks" {
+			hookArgs := hook.Args[2:]
+			if err := applyCDISpecForNvidiaHookCreateSymlinks(hookArgs); err != nil {
+				logrus.Debugf("Applying Container Device Interface for NVIDIA: %s", err)
+				return errors.New("failed to create symlinks for Container Device Interface for NVIDIA")
+			}
+
+			continue
+		} else if len(hook.Args) >= 2 &&
+			hook.Args[0] == "nvidia-cdi-hook" &&
 			hook.Args[1] == "update-ldcache" {
 			hookArgs := hook.Args[2:]
 			if err := applyCDISpecForNvidiaHookUpdateLDCache(hookArgs); err != nil {
@@ -490,6 +500,43 @@ func applyCDISpecForNvidia(spec *specs.Spec) error {
 		for _, arg := range hook.Args {
 			logrus.Debugf("%s", arg)
 		}
+	}
+
+	return nil
+}
+
+func applyCDISpecForNvidiaHookCreateSymlinks(hookArgs []string) error {
+	var linkFlag bool
+
+	for _, hookArg := range hookArgs {
+		if hookArg == "--link" {
+			linkFlag = true
+			continue
+		}
+
+		if linkFlag {
+			linkFlag = false
+			if linkParts := strings.Split(hookArg, "::"); len(linkParts) == 2 {
+				existingTarget := linkParts[0]
+
+				newLink := linkParts[1]
+				if !filepath.IsAbs(newLink) {
+					return fmt.Errorf("invalid --link argument: link %s is not an absolute path",
+						newLink)
+				}
+
+				if err := createSymbolicLink(existingTarget, newLink); err != nil {
+					return err
+				}
+			} else {
+				return fmt.Errorf("invalid --link argument: %s not in '<target>::<link>' format",
+					hookArg)
+			}
+		}
+	}
+
+	if linkFlag {
+		return errors.New("missing --link argument")
 	}
 
 	return nil
@@ -582,6 +629,29 @@ func configureUsers(targetUserUid int, targetUser, targetUserHome, targetUserShe
 		errString := stderr.String()
 		logrus.Debugf("Removing password for user root: failed: %s", errString)
 		return fmt.Errorf("failed to remove password for root: %w", err)
+	}
+
+	return nil
+}
+
+func createSymbolicLink(existingTarget, newLink string) error {
+	logrus.Debugf("Creating symbolic link with target %s and link %s", existingTarget, newLink)
+
+	newLinkDir := filepath.Dir(newLink)
+	if err := os.MkdirAll(newLinkDir, 0755); err != nil {
+		return fmt.Errorf("failed to create directory %s: %w", newLinkDir, err)
+	}
+
+	if err := os.Symlink(existingTarget, newLink); err != nil {
+		var errLink *os.LinkError
+		if errors.As(err, &errLink) {
+			if errors.Is(err, os.ErrExist) {
+				logrus.Debugf("Creating symbolic link: file %s already exists", newLink)
+				return nil
+			}
+		}
+
+		return fmt.Errorf("failed to create symbolic link: %w", err)
 	}
 
 	return nil

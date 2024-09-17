@@ -70,6 +70,809 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+@test "cdi: create-symlinks with no link" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-00.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run true
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with one link (absolute target, different parent)" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-01.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /run/toolbox.1
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with one link (absolute target, different parent, restart)" {
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-01.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /run/toolbox.1
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  "$PODMAN" stop "$default_container"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /run/toolbox.1
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with one link (absolute target, missing parent)" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-02.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /opt/bin/toolbox
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /opt/bin/toolbox
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with one link (absolute target, missing parent, restart)" {
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-02.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /opt/bin/toolbox
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /opt/bin/toolbox
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  "$PODMAN" stop "$default_container"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /opt/bin/toolbox
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /opt/bin/toolbox
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with one link (absolute target, same parent)" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-03.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /usr/bin/toolbox.1
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with one link (absolute target, same parent, restart)" {
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-03.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /usr/bin/toolbox.1
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  "$PODMAN" stop "$default_container"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /usr/bin/toolbox.1
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with three links (absolute targets, mixed parents)" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-04.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /run/toolbox.1
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /opt/bin/toolbox
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /opt/bin/toolbox
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /usr/bin/toolbox.1
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with three links (absolute targets, mixed parents, restart)" {
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-04.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /run/toolbox.1
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /opt/bin/toolbox
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /opt/bin/toolbox
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /usr/bin/toolbox.1
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  "$PODMAN" stop "$default_container"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /run/toolbox.1
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /opt/bin/toolbox
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /opt/bin/toolbox
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /usr/bin/toolbox.1
+
+  assert_success
+  assert_line --index 0 "/usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with one link (relative target, different parent)" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-05.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /run/toolbox.1
+
+  assert_success
+  assert_line --index 0 "../usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with one link (relative target, different parent, restart)" {
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-05.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /run/toolbox.1
+
+  assert_success
+  assert_line --index 0 "../usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  "$PODMAN" stop "$default_container"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /run/toolbox.1
+
+  assert_success
+  assert_line --index 0 "../usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with one link (relative target, missing parent)" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-06.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /opt/bin/toolbox
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /opt/bin/toolbox
+
+  assert_success
+  assert_line --index 0 "../../usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with one link (relative target, missing parent, restart)" {
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-06.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /opt/bin/toolbox
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /opt/bin/toolbox
+
+  assert_success
+  assert_line --index 0 "../../usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  "$PODMAN" stop "$default_container"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /opt/bin/toolbox
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /opt/bin/toolbox
+
+  assert_success
+  assert_line --index 0 "../../usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with one link (relative target, same parent)" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-07.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /usr/bin/toolbox.1
+
+  assert_success
+  assert_line --index 0 "toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with one link (relative target, same parent, restart)" {
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-07.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /usr/bin/toolbox.1
+
+  assert_success
+  assert_line --index 0 "toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  "$PODMAN" stop "$default_container"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /usr/bin/toolbox.1
+
+  assert_success
+  assert_line --index 0 "toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with three links (relative targets, mixed parents)" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-08.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /run/toolbox.1
+
+  assert_success
+  assert_line --index 0 "../usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /opt/bin/toolbox
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /opt/bin/toolbox
+
+  assert_success
+  assert_line --index 0 "../../usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /usr/bin/toolbox.1
+
+  assert_success
+  assert_line --index 0 "toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: create-symlinks with three links (relative targets, mixed parents, restart)" {
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-08.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /run/toolbox.1
+
+  assert_success
+  assert_line --index 0 "../usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /opt/bin/toolbox
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /opt/bin/toolbox
+
+  assert_success
+  assert_line --index 0 "../../usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /usr/bin/toolbox.1
+
+  assert_success
+  assert_line --index 0 "toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  "$PODMAN" stop "$default_container"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /run/toolbox.1
+
+  assert_success
+  assert_line --index 0 "../usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /opt/bin/toolbox
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /opt/bin/toolbox
+
+  assert_success
+  assert_line --index 0 "../../usr/bin/toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run readlink /usr/bin/toolbox.1
+
+  assert_success
+  assert_line --index 0 "toolbox"
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
 @test "cdi: ldconfig(8) with no folder" {
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
 
@@ -213,6 +1016,202 @@ teardown() {
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: failed to load Container Device Interface for NVIDIA"
   assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "cdi: Try create-symlinks with invalid path" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-30.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run true
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid hook in Container Device Interface for NVIDIA"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "cdi: Try create-symlinks with unknown path" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-31.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "cdi: Try create-symlinks with missing --link argument" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-32.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run true
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: failed to create symlinks for Container Device Interface for NVIDIA"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "cdi: Try create-symlinks with relative link in --link argument" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-33.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run true
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: failed to create symlinks for Container Device Interface for NVIDIA"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "cdi: Try create-symlinks with wrongly formatted --link argument ('foo')" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-34.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run true
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: failed to create symlinks for Container Device Interface for NVIDIA"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "cdi: Try create-symlinks with wrongly formatted --link argument ('foo::bar::baz')" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-35.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run true
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: failed to create symlinks for Container Device Interface for NVIDIA"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "cdi: Try create-symlinks with invalid name" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-36.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run true
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid hook in Container Device Interface for NVIDIA"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "cdi: Try create-symlinks with unknown name" {
+  local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-37.json"
+  local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
+
+  create_default_container
+
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$toolbx_runtime_directory"
+
+  cp "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"
+  chmod 644 "$toolbx_runtime_directory/cdi-nvidia.json"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
+
+  if ! cmp --silent "$test_cdi_file" "$toolbx_runtime_directory/cdi-nvidia.json"; then
+    skip "found NVIDIA hardware"
+  fi
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
 @test "cdi: Try hook with invalid path" {

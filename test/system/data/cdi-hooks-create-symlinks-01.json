@@ -1,0 +1,16 @@
+{
+  "containerEdits": {
+    "hooks": [
+      {
+        "args": [
+          "nvidia-cdi-hook",
+          "create-symlinks",
+          "--link",
+          "/usr/bin/toolbox::/run/toolbox.1"
+        ],
+        "hookName": "createContainer",
+        "path": "/usr/bin/nvidia-cdi-hook"
+      }
+    ]
+  }
+}

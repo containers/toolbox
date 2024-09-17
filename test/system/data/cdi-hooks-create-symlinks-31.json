@@ -1,0 +1,16 @@
+{
+  "containerEdits": {
+    "hooks": [
+      {
+        "args": [
+          "unknown",
+          "create-symlinks",
+          "--link",
+          "toolbox::/usr/bin/toolbox.1"
+        ],
+        "hookName": "createContainer",
+        "path": "/usr/bin/unknown"
+      }
+    ]
+  }
+}
