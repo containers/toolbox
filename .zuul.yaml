@@ -62,7 +62,7 @@
 - job:
     name: system-test-fedora-40
     description: Run Toolbx's system tests in Fedora 40
-    timeout: 6600
+    timeout: 7200
     nodeset:
       nodes:
         - name: fedora-40
@@ -73,7 +73,7 @@
 - job:
     name: system-test-fedora-39
     description: Run Toolbx's system tests in Fedora 39
-    timeout: 6600
+    timeout: 7200
     nodeset:
       nodes:
         - name: fedora-39
