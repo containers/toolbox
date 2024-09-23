@@ -1,3 +1,50 @@
+Overview of changes in 0.0.99.6
+===============================
+
+* Add all the iconv converter modules for glibc to the fedora-toolbox images
+* Add an extra space after the ⬢ in the PS1
+* Add cracklib-dicts to the fedora-toolbox images
+* Add logos to the Arch Linux and Fedora badges, and a badge for the Ubuntu
+  package
+* Add manual pages and pacman progress bars to the arch-toolbox image
+* Add toolbox image definitions for RHELs 8.8, 8.9, 9.2 and 9.3
+* Add translations for gawk to the fedora-toolbox images
+* Add ubuntu-toolbox image definitions for Ubuntu 24.04
+* Avoid running out of storage space when running the system tests on the CI
+* Bump the minimum github.com/briandowns/spinner version to 1.18.0
+* Depend on github.com/go-logfmt/logfmt version 0.5.0
+* Depend on github.com/NVIDIA/go-nvlib version 0.6.1
+* Depend on github.com/NVIDIA/nvidia-container-toolkit version 1.16.1
+* Don't unmarshal the 'podman ps' JSON twice
+* Don't use use auto dependencies for shell completion scripts
+* Drop one "o" and rename the project as "Toolbx"
+* Enable more tests on Ubuntu 22.04 by setting the SHELL environment variable
+* Enable the proprietary NVIDIA driver
+* Exclude the meson.build files when installing the system tests
+* Fix pacman cache removal in the arch-toolbox image
+* Let 'create' use an image without a name
+* Let the terminal know the active container on all host operating systems,
+  and not just Fedora Silverblue and Workstation
+* Limit the scope of temporary files used by the system tests
+* Optimize 'enter' and 'run' for both an already running container and a
+  container getting initialized
+* Optimize the CI on Fedora nodes
+* Optimize the resource limits tests
+* Preserve the Konsole and xterm versions
+* Require --assumeyes to pull an image when not connected to a terminal
+* Retain errors from toolbox(1) without --verbose when forwarding to host
+* Retain exit codes from toolbox(1) when forwarding to host
+* Show the entry point's debug logs & errors in 'enter' and 'run'
+* Support 64-bit LoongArch
+* Synchronize the documentation with the website
+* Unbreak Podman's downstream Fedora CI
+* Use Buildah and Podman to build and test the arch-toolbox and ubuntu-toolbox
+  images
+* Use the same linker flags as NVIDIA Container Toolkit, and '-z now' is
+  unsupported
+* Work around bug in pasta(1) networks in the system tests
+
+
 Overview of changes in 0.0.99.5
 ===============================
 
