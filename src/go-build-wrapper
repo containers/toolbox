@@ -116,7 +116,7 @@ dynamic_linker="/run/host$dynamic_linker_canonical_dirname/$dynamic_linker_basen
 go build \
         $tags \
         -trimpath \
-        -ldflags "-extldflags '-Wl,-dynamic-linker,$dynamic_linker -Wl,-rpath,/run/host$libc_dir_canonical_dirname' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$4" \
+        -ldflags "-extldflags '-Wl,-dynamic-linker,$dynamic_linker -Wl,-rpath,/run/host$libc_dir_canonical_dirname -Wl,--export-dynamic -Wl,--unresolved-symbols=ignore-in-object-files' -linkmode external -X github.com/containers/toolbox/pkg/version.currentVersion=$4" \
         -o "$2/$3"
 
 exit "$?"
