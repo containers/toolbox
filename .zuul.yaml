@@ -51,7 +51,7 @@
 - job:
     name: system-test-fedora-rawhide
     description: Run Toolbx's system tests in Fedora Rawhide
-    timeout: 7800
+    timeout: 10800
     nodeset:
       nodes:
         - name: fedora-rawhide
@@ -62,7 +62,7 @@
 - job:
     name: system-test-fedora-40
     description: Run Toolbx's system tests in Fedora 40
-    timeout: 7200
+    timeout: 9000
     nodeset:
       nodes:
         - name: fedora-40
@@ -73,7 +73,7 @@
 - job:
     name: system-test-fedora-39
     description: Run Toolbx's system tests in Fedora 39
-    timeout: 7200
+    timeout: 9000
     nodeset:
       nodes:
         - name: fedora-39
