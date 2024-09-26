@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+# bats file_tags=runtime-environment
+
 load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers'
@@ -43,6 +45,7 @@ teardown() {
   cleanup_all
 }
 
+# bats test_tags=arch-fedora
 @test "network: No namespace" {
   local ns_host
   ns_host=$(readlink /proc/$$/ns/net)
@@ -59,6 +62,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "network: /etc/resolv.conf inside the default container" {
   create_default_container
 
@@ -72,6 +76,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "network: /etc/resolv.conf inside Arch Linux" {
   create_distro_container arch latest arch-toolbox-latest
 
@@ -85,6 +90,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "network: /etc/resolv.conf inside Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
 
@@ -98,6 +104,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "network: /etc/resolv.conf inside RHEL 8.10" {
   create_distro_container rhel 8.10 rhel-toolbox-8.10
 
@@ -111,6 +118,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "network: /etc/resolv.conf inside Ubuntu 16.04" {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
@@ -124,6 +132,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "network: /etc/resolv.conf inside Ubuntu 18.04" {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
@@ -137,6 +146,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "network: /etc/resolv.conf inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
@@ -150,6 +160,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "network: DNS inside the default container" {
   local ipv4_skip=false
   local ipv4_addr
@@ -188,6 +199,7 @@ teardown() {
   fi
 }
 
+# bats test_tags=arch-fedora
 @test "network: DNS inside Arch Linux" {
   local ipv4_skip=false
   local ipv4_addr
@@ -230,6 +242,7 @@ teardown() {
   fi
 }
 
+# bats test_tags=arch-fedora
 @test "network: DNS inside Fedora 34" {
   local ipv4_skip=false
   local ipv4_addr
@@ -274,6 +287,7 @@ teardown() {
   fi
 }
 
+# bats test_tags=arch-fedora
 @test "network: DNS inside RHEL 8.10" {
   local ipv4_skip=false
   local ipv4_addr
@@ -318,6 +332,7 @@ teardown() {
   fi
 }
 
+# bats test_tags=ubuntu
 @test "network: DNS inside Ubuntu 16.04" {
   local ipv4_skip=false
   local ipv4_addr
@@ -362,6 +377,7 @@ teardown() {
   fi
 }
 
+# bats test_tags=ubuntu
 @test "network: DNS inside Ubuntu 18.04" {
   local ipv4_skip=false
   local ipv4_addr
@@ -406,6 +422,7 @@ teardown() {
   fi
 }
 
+# bats test_tags=ubuntu
 @test "network: DNS inside Ubuntu 20.04" {
   local ipv4_skip=false
   local ipv4_addr
@@ -450,6 +467,7 @@ teardown() {
   fi
 }
 
+# bats test_tags=arch-fedora
 @test "network: ping(8) inside the default container" {
   create_default_container
 
@@ -466,6 +484,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "network: ping(8) inside Arch Linux" {
   create_distro_container arch latest arch-toolbox-latest
 
@@ -482,6 +501,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "network: ping(8) inside Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
 
@@ -498,6 +518,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "network: ping(8) inside RHEL 8.10" {
   create_distro_container rhel 8.10 rhel-toolbox-8.10
 
@@ -514,6 +535,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "network: ping(8) inside Ubuntu 16.04" {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
@@ -528,6 +550,7 @@ teardown() {
   skip "doesn't use ICMP Echo sockets"
 }
 
+# bats test_tags=ubuntu
 @test "network: ping(8) inside Ubuntu 18.04" {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
@@ -544,6 +567,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "network: ping(8) inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 

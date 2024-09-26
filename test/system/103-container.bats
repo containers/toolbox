@@ -15,11 +15,14 @@
 # limitations under the License.
 #
 
+# bats file_tags=commands-options
+
 load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers'
 
 setup() {
+  bats_require_minimum_version 1.8.0
   _setup_environment
   cleanup_all
 }

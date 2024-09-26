@@ -20,6 +20,8 @@ readonly DOCKER_REG_NAME="docker-registry"
 # Podman and Toolbx commands to run
 readonly PODMAN="${PODMAN:-$(command -v podman)}"
 readonly TOOLBX="${TOOLBX:-$(command -v toolbox)}"
+readonly TOOLBX_TEST_SYSTEM_TAGS_ALL="arch-fedora,commands-options,custom-image,runtime-environment,ubuntu"
+readonly TOOLBX_TEST_SYSTEM_TAGS="${TOOLBX_TEST_SYSTEM_TAGS:-$TOOLBX_TEST_SYSTEM_TAGS_ALL}"
 readonly SKOPEO="${SKOPEO:-$(command -v skopeo)}"
 
 # Images

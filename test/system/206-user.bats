@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+# bats file_tags=runtime-environment
+
 load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers'
@@ -31,6 +33,7 @@ teardown() {
   cleanup_all
 }
 
+# bats test_tags=arch-fedora
 @test "user: Separate namespace" {
   local ns_host
   ns_host=$(readlink /proc/$$/ns/user)
@@ -48,6 +51,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: root in shadow(5) inside the default container" {
   local default_container
   default_container="$(get_system_id)-toolbox-$(get_system_version)"
@@ -68,6 +72,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: root in shadow(5) inside Arch Linux" {
   create_distro_container arch latest arch-toolbox-latest
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount arch-toolbox-latest)"
@@ -85,6 +90,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: root in shadow(5) inside Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount fedora-toolbox-34)"
@@ -102,6 +108,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: root in shadow(5) inside RHEL 8.10" {
   create_distro_container rhel 8.10 rhel-toolbox-8.10
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount rhel-toolbox-8.10)"
@@ -119,6 +126,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "user: root in shadow(5) inside Ubuntu 16.04" {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-16.04)"
@@ -136,6 +144,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "user: root in shadow(5) inside Ubuntu 18.04" {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-18.04)"
@@ -153,6 +162,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "user: root in shadow(5) inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-20.04)"
@@ -170,6 +180,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: $USER in passwd(5) inside the default container" {
   local user_gecos
   user_gecos="$(getent passwd "$USER" | cut --delimiter : --fields 5)"
@@ -189,6 +200,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: $USER in passwd(5) inside Arch Linux" {
   local user_gecos
   user_gecos="$(getent passwd "$USER" | cut --delimiter : --fields 5)"
@@ -208,6 +220,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: $USER in passwd(5) inside Fedora 34" {
   local user_gecos
   user_gecos="$(getent passwd "$USER" | cut --delimiter : --fields 5)"
@@ -227,6 +240,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: $USER in passwd(5) inside RHEL 8.10" {
   local user_gecos
   user_gecos="$(getent passwd "$USER" | cut --delimiter : --fields 5)"
@@ -246,6 +260,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "user: $USER in passwd(5) inside Ubuntu 16.04" {
   local user_gecos
   user_gecos="$(getent passwd "$USER" | cut --delimiter : --fields 5)"
@@ -265,6 +280,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "user: $USER in passwd(5) inside Ubuntu 18.04" {
   local user_gecos
   user_gecos="$(getent passwd "$USER" | cut --delimiter : --fields 5)"
@@ -284,6 +300,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "user: $USER in passwd(5) inside Ubuntu 20.04" {
   local user_gecos
   user_gecos="$(getent passwd "$USER" | cut --delimiter : --fields 5)"
@@ -303,6 +320,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: $USER in shadow(5) inside the default container" {
   local default_container
   default_container="$(get_system_id)-toolbox-$(get_system_version)"
@@ -323,6 +341,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: $USER in shadow(5) inside Arch Linux" {
   create_distro_container arch latest arch-toolbox-latest
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount arch-toolbox-latest)"
@@ -340,6 +359,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: $USER in shadow(5) inside Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount fedora-toolbox-34)"
@@ -357,6 +377,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: $USER in shadow(5) inside RHEL 8.10" {
   create_distro_container rhel 8.10 rhel-toolbox-8.10
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount rhel-toolbox-8.10)"
@@ -374,6 +395,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "user: $USER in shadow(5) inside Ubuntu 16.04" {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-16.04)"
@@ -391,6 +413,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "user: $USER in shadow(5) inside Ubuntu 18.04" {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-18.04)"
@@ -408,6 +431,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "user: $USER in shadow(5) inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
   container_root_file_system="$("$PODMAN" unshare "$PODMAN" mount ubuntu-toolbox-20.04)"
@@ -425,6 +449,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: $USER in group(5) inside the default container" {
   create_default_container
 
@@ -439,6 +464,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: $USER in group(5) inside Arch Linux" {
   create_distro_container arch latest arch-toolbox-latest
 
@@ -453,6 +479,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: $USER in group(5) inside Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
 
@@ -467,6 +494,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: $USER in group(5) inside RHEL 8.10" {
   create_distro_container rhel 8.10 rhel-toolbox-8.10
 
@@ -481,6 +509,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "user: $USER in group(5) inside Ubuntu 16.04" {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
@@ -495,6 +524,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "user: $USER in group(5) inside Ubuntu 18.04" {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
@@ -509,6 +539,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "user: $USER in group(5) inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
@@ -523,6 +554,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: id(1) for $USER inside the default container" {
   create_default_container
 
@@ -546,6 +578,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: id(1) for $USER inside Arch Linux" {
   create_distro_container arch latest arch-toolbox-latest
 
@@ -569,6 +602,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: id(1) for $USER inside Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
 
@@ -592,6 +626,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "user: id(1) for $USER inside RHEL 8.10" {
   create_distro_container rhel 8.10 rhel-toolbox-8.10
 
@@ -615,6 +650,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "user: id(1) for $USER inside Ubuntu 16.04" {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
@@ -638,6 +674,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "user: id(1) for $USER inside Ubuntu 18.04" {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
@@ -661,6 +698,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "user: id(1) for $USER inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 

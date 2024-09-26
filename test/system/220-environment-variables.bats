@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+# bats file_tags=runtime-environment
+
 load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers'
@@ -31,6 +33,7 @@ teardown() {
   cleanup_all
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: HISTFILESIZE inside the default container" {
   create_default_container
 
@@ -54,6 +57,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: HISTFILESIZE inside Arch Linux" {
   create_distro_container arch latest arch-toolbox-latest
 
@@ -78,6 +82,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: HISTFILESIZE inside Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
 
@@ -102,6 +107,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: HISTFILESIZE inside RHEL 8.10" {
   create_distro_container rhel 8.10 rhel-toolbox-8.10
 
@@ -126,6 +132,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "environment variables: HISTFILESIZE inside Ubuntu 16.04" {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
@@ -151,6 +158,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "environment variables: HISTFILESIZE inside Ubuntu 18.04" {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
@@ -176,6 +184,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "environment variables: HISTFILESIZE inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
@@ -200,6 +209,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: HISTSIZE inside the default container" {
   skip "https://pagure.io/setup/pull-request/48"
 
@@ -225,6 +235,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: HISTSIZE inside Arch Linux" {
   create_distro_container arch latest arch-toolbox-latest
 
@@ -249,6 +260,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: HISTSIZE inside Fedora 34" {
   skip "https://pagure.io/setup/pull-request/48"
 
@@ -275,6 +287,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: HISTSIZE inside RHEL 8.10" {
   skip "https://pagure.io/setup/pull-request/48"
 
@@ -301,6 +314,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "environment variables: HISTSIZE inside Ubuntu 16.04" {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
@@ -325,6 +339,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "environment variables: HISTSIZE inside Ubuntu 18.04" {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
@@ -349,6 +364,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "environment variables: HISTSIZE inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
@@ -372,6 +388,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: HOSTNAME inside the default container" {
   create_default_container
 
@@ -384,6 +401,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: HOSTNAME inside Arch Linux" {
   create_distro_container arch latest arch-toolbox-latest
 
@@ -396,6 +414,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: HOSTNAME inside Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
 
@@ -408,6 +427,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: HOSTNAME inside RHEL 8.10" {
   create_distro_container rhel 8.10 rhel-toolbox-8.10
 
@@ -420,6 +440,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "environment variables: HOSTNAME inside Ubuntu 16.04" {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
@@ -432,6 +453,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "environment variables: HOSTNAME inside Ubuntu 18.04" {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
@@ -444,6 +466,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "environment variables: HOSTNAME inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
@@ -456,6 +479,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: KONSOLE_VERSION inside the default container" {
   create_default_container
 
@@ -475,6 +499,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: KONSOLE_VERSION inside Arch Linux" {
   create_distro_container arch latest arch-toolbox-latest
 
@@ -495,6 +520,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: KONSOLE_VERSION inside Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
 
@@ -515,6 +541,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: KONSOLE_VERSION inside RHEL 8.10" {
   create_distro_container rhel 8.10 rhel-toolbox-8.10
 
@@ -535,6 +562,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "environment variables: KONSOLE_VERSION inside Ubuntu 16.04" {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
@@ -555,6 +583,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "environment variables: KONSOLE_VERSION inside Ubuntu 18.04" {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
@@ -575,6 +604,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "environment variables: KONSOLE_VERSION inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
@@ -594,6 +624,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: XTERM_VERSION inside the default container" {
   create_default_container
 
@@ -613,6 +644,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: XTERM_VERSION inside Arch Linux" {
   create_distro_container arch latest arch-toolbox-latest
 
@@ -633,6 +665,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: XTERM_VERSION inside Fedora 34" {
   create_distro_container fedora 34 fedora-toolbox-34
 
@@ -653,6 +686,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "environment variables: XTERM_VERSION inside RHEL 8.10" {
   create_distro_container rhel 8.10 rhel-toolbox-8.10
 
@@ -673,6 +707,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "environment variables: XTERM_VERSION inside Ubuntu 16.04" {
   create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
@@ -693,6 +728,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "environment variables: XTERM_VERSION inside Ubuntu 18.04" {
   create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
 
@@ -713,6 +749,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "environment variables: XTERM_VERSION inside Ubuntu 20.04" {
   create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 

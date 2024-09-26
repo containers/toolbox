@@ -19,11 +19,12 @@
   tasks:
     - include_tasks: build.yaml
 
-    - name: Run system tests
-      command: bats ./test/system
+    - name: Run the runtime-environment system tests
+      command: bats --filter-tags runtime-environment ./test/system
       environment:
         PODMAN: '/usr/bin/podman'
         TMPDIR: '/var/tmp'
         TOOLBX: '/usr/local/bin/toolbox'
+        TOOLBX_TEST_SYSTEM_TAGS: 'arch-fedora,runtime-environment,ubuntu'
       args:
         chdir: '{{ zuul.project.src_dir }}'

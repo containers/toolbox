@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+# bats file_tags=runtime-environment
+
 load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers'
@@ -33,6 +35,7 @@ teardown() {
   cleanup_all
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Smoke test" {
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
 
@@ -70,6 +73,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with no link" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-00.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -93,6 +97,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with one link (absolute target, different parent)" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-01.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -123,6 +128,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with one link (absolute target, different parent, restart)" {
   local default_container
   default_container="$(get_system_id)-toolbox-$(get_system_version)"
@@ -171,6 +177,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with one link (absolute target, missing parent)" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-02.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -201,6 +208,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with one link (absolute target, missing parent, restart)" {
   local default_container
   default_container="$(get_system_id)-toolbox-$(get_system_version)"
@@ -249,6 +257,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with one link (absolute target, same parent)" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-03.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -279,6 +288,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with one link (absolute target, same parent, restart)" {
   local default_container
   default_container="$(get_system_id)-toolbox-$(get_system_version)"
@@ -327,6 +337,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with three links (absolute targets, mixed parents)" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-04.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -383,6 +394,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with three links (absolute targets, mixed parents, restart)" {
   local default_container
   default_container="$(get_system_id)-toolbox-$(get_system_version)"
@@ -483,6 +495,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with one link (relative target, different parent)" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-05.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -513,6 +526,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with one link (relative target, different parent, restart)" {
   local default_container
   default_container="$(get_system_id)-toolbox-$(get_system_version)"
@@ -561,6 +575,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with one link (relative target, missing parent)" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-06.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -591,6 +606,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with one link (relative target, missing parent, restart)" {
   local default_container
   default_container="$(get_system_id)-toolbox-$(get_system_version)"
@@ -639,6 +655,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with one link (relative target, same parent)" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-07.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -669,6 +686,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with one link (relative target, same parent, restart)" {
   local default_container
   default_container="$(get_system_id)-toolbox-$(get_system_version)"
@@ -717,6 +735,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with three links (relative targets, mixed parents)" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-08.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -773,6 +792,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: create-symlinks with three links (relative targets, mixed parents, restart)" {
   local default_container
   default_container="$(get_system_id)-toolbox-$(get_system_version)"
@@ -873,6 +893,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: ldconfig(8) with no folder" {
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
 
@@ -902,6 +923,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: ldconfig(8) with one folder" {
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
 
@@ -935,6 +957,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: ldconfig(8) with two folders" {
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
 
@@ -969,6 +992,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try invalid JSON" {
   local invalid_json="This is not JSON"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -994,6 +1018,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 1 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try an empty file" {
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
 
@@ -1018,6 +1043,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 1 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try create-symlinks with invalid path" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-30.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -1043,6 +1069,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 1 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try create-symlinks with unknown path" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-31.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -1066,6 +1093,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try create-symlinks with missing --link argument" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-32.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -1091,6 +1119,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 1 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try create-symlinks with relative link in --link argument" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-33.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -1116,6 +1145,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 1 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try create-symlinks with wrongly formatted --link argument ('foo')" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-34.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -1141,6 +1171,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 1 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try create-symlinks with wrongly formatted --link argument ('foo::bar::baz')" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-35.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -1166,6 +1197,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 1 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try create-symlinks with invalid name" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-36.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -1191,6 +1223,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 1 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try create-symlinks with unknown name" {
   local test_cdi_file="$BATS_TEST_DIRNAME/data/cdi-hooks-create-symlinks-37.json"
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
@@ -1214,6 +1247,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try hook with invalid path" {
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
 
@@ -1238,6 +1272,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 1 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try hook with unknown path" {
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
 
@@ -1267,6 +1302,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try hook with unknown args" {
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
 
@@ -1296,6 +1332,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try hook with invalid name" {
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
 
@@ -1320,6 +1357,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 1 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try hook with unknown name" {
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
 
@@ -1349,6 +1387,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try mount with invalid container path" {
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
 
@@ -1373,6 +1412,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 1 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try mount with invalid host path" {
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
 
@@ -1397,6 +1437,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 1 ]
 }
 
+# bats test_tags=arch-fedora
 @test "cdi: Try mount with non-existent paths" {
   local toolbx_runtime_directory="$XDG_RUNTIME_DIR/toolbox"
 

@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+# bats file_tags=runtime-environment
+
 load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers'
@@ -31,6 +33,7 @@ teardown() {
   cleanup_all
 }
 
+# bats test_tags=arch-fedora
 @test "ipc: No namespace" {
   local ns_host
   ns_host=$(readlink /proc/$$/ns/ipc)

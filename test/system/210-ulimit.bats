@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+# bats file_tags=runtime-environment
+
 load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers'
@@ -31,6 +33,7 @@ teardown() {
   cleanup_all
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: real-time non-blocking time (hard)" {
   local limit
   limit=$(ulimit -H -R)
@@ -47,6 +50,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: real-time non-blocking time (soft)" {
   local limit
   limit=$(ulimit -S -R)
@@ -63,6 +67,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: core file size (hard)" {
   local limit
   limit=$(ulimit -H -c)
@@ -79,6 +84,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: core file size (soft)" {
   local limit
   limit=$(ulimit -S -c)
@@ -95,6 +101,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: data segment size (hard)" {
   local limit
   limit=$(ulimit -H -d)
@@ -111,6 +118,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: data segment size (soft)" {
   local limit
   limit=$(ulimit -S -d)
@@ -127,6 +135,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: scheduling priority (hard)" {
   local limit
   limit=$(ulimit -H -e)
@@ -143,6 +152,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: scheduling priority (soft)" {
   local limit
   limit=$(ulimit -S -e)
@@ -159,6 +169,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: file size (hard)" {
   local limit
   limit=$(ulimit -H -f)
@@ -175,6 +186,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: file size (soft)" {
   local limit
   limit=$(ulimit -S -f)
@@ -191,6 +203,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: number of pending signals (hard)" {
   local limit
   limit=$(ulimit -H -i)
@@ -207,6 +220,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: number of pending signals (soft)" {
   local limit
   limit=$(ulimit -S -i)
@@ -223,6 +237,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: locked memory size (hard)" {
   local limit
   limit=$(ulimit -H -l)
@@ -239,6 +254,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: locked memory size (soft)" {
   local limit
   limit=$(ulimit -S -l)
@@ -255,6 +271,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: resident memory size (hard)" {
   local limit
   limit=$(ulimit -H -m)
@@ -271,6 +288,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: resident memory size (soft)" {
   local limit
   limit=$(ulimit -S -m)
@@ -287,6 +305,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: number of open files (hard)" {
   local limit
   limit=$(ulimit -H -n)
@@ -303,6 +322,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: number of open files (soft)" {
   local limit
   limit=$(ulimit -H -n)
@@ -319,6 +339,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: pipe size (hard)" {
   local limit
   limit=$(ulimit -H -p)
@@ -335,6 +356,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: pipe size (soft)" {
   local limit
   limit=$(ulimit -S -p)
@@ -351,6 +373,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: POSIX message queue size (hard)" {
   local limit
   limit=$(ulimit -H -q)
@@ -367,6 +390,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: POSIX message queue size (soft)" {
   local limit
   limit=$(ulimit -S -q)
@@ -383,6 +407,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: real-time scheduling priority (hard)" {
   local limit
   limit=$(ulimit -H -r)
@@ -399,6 +424,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: real-time scheduling priority (soft)" {
   local limit
   limit=$(ulimit -S -r)
@@ -415,6 +441,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: stack size (hard)" {
   local limit
   limit=$(ulimit -H -s)
@@ -431,6 +458,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: stack size (soft)" {
   local limit
   limit=$(ulimit -S -s)
@@ -447,6 +475,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: CPU time (hard)" {
   local limit
   limit=$(ulimit -H -t)
@@ -463,6 +492,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: CPU time (soft)" {
   local limit
   limit=$(ulimit -S -t)
@@ -479,6 +509,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: number of user processes (hard)" {
   local limit
   limit=$(ulimit -H -u)
@@ -495,6 +526,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: number of user processes (soft)" {
   local limit
   limit=$(ulimit -S -u)
@@ -511,6 +543,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: virtual memory size (hard)" {
   local limit
   limit=$(ulimit -H -v)
@@ -527,6 +560,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: virtual memory size (soft)" {
   local limit
   limit=$(ulimit -S -v)
@@ -543,6 +577,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: number of file locks (hard)" {
   local limit
   limit=$(ulimit -H -x)
@@ -559,6 +594,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "ulimit: number of file locks (soft)" {
   local limit
   limit=$(ulimit -S -x)

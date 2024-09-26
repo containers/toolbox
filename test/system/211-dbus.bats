@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+# bats file_tags=runtime-environment
+
 load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers'
@@ -31,6 +33,7 @@ teardown() {
   cleanup_all
 }
 
+# bats test_tags=arch-fedora
 @test "dbus: session bus inside the default container" {
   local expected_response
   expected_response="$(gdbus call \
@@ -55,6 +58,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "dbus: session bus inside Arch Linux" {
   local expected_response
   expected_response="$(gdbus call \
@@ -81,6 +85,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "dbus: session bus inside Fedora 34" {
   local expected_response
   expected_response="$(gdbus call \
@@ -108,6 +113,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "dbus: session bus inside RHEL 8.10" {
   local expected_response
   expected_response="$(gdbus call \
@@ -135,6 +141,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "dbus: session bus inside Ubuntu 16.04" {
   busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer Ping
 
@@ -154,6 +161,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "dbus: session bus inside Ubuntu 18.04" {
   busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer Ping
 
@@ -173,6 +181,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "dbus: session bus inside Ubuntu 20.04" {
   busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer Ping
 
@@ -192,6 +201,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "dbus: system bus inside the default container" {
   local expected_response
   expected_response="$(gdbus call \
@@ -220,6 +230,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "dbus: system bus inside Arch Linux" {
   local expected_response
   expected_response="$(gdbus call \
@@ -250,6 +261,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "dbus: system bus inside Fedora 34" {
   local expected_response
   expected_response="$(gdbus call \
@@ -281,6 +293,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=arch-fedora
 @test "dbus: system bus inside RHEL 8.10" {
   local expected_response
   expected_response="$(gdbus call \
@@ -312,6 +325,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "dbus: system bus inside Ubuntu 16.04" {
   local expected_response
   expected_response="$(busctl --system get-property \
@@ -339,6 +353,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "dbus: system bus inside Ubuntu 18.04" {
   local expected_response
   expected_response="$(busctl --system get-property \
@@ -366,6 +381,7 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+# bats test_tags=ubuntu
 @test "dbus: system bus inside Ubuntu 20.04" {
   local expected_response
   expected_response="$(busctl --system get-property \
