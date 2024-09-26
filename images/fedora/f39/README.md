@@ -11,8 +11,8 @@ udev database, etc..
 
 This is particularly useful on
 [OSTree](https://ostreedev.github.io/ostree/) based operating systems like
-[Fedora CoreOS](https://coreos.fedoraproject.org/) and
-[Silverblue](https://silverblue.fedoraproject.org/). The intention of these
+[Fedora CoreOS](https://fedoraproject.org/coreos/) and
+[Silverblue](https://fedoraproject.org/silverblue/). The intention of these
 systems is to discourage installation of software on the host, and instead
 install software as (or in) containers — they mostly don't even have package
 managers like DNF or YUM. This makes it difficult to set up a development
