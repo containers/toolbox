@@ -20,7 +20,7 @@
     - include_tasks: build.yaml
 
     - name: Run system tests
-      command: bats --timing ./test/system
+      command: bats ./test/system
       environment:
         PODMAN: '/usr/bin/podman'
         TMPDIR: '/var/tmp'
