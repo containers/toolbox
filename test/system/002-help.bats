@@ -53,7 +53,7 @@ teardown() {
   assert_success
   assert_line --index 0 --partial "toolbox(1)"
   assert_line --index 0 --partial "General Commands Manual"
-  assert_line --index 3 --regexp "^[[:blank:]]+toolbox [‐-] Tool for containerized command line environments on Linux$"
+  assert_line --index 3 --regexp "^[[:blank:]]+toolbox [‐-] Tool for interactive command line environments on Linux$"
   assert [ ${#lines[@]} -gt 4 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
@@ -66,7 +66,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" help
 
   assert_success
-  assert_line --index 0 "toolbox - Tool for containerized command line environments on Linux"
+  assert_line --index 0 "toolbox - Tool for interactive command line environments on Linux"
   assert_line --index 2 "Common commands are:"
   assert_line --index 3 "create    Create a new Toolbx container"
   assert_line --index 4 "enter     Enter an existing Toolbx container"
@@ -86,7 +86,7 @@ teardown() {
   assert_success
   assert_line --index 0 --partial "toolbox(1)"
   assert_line --index 0 --partial "General Commands Manual"
-  assert_line --index 3 --regexp "^[[:blank:]]+toolbox [‐-] Tool for containerized command line environments on Linux$"
+  assert_line --index 3 --regexp "^[[:blank:]]+toolbox [‐-] Tool for interactive command line environments on Linux$"
   assert [ ${#lines[@]} -gt 4 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
@@ -99,7 +99,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" --help
 
   assert_success
-  assert_line --index 0 "toolbox - Tool for containerized command line environments on Linux"
+  assert_line --index 0 "toolbox - Tool for interactive command line environments on Linux"
   assert_line --index 2 "Common commands are:"
   assert_line --index 3 "create    Create a new Toolbx container"
   assert_line --index 4 "enter     Enter an existing Toolbx container"

@@ -467,7 +467,7 @@ func showManual(manual string) error {
 	manBinary, err := exec.LookPath("man")
 	if err != nil {
 		if errors.Is(err, exec.ErrNotFound) {
-			fmt.Printf("toolbox - Tool for containerized command line environments on Linux\n")
+			fmt.Printf("toolbox - Tool for interactive command line environments on Linux\n")
 			fmt.Printf("\n")
 			fmt.Printf("Common commands are:\n")
 

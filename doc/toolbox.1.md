@@ -1,7 +1,7 @@
 % toolbox 1
 
 ## NAME
-toolbox - Tool for containerized command line environments on Linux
+toolbox - Tool for interactive command line environments on Linux
 
 ## SYNOPSIS
 **toolbox** [*--assumeyes* | *-y*]
