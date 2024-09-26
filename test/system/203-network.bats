@@ -32,7 +32,7 @@ readonly RESOLVER_SH='resolvectl --legend false --no-pager --type "$0" query "$1
                       | cut --delimiter " " --fields 4'
 
 setup() {
-  bats_require_minimum_version 1.7.0
+  bats_require_minimum_version 1.10.0
   _setup_environment
   cleanup_all
   pushd "$HOME" || return 1
@@ -53,12 +53,7 @@ teardown() {
 
   assert_success
   assert_line --index 0 "$ns_host"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
+  assert [ ${#lines[@]} -eq 1 ]
 
   # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
@@ -71,12 +66,7 @@ teardown() {
 
   assert_success
   assert_line --index 0 "/run/host/etc/resolv.conf"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
+  assert [ ${#lines[@]} -eq 1 ]
 
   # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
@@ -89,12 +79,7 @@ teardown() {
 
   assert_success
   assert_line --index 0 "/run/host/etc/resolv.conf"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
+  assert [ ${#lines[@]} -eq 1 ]
 
   # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
@@ -107,12 +92,7 @@ teardown() {
 
   assert_success
   assert_line --index 0 "/run/host/etc/resolv.conf"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
+  assert [ ${#lines[@]} -eq 1 ]
 
   # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
@@ -125,12 +105,7 @@ teardown() {
 
   assert_success
   assert_line --index 0 "/run/host/etc/resolv.conf"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
+  assert [ ${#lines[@]} -eq 1 ]
 
   # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
@@ -143,12 +118,7 @@ teardown() {
 
   assert_success
   assert_line --index 0 "/run/host/etc/resolv.conf"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
+  assert [ ${#lines[@]} -eq 1 ]
 
   # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
@@ -161,12 +131,7 @@ teardown() {
 
   assert_success
   assert_line --index 0 "/run/host/etc/resolv.conf"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
+  assert [ ${#lines[@]} -eq 1 ]
 
   # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
@@ -179,12 +144,7 @@ teardown() {
 
   assert_success
   assert_line --index 0 "/run/host/etc/resolv.conf"
-
-  if check_bats_version 1.10.0; then
-    assert [ ${#lines[@]} -eq 1 ]
-  else
-    assert [ ${#lines[@]} -eq 2 ]
-  fi
+  assert [ ${#lines[@]} -eq 1 ]
 
   # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
@@ -214,13 +174,7 @@ teardown() {
 
     assert_success
     assert_line --index 0 "$ipv4_addr"
-
-    if check_bats_version 1.10.0; then
-      assert [ ${#lines[@]} -eq 1 ]
-    else
-      assert [ ${#lines[@]} -eq 2 ]
-    fi
-
+    assert [ ${#lines[@]} -eq 1 ]
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
 
@@ -229,13 +183,7 @@ teardown() {
 
     assert_success
     assert_line --index 0 "$ipv6_addr"
-
-    if check_bats_version 1.10.0; then
-      assert [ ${#lines[@]} -eq 1 ]
-    else
-      assert [ ${#lines[@]} -eq 2 ]
-    fi
-
+    assert [ ${#lines[@]} -eq 1 ]
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
 }
@@ -266,13 +214,7 @@ teardown() {
 
     assert_success
     assert_line --index 0 "$ipv4_addr"
-
-    if check_bats_version 1.10.0; then
-      assert [ ${#lines[@]} -eq 1 ]
-    else
-      assert [ ${#lines[@]} -eq 2 ]
-    fi
-
+    assert [ ${#lines[@]} -eq 1 ]
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
 
@@ -283,13 +225,7 @@ teardown() {
 
     assert_success
     assert_line --index 0 "$ipv6_addr"
-
-    if check_bats_version 1.10.0; then
-      assert [ ${#lines[@]} -eq 1 ]
-    else
-      assert [ ${#lines[@]} -eq 2 ]
-    fi
-
+    assert [ ${#lines[@]} -eq 1 ]
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
 }
@@ -321,13 +257,7 @@ teardown() {
 
     assert_success
     assert_line --index 0 "$ipv4_addr"
-
-    if check_bats_version 1.10.0; then
-      assert [ ${#lines[@]} -eq 1 ]
-    else
-      assert [ ${#lines[@]} -eq 2 ]
-    fi
-
+    assert [ ${#lines[@]} -eq 1 ]
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
 
@@ -339,13 +269,7 @@ teardown() {
 
     assert_success
     assert_line --index 0 "$ipv6_addr"
-
-    if check_bats_version 1.10.0; then
-      assert [ ${#lines[@]} -eq 1 ]
-    else
-      assert [ ${#lines[@]} -eq 2 ]
-    fi
-
+    assert [ ${#lines[@]} -eq 1 ]
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
 }
@@ -377,13 +301,7 @@ teardown() {
 
     assert_success
     assert_line --index 0 "$ipv4_addr"
-
-    if check_bats_version 1.10.0; then
-      assert [ ${#lines[@]} -eq 1 ]
-    else
-      assert [ ${#lines[@]} -eq 2 ]
-    fi
-
+    assert [ ${#lines[@]} -eq 1 ]
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
 
@@ -395,13 +313,7 @@ teardown() {
 
     assert_success
     assert_line --index 0 "$ipv6_addr"
-
-    if check_bats_version 1.10.0; then
-      assert [ ${#lines[@]} -eq 1 ]
-    else
-      assert [ ${#lines[@]} -eq 2 ]
-    fi
-
+    assert [ ${#lines[@]} -eq 1 ]
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
 }
@@ -433,13 +345,7 @@ teardown() {
 
     assert_success
     assert_line --index 0 "$ipv4_addr"
-
-    if check_bats_version 1.10.0; then
-      assert [ ${#lines[@]} -eq 1 ]
-    else
-      assert [ ${#lines[@]} -eq 2 ]
-    fi
-
+    assert [ ${#lines[@]} -eq 1 ]
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
 
@@ -451,13 +357,7 @@ teardown() {
 
     assert_success
     assert_line --index 0 "$ipv6_addr"
-
-    if check_bats_version 1.10.0; then
-      assert [ ${#lines[@]} -eq 1 ]
-    else
-      assert [ ${#lines[@]} -eq 2 ]
-    fi
-
+    assert [ ${#lines[@]} -eq 1 ]
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
 }
@@ -489,13 +389,7 @@ teardown() {
 
     assert_success
     assert_line --index 0 "$ipv4_addr"
-
-    if check_bats_version 1.10.0; then
-      assert [ ${#lines[@]} -eq 1 ]
-    else
-      assert [ ${#lines[@]} -eq 2 ]
-    fi
-
+    assert [ ${#lines[@]} -eq 1 ]
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
 
@@ -507,13 +401,7 @@ teardown() {
 
     assert_success
     assert_line --index 0 "$ipv6_addr"
-
-    if check_bats_version 1.10.0; then
-      assert [ ${#lines[@]} -eq 1 ]
-    else
-      assert [ ${#lines[@]} -eq 2 ]
-    fi
-
+    assert [ ${#lines[@]} -eq 1 ]
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
 }
@@ -545,13 +433,7 @@ teardown() {
 
     assert_success
     assert_line --index 0 "$ipv4_addr"
-
-    if check_bats_version 1.10.0; then
-      assert [ ${#lines[@]} -eq 1 ]
-    else
-      assert [ ${#lines[@]} -eq 2 ]
-    fi
-
+    assert [ ${#lines[@]} -eq 1 ]
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
 
@@ -563,13 +445,7 @@ teardown() {
 
     assert_success
     assert_line --index 0 "$ipv6_addr"
-
-    if check_bats_version 1.10.0; then
-      assert [ ${#lines[@]} -eq 1 ]
-    else
-      assert [ ${#lines[@]} -eq 2 ]
-    fi
-
+    assert [ ${#lines[@]} -eq 1 ]
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
 }
