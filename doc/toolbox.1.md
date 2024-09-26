@@ -13,9 +13,15 @@ toolbox - Tool for interactive command line environments on Linux
 
 ## DESCRIPTION
 
-Toolbx is a tool for Linux operating systems, which allows the use of
-containerized command line environments. It is built on top of Podman and
-other standard container technologies from OCI.
+Toolbx is a tool for Linux, which allows the use of interactive command line
+environments for software development and troubleshooting the host operating
+system, without having to install software on the host. It is built on top of
+Podman and other standard container technologies from OCI.
+
+Toolbx environments have seamless access to the user’s home directory, the
+Wayland and X11 sockets, networking (including Avahi), removable devices (like
+USB sticks), systemd journal, SSH agent, D-Bus, ulimits, /dev and the udev
+database, etc..
 
 This is particularly useful on OSTree based operating systems like Fedora
 CoreOS and Silverblue. The intention of these systems is to discourage
@@ -35,10 +41,11 @@ incrementally adopt containerization.
 
 The Toolbx environment is based on an OCI image. On Fedora this is the
 `fedora-toolbox` image. This image is used to create a Toolbx container that
-seamlessly integrates with the rest of the operating system by providing
-access to the user's home directory, the Wayland and X11 sockets, networking
-(including Avahi), removable devices (like USB sticks), systemd journal, SSH
-agent, D-Bus, ulimits, /dev and the udev database, etc..
+offers the interactive command line environment.
+
+Note that Toolbx makes no promise about security beyond what’s already
+available in the usual command line environment on the host that everybody is
+familiar with.
 
 ## Supported operating system distributions
 
