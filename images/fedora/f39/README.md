@@ -1,5 +1,5 @@
 [Toolbx](https://containertoolbx.org/) is a tool for Linux, which allows the
-use of interactive command line environments for development and
+use of interactive command line environments for software development and
 troubleshooting the host operating system, without having to install software
 on the host. It is built on top of [Podman](https://podman.io/) and other
 standard container technologies from [OCI](https://opencontainers.org/).
