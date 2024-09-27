@@ -21,14 +21,15 @@ load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers'
 
-setup() {
+setup_file() {
   bats_require_minimum_version 1.10.0
   _setup_environment
   cleanup_all
   pushd "$HOME" || return 1
+  create_default_container
 }
 
-teardown() {
+teardown_file() {
   popd || return 1
   cleanup_all
 }
@@ -37,8 +38,6 @@ teardown() {
 @test "ulimit: real-time non-blocking time (hard)" {
   local limit
   limit=$(ulimit -H -R)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -R
 
@@ -55,8 +54,6 @@ teardown() {
   local limit
   limit=$(ulimit -S -R)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -R
 
   assert_success
@@ -71,8 +68,6 @@ teardown() {
 @test "ulimit: core file size (hard)" {
   local limit
   limit=$(ulimit -H -c)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -c
 
@@ -89,8 +84,6 @@ teardown() {
   local limit
   limit=$(ulimit -S -c)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -c
 
   assert_success
@@ -105,8 +98,6 @@ teardown() {
 @test "ulimit: data segment size (hard)" {
   local limit
   limit=$(ulimit -H -d)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -d
 
@@ -123,8 +114,6 @@ teardown() {
   local limit
   limit=$(ulimit -S -d)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -d
 
   assert_success
@@ -139,8 +128,6 @@ teardown() {
 @test "ulimit: scheduling priority (hard)" {
   local limit
   limit=$(ulimit -H -e)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -e
 
@@ -157,8 +144,6 @@ teardown() {
   local limit
   limit=$(ulimit -S -e)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -e
 
   assert_success
@@ -173,8 +158,6 @@ teardown() {
 @test "ulimit: file size (hard)" {
   local limit
   limit=$(ulimit -H -f)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -f
 
@@ -191,8 +174,6 @@ teardown() {
   local limit
   limit=$(ulimit -S -f)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -f
 
   assert_success
@@ -207,8 +188,6 @@ teardown() {
 @test "ulimit: number of pending signals (hard)" {
   local limit
   limit=$(ulimit -H -i)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -i
 
@@ -225,8 +204,6 @@ teardown() {
   local limit
   limit=$(ulimit -S -i)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -i
 
   assert_success
@@ -241,8 +218,6 @@ teardown() {
 @test "ulimit: locked memory size (hard)" {
   local limit
   limit=$(ulimit -H -l)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -l
 
@@ -259,8 +234,6 @@ teardown() {
   local limit
   limit=$(ulimit -S -l)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -l
 
   assert_success
@@ -275,8 +248,6 @@ teardown() {
 @test "ulimit: resident memory size (hard)" {
   local limit
   limit=$(ulimit -H -m)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -m
 
@@ -293,8 +264,6 @@ teardown() {
   local limit
   limit=$(ulimit -S -m)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -m
 
   assert_success
@@ -309,8 +278,6 @@ teardown() {
 @test "ulimit: number of open files (hard)" {
   local limit
   limit=$(ulimit -H -n)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -n
 
@@ -327,8 +294,6 @@ teardown() {
   local limit
   limit=$(ulimit -H -n)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -n
 
   assert_success
@@ -343,8 +308,6 @@ teardown() {
 @test "ulimit: pipe size (hard)" {
   local limit
   limit=$(ulimit -H -p)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -p
 
@@ -361,8 +324,6 @@ teardown() {
   local limit
   limit=$(ulimit -S -p)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -p
 
   assert_success
@@ -377,8 +338,6 @@ teardown() {
 @test "ulimit: POSIX message queue size (hard)" {
   local limit
   limit=$(ulimit -H -q)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -q
 
@@ -395,8 +354,6 @@ teardown() {
   local limit
   limit=$(ulimit -S -q)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -q
 
   assert_success
@@ -411,8 +368,6 @@ teardown() {
 @test "ulimit: real-time scheduling priority (hard)" {
   local limit
   limit=$(ulimit -H -r)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -r
 
@@ -429,8 +384,6 @@ teardown() {
   local limit
   limit=$(ulimit -S -r)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -r
 
   assert_success
@@ -445,8 +398,6 @@ teardown() {
 @test "ulimit: stack size (hard)" {
   local limit
   limit=$(ulimit -H -s)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -s
 
@@ -463,8 +414,6 @@ teardown() {
   local limit
   limit=$(ulimit -S -s)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -s
 
   assert_success
@@ -479,8 +428,6 @@ teardown() {
 @test "ulimit: CPU time (hard)" {
   local limit
   limit=$(ulimit -H -t)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -t
 
@@ -497,8 +444,6 @@ teardown() {
   local limit
   limit=$(ulimit -S -t)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -t
 
   assert_success
@@ -513,8 +458,6 @@ teardown() {
 @test "ulimit: number of user processes (hard)" {
   local limit
   limit=$(ulimit -H -u)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -u
 
@@ -531,8 +474,6 @@ teardown() {
   local limit
   limit=$(ulimit -S -u)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -u
 
   assert_success
@@ -547,8 +488,6 @@ teardown() {
 @test "ulimit: virtual memory size (hard)" {
   local limit
   limit=$(ulimit -H -v)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -v
 
@@ -565,8 +504,6 @@ teardown() {
   local limit
   limit=$(ulimit -S -v)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -v
 
   assert_success
@@ -582,8 +519,6 @@ teardown() {
   local limit
   limit=$(ulimit -H -x)
 
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -x
 
   assert_success
@@ -598,8 +533,6 @@ teardown() {
 @test "ulimit: number of file locks (soft)" {
   local limit
   limit=$(ulimit -S -x)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -x
 
