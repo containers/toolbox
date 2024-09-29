@@ -98,10 +98,8 @@ install_subdir(
     'system/libs/bats-support/package.json'
     ],
   exclude_directories: [
-    'system/libs/bats-assert/.git',
     'system/libs/bats-assert/script',
     'system/libs/bats-assert/test',
-    'system/libs/bats-support/.git',
     'system/libs/bats-support/script',
     'system/libs/bats-support/test'
   ]
