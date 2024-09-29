@@ -88,6 +88,7 @@ install_subdir(
   'test',
   install_dir: get_option('datadir') / meson.project_name(),
   exclude_files: [
+    'meson.build',
     'system/libs/bats-assert/.git',
     'system/libs/bats-assert/.gitignore',
     'system/libs/bats-assert/.travis.yml',
@@ -95,7 +96,8 @@ install_subdir(
     'system/libs/bats-support/.git',
     'system/libs/bats-support/.gitignore',
     'system/libs/bats-support/.travis.yml',
-    'system/libs/bats-support/package.json'
+    'system/libs/bats-support/package.json',
+    'system/meson.build',
     ],
   exclude_directories: [
     'system/libs/bats-assert/script',
