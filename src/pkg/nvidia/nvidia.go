@@ -74,6 +74,13 @@ func GenerateCDISpec() (*specs.Spec, error) {
 				return nil, errors.New("failed to initialize NVIDIA Management Library")
 			}
 		}
+
+		defer func() {
+			if err := nvmLib.Shutdown(); err != nvml.SUCCESS {
+				logrus.Debugf("Generating Container Device Interface for NVIDIA: failed to shutdown NVML: %s",
+					err)
+			}
+		}()
 	} else {
 		logrus.Debugf("Generating Container Device Interface for NVIDIA: Management Library not found: %s",
 			reason)
