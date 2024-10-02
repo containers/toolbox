@@ -21,6 +21,11 @@ load 'libs/helpers.bash'
 
 setup() {
   _setup_environment
+  pushd "$HOME" || return 1
+}
+
+teardown() {
+  popd || return 1
 }
 
 @test "help: Smoke test" {
