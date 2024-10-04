@@ -35,7 +35,6 @@
       - podman
       - shadow-utils-subid-devel
       - skopeo
-      - slirp4netns
       - systemd
       - udisks2
     use: "{{ 'dnf' if zuul.attempts > 1 else 'auto' }}"
@@ -56,7 +55,7 @@
     chdir: '{{ zuul.project.src_dir }}'
 
 - name: Check versions of crucial packages
-  command: rpm -qa ShellCheck bash bats codespell *kernel* gcc *glibc* shadow-utils-subid-devel golang golang-github-cpuguy83-md2man podman conmon containernetworking-plugins containers-common container-selinux crun fuse-overlayfs flatpak-session-helper skopeo slirp4netns
+  command: rpm -qa ShellCheck bash bats codespell *kernel* gcc *glibc* shadow-utils-subid-devel golang golang-github-cpuguy83-md2man podman conmon containernetworking-plugins containers-common container-selinux crun fuse-overlayfs flatpak-session-helper skopeo
 
 - name: Show podman versions
   command: podman version

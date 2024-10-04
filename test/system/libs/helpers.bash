@@ -195,7 +195,6 @@ function _setup_docker_registry() {
     --env REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \
     --env REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
     --name "${DOCKER_REG_NAME}" \
-    --network slirp4netns \
     --privileged \
     --publish 50000:5000 \
     --rm \
