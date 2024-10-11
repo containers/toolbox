@@ -1,0 +1,17 @@
+bash-completion
+git
+keyutils
+libcap2-bin
+lsof
+man-db
+mlocate
+mtr
+rsync
+sudo
+tcpdump
+time
+traceroute
+tree
+unzip
+wget
+zip
