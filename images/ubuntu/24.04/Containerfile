@@ -21,9 +21,10 @@ RUN sed -Ei 's/^(hosts:.*)(\<files\>)\s*(.*)/\1\2 myhostname \3/' /etc/nsswitch.
 # Install ubuntu-minimal & ubuntu-standard
 # Install extra packages as well as libnss-myhostname
 COPY extra-packages /
-RUN sed -Ei '/apt-get (update|upgrade)/s/^/#/' /usr/local/sbin/unminimize && \
-    apt-get update && \
-    yes | /usr/local/sbin/unminimize && \
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install unminimize && \
+    sed -Ei '/apt-get (update|upgrade)/s/^/#/' /usr/bin/unminimize && \
+    yes | /usr/bin/unminimize && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install \
         ubuntu-minimal ubuntu-standard \
         libnss-myhostname \
