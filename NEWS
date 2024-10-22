@@ -1,3 +1,15 @@
+Overview of changes in 0.1.0
+============================
+
+* Add ubuntu-toolbox image definitions for Ubuntu 24.10
+* Optimize the CI on stable Fedora nodes
+* Stop updating the ubuntu-toolbox images for Ubuntu 16.04 and 18.04
+* Stop using slirp4netns(1) in the system tests
+* Unbreak the downstream Fedora CI
+* Unbreak the ubuntu-toolbox image build for Ubuntu 24.04
+* Update fallback release to 40 for non-fedora hosts
+
+
 Overview of changes in 0.0.99.6
 ===============================
 
