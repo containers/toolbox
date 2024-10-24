@@ -68,7 +68,10 @@ func GenerateCDISpec() (*specs.Spec, error) {
 			logrus.Debugf("Generating Container Device Interface for NVIDIA: failed to initialize NVML: %s",
 				err)
 
-			if err == nvml.ERROR_LIB_RM_VERSION_MISMATCH {
+			if err == nvml.ERROR_DRIVER_NOT_LOADED {
+				logrus.Debug("Generating Container Device Interface for NVIDIA: skipping")
+				return nil, ErrPlatformUnsupported
+			} else if err == nvml.ERROR_LIB_RM_VERSION_MISMATCH {
 				return nil, ErrNVMLDriverLibraryVersionMismatch
 			} else {
 				return nil, errors.New("failed to initialize NVIDIA Management Library")
