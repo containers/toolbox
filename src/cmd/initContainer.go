@@ -786,7 +786,7 @@ func mountBind(containerPath, source, flags string) error {
 		if err := os.MkdirAll(containerPath, 0755); err != nil {
 			return fmt.Errorf("failed to create directory %s: %w", containerPath, err)
 		}
-	} else if fileMode.IsRegular() {
+	} else if fileMode.IsRegular() || fileMode&os.ModeSocket != 0 {
 		logrus.Debugf("Creating regular file %s", containerPath)
 
 		containerPathDir := filepath.Dir(containerPath)
