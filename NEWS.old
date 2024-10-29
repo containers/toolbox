@@ -1,0 +1,594 @@
+Overview of changes in 0.1.0
+============================
+
+* Add ubuntu-toolbox image definitions for Ubuntu 24.10
+* Optimize the CI on stable Fedora nodes
+* Stop updating the ubuntu-toolbox images for Ubuntu 16.04 and 18.04
+* Stop using slirp4netns(1) in the system tests
+* Unbreak the downstream Fedora CI
+* Unbreak the ubuntu-toolbox image build for Ubuntu 24.04
+* Update fallback release to 40 for non-fedora hosts
+
+
+Overview of changes in 0.0.99.6
+===============================
+
+* Add all the iconv converter modules for glibc to the fedora-toolbox images
+* Add an extra space after the ⬢ in the PS1
+* Add cracklib-dicts to the fedora-toolbox images
+* Add logos to the Arch Linux and Fedora badges, and a badge for the Ubuntu
+  package
+* Add manual pages and pacman progress bars to the arch-toolbox image
+* Add toolbox image definitions for RHELs 8.8, 8.9, 9.2 and 9.3
+* Add translations for gawk to the fedora-toolbox images
+* Add ubuntu-toolbox image definitions for Ubuntu 24.04
+* Avoid running out of storage space when running the system tests on the CI
+* Bump the minimum github.com/briandowns/spinner version to 1.18.0
+* Depend on github.com/go-logfmt/logfmt version 0.5.0
+* Depend on github.com/NVIDIA/go-nvlib version 0.6.1
+* Depend on github.com/NVIDIA/nvidia-container-toolkit version 1.16.1
+* Don't unmarshal the 'podman ps' JSON twice
+* Don't use use auto dependencies for shell completion scripts
+* Drop one "o" and rename the project as "Toolbx"
+* Enable more tests on Ubuntu 22.04 by setting the SHELL environment variable
+* Enable the proprietary NVIDIA driver
+* Exclude the meson.build files when installing the system tests
+* Fix pacman cache removal in the arch-toolbox image
+* Let 'create' use an image without a name
+* Let the terminal know the active container on all host operating systems,
+  and not just Fedora Silverblue and Workstation
+* Limit the scope of temporary files used by the system tests
+* Optimize 'enter' and 'run' for both an already running container and a
+  container getting initialized
+* Optimize the CI on Fedora nodes
+* Optimize the resource limits tests
+* Preserve the Konsole and xterm versions
+* Require --assumeyes to pull an image when not connected to a terminal
+* Retain errors from toolbox(1) without --verbose when forwarding to host
+* Retain exit codes from toolbox(1) when forwarding to host
+* Show the entry point's debug logs & errors in 'enter' and 'run'
+* Support 64-bit LoongArch
+* Synchronize the documentation with the website
+* Unbreak Podman's downstream Fedora CI
+* Use Buildah and Podman to build and test the arch-toolbox and ubuntu-toolbox
+  images
+* Use the same linker flags as NVIDIA Container Toolkit, and '-z now' is
+  unsupported
+* Work around bug in pasta(1) networks in the system tests
+
+
+Overview of changes in 0.0.99.5
+===============================
+
+* Add psmisc to the fedora-toolbox images
+* Add several new system and unit tests, and make the existing ones stricter
+* Add workaround to support configuring the user's password on some Active
+  Directory set-ups
+* Be aware of security hardened mount points marked with 'nosuid,nodev,noexec'
+* Bump the minimum Bats version to 1.7.0 to simplify running a subset of the
+  system tests and fix various warnings
+* Bump the minimum Go requirement to 1.20
+* Bump the minimum github.com/docker/go-units version to 0.5.0
+* Bump the minimum golang.org/x/sys version to 0.1.0 for CVE-2022-29526 or
+  GHSA-p782-xgp4-8hr8
+* Bump the minimum golang.org/x/text version to 0.3.8 for CVE-2022-32149 or
+  GHSA-69ch-w2m2-3vjp
+* Bump the minimum gopkg.in/yaml.v3 version to 3.0.0 for CVE-2022-28948 or
+  GHSA-hp87-p4gw-j4gq
+* Deprecate the --monitor-host option of 'init-container'
+* Don't leak the NAME and VERSION environment variables into containers made
+  from the fedora-toolbox images
+* Drop golang.org/x/term as a dependency
+* Ensure that Toolbx containers start even if there aren't sufficient resources
+  for inotify(7)
+* Ensure that the fedora-toolbox images retain documentation and translations
+* Ensure that toolbox(1) can be built without using podman(1) and validating
+  subordinate IDs
+* Fix DNS queries in Toolbx containers made from images with systemd-resolved,
+  when running on hosts that don't use it
+* Handle space-separated input when asking for confirmation
+* Let the terminal know the active container also on Fedora Linux Asahi Remix
+* Offer built-in support for Arch Linux
+* Offer built-in support for Ubuntu
+* Preserve the host's environment variables for Bash's history facility inside
+  Toolbx containers
+* Rely on podman >= 1.6.4 always being present
+* Report the size of the image that will be downloaded from a registry
+* Show welcome message on Fedora Sericea
+* Support 64-bit RISC-V
+* Update fallback release to 38 for non-fedora hosts
+* Unbreak the line count checks with Bats >= 1.10.0
+* Unbreak the manual page checks with GNU roff >= 1.23
+* Various updates to the documentation and manuals
+
+
+Overview of changes in 0.0.99.4
+===============================
+
+* Add an --authfile option to 'create'
+* Add a --preserve-fds option to 'run'
+* Add a test that runs codespell
+* Add fedora-toolbox image definition for Fedoras 37, 38 and 39
+* Add several new system tests and make the existing ones stricter
+* Avoid unexpected DNF behaviour with reinstalling or swapping RPMs when
+  building the fedora-toolbox images
+* Be more strict when looking for a C compiler for building
+* Call 'systemd-tmpfiles --create' when installing
+* Check if subordinate ID ranges are present for also the UID, and not just
+  the username
+* Document the toolbox.conf configuration file
+* Don't create a nested pseudo-terminal device during 'run' if the standard
+  input and output streams are not connected to a terminal
+* Don't leak ID and VARIANT_ID into the shell
+* Don't unmarshal the 'podman images' JSON twice
+* Enable OpenGL and Vulkan for hardware with free drivers on the
+  fedora-toolbox images
+* Enable running non-nested display servers from a virtual terminal
+* Enforce all the default 'go vet' checks on all Go sources
+* Enforce gofmt on all Go sources
+* Ensure that the 'distro' option is valid, instead of silently falling back
+  to Fedora
+* Ensure that 'run' has the same container environment as 'enter'
+* Ensure that the fedora-toolbox images has all the locales known to glibc,
+  and not just C, POSIX and C.UTF-8
+* Exit 'run' with exit code of invoked command
+* Fix the titles of the manuals
+* Give precedence to /etc/os-release over /usr/lib/os-release in
+  /etc/profile.d/toolbox.sh
+* Hide the Fedora-specific welcome banner on non-Fedora containers
+* Improve the error messages if the 'distro' and 'release' options are invalid
+* Improve the error messages for mutually exclusive options
+* Improve the default image used for RHEL Toolbx containers to offer an
+  interactive command line experience similar to that on RHEL Workstation
+* Make /etc/profile.d/toolbox.sh compatible with Z shell again
+* Make sd_booted(3) work inside Toolbx containers
+* Preserve the host's XDG_SESSION_CLASS environment variable inside Toolbx
+  containers
+* Replace github.com/mattn/go-isatty and the deprecated
+  golang.org/x/crypto/ssh/terminal API with golang.org/x/term
+* Replace jwhois with whois in the fedora-toolbox images for Fedora >= 37
+* Replace the hand-written shell completion for Bash with ones generated by
+  Cobra that cover fish and Z shell too
+* Restore more documentation removed from the base Fedora images
+* Run unit tests with -Dmigration_path_for_coreos_toolbox on CentOS Stream 9 as
+  part of the CI
+* Silence warning when running the system tests with Bats >= 1.7.0
+* Support RHEL 9 Toolbx containers
+* Support subordinate user and group ID ranges on enterprise set-ups
+* Unbreak sorting and clearly identify copied images in 'list'
+* Update fallback release to 37 for non-fedora hosts
+* Update the Go dependencies with 'go get -u'
+* Various updates to the documentation and manuals
+* Work around Cobra 1.1.2's handling of usage functions
+
+
+Overview of changes in 0.0.99.3
+===============================
+
+* Add bc and iproute to the fedora-toolbox images
+* Add fedora-toolbox image definition for Fedoras 35 and 36
+* Add support for configuration files
+* Add optional migration paths for coreos/toolbox users
+* Allow overriding the path to tmpfilesdir
+* Avoid RPM failures due to unexpected file owners
+* Bump minimum Meson version to 0.58.0
+* Ensure that binaries are run against their build-time ABI
+* Expose the host's entire / in the container at /run/host
+* Fix the PS1 on Z shell
+* Fix wrong use of regexp.MatchString
+* Give access to PC/SC smart card daemon
+* Make locate(1) opt-in by default
+* Make the test suite non-destructive
+* Mention that private images require 'podman login'
+* Remove misleading and redundant CMD from the fedora-toolbox images
+* Remove the deprecated com.github.debarshiray.toolbox label from the
+  fedora-toolbox images, and when creating a new container
+* Replace outdated logos with pixels
+* Show basic help when man(1) is not available
+* Show welcome message on Fedora Kinoite
+* Test ImageReferenceCanBeID and ParseRelease
+* Unbreak 'enter' if the shell had exited with 127
+* Various additions and improvements to the test suite
+* Various updates to the documentation and manuals
+
+
+Overview of changes in 0.0.99.2
+===============================
+
+* Add nano-default-editor to the fedora-toolbox images
+* Add unit tests for pkg/shell
+* Connect Go unit tests to Meson & rename CI job
+* Decouple image caching from Zuul for the system tests
+* Don't assume that the user's GID is the same as the UID
+* Don't require /etc/machine-id in toolbox images
+* Drop ShellCheck on Shell Toolbox
+* Give access to systemd-resolved's Varlink socket
+* Optimize 'enter' and 'run' in the non-fallback case
+* Optimize the performance of 'list'
+* Properly separate builddir setup & build in the Ansible playbooks
+* Rename Dockerfile to Containerfile for the fedora-toolbox images
+* Show test execution time for the system tests
+* Support listing images without names
+* Unbreak 'create' on an unlocked OSTree deployment
+* Unbreak 'create' on CoreOS with read-only /boot
+* Update default release to 33 for non-Fedora hosts
+* Update the GitHub issue templates
+* Use a regular file, not a symbolic link, for the README.md in the
+  fedora-toolbox images
+* Fall back to $HOME when using a container if the current working directory
+  isn't present in it
+* Various updates to the Bash completion
+* Various updates to the manuals
+
+
+Overview of changes in 0.0.99.1
+===============================
+
+* Add deprecation notices to the POSIX shell implementation
+* Add test for the new --distro option
+* Drop the FGC namespace from the fedora-toolbox images
+* Fix miscellaneous issues pointed out by https://www.shellcheck.net/
+* Handle hosts with /etc/localtime as absolute symlink
+* Improve README.md
+* Improve the Zuul configuration
+* Mount /mnt only if it is available
+* Refactor the system tests, and use bats-assert and bats-support
+* Test that sudo doesn't require a password
+* Update the manuals
+
+
+Overview of changes in 0.0.99
+=============================
+
+* Add a --distro option to 'create', 'enter' and 'run'
+* Prevent setting VTE-specific PROMPT_COMMAND without VTE
+* Remove the --candidate-registry option from Bash completion and the manual
+  for 'create'
+* Remove the deprecated reset command
+* Support RHEL hosts by creating containers based on UBI
+* Try to avoid 'latest' tags, when looking at RepoTags
+* Update the labels used for filtering toolbox containers images
+* Update the range of supported Fedora releases
+
+
+Overview of changes in 0.0.98.1
+===============================
+
+* Pass the USER environment variable to the container
+* Make /etc/profile.d/toolbox.sh compatible with Z shell again
+* Update the manual to mention that the --image and --release options of
+  'create' can't be used together
+
+
+Overview of changes in 0.0.98
+=============================
+
+* Add nss-mdns to the fedora-toolbox images
+* Correctly check validity of container name
+* Don't leak all the os-release fields into the shell
+* Don't rely on XDG_RUNTIME_DIR when running as root
+* Give access to Avahi to resolve the .local mDNS domain
+* Make coredumpctl(1) 'dump' and 'debug' work inside toolbox containers
+* Make options --image and --release for 'create' mutually exclusive
+* Notify the terminal about the real UID of 'toolbox enter'
+* Remove periods at the end of flag descriptions
+* Set XDG_RUNTIME_DIR when creating the toolbox container
+* Unbreak 'enter' on hosts without a /etc/localtime
+* Unbreak the system tests on Fedora 33
+* Use the host's user namespace when running as root
+
+
+Overview of changes in 0.0.97
+=============================
+
+* Allow X11 clients to run as root
+* Color the output only when displaying on a terminal
+* Don't rely on user D-Bus to track time zone configuration
+* Enable running minikube on Silverblue
+* Expose the host's /boot inside the container at /run/host
+* Fix missing terminfo warning for Ubuntu containers
+* Make locate(1) work inside toolbox containers
+* Make pseudo-terminal devices be owned by the 'tty' group
+* Rework test to check if a toolbox container started successfully
+* Run a login shell when falling back to Bash during 'enter'
+
+
+Overview of changes in 0.0.96
+=============================
+
+* Don't break GNU Readline's ctrl-p shortcut
+* Enable system tests on Fedora 33
+* Fix containers with missing /media possibly due to a failed RPM transaction
+* Give access to the udev database
+* Unbreak X11 applications with GNOME 3.38
+* Update default release to 31 for non-Fedora hosts
+
+
+Overview of changes in 0.0.95
+=============================
+
+* Try to handle configuration files that're absolute symlinks when the entry
+  point sets up the container
+* Unbreak 'enter' on Fedora CoreOS
+* Unbreak 'sudo' inside toolbox containers with Podman 2.0.5
+* Warn if $TERM has no terminfo entry in the container
+
+
+Overview of changes in 0.0.94
+=============================
+
+* Add contribution guidelines
+* Add fedora-toolbox image definition for Fedora 34
+* Add more information to errors from creating symbolic links when setting up
+  the toolbox container in the entry point
+* Ensure binaries built on Fedora 33 run on Fedoras 32 & 31
+* Install the tests
+* Make it more obvious when falling back to /bin/bash
+* Document that sudo(8) should work without a password
+* Mount a tmpfs at /tmp to match the host
+* Update issue templates
+
+
+Overview of changes in 0.0.93
+=============================
+
+* Ensure reproducible builds by using the -trimpath build flag
+* Fix the test suite to work with the Go implementation
+* Make listing of containers and images more robust against changes in the JSON
+  returned by Podman
+* List out dependencies and installation instructions
+* Re-enable highlighting of running containers
+* Show the spinner only when connected to a terminal
+* Speed things up by caching the Podman version at runtime
+* Update hint after creating a container to use the new syntax
+* Use the correct verb format for string
+
+
+Overview of changes in 0.0.92
+=============================
+
+* Embed the version from Meson into the binary
+* Make it build on aarch64
+
+
+Overview of changes in 0.0.91
+=============================
+
+* Add gvfs-client to the fedora-toolbox images
+* Adjust for changes in JSON output from 'podman ps' and 'podman images' in
+  Podman 2.0
+* Lower the Go build requirements to make it easier to build on Fedora
+* Show an error if $PWD is missing inside the container
+
+
+Overview of changes in 0.0.90
+=============================
+
+* Rewrite Toolbox in Go
+* Remove support for toolbox containers created by Toolbox 0.0.9 and older
+* Add option --version to show current Toolbox version
+* Add options --log-level and --log-podman as possible future replacements for
+  --verbose and --very-verbose
+* Clean up the spinner when aborted by SIGINT (or ctrl+c) and such
+* Fix duplication in the output of the list command
+* Mark the reset command as deprecated (replaced by 'podman system reset')
+* Support specifying the name of a toolbox container as an argument to the
+  create and enter commands, in addition to the --container option
+
+
+Overview of changes in 0.0.18
+=============================
+
+* Check /usr/share/profile.d when bind mounting toolbox.sh
+* Mount /media only if it is available
+* Set up /media and /mnt to match the host
+* Unbreak 'enter' when SELinux is disabled
+
+
+Overview of changes in 0.0.17
+=============================
+
+* Add a --very-verbose or -vv option
+* Deprecate all toolbox containers that don't use a reflexive entry point
+* Ensure that 'run' has at least one argument for the command
+* Give access to the host's systemd journal
+* Wipe out the container's /sys/fs/selinux to not advertise SELinux
+
+
+Overview of changes in 0.0.16
+=============================
+
+* Add a reset command
+* Document requirements for distro support
+* Don't use a toolbox container until after it has been configured
+* Drop the coloured heading from 'list'
+* Miscellaneous fixes to Bash completion
+* Remove the hidden --sudo option and the /etc/sudoers.d snippet
+* Try to migrate to a supported OCI runtime if 'podman start' suggests so
+* Unbreak 'run' if container lacks files that are redirected to the host
+
+
+Overview of changes in 0.0.15
+=============================
+
+* Be forgiving of a missing /etc/profile.d/toolbox.sh in 'run'
+* Don't sanity check /etc/subgid and /etc/subuid when running as root
+* Install only flatpak-spawn, not the rest of flatpak-xdg-utils, in the images
+* Let the terminal know the active container only on some Fedora variants
+* Rely on 'podman system migrate' always being present
+* Simplify code by dropping compatibility with 'podman create' < 1.4.0
+* Switch to using /usr/lib/os-release instead of /etc/os-release
+* Unbreak 'create' on Silverblue
+* Update default release to 30 when running on non-fedora hosts
+
+
+Overview of changes in 0.0.14
+=============================
+
+* Adjust the grep match pattern to be more specific
+* Don't exit with a non-zero code from 'toolbox list -i'
+* Expose a few more host locations inside the container under /run/host
+* Give access to the system Flatpak directory
+* Give access to the system libvirt instance
+* Mount /run/media only if it is available
+* Preserve the host's ulimits when creating toolbox containers
+* Work around 'podman exec' resetting the terminal size to 80x24
+
+
+Overview of changes in 0.0.13
+=============================
+
+* Drop PackageKit-command-not-found from the images
+* Improve the help or usage output
+* Simplify code by taking advantage of 'podman create --userns=keep-id'
+* Simplify code by taking advantage of 'podman exec --workdir ...'
+* Tighten the Silverblue check for the welcome message
+
+
+Overview of changes in 0.0.12
+=============================
+
+* Create /run/.toolboxenv inside the toolbox container's entry point too
+* Don't use 'podman cp' to copy toolbox.sh to old containers
+* Drop the "immutable" term
+* Unbreak /etc/localtime & /etc/timezone if /run/host/monitor is absent
+
+
+Overview of changes in 0.0.11
+=============================
+
+* Allow Qt applications to work without QT_X11_NO_MITSHM
+* Check if /etc/subgid and /etc/subuid have entries for the user
+* Give access to the entire /dev from the host operating system
+* Keep /etc/host.conf, /etc/localtime and /etc/timezone synchronized with the
+  host
+* Notify the terminal about the current toolbox container in use
+* Prevent Podman from complaining about 'podman cp --pause=true ...'
+* Unbreak rendering & wrapping of commands typed at an interactive prompt
+* Unbreak setting up /home as a symbolic link
+
+
+Overview of changes in 0.0.10
+=============================
+
+* Add a run command
+* Create /run/.toolboxenv in 'toolbox enter' for identification
+* Drop the Buildah dependency and the user-specific customized image
+* Keep /etc/hosts and /etc/resolv.conf synchronized with the host
+* Migrate existing containers when Podman is updated
+* Retain the PS1 across su(1) and sudo(8)
+* Set the Kerberos credential cache type only if Kerberos is available
+* Support column(1) from bsdmainutils
+* Support 'sudo' as default sudo(8) group
+* Use a magenta hexagon instead of 🔹 in the PS1
+
+
+Overview of changes in 0.0.9
+============================
+
+* Add Bash completion
+* Allow connecting to Wayland displays other than "wayland-0"
+* Ask for confirmation before downloading the base image
+* Improve the onboarding experience
+* Make it available inside the toolbox container
+* Make 'toolbox enter' create or fall back to a container when possible
+* Set TOOLBOX_CONTAINER in the environment to identify as a toolbox
+* Set default release to 29 when running on non-fedora hosts
+* Show welcome texts on interactive shells
+
+
+Overview of changes in 0.0.8
+============================
+
+* Add label for tagging, not tied to the fedora-toolbox name
+* Add short variants for various options in 'create' and 'enter'
+* Ensure that names of toolbox containers don't have a colon
+* Enable Travis
+* Fix miscellaneous issues pointed out by https://www.shellcheck.net/
+* Give access to Kerberos if KCM credential caches are being used
+* Improve the onboarding experience
+* Reduce the sizes of the images by removing temporary files created by DNF
+* Use a lighter entry point than /bin/sh
+
+
+Overview of changes in 0.0.7
+============================
+
+* Add fedora-toolbox image definition for Fedora 31
+* Add flatpak-xdg-utils to Fedoras 29 and 30
+* Add manuals
+* Add rm and rmi commands
+* Be more informative when creating the working container
+* Clarify the error message if the toolbox container is not found
+* Don't create volumes in the image for bind mounts from the host
+* Fix miscellaneous issues pointed out by https://www.shellcheck.net/
+* Give access to /dev/bus for control transfers from USB devices
+* Give access to removable devices and other temporary mounts
+* Lots of Bash-isms removed for POSIX correctness
+* Make the --image flag override the base toolbox image, as documented
+* Make the spinner more efficient
+* Restore documentation removed from the base Fedora images
+
+
+Overview of changes in 0.0.6
+============================
+
+* Add a list command
+* Drop the "fedora" prefix and rename the project as just "toolbox"
+* Fix typos pointed out by https://www.shellcheck.net/
+* Lots of Bash-isms removed for POSIX correctness
+* Make --container and --image command-specific options
+* Make it work inside the toolbox container itself
+* Shorten the prefix for debug and error messages
+* Use the host's PID namespace for the toolbox container
+* Use the standard error output for error messages
+
+
+Overview of changes in 0.0.5
+============================
+
+* Give access to mounts under $HOME, and make autofs work
+* Show a spinner when creating the toolbox
+
+
+Overview of changes in 0.0.4
+============================
+
+* Avoid spooky root-like behaviour for non-root interactive shells
+* Give access to the FUSE kernel module
+* Improve the readability of the debug output
+* Set up $HOME and /home to match the host
+* Try to enter the same directory inside the toolbox
+
+
+Overview of changes in 0.0.3
+============================
+
+* Clean up the Buildah working containers on error
+* Unbreak creating the toolbox if the toolbox image already exists
+
+
+Overview of changes in 0.0.2
+============================
+
+* Allow an 'F' or 'f' prefix when specifying the release
+* Avoid a Bash-ism (ie. ==) and stick to POSIX (ie. =)
+* Fallback to /bin/bash if $SHELL doesn't exist in the toolbox container
+* Give access to the system D-Bus instance
+* Make shm_open work
+
+
+Overview of changes in 0.0.1
+============================
+
+* First preview release
+
+
+----
+
+Copyright © 2018 – 2024 Red Hat, Inc.
+All rights reserved.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
