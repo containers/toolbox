@@ -6,7 +6,7 @@ require (
 	github.com/HarryMichal/go-version v1.0.1
 	github.com/NVIDIA/go-nvlib v0.6.1
 	github.com/NVIDIA/go-nvml v0.12.4-0
-	github.com/NVIDIA/nvidia-container-toolkit v1.16.1
+	github.com/NVIDIA/nvidia-container-toolkit v1.16.2
 	github.com/acobaugh/osrelease v0.1.0
 	github.com/briandowns/spinner v1.18.0
 	github.com/docker/go-units v0.5.0
@@ -18,7 +18,7 @@ require (
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/sys v0.23.0
+	golang.org/x/sys v0.24.0
 	tags.cncf.io/container-device-interface v0.8.0
 	tags.cncf.io/container-device-interface/specs-go v0.8.0
 )
@@ -44,7 +44,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635 // indirect
-	golang.org/x/mod v0.19.0 // indirect
+	golang.org/x/mod v0.20.0 // indirect
 	golang.org/x/text v0.3.8 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
