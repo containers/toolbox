@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/user"
 	"path/filepath"
 	"strings"
 	"time"
@@ -300,7 +301,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 
 	dbusSystemSocketMountArg := dbusSystemSocket + ":" + dbusSystemSocket
 
-	homeDirEvaled, err := filepath.EvalSymlinks(currentUser.HomeDir)
+	homeDirEvaled, err := filepath.EvalSymlinks(os.UserHomeDir)
 	if err != nil {
 		return fmt.Errorf("failed to canonicalize %s", currentUser.HomeDir)
 	}

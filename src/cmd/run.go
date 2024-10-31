@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/user"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -441,7 +442,7 @@ func runCommandWithFallbacks(container string,
 
 					workDir = runFallbackWorkDirs[runFallbackWorkDirsIndex]
 					if workDir == "" {
-						workDir = currentUser.HomeDir
+						workDir = os.UserHomeDir()
 					}
 
 					fmt.Fprintf(os.Stderr, "Using %s instead.\n", workDir)
