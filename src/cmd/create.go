@@ -305,7 +305,8 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	if err != nil{
 		logrus.Errorf("Failed to get HOME directory: %v", err)
 	}
-	resolvedPath, err := filepath.EvalSymlinks(user)
+	homeDir := user.HomeDir
+	resolvedPath, err := filepath.EvalSymlinks(HomeDir)
 	if err != nil{
 		logrus.Errorf("Failed to evaluate symlinks for HOME directory: %v", err)
 		return err
