@@ -301,14 +301,25 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 
 	dbusSystemSocketMountArg := dbusSystemSocket + ":" + dbusSystemSocket
 
-	homeDirEvaled = os.UserHomeDir()
+	user, err := user.Current()
+	if err != nil{
+		logrus.Errorf("Failed to get HOME directory: %v", err)
+	}
+	resolvedPath, err := filepath.EvalSymlinks(user)
+	if err != nil{
+		logrus.Errorf("Failed to evaluate symlinks for HOME directory: %v", err)
+		return err
+	}
+	
+	
+	/*homeDirEvaled = os.UserHomeDir()
 	homeDirEvaled, err := filepath.EvalSymlinks(homeDirEvaled)
 	if err != nil {
 		return fmt.Errorf("failed to canonicalize %s", currentUser.HomeDir)
 	}
 
 	logrus.Debugf("%s canonicalized to %s", currentUser.HomeDir, homeDirEvaled)
-	homeDirMountArg := homeDirEvaled + ":" + homeDirEvaled + ":rslave"
+	homeDirMountArg := homeDirEvaled + ":" + homeDirEvaled + ":rslave"*/
 
 	var avahiSocketMount []string
 
