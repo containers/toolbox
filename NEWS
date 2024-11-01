@@ -10,9 +10,9 @@
 ### Bug fixes
 
 * Unbroke 'enter' if the NVIDIA Persistence Daemon is used (regression in
-  0.1.0)
+  0.0.99.6)
 * Unbroke 'enter' if the proprietary NVIDIA driver is installed, but not used
-  (regression in 0.1.0)
+  (regression in 0.0.99.6)
 
 
 ----
