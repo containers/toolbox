@@ -8,7 +8,7 @@ require (
 	github.com/NVIDIA/go-nvml v0.12.4-0
 	github.com/NVIDIA/nvidia-container-toolkit v1.16.2
 	github.com/acobaugh/osrelease v0.1.0
-	github.com/briandowns/spinner v1.20.0
+	github.com/briandowns/spinner v1.21.0
 	github.com/docker/go-units v0.5.0
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-logfmt/logfmt v0.5.0
