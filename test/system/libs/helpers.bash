@@ -18,11 +18,9 @@ readonly DOCKER_REG_URI="localhost:50000"
 readonly DOCKER_REG_NAME="docker-registry"
 
 # Podman and Toolbx commands to run
-readonly PODMAN="${PODMAN:-$(command -v podman)}"
 readonly TOOLBX="${TOOLBX:-$(command -v toolbox)}"
 readonly TOOLBX_TEST_SYSTEM_TAGS_ALL="arch-fedora,commands-options,custom-image,runtime-environment,ubuntu"
 readonly TOOLBX_TEST_SYSTEM_TAGS="${TOOLBX_TEST_SYSTEM_TAGS:-$TOOLBX_TEST_SYSTEM_TAGS_ALL}"
-readonly SKOPEO="${SKOPEO:-$(command -v skopeo)}"
 
 # Images
 declare -Ag IMAGES=([arch]="quay.io/toolbx/arch-toolbox" \
@@ -34,8 +32,8 @@ declare -Ag IMAGES=([arch]="quay.io/toolbx/arch-toolbox" \
 
 
 function cleanup_all() {
-  "$PODMAN" rm --all --force >/dev/null
-  "$PODMAN" rmi --all --force >/dev/null
+  podman rm --all --force >/dev/null
+  podman rmi --all --force >/dev/null
 }
 
 
@@ -53,7 +51,7 @@ function _setup_containers_storage() {
 
 
 function _clean_temporary_storage() {
-  "$PODMAN" system reset --force >/dev/null
+  podman system reset --force >/dev/null
 
   rm --force --recursive "${ROOTLESS_PODMAN_STORE_DIR}"
   rm --force --recursive "${ROOTLESS_PODMAN_RUNROOT_DIR}"
@@ -110,7 +108,7 @@ function _pull_and_cache_distro_image() {
   local -i ret_val
 
   for ((j = 0; j < num_of_retries; j++)); do
-    error_message="$( ("$SKOPEO" copy --dest-compress \
+    error_message="$( (skopeo copy --dest-compress \
                           "docker://${image}" \
                           "dir:${IMAGE_CACHE_DIR}/${image_archive}" >/dev/null) 2>&1)"
     ret_val="$?"
@@ -183,11 +181,11 @@ function _setup_docker_registry() {
   assert_success
 
   # Pull Docker registry image
-  run "$PODMAN" --root "${DOCKER_REG_ROOT}" pull "${IMAGES[docker-reg]}"
+  run podman --root "${DOCKER_REG_ROOT}" pull "${IMAGES[docker-reg]}"
   assert_success
 
   # Create a Docker registry
-  run "$PODMAN" --root "${DOCKER_REG_ROOT}" run \
+  run podman --root "${DOCKER_REG_ROOT}" run \
     --detach \
     --env REGISTRY_AUTH=htpasswd \
     --env REGISTRY_AUTH_HTPASSWD_PATH="/auth/htpasswd" \
@@ -203,7 +201,7 @@ function _setup_docker_registry() {
     "${IMAGES[docker-reg]}"
   assert_success
 
-  run "$PODMAN" login \
+  run podman login \
     --authfile "${TEMP_BASE_DIR}/authfile.json" \
     --username user \
     --password user \
@@ -211,7 +209,7 @@ function _setup_docker_registry() {
   assert_success
 
   # Add fedora-toolbox:34 image to the registry
-  run "$SKOPEO" copy --dest-authfile "${TEMP_BASE_DIR}/authfile.json" \
+  run skopeo copy --dest-authfile "${TEMP_BASE_DIR}/authfile.json" \
     dir:"${IMAGE_CACHE_DIR}"/fedora-toolbox-34 \
     docker://"${DOCKER_REG_URI}"/fedora-toolbox:34
   assert_success
@@ -224,13 +222,13 @@ function _setup_docker_registry() {
 # Stop, removes and cleans after a locally hosted Docker registry
 function _clean_docker_registry() {
   # Stop Docker registry container
-  if "$PODMAN" --root "$DOCKER_REG_ROOT" container exists "$DOCKER_REG_NAME"; then
-    "$PODMAN" --root "${DOCKER_REG_ROOT}" stop --time 0 "${DOCKER_REG_NAME}"
+  if podman --root "$DOCKER_REG_ROOT" container exists "$DOCKER_REG_NAME"; then
+    podman --root "${DOCKER_REG_ROOT}" stop --time 0 "${DOCKER_REG_NAME}"
   fi
 
   # Clean up Podman's registry root state
-  "$PODMAN" --root "${DOCKER_REG_ROOT}" rm --all --force
-  "$PODMAN" --root "${DOCKER_REG_ROOT}" rmi --all --force
+  podman --root "${DOCKER_REG_ROOT}" rm --all --force
+  podman --root "${DOCKER_REG_ROOT}" rmi --all --force
   # Remove Docker registry dir
   rm --force --recursive "${DOCKER_REG_ROOT}"
   # Remove dir with created registry certificates
@@ -241,7 +239,7 @@ function _clean_docker_registry() {
 function build_image_without_name() {
   echo -e "FROM scratch\n\nLABEL com.github.containers.toolbox=\"true\"" > "$BATS_TEST_TMPDIR"/Containerfile
 
-  run "$PODMAN" build "$BATS_TEST_TMPDIR"
+  run podman build "$BATS_TEST_TMPDIR"
 
   assert_success
   assert_line --index 0 --partial "FROM scratch"
@@ -331,12 +329,12 @@ function pull_distro_image() {
   fi
 
   # No need to copy if the image is already available in Podman
-  if "$PODMAN" image exists "${image}"; then
+  if podman image exists "${image}"; then
     return 0
   fi
 
   # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
-  run "$SKOPEO" copy "dir:${IMAGE_CACHE_DIR}/${image_archive}" "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]${image}"
+  run skopeo copy "dir:${IMAGE_CACHE_DIR}/${image_archive}" "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]${image}"
 
   # shellcheck disable=SC2154
   if [ "$status" -ne 0 ]; then
@@ -368,7 +366,7 @@ function pull_default_image_and_copy() {
   image="${IMAGES[$distro]}:$version"
 
   # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
-  run "$SKOPEO" copy \
+  run skopeo copy \
       "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]$image" \
       "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]$image-copy"
 
@@ -431,7 +429,7 @@ function start_container() {
   local container_name
   container_name="$1"
 
-  "$PODMAN" start "$container_name" >/dev/null \
+  podman start "$container_name" >/dev/null \
     || fail "Podman couldn't start the container '$container_name'"
 }
 
@@ -458,11 +456,11 @@ function container_started() {
   local num_of_retries=5
 
   for ((j = 0; j < num_of_retries; j++)); do
-    run --separate-stderr "$PODMAN" logs "$container_name"
+    run --separate-stderr podman logs "$container_name"
 
     # shellcheck disable=SC2154
     if [ "$status" -ne 0 ]; then
-      fail "Failed to invoke '$PODMAN logs'"
+      fail "Failed to invoke 'podman logs'"
       ret_val="$status"
       break
     fi
@@ -495,26 +493,26 @@ function stop_container() {
   container_name="$1"
 
   # Make sure the container is running before trying to stop it
-  "$PODMAN" start "$container_name" >/dev/null \
+  podman start "$container_name" >/dev/null \
     || fail "Podman couldn't start the container '$container_name'"
-  "$PODMAN" stop "$container_name" >/dev/null \
+  podman stop "$container_name" >/dev/null \
     || fail "Podman couldn't stop the container '$container_name'"
 }
 
 
 # Returns the name of the latest created container
 function get_latest_container_name() {
-  "$PODMAN" ps --latest --format "{{ .Names }}"
+  podman ps --latest --format "{{ .Names }}"
 }
 
 
 function list_images() {
-  "$PODMAN" images --all --format "{{.ID}}" | wc --lines
+  podman images --all --format "{{.ID}}" | wc --lines
 }
 
 
 function list_containers() {
-  "$PODMAN" ps --all --quiet | wc --lines
+  podman ps --all --quiet | wc --lines
 }
 
 

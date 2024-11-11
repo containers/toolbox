@@ -38,10 +38,10 @@ and to speed up the cases.
 By default the test suite uses the system versions of `podman`, `skopeo` and
 `toolbox`.
 
-If you have a `podman`, `skopeo` or `toolbox` installed in a nonstandard
-location then you can use the `PODMAN`, `SKOPEO` and `TOOLBX` environmental
-variables to set the path to the binaries. So the command to invoke the test
-suite could look something like this: `PODMAN=/usr/libexec/podman TOOLBX=./toolbox bats ./test/system/`.
+If you have `toolbox` installed in a nonstandard location then you can use the
+`TOOLBX` environmental variable to set the path to the binary. So the command
+to invoke the test suite could look something like this:
+`TOOLBX=./toolbox bats ./test/system/`.
 
 It's recommended to set the [TMPDIR](https://systemd.io/TEMPORARY_DIRECTORIES/)
 environment variable to `/var/tmp` when running the tests.  Otherwise, the
@@ -90,6 +90,6 @@ Examples:
 Example pull of the `fedora-toolbox:34` image:
 
 ```bash
-$PODMAN login --username user --password user "$DOCKER_REG_URI"
-$PODMAN pull "$DOCKER_REG_URI/fedora-toolbox:34"
+podman login --username user --password user "$DOCKER_REG_URI"
+podman pull "$DOCKER_REG_URI/fedora-toolbox:34"
 ```

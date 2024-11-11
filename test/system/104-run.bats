@@ -842,11 +842,11 @@ teardown() {
 
   local container="ancient"
 
-  run "$PODMAN" create --name "$container" "$default_image" true
+  run podman create --name "$container" "$default_image" true
 
   assert_success
 
-  run $PODMAN ps --all
+  run podman ps --all
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$container"

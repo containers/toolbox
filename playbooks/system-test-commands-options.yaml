@@ -22,7 +22,6 @@
     - name: Run the commands-options system tests
       command: bats --filter-tags commands-options ./test/system
       environment:
-        PODMAN: '/usr/bin/podman'
         TMPDIR: '/var/tmp'
         TOOLBX: '/usr/local/bin/toolbox'
         TOOLBX_TEST_SYSTEM_TAGS: 'arch-fedora,commands-options,custom-image,ubuntu'

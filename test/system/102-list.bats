@@ -535,7 +535,7 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 1
 
-  $PODMAN create --name busybox-container "$busybox_image"
+  podman create --name busybox-container "$busybox_image"
 
   local num_of_containers
   num_of_containers="$(list_containers)"
@@ -558,7 +558,7 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 1
 
-  $PODMAN create --name busybox-container "$busybox_image"
+  podman create --name busybox-container "$busybox_image"
 
   local num_of_containers
   num_of_containers="$(list_containers)"
@@ -581,7 +581,7 @@ teardown() {
   num_of_images="$(list_images)"
   assert_equal "$num_of_images" 1
 
-  $PODMAN create --name busybox-container "$busybox_image"
+  podman create --name busybox-container "$busybox_image"
 
   local num_of_containers
   num_of_containers="$(list_containers)"

@@ -161,7 +161,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 1 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  "$PODMAN" stop "$default_container"
+  podman stop "$default_container"
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
 
@@ -241,7 +241,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 1 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  "$PODMAN" stop "$default_container"
+  podman stop "$default_container"
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /opt/bin/toolbox
 
@@ -321,7 +321,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 1 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  "$PODMAN" stop "$default_container"
+  podman stop "$default_container"
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
 
@@ -453,7 +453,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 1 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  "$PODMAN" stop "$default_container"
+  podman stop "$default_container"
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
 
@@ -559,7 +559,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 1 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  "$PODMAN" stop "$default_container"
+  podman stop "$default_container"
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
 
@@ -639,7 +639,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 1 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  "$PODMAN" stop "$default_container"
+  podman stop "$default_container"
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /opt/bin/toolbox
 
@@ -719,7 +719,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 1 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  "$PODMAN" stop "$default_container"
+  podman stop "$default_container"
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /usr/bin/toolbox.1
 
@@ -851,7 +851,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 1 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  "$PODMAN" stop "$default_container"
+  podman stop "$default_container"
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run test -e /run/toolbox.1
 

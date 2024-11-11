@@ -22,7 +22,6 @@
     - name: Run the (arch-fedora,runtime-environment) system tests
       command: bats --filter-tags arch-fedora,runtime-environment ./test/system
       environment:
-        PODMAN: '/usr/bin/podman'
         TMPDIR: '/var/tmp'
         TOOLBX: '/usr/local/bin/toolbox'
         TOOLBX_TEST_SYSTEM_TAGS: 'arch-fedora,runtime-environment'

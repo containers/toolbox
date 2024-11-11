@@ -204,7 +204,7 @@ teardown() {
   assert_output --partial "Created container: ubuntu-toolbox-16.04"
   assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-16.04"
 
-  run $PODMAN ps --all
+  run podman ps --all
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+ubuntu-toolbox-16.04"
@@ -219,7 +219,7 @@ teardown() {
   assert_output --partial "Created container: ubuntu-toolbox-18.04"
   assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-18.04"
 
-  run $PODMAN ps --all
+  run podman ps --all
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+ubuntu-toolbox-18.04"
@@ -234,7 +234,7 @@ teardown() {
   assert_output --partial "Created container: ubuntu-toolbox-20.04"
   assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-20.04"
 
-  run $PODMAN ps --all
+  run podman ps --all
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+ubuntu-toolbox-20.04"
@@ -251,7 +251,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run $PODMAN ps --all
+  run podman ps --all
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$image"
@@ -268,7 +268,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run $PODMAN ps --all
+  run podman ps --all
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+non-default"
@@ -285,7 +285,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run $PODMAN ps --all
+  run podman ps --all
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+non-default"
@@ -842,7 +842,7 @@ teardown() {
   local authfile="$BATS_TEST_TMPDIR/authfile"
   local image="fedora-toolbox:34"
 
-  run $PODMAN login --authfile "$authfile" --username user --password user "$DOCKER_REG_URI"
+  run podman login --authfile "$authfile" --username user --password user "$DOCKER_REG_URI"
   assert_success
 
   run "$TOOLBX" --assumeyes create --image "$DOCKER_REG_URI/$image"
