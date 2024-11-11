@@ -150,6 +150,7 @@ jobs:
             test/system/001-version.bats \
             test/system/002-help.bats \
             test/system/101-create.bats \
+            test/system/102-list.bats \
             test/system/103-container.bats \
             test/system/105-enter.bats \
             test/system/106-rm.bats \

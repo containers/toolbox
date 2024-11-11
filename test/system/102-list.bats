@@ -373,8 +373,11 @@ teardown() {
   local default_image
   default_image="$(get_default_image)"
 
+  local system_id
+  system_id="$(get_system_id)"
+
   local default_container
-  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+  default_container="$system_id-toolbox-$(get_system_version)"
 
   # Pull the two images
   pull_default_image
@@ -393,8 +396,17 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" list --images
 
   assert_success
-  assert_line --index 1 --partial "registry.fedoraproject.org/fedora-toolbox:34"
-  assert_line --index 2 --partial "$default_image"
+
+  if [ "$system_id" = "fedora" ]; then
+    assert_line --index 1 --partial "registry.fedoraproject.org/fedora-toolbox:34"
+    assert_line --index 2 --partial "$default_image"
+  elif [ "$system_id" = "ubuntu" ]; then
+    assert_line --index 1 --partial "$default_image"
+    assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
+  else
+    fail "Define output for $system_id"
+  fi
+
   assert [ ${#lines[@]} -eq 3 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
@@ -402,9 +414,19 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" list --containers
 
   assert_success
-  assert_line --index 1 --partial "$default_container"
-  assert_line --index 2 --partial "non-default-one"
-  assert_line --index 3 --partial "non-default-two"
+
+  if [ "$system_id" = "fedora" ]; then
+    assert_line --index 1 --partial "$default_container"
+    assert_line --index 2 --partial "non-default-one"
+    assert_line --index 3 --partial "non-default-two"
+  elif [ "$system_id" = "ubuntu" ]; then
+    assert_line --index 1 --partial "non-default-one"
+    assert_line --index 2 --partial "non-default-two"
+    assert_line --index 3 --partial "$default_container"
+  else
+    fail "Define output for $system_id"
+  fi
+
   assert [ ${#lines[@]} -eq 4 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
@@ -412,11 +434,29 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" list
 
   assert_success
-  assert_line --index 1 --partial "registry.fedoraproject.org/fedora-toolbox:34"
-  assert_line --index 2 --partial "$default_image"
-  assert_line --index 5 --partial "$default_container"
-  assert_line --index 6 --partial "non-default-one"
-  assert_line --index 7 --partial "non-default-two"
+
+  if [ "$system_id" = "fedora" ]; then
+    assert_line --index 1 --partial "registry.fedoraproject.org/fedora-toolbox:34"
+    assert_line --index 2 --partial "$default_image"
+  elif [ "$system_id" = "ubuntu" ]; then
+    assert_line --index 1 --partial "$default_image"
+    assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
+  else
+    fail "Define output for $system_id"
+  fi
+
+  if [ "$system_id" = "fedora" ]; then
+    assert_line --index 5 --partial "$default_container"
+    assert_line --index 6 --partial "non-default-one"
+    assert_line --index 7 --partial "non-default-two"
+  elif [ "$system_id" = "ubuntu" ]; then
+    assert_line --index 5 --partial "non-default-one"
+    assert_line --index 6 --partial "non-default-two"
+    assert_line --index 7 --partial "$default_container"
+  else
+    fail "Define output for $system_id"
+  fi
+
   assert [ ${#lines[@]} -eq 8 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
@@ -424,6 +464,9 @@ teardown() {
 @test "list: Images with and without names" {
   local default_image
   default_image="$(get_default_image)"
+
+  local system_id
+  system_id="$(get_system_id)"
 
   pull_default_image
   pull_distro_image fedora 34
@@ -437,8 +480,17 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "<none>"
-  assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
-  assert_line --index 3 --partial "$default_image"
+
+  if [ "$system_id" = "fedora" ]; then
+    assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
+    assert_line --index 3 --partial "$default_image"
+  elif [ "$system_id" = "ubuntu" ]; then
+    assert_line --index 2 --partial "$default_image"
+    assert_line --index 3 --partial "registry.fedoraproject.org/fedora-toolbox:34"
+  else
+    fail "Define output for $system_id"
+  fi
+
   assert [ ${#lines[@]} -eq 4 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
@@ -446,6 +498,9 @@ teardown() {
 @test "list: Images with and without names (using --images)" {
   local default_image
   default_image="$(get_default_image)"
+
+  local system_id
+  system_id="$(get_system_id)"
 
   pull_default_image
   pull_distro_image fedora 34
@@ -455,8 +510,17 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "<none>"
-  assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
-  assert_line --index 3 --partial "$default_image"
+
+  if [ "$system_id" = "fedora" ]; then
+    assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
+    assert_line --index 3 --partial "$default_image"
+  elif [ "$system_id" = "ubuntu" ]; then
+    assert_line --index 2 --partial "$default_image"
+    assert_line --index 3 --partial "registry.fedoraproject.org/fedora-toolbox:34"
+  else
+    fail "Define output for $system_id"
+  fi
+
   assert [ ${#lines[@]} -eq 4 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
