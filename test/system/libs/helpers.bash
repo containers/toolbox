@@ -560,7 +560,10 @@ function get_system_version() (
   # shellcheck disable=SC1090
   . "$os_release"
 
-  echo "$VERSION_ID"
+  local system_version="$VERSION_ID"
+  [ "$ID" = "arch" ] && system_version="latest"
+
+  echo "$system_version"
 )
 
 
