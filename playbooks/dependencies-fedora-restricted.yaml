@@ -31,7 +31,6 @@
   package:
     name:
       - ShellCheck
-      - bash-completion
       - codespell
       - fish
       - flatpak-session-helper
@@ -40,6 +39,7 @@
       - golang-github-cpuguy83-md2man
       - meson
       - ninja-build
+      - pkgconfig(bash-completion)
       - shadow-utils-subid-devel
       - systemd
       - udisks2
@@ -81,4 +81,4 @@
     chdir: '{{ zuul.project.src_dir }}'
 
 - name: Check versions of crucial packages
-  command: rpm -qa ShellCheck codespell *kernel* gcc *glibc* shadow-utils-subid-devel golang golang-github-cpuguy83-md2man flatpak-session-helper
+  command: rpm -qa ShellCheck bash-completion codespell *kernel* gcc *glibc* shadow-utils-subid-devel golang golang-github-cpuguy83-md2man flatpak-session-helper
