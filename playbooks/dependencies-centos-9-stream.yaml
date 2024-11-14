@@ -2,7 +2,6 @@
   become: yes
   package:
     name:
-      - bash-completion
       - flatpak-session-helper
       - gcc
       - golang
@@ -10,6 +9,7 @@
       - meson
       - ninja-build
       - openssl
+      - pkgconfig(bash-completion)
       - podman
       - shadow-utils-subid-devel
       - skopeo
@@ -54,7 +54,7 @@
     chdir: '{{ zuul.project.src_dir }}'
 
 - name: Check versions of crucial packages
-  command: rpm -qa ShellCheck bash bats codespell *kernel* gcc *glibc* golang golang-github-cpuguy83-md2man shadow-utils-subid-devel podman conmon containernetworking-plugins containers-common container-selinux crun fuse-overlayfs flatpak-session-helper skopeo
+  command: rpm -qa ShellCheck bash bash-completion bats codespell *kernel* gcc *glibc* golang golang-github-cpuguy83-md2man shadow-utils-subid-devel podman conmon containernetworking-plugins containers-common container-selinux crun fuse-overlayfs flatpak-session-helper skopeo
 
 - name: Show podman versions
   command: podman version
