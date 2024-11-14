@@ -131,8 +131,9 @@ teardown() {
   run "$TOOLBX" create --distro arch
 
   assert_success
-  assert_output --partial "Created container: arch-toolbox-latest"
-  assert_output --partial "Enter with: toolbox enter arch-toolbox-latest"
+  assert_line --index 0 "Created container: arch-toolbox-latest"
+  assert_line --index 1 "Enter with: toolbox enter arch-toolbox-latest"
+  assert [ ${#lines[@]} -eq 2 ]
 
   run podman ps -a
 
@@ -145,8 +146,9 @@ teardown() {
   run "$TOOLBX" create --distro arch --release latest
 
   assert_success
-  assert_output --partial "Created container: arch-toolbox-latest"
-  assert_output --partial "Enter with: toolbox enter arch-toolbox-latest"
+  assert_line --index 0 "Created container: arch-toolbox-latest"
+  assert_line --index 1 "Enter with: toolbox enter arch-toolbox-latest"
+  assert [ ${#lines[@]} -eq 2 ]
 
   run podman ps -a
 
@@ -159,8 +161,9 @@ teardown() {
   run "$TOOLBX" create --distro arch --release rolling
 
   assert_success
-  assert_output --partial "Created container: arch-toolbox-latest"
-  assert_output --partial "Enter with: toolbox enter arch-toolbox-latest"
+  assert_line --index 0 "Created container: arch-toolbox-latest"
+  assert_line --index 1 "Enter with: toolbox enter arch-toolbox-latest"
+  assert [ ${#lines[@]} -eq 2 ]
 
   run podman ps -a
 
@@ -173,8 +176,9 @@ teardown() {
   run "$TOOLBX" create --distro fedora --release f34
 
   assert_success
-  assert_output --partial "Created container: fedora-toolbox-34"
-  assert_output --partial "Enter with: toolbox enter fedora-toolbox-34"
+  assert_line --index 0 "Created container: fedora-toolbox-34"
+  assert_line --index 1 "Enter with: toolbox enter fedora-toolbox-34"
+  assert [ ${#lines[@]} -eq 2 ]
 
   run podman ps -a
 
@@ -187,8 +191,9 @@ teardown() {
   run "$TOOLBX" create --distro rhel --release 8.10
 
   assert_success
-  assert_output --partial "Created container: rhel-toolbox-8.10"
-  assert_output --partial "Enter with: toolbox enter rhel-toolbox-8.10"
+  assert_line --index 0 "Created container: rhel-toolbox-8.10"
+  assert_line --index 1 "Enter with: toolbox enter rhel-toolbox-8.10"
+  assert [ ${#lines[@]} -eq 2 ]
 
   run podman ps -a
 
@@ -201,8 +206,9 @@ teardown() {
   run "$TOOLBX" create --distro ubuntu --release 16.04
 
   assert_success
-  assert_output --partial "Created container: ubuntu-toolbox-16.04"
-  assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-16.04"
+  assert_line --index 0 "Created container: ubuntu-toolbox-16.04"
+  assert_line --index 1 "Enter with: toolbox enter ubuntu-toolbox-16.04"
+  assert [ ${#lines[@]} -eq 2 ]
 
   run podman ps --all
 
@@ -216,8 +222,9 @@ teardown() {
   run "$TOOLBX" create --distro ubuntu --release 18.04
 
   assert_success
-  assert_output --partial "Created container: ubuntu-toolbox-18.04"
-  assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-18.04"
+  assert_line --index 0 "Created container: ubuntu-toolbox-18.04"
+  assert_line --index 1 "Enter with: toolbox enter ubuntu-toolbox-18.04"
+  assert [ ${#lines[@]} -eq 2 ]
 
   run podman ps --all
 
@@ -231,8 +238,9 @@ teardown() {
   run "$TOOLBX" create --distro ubuntu --release 20.04
 
   assert_success
-  assert_output --partial "Created container: ubuntu-toolbox-20.04"
-  assert_output --partial "Enter with: toolbox enter ubuntu-toolbox-20.04"
+  assert_line --index 0 "Created container: ubuntu-toolbox-20.04"
+  assert_line --index 1 "Enter with: toolbox enter ubuntu-toolbox-20.04"
+  assert [ ${#lines[@]} -eq 2 ]
 
   run podman ps --all
 
