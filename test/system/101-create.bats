@@ -37,7 +37,7 @@ teardown() {
 
   pull_default_image
 
-  run "$TOOLBX" --assumeyes create
+  run "$TOOLBX" create
 
   assert_success
   assert_line --index 0 "Created container: $default_container"
@@ -128,7 +128,7 @@ teardown() {
 @test "create: Arch Linux" {
   pull_distro_image arch latest
 
-  run "$TOOLBX" --assumeyes create --distro arch
+  run "$TOOLBX" create --distro arch
 
   assert_success
   assert_output --partial "Created container: arch-toolbox-latest"
@@ -142,7 +142,7 @@ teardown() {
 @test "create: Arch Linux ('--release latest')" {
   pull_distro_image arch latest
 
-  run "$TOOLBX" --assumeyes create --distro arch --release latest
+  run "$TOOLBX" create --distro arch --release latest
 
   assert_success
   assert_output --partial "Created container: arch-toolbox-latest"
@@ -156,7 +156,7 @@ teardown() {
 @test "create: Arch Linux ('--release rolling')" {
   pull_distro_image arch latest
 
-  run "$TOOLBX" --assumeyes create --distro arch --release rolling
+  run "$TOOLBX" create --distro arch --release rolling
 
   assert_success
   assert_output --partial "Created container: arch-toolbox-latest"
@@ -170,7 +170,7 @@ teardown() {
 @test "create: Fedora 34" {
   pull_distro_image fedora 34
 
-  run "$TOOLBX" --assumeyes create --distro fedora --release f34
+  run "$TOOLBX" create --distro fedora --release f34
 
   assert_success
   assert_output --partial "Created container: fedora-toolbox-34"
@@ -184,7 +184,7 @@ teardown() {
 @test "create: RHEL 8.10" {
   pull_distro_image rhel 8.10
 
-  run "$TOOLBX" --assumeyes create --distro rhel --release 8.10
+  run "$TOOLBX" create --distro rhel --release 8.10
 
   assert_success
   assert_output --partial "Created container: rhel-toolbox-8.10"
@@ -198,7 +198,7 @@ teardown() {
 @test "create: Ubuntu 16.04" {
   pull_distro_image ubuntu 16.04
 
-  run "$TOOLBX" --assumeyes create --distro ubuntu --release 16.04
+  run "$TOOLBX" create --distro ubuntu --release 16.04
 
   assert_success
   assert_output --partial "Created container: ubuntu-toolbox-16.04"
@@ -213,7 +213,7 @@ teardown() {
 @test "create: Ubuntu 18.04" {
   pull_distro_image ubuntu 18.04
 
-  run "$TOOLBX" --assumeyes create --distro ubuntu --release 18.04
+  run "$TOOLBX" create --distro ubuntu --release 18.04
 
   assert_success
   assert_output --partial "Created container: ubuntu-toolbox-18.04"
@@ -228,7 +228,7 @@ teardown() {
 @test "create: Ubuntu 20.04" {
   pull_distro_image ubuntu 20.04
 
-  run "$TOOLBX" --assumeyes create --distro ubuntu --release 20.04
+  run "$TOOLBX" create --distro ubuntu --release 20.04
 
   assert_success
   assert_output --partial "Created container: ubuntu-toolbox-20.04"
@@ -243,7 +243,7 @@ teardown() {
 @test "create: With a custom image without a name" {
   image="$(build_image_without_name)"
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --image "$image"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image"
 
   assert_success
   assert_line --index 0 "Created container: $image"
@@ -260,7 +260,7 @@ teardown() {
 @test "create: With a custom image without a name, and container name (using positional argument)" {
   image="$(build_image_without_name)"
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --image "$image" non-default
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" non-default
 
   assert_success
   assert_line --index 0 "Created container: non-default"
@@ -277,7 +277,7 @@ teardown() {
 @test "create: With a custom image without a name, and container name (using option --container)" {
   image="$(build_image_without_name)"
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --image "$image" --container non-default
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" --container non-default
 
   assert_success
   assert_line --index 0 "Created container: non-default"
