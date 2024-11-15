@@ -139,13 +139,22 @@ teardown() {
 }
 
 @test "create: Arch Linux" {
+  local system_id
+  system_id="$(get_system_id)"
+
   pull_distro_image arch latest
 
   run --separate-stderr "$TOOLBX" create --distro arch
 
   assert_success
   assert_line --index 0 "Created container: arch-toolbox-latest"
-  assert_line --index 1 "Enter with: toolbox enter arch-toolbox-latest"
+
+  if [ "$system_id" = "arch" ]; then
+    assert_line --index 1 "Enter with: toolbox enter"
+  else
+    assert_line --index 1 "Enter with: toolbox enter arch-toolbox-latest"
+  fi
+
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
@@ -155,13 +164,22 @@ teardown() {
 }
 
 @test "create: Arch Linux ('--release latest')" {
+  local system_id
+  system_id="$(get_system_id)"
+
   pull_distro_image arch latest
 
   run --separate-stderr "$TOOLBX" create --distro arch --release latest
 
   assert_success
   assert_line --index 0 "Created container: arch-toolbox-latest"
-  assert_line --index 1 "Enter with: toolbox enter arch-toolbox-latest"
+
+  if [ "$system_id" = "arch" ]; then
+    assert_line --index 1 "Enter with: toolbox enter"
+  else
+    assert_line --index 1 "Enter with: toolbox enter arch-toolbox-latest"
+  fi
+
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
@@ -171,13 +189,22 @@ teardown() {
 }
 
 @test "create: Arch Linux ('--release rolling')" {
+  local system_id
+  system_id="$(get_system_id)"
+
   pull_distro_image arch latest
 
   run --separate-stderr "$TOOLBX" create --distro arch --release rolling
 
   assert_success
   assert_line --index 0 "Created container: arch-toolbox-latest"
-  assert_line --index 1 "Enter with: toolbox enter arch-toolbox-latest"
+
+  if [ "$system_id" = "arch" ]; then
+    assert_line --index 1 "Enter with: toolbox enter"
+  else
+    assert_line --index 1 "Enter with: toolbox enter arch-toolbox-latest"
+  fi
+
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
