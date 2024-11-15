@@ -851,7 +851,7 @@ teardown() {
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: options --image and --release cannot be used together"
   assert_line --index 1 "Run 'toolbox --help' for usage."
-  assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
 @test "create: Try using both --image and --release (using --assumeyes)" {
