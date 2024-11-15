@@ -400,7 +400,7 @@ teardown() {
   if [ "$system_id" = "fedora" ]; then
     assert_line --index 1 --partial "registry.fedoraproject.org/fedora-toolbox:34"
     assert_line --index 2 --partial "$default_image"
-  elif [ "$system_id" = "ubuntu" ]; then
+  elif [ "$system_id" = "arch" ] || [ "$system_id" = "ubuntu" ]; then
     assert_line --index 1 --partial "$default_image"
     assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
   else
@@ -415,7 +415,7 @@ teardown() {
 
   assert_success
 
-  if [ "$system_id" = "fedora" ]; then
+  if [ "$system_id" = "arch" ] || [ "$system_id" = "fedora" ]; then
     assert_line --index 1 --partial "$default_container"
     assert_line --index 2 --partial "non-default-one"
     assert_line --index 3 --partial "non-default-two"
@@ -438,14 +438,14 @@ teardown() {
   if [ "$system_id" = "fedora" ]; then
     assert_line --index 1 --partial "registry.fedoraproject.org/fedora-toolbox:34"
     assert_line --index 2 --partial "$default_image"
-  elif [ "$system_id" = "ubuntu" ]; then
+  elif [ "$system_id" = "arch" ] || [ "$system_id" = "ubuntu" ]; then
     assert_line --index 1 --partial "$default_image"
     assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
   else
     fail "Define output for $system_id"
   fi
 
-  if [ "$system_id" = "fedora" ]; then
+  if [ "$system_id" = "arch" ] || [ "$system_id" = "fedora" ]; then
     assert_line --index 5 --partial "$default_container"
     assert_line --index 6 --partial "non-default-one"
     assert_line --index 7 --partial "non-default-two"
@@ -484,7 +484,7 @@ teardown() {
   if [ "$system_id" = "fedora" ]; then
     assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
     assert_line --index 3 --partial "$default_image"
-  elif [ "$system_id" = "ubuntu" ]; then
+  elif [ "$system_id" = "arch" ] || [ "$system_id" = "ubuntu" ]; then
     assert_line --index 2 --partial "$default_image"
     assert_line --index 3 --partial "registry.fedoraproject.org/fedora-toolbox:34"
   else
@@ -514,7 +514,7 @@ teardown() {
   if [ "$system_id" = "fedora" ]; then
     assert_line --index 2 --partial "registry.fedoraproject.org/fedora-toolbox:34"
     assert_line --index 3 --partial "$default_image"
-  elif [ "$system_id" = "ubuntu" ]; then
+  elif [ "$system_id" = "arch" ] || [ "$system_id" = "ubuntu" ]; then
     assert_line --index 2 --partial "$default_image"
     assert_line --index 3 --partial "registry.fedoraproject.org/fedora-toolbox:34"
   else
