@@ -43,6 +43,9 @@ teardown() {
   assert_line --index 0 "Created container: $default_container"
   assert_line --index 1 "Enter with: toolbox enter"
   assert [ ${#lines[@]} -eq 2 ]
+
+  # shellcheck disable=SC2154
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
 @test "create: With a custom name (using option --container)" {
@@ -54,6 +57,7 @@ teardown() {
   assert_line --index 0 "Created container: custom-containerName"
   assert_line --index 1 "Enter with: toolbox enter custom-containerName"
   assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
 @test "create: With a custom image and name (using option --container)" {
@@ -65,6 +69,7 @@ teardown() {
   assert_line --index 0 "Created container: fedora34"
   assert_line --index 1 "Enter with: toolbox enter fedora34"
   assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
 @test "create: Try without --assumeyes" {
@@ -83,20 +88,24 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create "ßpeci@l.N@m€"
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for 'CONTAINER'"
   assert_line --index 1 "Container names must match '[a-zA-Z0-9][a-zA-Z0-9_.-]*'."
   assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
 @test "create: Try with an invalid custom name (using option --container)" {
   run --separate-stderr "$TOOLBX" --assumeyes create --container "ßpeci@l.N@m€"
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--container'"
   assert_line --index 1 "Container names must match '[a-zA-Z0-9][a-zA-Z0-9_.-]*'."
   assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
 @test "create: Try with an invalid custom image" {
@@ -105,6 +114,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" create --image "$image"
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--image'"
   assert_line --index 1 "Container name $image generated from image is invalid."
@@ -137,6 +147,7 @@ teardown() {
   assert_line --index 0 "Created container: arch-toolbox-latest"
   assert_line --index 1 "Enter with: toolbox enter arch-toolbox-latest"
   assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run podman ps -a
 
@@ -152,6 +163,7 @@ teardown() {
   assert_line --index 0 "Created container: arch-toolbox-latest"
   assert_line --index 1 "Enter with: toolbox enter arch-toolbox-latest"
   assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run podman ps -a
 
@@ -167,6 +179,7 @@ teardown() {
   assert_line --index 0 "Created container: arch-toolbox-latest"
   assert_line --index 1 "Enter with: toolbox enter arch-toolbox-latest"
   assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run podman ps -a
 
@@ -182,6 +195,7 @@ teardown() {
   assert_line --index 0 "Created container: fedora-toolbox-34"
   assert_line --index 1 "Enter with: toolbox enter fedora-toolbox-34"
   assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run podman ps -a
 
@@ -197,6 +211,7 @@ teardown() {
   assert_line --index 0 "Created container: rhel-toolbox-8.10"
   assert_line --index 1 "Enter with: toolbox enter rhel-toolbox-8.10"
   assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run podman ps -a
 
@@ -212,6 +227,7 @@ teardown() {
   assert_line --index 0 "Created container: ubuntu-toolbox-16.04"
   assert_line --index 1 "Enter with: toolbox enter ubuntu-toolbox-16.04"
   assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run podman ps --all
 
@@ -228,6 +244,7 @@ teardown() {
   assert_line --index 0 "Created container: ubuntu-toolbox-18.04"
   assert_line --index 1 "Enter with: toolbox enter ubuntu-toolbox-18.04"
   assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run podman ps --all
 
@@ -244,6 +261,7 @@ teardown() {
   assert_line --index 0 "Created container: ubuntu-toolbox-20.04"
   assert_line --index 1 "Enter with: toolbox enter ubuntu-toolbox-20.04"
   assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run podman ps --all
 
@@ -333,6 +351,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro "$distro"
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--distro'"
   assert_line --index 1 "Distribution $distro is unsupported."
@@ -356,16 +375,19 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --image foo.org/bar
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: failed to pull image foo.org/bar"
   assert_line --index 1 "If it was a private image, log in with: podman login foo.org"
   assert_line --index 2 "Use 'toolbox --verbose ...' for further details."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
 }
 
 @test "create: Try Arch Linux with an invalid release ('--release foo')" {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro arch --release foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be 'latest'."
@@ -377,6 +399,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release -3
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive integer."
@@ -388,6 +411,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release -3.0
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive integer."
@@ -399,6 +423,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release -3.1
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive integer."
@@ -410,6 +435,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 0
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive integer."
@@ -421,6 +447,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 0.0
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive integer."
@@ -432,6 +459,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 0.1
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive integer."
@@ -443,6 +471,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 3.0
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive integer."
@@ -454,6 +483,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 3.1
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive integer."
@@ -465,6 +495,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive integer."
@@ -476,6 +507,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 3foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive integer."
@@ -487,6 +519,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
@@ -498,6 +531,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8.0.0
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
@@ -509,6 +543,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8.0.1
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
@@ -520,6 +555,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8.3.0
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
@@ -531,6 +567,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8.3.1
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
@@ -542,6 +579,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
@@ -553,6 +591,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8.2foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
@@ -564,6 +603,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release -2.1
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be a positive number."
@@ -575,6 +615,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release -2.-1
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
@@ -586,6 +627,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 2.-1
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the '<major>.<minor>' format."
@@ -597,6 +639,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 20
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the 'YY.MM' format."
@@ -608,6 +651,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 20.04.0
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the 'YY.MM' format."
@@ -619,6 +663,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 20.04.1
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the 'YY.MM' format."
@@ -630,6 +675,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the 'YY.MM' format."
@@ -641,6 +687,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 20foo
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the 'YY.MM' format."
@@ -652,6 +699,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release foo.bar
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the 'YY.MM' format."
@@ -663,6 +711,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release foo.bar.baz
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the 'YY.MM' format."
@@ -674,6 +723,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 3.10
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release year must be 4 or more."
@@ -685,6 +735,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 202.4
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release year cannot have more than two digits."
@@ -696,6 +747,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 202.04
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release year cannot have more than two digits."
@@ -707,6 +759,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 2020.4
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release year cannot have more than two digits."
@@ -718,6 +771,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 2020.04
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release year cannot have more than two digits."
@@ -729,6 +783,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 04.10
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release year cannot have a leading zero."
@@ -740,6 +795,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 4.bar
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the 'YY.MM' format."
@@ -751,6 +807,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 4.bar.baz
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release must be in the 'YY.MM' format."
@@ -762,6 +819,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 4.0
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release month must be between 01 and 12."
@@ -773,6 +831,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 4.00
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release month must be between 01 and 12."
@@ -784,6 +843,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 4.13
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release month must be between 01 and 12."
@@ -795,6 +855,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 20.4
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument for '--release'"
   assert_line --index 1 "The release month must have two digits."
@@ -815,6 +876,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro "$distro"
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: option '--release' is needed"
   assert_line --index 1 "Distribution $distro doesn't match the host."
@@ -837,6 +899,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --image fedora-toolbox:34
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: options --distro and --image cannot be used together"
   assert_line --index 1 "Run 'toolbox --help' for usage."
@@ -858,6 +921,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --image fedora-toolbox:34 --release 34
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: options --image and --release cannot be used together"
   assert_line --index 1 "Run 'toolbox --help' for usage."
@@ -870,6 +934,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" create --authfile "$file"
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: file $file not found"
   assert_line --index 1 "'podman login' can be used to create the file."
@@ -901,6 +966,7 @@ teardown() {
   run --separate-stderr "$TOOLBX" --assumeyes create --image "$DOCKER_REG_URI/$image"
 
   assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: failed to pull image $DOCKER_REG_URI/$image"
   assert_line --index 1 "If it was a private image, log in with: podman login $DOCKER_REG_URI"
@@ -915,4 +981,5 @@ teardown() {
   assert_line --index 0 "Created container: fedora-toolbox-34"
   assert_line --index 1 "Enter with: toolbox enter fedora-toolbox-34"
   assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
 }
