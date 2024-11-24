@@ -1,0 +1,54 @@
+FROM registry.fedoraproject.org/fedora:40
+
+ARG NAME=fedora-toolbox
+ARG VERSION=40
+LABEL com.github.containers.toolbox="true" \
+      com.redhat.component="$NAME" \
+      name="$NAME" \
+      version="$VERSION" \
+      usage="This image is meant to be used with the toolbox(1) command" \
+      summary="Image for creating Fedora Toolbx containers" \
+      maintainer="Debarshi Ray <rishi@fedoraproject.org>"
+
+COPY README.md /
+
+RUN rm /etc/rpm/macros.image-language-conf
+RUN sed -i '/tsflags=nodocs/d' /etc/dnf/dnf.conf
+
+RUN dnf -y upgrade
+RUN dnf -y swap coreutils-single coreutils-full
+RUN dnf -y swap glibc-minimal-langpack glibc-all-langpacks
+
+COPY missing-docs /
+RUN dnf -y reinstall $(<missing-docs)
+RUN rm /missing-docs
+
+COPY extra-packages /
+RUN dnf -y install $(<extra-packages)
+RUN rm /extra-packages
+
+COPY ensure-files /
+RUN ret_val=0; \
+  while read file; do \
+    if ! compgen -G "$file" >/dev/null; then \
+      echo "$file: No such file or directory" >&2; \
+      ret_val=1; \
+      break; \
+    fi; \
+  done <ensure-files; \
+  if [ "$ret_val" -ne 0 ]; then \
+    false; \
+  fi
+RUN rm /ensure-files
+
+RUN broken_packages="$(rpm --all --query --state --queryformat "PACKAGE: %{NAME}\n" \
+  | sed --quiet --regexp-extended '/PACKAGE: /{s/PACKAGE: // ; h ; b }; /^not installed/ { g; p }' \
+  | uniq \
+  | sort)"; \
+  if [ "$broken_packages" != "" ]; then \
+    echo "Packages with missing files:" >&2; \
+    echo "$broken_packages" >&2; \
+    false; \
+  fi
+
+RUN dnf clean all
