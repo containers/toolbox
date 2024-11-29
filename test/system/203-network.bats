@@ -24,9 +24,8 @@ load 'libs/helpers'
 readonly RESOLVER_PYTHON3='\
 import socket; \
 import sys; \
-family = socket.AddressFamily.AF_INET if sys.argv[1] == "A" else 0; \
-family = socket.AddressFamily.AF_INET6 if sys.argv[1] == "AAAA" else 0; \
-addr = socket.getaddrinfo(sys.argv[2], None, family, socket.SocketKind.SOCK_RAW)[0][4][0]; \
+family = {"A": socket.AddressFamily.AF_INET, "AAAA": socket.AddressFamily.AF_INET6}; \
+addr = socket.getaddrinfo(sys.argv[2], None, family[sys.argv[1]], socket.SocketKind.SOCK_RAW)[0][4][0]; \
 print(addr)'
 
 # shellcheck disable=SC2016
