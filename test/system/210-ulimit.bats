@@ -38,7 +38,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -R)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -R
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -R'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -53,7 +53,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -R)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -R
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -R'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -68,7 +68,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -c)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -c
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -c'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -83,7 +83,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -c)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -c
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -c'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -98,7 +98,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -d)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -d
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -d'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -113,7 +113,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -d)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -d
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -d'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -128,7 +128,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -e)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -e
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -e'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -143,7 +143,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -e)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -e
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -e'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -158,7 +158,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -f)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -f
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -f'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -173,7 +173,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -f)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -f
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -f'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -188,7 +188,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -i)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -i
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -i'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -203,7 +203,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -i)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -i
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -i'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -218,7 +218,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -l)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -l
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -l'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -233,7 +233,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -l)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -l
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -l'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -248,7 +248,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -m)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -m
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -m'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -263,7 +263,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -m)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -m
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -m'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -278,7 +278,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -n)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -n
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -n'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -293,7 +293,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -n)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -n
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -n'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -308,7 +308,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -p)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -p
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -p'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -323,7 +323,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -p)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -p
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -p'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -338,7 +338,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -q)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -q
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -q'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -353,7 +353,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -q)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -q
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -q'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -368,7 +368,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -r)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -r
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -r'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -383,7 +383,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -r)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -r
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -r'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -398,7 +398,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -s)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -s
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -s'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -413,7 +413,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -s)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -s
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -s'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -428,7 +428,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -t)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -t
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -t'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -443,7 +443,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -t)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -t
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -t'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -458,7 +458,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -u)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -u
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -u'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -473,7 +473,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -u)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -u
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -u'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -488,7 +488,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -v)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -v
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -v'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -503,7 +503,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -v)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -v
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -v'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -518,7 +518,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -H -x)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -H -x
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -H -x'
 
   assert_success
   assert_line --index 0 "$limit"
@@ -533,7 +533,7 @@ teardown_file() {
   local limit
   limit=$(ulimit -S -x)
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run ulimit -S -x
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run bash -c 'ulimit -S -x'
 
   assert_success
   assert_line --index 0 "$limit"

@@ -161,6 +161,7 @@ jobs:
             test/system/108-completion.bats \
             test/system/201-ipc.bats \
             test/system/203-network.bats \
+            test/system/210-ulimit.bats \
             test/system/220-environment-variables.bats \
             test/system/230-cdi.bats \
             test/system/250-kerberos.bats \
