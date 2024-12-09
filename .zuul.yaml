@@ -147,39 +147,6 @@
     pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test-runtime-environment-ubuntu.yaml
 
-- job:
-    name: system-test-fedora-39-commands-options
-    description: Run Toolbx's commands-options system tests in Fedora 39
-    timeout: 6300
-    nodeset:
-      nodes:
-        - name: fedora-39
-          label: cloud-fedora-39
-    pre-run: playbooks/setup-env.yaml
-    run: playbooks/system-test-commands-options.yaml
-
-- job:
-    name: system-test-fedora-39-runtime-environment-arch-fedora
-    description: Run Toolbx's (arch-fedora,runtime-environment) system tests in Fedora 39
-    timeout: 6300
-    nodeset:
-      nodes:
-        - name: fedora-39
-          label: cloud-fedora-39
-    pre-run: playbooks/setup-env.yaml
-    run: playbooks/system-test-runtime-environment-arch-fedora.yaml
-
-- job:
-    name: system-test-fedora-39-runtime-environment-ubuntu
-    description: Run Toolbx's (runtime-environment,ubuntu) system tests in Fedora 39
-    timeout: 6300
-    nodeset:
-      nodes:
-        - name: fedora-39
-          label: cloud-fedora-39
-    pre-run: playbooks/setup-env.yaml
-    run: playbooks/system-test-runtime-environment-ubuntu.yaml
-
 - project:
     periodic:
       jobs:
@@ -192,9 +159,6 @@
         - system-test-fedora-40-commands-options
         - system-test-fedora-40-runtime-environment-arch-fedora
         - system-test-fedora-40-runtime-environment-ubuntu
-        - system-test-fedora-39-commands-options
-        - system-test-fedora-39-runtime-environment-arch-fedora
-        - system-test-fedora-39-runtime-environment-ubuntu
     check:
       jobs:
         - unit-test
@@ -209,9 +173,6 @@
         - system-test-fedora-40-commands-options
         - system-test-fedora-40-runtime-environment-arch-fedora
         - system-test-fedora-40-runtime-environment-ubuntu
-        - system-test-fedora-39-commands-options
-        - system-test-fedora-39-runtime-environment-arch-fedora
-        - system-test-fedora-39-runtime-environment-ubuntu
     gate:
       jobs:
         - unit-test
@@ -226,6 +187,3 @@
         - system-test-fedora-40-commands-options
         - system-test-fedora-40-runtime-environment-arch-fedora
         - system-test-fedora-40-runtime-environment-ubuntu
-        - system-test-fedora-39-commands-options
-        - system-test-fedora-39-runtime-environment-arch-fedora
-        - system-test-fedora-39-runtime-environment-ubuntu
