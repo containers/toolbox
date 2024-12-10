@@ -14,6 +14,7 @@ require (
 	github.com/go-logfmt/logfmt v0.5.0
 	github.com/godbus/dbus/v5 v5.0.6
 	github.com/google/renameio/v2 v2.0.0
+	github.com/opencontainers/runc v1.1.14
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
