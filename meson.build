@@ -73,6 +73,7 @@ if codespell.found()
       '--exclude-file', meson.project_source_root() / '.codespellexcludefile',
       '--skip', meson.project_build_root(),
       '--skip', meson.project_source_root() / '.git',
+      '--skip', meson.project_source_root() / 'src/go.sum',
       '--skip', meson.project_source_root() / 'test/system/libs/bats-assert',
       '--skip', meson.project_source_root() / 'test/system/libs/bats-support',
       meson.project_source_root(),
