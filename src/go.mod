@@ -1,12 +1,12 @@
 module github.com/containers/toolbox
 
-go 1.20
+go 1.21
 
 require (
 	github.com/HarryMichal/go-version v1.0.1
 	github.com/NVIDIA/go-nvlib v0.7.0
 	github.com/NVIDIA/go-nvml v0.12.4-1
-	github.com/NVIDIA/nvidia-container-toolkit v1.16.2
+	github.com/NVIDIA/nvidia-container-toolkit v1.17.0
 	github.com/acobaugh/osrelease v0.1.0
 	github.com/briandowns/spinner v1.23.2
 	github.com/docker/go-units v0.5.0
