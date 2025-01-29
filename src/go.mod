@@ -18,7 +18,7 @@ require (
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.10.0
-	golang.org/x/sys v0.25.0
+	golang.org/x/sys v0.26.0
 	tags.cncf.io/container-device-interface v0.8.0
 	tags.cncf.io/container-device-interface/specs-go v0.8.0
 )
