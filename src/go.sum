@@ -58,8 +58,8 @@ github.com/NVIDIA/go-nvlib v0.7.0 h1:Z/J7skMdLbTiHvomKVsGYsttfQMZj5FwNYIFXhZ4i/c
 github.com/NVIDIA/go-nvlib v0.7.0/go.mod h1:9UrsLGx/q1OrENygXjOuM5Ey5KCtiZhbvBlbUIxtGWY=
 github.com/NVIDIA/go-nvml v0.12.4-1 h1:WKUvqshhWSNTfm47ETRhv0A0zJyr1ncCuHiXwoTrBEc=
 github.com/NVIDIA/go-nvml v0.12.4-1/go.mod h1:8Llmj+1Rr+9VGGwZuRer5N/aCjxGuR5nPb/9ebBiIEQ=
-github.com/NVIDIA/nvidia-container-toolkit v1.17.2 h1:iE6PK9SQH3HyDrOolu27xn3CJgURR3bDtnbfFrxdML8=
-github.com/NVIDIA/nvidia-container-toolkit v1.17.2/go.mod h1:R6bNf6ca0IjjACa0ncKGvsrx6zSjsgz8QkFyBDk5szU=
+github.com/NVIDIA/nvidia-container-toolkit v1.17.3 h1:vCJ9IY/YNcwNiMv7anAWEmUW8Xocqdmv73V98MXTrxo=
+github.com/NVIDIA/nvidia-container-toolkit v1.17.3/go.mod h1:R6bNf6ca0IjjACa0ncKGvsrx6zSjsgz8QkFyBDk5szU=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/acobaugh/osrelease v0.1.0 h1:Yb59HQDGGNhCj4suHaFQQfBps5wyoKLSSX/J/+UifRE=
 github.com/acobaugh/osrelease v0.1.0/go.mod h1:4bFEs0MtgHNHBrmHCt67gNisnabCRAlzdVasCEGHTWY=
