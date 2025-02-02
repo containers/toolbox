@@ -28,6 +28,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/acobaugh/osrelease"
@@ -586,6 +587,15 @@ func GetSupportedDistros() []string {
 // Examples: "5 minutes ago", "2 hours ago", "3 days ago"
 func HumanDuration(duration int64) string {
 	return units.HumanDuration(time.Since(time.Unix(duration, 0))) + " ago"
+}
+
+// HumanSize accepts a bytes value and converts it into a human readable string.
+//
+// Examples: "500 MB", "1.23 GB"
+func HumanSize(size int64) string {
+	s := units.HumanSizeWithPrecision(float64(size), 3)
+	j := strings.LastIndexFunc(s, unicode.IsNumber)
+	return s[:j+1] + " " + s[j+1:]
 }
 
 // ImageReferenceCanBeID checks if 'image' might be the ID of an image
