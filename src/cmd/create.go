@@ -277,15 +277,6 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 
 	runtimeDirectoryMountArg := runtimeDirectory + ":" + runtimeDirectory
 
-	logrus.Debug("Checking if 'podman create' supports '--mount type=devpts'")
-
-	var devPtsMount []string
-
-	if podman.CheckVersion("2.1.0") {
-		logrus.Debug("'podman create' supports '--mount type=devpts'")
-		devPtsMount = []string{"--mount", "type=devpts,destination=/dev/pts"}
-	}
-
 	var usernsArg string
 	if currentUser.Uid == "0" {
 		usernsArg = "host"
@@ -422,6 +413,10 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	entryPoint = append(entryPoint, mediaLink...)
 	entryPoint = append(entryPoint, mntLink...)
 
+	entryPoint = append(entryPoint, []string{
+		"--mount-devpts",
+	}...)
+
 	createArgs := []string{
 		"--log-level", logLevelString,
 		"create",
@@ -442,11 +437,6 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		"--hostname", "toolbx",
 		"--ipc", "host",
 		"--label", "com.github.containers.toolbox=true",
-	}...)
-
-	createArgs = append(createArgs, devPtsMount...)
-
-	createArgs = append(createArgs, []string{
 		"--name", container,
 		"--network", "host",
 		"--no-hosts",
