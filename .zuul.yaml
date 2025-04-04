@@ -49,6 +49,39 @@
     run: playbooks/unit-test.yaml
 
 - job:
+    name: system-test-arch-commands-options
+    description: Run Toolbx's commands-options system tests on Arch Linux
+    timeout: 6300
+    nodeset:
+      nodes:
+        - name: arch
+          label: arch-linux
+    pre-run: playbooks/arch/setup.yaml
+    run: playbooks/system-test-commands-options.yaml
+
+- job:
+    name: system-test-arch-runtime-environment-arch-fedora
+    description: Run Toolbx's (arch-fedora,runtime-environment) system tests on Arch Linux
+    timeout: 6300
+    nodeset:
+      nodes:
+        - name: arch
+          label: arch-linux
+    pre-run: playbooks/arch/setup.yaml
+    run: playbooks/system-test-runtime-environment-arch-fedora.yaml
+
+- job:
+    name: system-test-arch-runtime-environment-ubuntu
+    description: Run Toolbx's (runtime-environment,ubuntu) system tests on Arch Linux
+    timeout: 6300
+    nodeset:
+      nodes:
+        - name: arch
+          label: arch-linux
+    pre-run: playbooks/arch/setup.yaml
+    run: playbooks/system-test-runtime-environment-ubuntu.yaml
+
+- job:
     name: system-test-fedora-rawhide-commands-options
     description: Run Toolbx's commands-options system tests in Fedora Rawhide
     timeout: 7200
@@ -183,6 +216,9 @@
 - project:
     periodic:
       jobs:
+        - system-test-arch-commands-options
+        - system-test-arch-runtime-environment-arch-fedora
+        - system-test-arch-runtime-environment-ubuntu
         - system-test-fedora-rawhide-commands-options
         - system-test-fedora-rawhide-runtime-environment-arch-fedora
         - system-test-fedora-rawhide-runtime-environment-ubuntu
@@ -200,6 +236,9 @@
         - unit-test
         - unit-test-migration-path-for-coreos-toolbox
         - unit-test-restricted
+        - system-test-arch-commands-options
+        - system-test-arch-runtime-environment-arch-fedora
+        - system-test-arch-runtime-environment-ubuntu
         - system-test-fedora-rawhide-commands-options
         - system-test-fedora-rawhide-runtime-environment-arch-fedora
         - system-test-fedora-rawhide-runtime-environment-ubuntu
@@ -217,6 +256,9 @@
         - unit-test
         - unit-test-migration-path-for-coreos-toolbox
         - unit-test-restricted
+        - system-test-arch-commands-options
+        - system-test-arch-runtime-environment-arch-fedora
+        - system-test-arch-runtime-environment-ubuntu
         - system-test-fedora-rawhide-commands-options
         - system-test-fedora-rawhide-runtime-environment-arch-fedora
         - system-test-fedora-rawhide-runtime-environment-ubuntu
