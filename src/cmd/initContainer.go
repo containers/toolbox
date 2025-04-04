@@ -51,6 +51,8 @@ var (
 		user        string
 	}
 
+	toolboxLibexecDirectory = "/usr/libexec/toolbox"
+
 	initContainerMounts = []struct {
 		containerPath string
 		source        string
@@ -71,6 +73,19 @@ var (
 		{"/var/lib/systemd/coredump", "/run/host/var/lib/systemd/coredump", ""},
 		{"/var/log/journal", "/run/host/var/log/journal", ""},
 		{"/var/mnt", "/run/host/var/mnt", "rslave"},
+	}
+	hostRunnerShim = struct {
+		containerPath string
+		source        string
+	}{
+		"/usr/libexec/toolbox/host-runner", "/run/host/usr/libexec/toolbox/host-runner",
+	}
+
+	sudoShim = struct {
+		containerPath string
+		source        string
+	}{
+		"/usr/libexec/toolbox/sudo", "/run/host/usr/libexec/toolbox/sudo",
 	}
 )
 
@@ -332,6 +347,31 @@ func initContainer(cmd *cobra.Command, args []string) error {
 			rpmConfigBytes,
 			0644); err != nil {
 			return fmt.Errorf("failed to configure RPM to ignore bind mounts: %w", err)
+		}
+	}
+
+	logrus.Debugf("Creating directory libexec directory %s", toolboxLibexecDirectory)
+	if err := os.MkdirAll(toolboxLibexecDirectory, 0755); err != nil {
+		return fmt.Errorf("failed to create toolbox libexec directory %s: %w", toolboxLibexecDirectory, err)
+	}
+
+	// '/usr/libexec/toolbox/host-runner' is a script that makes use of 'flatpak-spawn
+	// --host' to run run commands from inside of a container on the host
+	if utils.PathExists(hostRunnerShim.source) {
+		logrus.Debugf("Seting up %s", hostRunnerShim.containerPath)
+		err = redirectPath(hostRunnerShim.containerPath, hostRunnerShim.source, false)
+		if err != nil {
+			return fmt.Errorf("failed to setup host-runner shim: %w", err)
+		}
+	}
+
+	// '/usr/libexec/toolbox/sudo' is a script that wraps around 'sudo' to make it
+	// possible to run commands from inside of a container on the host with sudo
+	if utils.PathExists(sudoShim.source) {
+		logrus.Debugf("Seting up %s", sudoShim.containerPath)
+		err = redirectPath(sudoShim.containerPath, sudoShim.source, false)
+		if err != nil {
+			return fmt.Errorf("failed to setup sudo shim: %w", err)
 		}
 	}
 

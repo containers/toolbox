@@ -1,0 +1,47 @@
+#!/bin/sh
+
+#
+# Copyright © 2019 – 2020 Red Hat Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# sudo-wrapper is meant to be used before /bin/sudo to make it possible to run
+# commands on the host from inside of a container with "sudo" prefixed. It
+# checks first if the command, that is to be run with sudo, is to be run on the
+# host by checking if it is a symlink to /usr/libexec/toolbox/host-runner. If it
+# is not, /bin/bash is executed instead.
+
+# Name of the executable that should be ran using sudo
+executable=""
+
+# This is a wrapper but the cli user experience should remain the same.
+# TODO: Parse sudo's command line options
+if [ $# -ge 1 ]; then
+
+	executable=$(basename $1)
+	# Move the executable's name out of the argument list
+	shift
+fi
+
+# Shims are located under /usr/libexec/toolbox; the list should not include
+# "host-runner" and "sudo"
+shims=$(ls /usr/libexec/toolbox | grep -v "host-runner" | grep -v "sudo")
+
+if [ -n "$executable" ] && echo "$shims" | grep "^$executable$" >/dev/null; then
+	set -x
+	exec $executable --host-runner-sudo $@
+fi
+
+# The called command is not a shim-binary -> run 'sudo' as usually
+exec /bin/sudo $executable $@

@@ -8,6 +8,7 @@ sources = files(
   'toolbox.go',
   'cmd/completion.go',
   'cmd/create.go',
+  'cmd/createShim.go',
   'cmd/enter.go',
   'cmd/help.go',
   'cmd/initContainer.go',
