@@ -34,6 +34,7 @@ import (
 
 type Image struct {
 	Created string
+	Size    string
 	ID      string
 	Labels  map[string]string
 	Names   []string
@@ -84,6 +85,7 @@ func (image *Image) FlattenNames(fillNameWithID bool) []Image {
 func (image *Image) UnmarshalJSON(data []byte) error {
 	var raw struct {
 		Created interface{}
+		Size    float64
 		ID      string
 		Labels  map[string]string
 		Names   []string
@@ -102,6 +104,7 @@ func (image *Image) UnmarshalJSON(data []byte) error {
 	case float64:
 		image.Created = utils.HumanDuration(int64(value))
 	}
+	image.Size = utils.HumanSize(int64(raw.Size))
 
 	image.ID = raw.ID
 	image.Labels = raw.Labels

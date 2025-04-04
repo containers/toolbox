@@ -192,17 +192,18 @@ func getImages(fillNameWithID bool) ([]podman.Image, error) {
 func listOutput(images []podman.Image, containers []podman.Container) {
 	if len(images) != 0 {
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-		fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
+		fmt.Fprintf(writer, "%s\t%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED", "SIZE")
 
 		for _, image := range images {
 			if len(image.Names) != 1 {
 				panic("cannot list unflattened Image")
 			}
 
-			fmt.Fprintf(writer, "%s\t%s\t%s\n",
+			fmt.Fprintf(writer, "%s\t%s\t%s\t%s\n",
 				utils.ShortID(image.ID),
 				image.Names[0],
-				image.Created)
+				image.Created,
+				image.Size)
 		}
 
 		writer.Flush()
