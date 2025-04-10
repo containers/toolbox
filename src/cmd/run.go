@@ -648,7 +648,8 @@ func ensureContainerIsInitialized(container string, entryPointPID int, timestamp
 
 		if err := watcherForStamp.Add(toolboxRuntimeDirectory); err != nil {
 			if errors.Is(err, unix.ENOMEM) || errors.Is(err, unix.ENOSPC) {
-				logrus.Debugf("Setting up watches for file system events: failed to add path: %s", err)
+				logrus.Debugf("Setting up watches for file system events: failed to add path: %s",
+					err)
 				logrus.Debug("Using polling instead")
 				fallbackToPolling = true
 			} else {
@@ -923,7 +924,9 @@ func showEntryPointLog(line string) error {
 				var err error
 				logLevel, err = logrus.ParseLevel(valueString)
 				if err != nil {
-					logrus.Debugf("Parsing entry point log-level %s failed: %s", valueString, err)
+					logrus.Debugf("Parsing entry point log-level %s failed: %s",
+						valueString,
+						err)
 					logLevel = logrus.DebugLevel
 				}
 			case "msg":
