@@ -281,7 +281,9 @@ func migrate(cmd *cobra.Command, args []string) error {
 	stampBytes, err := ioutil.ReadFile(stampPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			logrus.Debugf("Migrating to newer Podman: failed to read migration stamp file %s: %s", stampPath, err)
+			logrus.Debugf("Migrating to newer Podman: failed to read migration stamp file %s: %s",
+				stampPath,
+				err)
 			return errors.New("failed to read migration stamp file")
 		}
 	} else {
@@ -291,9 +293,7 @@ func migrate(cmd *cobra.Command, args []string) error {
 			logrus.Debugf("Old Podman version is %s", podmanVersionOld)
 
 			if podmanVersion == podmanVersionOld {
-				logrus.Debugf("Migration not needed: Podman version %s is unchanged",
-					podmanVersion)
-
+				logrus.Debugf("Migration not needed: Podman version %s is unchanged", podmanVersion)
 				return nil
 			}
 
