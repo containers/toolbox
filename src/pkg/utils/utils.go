@@ -164,6 +164,10 @@ var (
 
 	ErrDistroWithoutRelease = errors.New("non-default distribution must specify release")
 
+	ErrFlockAcquire = errors.New("failed to acquire lock")
+
+	ErrFlockCreate = errors.New("failed to create lock file")
+
 	ErrImageWithoutBasename = errors.New("image does not have a basename")
 )
 
@@ -225,6 +229,23 @@ func EnsureXdgRuntimeDirIsSet(uid int) {
 
 		logrus.Debugf("XDG_RUNTIME_DIR set to %s", xdgRuntimeDir)
 	}
+}
+
+func Flock(path string, how int) (*os.File, error) {
+	file, err := os.Create(path)
+	if err != nil {
+		errs := []error{ErrFlockCreate, err}
+		return nil, &FlockError{Path: path, Errs: errs}
+	}
+
+	fd := file.Fd()
+	fdInt := int(fd)
+	if err := syscall.Flock(fdInt, how); err != nil {
+		errs := []error{ErrFlockAcquire, err}
+		return nil, &FlockError{Path: path, Errs: errs, errSuffix: "on"}
+	}
+
+	return file, nil
 }
 
 func ForwardToHost() (int, error) {

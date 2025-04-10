@@ -263,20 +263,27 @@ func migrate(cmd *cobra.Command, args []string) error {
 
 	migrateLock := toolboxRuntimeDirectory + "/migrate.lock"
 
-	migrateLockFile, err := os.Create(migrateLock)
+	migrateLockFile, err := utils.Flock(migrateLock, syscall.LOCK_EX)
 	if err != nil {
-		logrus.Debugf("Migrating to newer Podman: failed to create migration lock file %s: %s", migrateLock, err)
-		return errors.New("failed to create migration lock file")
+		logrus.Debugf("Migrating to newer Podman: %s", err)
+
+		var errFlock *utils.FlockError
+
+		if errors.As(err, &errFlock) {
+			if errors.Is(err, utils.ErrFlockAcquire) {
+				err = utils.ErrFlockAcquire
+			} else if errors.Is(err, utils.ErrFlockCreate) {
+				err = utils.ErrFlockCreate
+			} else {
+				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
+				panic(panicMsg)
+			}
+		}
+
+		return err
 	}
 
 	defer migrateLockFile.Close()
-
-	migrateLockFD := migrateLockFile.Fd()
-	migrateLockFDInt := int(migrateLockFD)
-	if err := syscall.Flock(migrateLockFDInt, syscall.LOCK_EX); err != nil {
-		logrus.Debugf("Migrating to newer Podman: failed to acquire migration lock on %s: %s", migrateLock, err)
-		return errors.New("failed to acquire migration lock")
-	}
 
 	stampBytes, err := ioutil.ReadFile(stampPath)
 	if err != nil {
