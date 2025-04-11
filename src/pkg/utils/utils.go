@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2024 Red Hat Inc.
+ * Copyright © 2019 – 2025 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,6 +115,8 @@ var (
 	}
 
 	releaseDefault string
+
+	runtimeDirectories map[string]string
 
 	supportedDistros = map[string]Distro{
 		"arch": {
@@ -536,6 +538,14 @@ func GetMountOptions(target string) (string, error) {
 }
 
 func GetRuntimeDirectory(targetUser *user.User) (string, error) {
+	if runtimeDirectories == nil {
+		runtimeDirectories = make(map[string]string)
+	}
+
+	if toolboxRuntimeDirectory, ok := runtimeDirectories[targetUser.Uid]; ok {
+		return toolboxRuntimeDirectory, nil
+	}
+
 	gid, err := strconv.Atoi(targetUser.Gid)
 	if err != nil {
 		return "", fmt.Errorf("failed to convert group ID to integer: %w", err)
@@ -568,6 +578,7 @@ func GetRuntimeDirectory(targetUser *user.User) (string, error) {
 		return "", wrappedErr
 	}
 
+	runtimeDirectories[targetUser.Uid] = toolboxRuntimeDirectory
 	return toolboxRuntimeDirectory, nil
 }
 
