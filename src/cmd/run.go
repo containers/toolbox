@@ -592,13 +592,11 @@ func constructExecArgs(container, preserveFDs string,
 }
 
 func ensureContainerIsInitialized(container string, entryPointPID int, timestamp time.Time) error {
-	toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(currentUser)
+	initializedStamp, err := utils.GetInitializedStamp(entryPointPID, currentUser)
 	if err != nil {
 		return err
 	}
 
-	initializedStampBase := fmt.Sprintf("container-initialized-%d", entryPointPID)
-	initializedStamp := filepath.Join(toolboxRuntimeDirectory, initializedStampBase)
 	logrus.Debugf("Checking if initialization stamp %s exists", initializedStamp)
 
 	shouldUsePolling := isUsePollingSet()
@@ -647,6 +645,11 @@ func ensureContainerIsInitialized(container string, entryPointPID int, timestamp
 
 	if watcherForStamp != nil {
 		defer watcherForStamp.Close()
+
+		toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(currentUser)
+		if err != nil {
+			return err
+		}
 
 		if err := watcherForStamp.Add(toolboxRuntimeDirectory); err != nil {
 			if errors.Is(err, unix.ENOMEM) || errors.Is(err, unix.ENOSPC) {

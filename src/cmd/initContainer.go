@@ -342,13 +342,11 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 	logrus.Debug("Finished initializing container")
 
-	toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(targetUser)
+	pid := os.Getpid()
+	initializedStamp, err := utils.GetInitializedStamp(pid, targetUser)
 	if err != nil {
 		return err
 	}
-
-	pid := os.Getpid()
-	initializedStamp := fmt.Sprintf("%s/container-initialized-%d", toolboxRuntimeDirectory, pid)
 
 	logrus.Debugf("Creating initialization stamp %s", initializedStamp)
 

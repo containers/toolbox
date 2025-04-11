@@ -503,6 +503,17 @@ func getHostVersionID() (string, error) {
 	return osRelease["VERSION_ID"], nil
 }
 
+func GetInitializedStamp(entryPointPID int, targetUser *user.User) (string, error) {
+	toolbxRuntimeDirectory, err := GetRuntimeDirectory(targetUser)
+	if err != nil {
+		return "", err
+	}
+
+	initializedStampBase := fmt.Sprintf("container-initialized-%d", entryPointPID)
+	initializedStamp := filepath.Join(toolbxRuntimeDirectory, initializedStampBase)
+	return initializedStamp, nil
+}
+
 // GetMountPoint returns the mount point of a target.
 func GetMountPoint(target string) (string, error) {
 	var stdout strings.Builder
