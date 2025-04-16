@@ -335,7 +335,12 @@ func runCommand(container string,
 		logrus.Debugf("Waiting for container %s to finish initializing", container)
 	}
 
-	if err := ensureContainerIsInitialized(container, entryPointPID, startContainerTimestamp); err != nil {
+	initializedStamp, err := utils.GetInitializedStamp(entryPointPID, currentUser)
+	if err != nil {
+		return err
+	}
+
+	if err := ensureContainerIsInitialized(container, initializedStamp, startContainerTimestamp); err != nil {
 		return err
 	}
 
@@ -601,12 +606,7 @@ func constructExecArgs(container, preserveFDs string,
 	return execArgs
 }
 
-func ensureContainerIsInitialized(container string, entryPointPID int, timestamp time.Time) error {
-	initializedStamp, err := utils.GetInitializedStamp(entryPointPID, currentUser)
-	if err != nil {
-		return err
-	}
-
+func ensureContainerIsInitialized(container, initializedStamp string, timestamp time.Time) error {
 	logrus.Debugf("Checking if initialization stamp %s exists", initializedStamp)
 
 	shouldUsePolling := isUsePollingSet()
