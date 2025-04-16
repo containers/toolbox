@@ -56,8 +56,7 @@ var (
 		preserveFDs uint
 		release     string
 	}
-
-	runFallbackCommands = [][]string{{"/bin/bash", "-l"}}
+	runFallbackCommands = [][]string{{"/usr/bin/env", "sh", "-l"}}
 	runFallbackWorkDirs = []string{"" /* $HOME */}
 )
 
