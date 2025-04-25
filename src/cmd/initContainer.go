@@ -286,7 +286,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 			logrus.Debugf("Loading Container Device Interface for NVIDIA: file %s not found",
 				cdiFileForNvidia)
 		} else {
-			logrus.Debugf("Loading Container Device Interface for NVIDIA: failed: %s", err)
+			logrus.Debugf("Loading Container Device Interface for NVIDIA failed: %s", err)
 			return errors.New("failed to load Container Device Interface for NVIDIA")
 		}
 	}
@@ -629,7 +629,7 @@ func configureUsers(targetUserUid int, targetUser, targetUserHome, targetUserShe
 	var stderr strings.Builder
 	if err := shell.Run("passwd", nil, nil, &stderr, "--delete", "root"); err != nil {
 		errString := stderr.String()
-		logrus.Debugf("Removing password for user root: failed: %s", errString)
+		logrus.Debugf("Removing password for user root failed: %s", errString)
 		return fmt.Errorf("failed to remove password for root: %w", err)
 	}
 
@@ -748,7 +748,7 @@ func ldConfig(configFileBase string, dirs []string) error {
 	}
 
 	if err := shell.Run("ldconfig", nil, nil, nil, args...); err != nil {
-		logrus.Debugf("Updating dynamic linker cache: failed: %s", err)
+		logrus.Debugf("Updating dynamic linker cache failed: %s", err)
 		return errors.New("failed to update dynamic linker cache")
 	}
 
