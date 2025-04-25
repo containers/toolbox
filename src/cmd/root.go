@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2024 Red Hat Inc.
+ * Copyright © 2019 – 2025 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -280,7 +280,7 @@ func migrate(cmd *cobra.Command, args []string) error {
 
 	stampBytes, err := ioutil.ReadFile(stampPath)
 	if err != nil {
-		if !os.IsNotExist(err) {
+		if !errors.Is(err, os.ErrNotExist) {
 			logrus.Debugf("Migrating to newer Podman: failed to read migration stamp file %s: %s",
 				stampPath,
 				err)

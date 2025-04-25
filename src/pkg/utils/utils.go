@@ -697,7 +697,7 @@ func SetUpConfiguration() error {
 			var errConfigFileNotFound viper.ConfigFileNotFoundError
 			var errConfigParse viper.ConfigParseError
 
-			if errors.As(err, &errConfigFileNotFound) || os.IsNotExist(err) {
+			if errors.As(err, &errConfigFileNotFound) || errors.Is(err, os.ErrNotExist) {
 				logrus.Debugf("Setting up configuration: file %s not found", configFile)
 				continue
 			} else if errors.As(err, &errConfigParse) {
@@ -834,7 +834,7 @@ func parseReleaseUbuntu(release string) (string, error) {
 
 // PathExists wraps around os.Stat providing a nice interface for checking an existence of a path.
 func PathExists(path string) bool {
-	if _, err := os.Stat(path); !os.IsNotExist(err) {
+	if _, err := os.Stat(path); !errors.Is(err, os.ErrNotExist) {
 		return true
 	}
 
