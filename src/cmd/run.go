@@ -629,7 +629,9 @@ func ensureContainerIsInitialized(container string, entryPointPID int, timestamp
 		var err error
 		watcherForStamp, err = fsnotify.NewWatcher()
 		if err != nil {
-			if errors.Is(err, unix.EMFILE) || errors.Is(err, unix.ENFILE) || errors.Is(err, unix.ENOMEM) {
+			if errors.Is(err, unix.EMFILE) ||
+				errors.Is(err, unix.ENFILE) ||
+				errors.Is(err, unix.ENOMEM) {
 				logrus.Debugf("Setting up watches for file system events: failed to create Watcher: %s",
 					err)
 				logrus.Debug("Using polling instead")
@@ -737,7 +739,9 @@ func ensureContainerIsInitialized(container string, entryPointPID int, timestamp
 	// code should not be reached
 }
 
-func followEntryPointLogsAsync(ctx context.Context, container string, since time.Time) (<-chan string, <-chan error) {
+func followEntryPointLogsAsync(ctx context.Context, container string, since time.Time) (
+	<-chan string, <-chan error,
+) {
 	reader, writer := io.Pipe()
 	retValCh := make(chan string)
 	errCh := make(chan error)
