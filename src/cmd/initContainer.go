@@ -324,7 +324,8 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		fmt.Fprintf(&builder, "# Written by Toolbx\n")
 		fmt.Fprintf(&builder, "# https://github.com/containers/toolbox\n")
 		fmt.Fprintf(&builder, "\n")
-		fmt.Fprintf(&builder, "%%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt\n")
+		fmt.Fprintf(&builder,
+			"%%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt\n")
 
 		rpmConfigString := builder.String()
 		rpmConfigBytes := []byte(rpmConfigString)
@@ -362,7 +363,8 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 		if err := watcherForHost.Add("/run/host/etc"); err != nil {
 			if errors.Is(err, unix.ENOMEM) || errors.Is(err, unix.ENOSPC) {
-				logrus.Debugf("Setting up watches for file system events: failed to add path: %s", err)
+				logrus.Debugf("Setting up watches for file system events: failed to add path: %s",
+					err)
 			} else {
 				return fmt.Errorf("failed to add path: %w", err)
 			}
@@ -735,7 +737,8 @@ func ldConfig(configFileBase string, dirs []string) error {
 			dirConfigBytes := []byte(dirConfigString)
 			configFile := filepath.Join("/etc/ld.so.conf.d", configFileBase)
 			if err := renameio.WriteFile(configFile, dirConfigBytes, 0644); err != nil {
-				logrus.Debugf("Updating dynamic linker cache: failed to update configuration: %s", err)
+				logrus.Debugf("Updating dynamic linker cache: failed to update configuration: %s",
+					err)
 				return errors.New("failed to update dynamic linker cache configuration")
 			}
 		}
