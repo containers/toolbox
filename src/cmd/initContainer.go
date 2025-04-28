@@ -301,6 +301,10 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	if err := configurePKCS11(targetUser); err != nil {
+		return err
+	}
+
 	if err := configureRPM(); err != nil {
 		return err
 	}
@@ -564,6 +568,57 @@ func configureKerberos() error {
 	kcmConfigBytes := []byte(kcmConfigString)
 	if err := ioutil.WriteFile("/etc/krb5.conf.d/kcm_default_ccache", kcmConfigBytes, 0644); err != nil {
 		return errors.New("failed to configure Kerberos to use KCM as the default credential cache")
+	}
+
+	return nil
+}
+
+func configurePKCS11(targetUser *user.User) error {
+	const logPrefix = "Configuring PKCS #11 to read from the host"
+	logrus.Debugf("%s", logPrefix)
+
+	if path := "/etc/pkcs11/modules"; !utils.PathExists(path) {
+		logrus.Debugf("%s: directory %s not found", logPrefix, path)
+		logrus.Debugf("%s: skipping", logPrefix)
+		return nil
+	}
+
+	if ok, err := utils.IsP11KitClientPresent(); err != nil {
+		logrus.Debugf("%s: %s", logPrefix, err)
+
+		if !ok {
+			logrus.Debugf("%s: p11-kit-client.so not found", logPrefix)
+			logrus.Debugf("%s: skipping", logPrefix)
+			return nil
+		}
+	} else {
+		if !ok {
+			logrus.Debugf("%s: p11-kit-client.so not found", logPrefix)
+			logrus.Debugf("%s: skipping", logPrefix)
+			return nil
+		}
+	}
+
+	if path, err := utils.GetP11KitServerSocket(targetUser); err != nil {
+		return err
+	} else if !utils.PathExists(path) {
+		logrus.Debugf("%s: socket %s not found", logPrefix, path)
+		logrus.Debugf("%s: skipping", logPrefix)
+		return nil
+	}
+
+	var builder strings.Builder
+	builder.WriteString("# Written by Toolbx\n")
+	builder.WriteString("# https://containertoolbx.org/\n")
+	builder.WriteString("\n")
+	builder.WriteString("module: p11-kit-client.so\n")
+
+	pkcs11ConfigString := builder.String()
+	pkcs11ConfigBytes := []byte(pkcs11ConfigString)
+	if err := renameio.WriteFile("/etc/pkcs11/modules/p11-kit-trust.module",
+		pkcs11ConfigBytes,
+		0644); err != nil {
+		return fmt.Errorf("failed to configure PKCS #11 to read from the host: %w", err)
 	}
 
 	return nil

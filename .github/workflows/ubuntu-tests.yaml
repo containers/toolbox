@@ -1,5 +1,5 @@
 #
-# Copyright © 2023 – 2024 Red Hat, Inc.
+# Copyright © 2023 – 2025 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,6 +54,9 @@ jobs:
             skopeo \
             systemd \
             udisks2
+
+      - name: Ensure that 'p11-kit server' is absent
+        run: sudo rm /usr/libexec/p11-kit/p11-kit-server
 
       - name: Set up PATH for Go 1.21
         run: |
@@ -131,7 +134,7 @@ jobs:
         working-directory: containers/toolbox/src
 
       - name: Set up build directory
-        run: meson setup --fatal-meson-warnings builddir
+        run: meson setup builddir
         working-directory: containers/toolbox
 
       - name: Build

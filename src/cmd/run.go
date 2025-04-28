@@ -27,6 +27,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/containers/toolbox/pkg/nvidia"
@@ -283,6 +284,11 @@ func runCommand(container string,
 		cdiEnviron = append(cdiEnviron, cdiSpecForNvidia.ContainerEdits.Env...)
 	}
 
+	p11KitServerEnviron, err := startP11KitServer()
+	if err != nil {
+		return err
+	}
+
 	startContainerTimestamp := time.Unix(-1, 0)
 
 	if entryPointPID <= 0 {
@@ -335,10 +341,11 @@ func runCommand(container string,
 
 	logrus.Debugf("Container %s is initialized", container)
 
+	environ := append(cdiEnviron, p11KitServerEnviron...)
 	if err := runCommandWithFallbacks(container,
 		preserveFDs,
 		command,
-		cdiEnviron,
+		environ,
 		emitEscapeSequence,
 		fallbackToBash); err != nil {
 		return err
@@ -1031,6 +1038,68 @@ func startContainer(container string) error {
 	}
 
 	return nil
+}
+
+func startP11KitServer() ([]string, error) {
+	serverSocket, err := utils.GetP11KitServerSocket(currentUser)
+	if err != nil {
+		return nil, err
+	}
+
+	const logPrefix = "Starting 'p11-kit server'"
+	logrus.Debugf("%s with socket %s", logPrefix, serverSocket)
+
+	serverSocketLock, err := utils.GetP11KitServerSocketLock(currentUser)
+	if err != nil {
+		return nil, err
+	}
+
+	serverSocketLockFile, err := utils.Flock(serverSocketLock, syscall.LOCK_EX)
+	if err != nil {
+		logrus.Debugf("%s: %s", logPrefix, err)
+
+		var errFlock *utils.FlockError
+
+		if errors.As(err, &errFlock) {
+			if errors.Is(err, utils.ErrFlockAcquire) {
+				err = utils.ErrFlockAcquire
+			} else if errors.Is(err, utils.ErrFlockCreate) {
+				err = utils.ErrFlockCreate
+			} else {
+				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
+				panic(panicMsg)
+			}
+		}
+
+		return nil, err
+	}
+
+	defer serverSocketLockFile.Close()
+
+	serverSocketAddress := fmt.Sprintf("P11_KIT_SERVER_ADDRESS=unix:path=%s", serverSocket)
+	serverEnviron := []string{
+		serverSocketAddress,
+	}
+
+	if utils.PathExists(serverSocket) {
+		logrus.Debugf("%s: socket %s already exists", logPrefix, serverSocket)
+		logrus.Debugf("%s: skipping", logPrefix)
+		return serverEnviron, nil
+	}
+
+	serverArgs := []string{
+		"server",
+		"--name", serverSocket,
+		"--provider", "p11-kit-trust.so",
+		"pkcs11:model=p11-kit-trust?write-protected=yes",
+	}
+
+	if err := shell.Run("p11-kit", nil, nil, nil, serverArgs...); err != nil {
+		logrus.Debugf("%s failed: %s", logPrefix, err)
+		return nil, nil
+	}
+
+	return serverEnviron, nil
 }
 
 func (err *entryPointError) Error() string {

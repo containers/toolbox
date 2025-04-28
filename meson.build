@@ -23,6 +23,27 @@ bats = find_program('bats', required: false)
 codespell = find_program('codespell', required: false)
 htpasswd = find_program('htpasswd', required: false)
 openssl = find_program('openssl', required: false)
+
+p11kit_server_works = false
+p11kit = find_program('p11-kit', required: false)
+if p11kit.found()
+  res = run_command(p11kit, 'server', check: false)
+  if res.returncode() == 0
+    error('Command \'p11-kit server\' was supposed to fail')
+  endif
+
+  res_stdout = res.stdout()
+  if res_stdout.contains('--name') and res_stdout.contains('--provider')
+    p11kit_server_works = true
+  else
+    warning('Command \'p11-kit server\' doesn\'t work')
+  endif
+endif
+
+if not p11kit_server_works
+  warning('Containers won\'t have access to the CA certificates from the host')
+endif
+
 podman = find_program('podman', required: false)
 shellcheck = find_program('shellcheck', required: false)
 skopeo = find_program('skopeo', required: false)

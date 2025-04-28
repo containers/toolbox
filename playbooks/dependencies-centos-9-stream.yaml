@@ -38,6 +38,13 @@
       - codespell
       - fish
 
+- name: Ensure that 'p11-kit server' is absent
+  become: yes
+  package:
+    name:
+      - p11-kit-server
+    state: absent
+
 - name: Download Go modules
   command: go mod download -x
   environment:

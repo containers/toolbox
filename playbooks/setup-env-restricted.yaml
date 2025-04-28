@@ -20,6 +20,6 @@
     - include_tasks: dependencies-fedora-restricted.yaml
 
     - name: Set up build directory
-      command: meson setup --fatal-meson-warnings builddir
+      command: meson setup builddir
       args:
         chdir: '{{ zuul.project.src_dir }}'
