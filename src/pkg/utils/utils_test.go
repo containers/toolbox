@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 – 2024 Red Hat Inc.
+ * Copyright © 2021 – 2025 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package utils
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -360,4 +361,15 @@ func TestParseRelease(t *testing.T) {
 			assert.Equal(t, tc.output, release)
 		})
 	}
+}
+
+func TestPathExists(t *testing.T) {
+	path, err := os.Executable()
+	assert.NoError(t, err)
+	exists := PathExists(path)
+	assert.True(t, exists)
+
+	path = "/does/not/exist"
+	exists = PathExists(path)
+	assert.False(t, exists)
 }
