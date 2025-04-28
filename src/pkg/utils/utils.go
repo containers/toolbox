@@ -503,6 +503,26 @@ func GetMountOptions(target string) (string, error) {
 	return mountOptions, nil
 }
 
+func GetP11KitServerSocket(targetUser *user.User) (string, error) {
+	toolbxRuntimeDirectory, err := GetRuntimeDirectory(targetUser)
+	if err != nil {
+		return "", err
+	}
+
+	p11KitServerSocket := filepath.Join(toolbxRuntimeDirectory, "pkcs11")
+	return p11KitServerSocket, nil
+}
+
+func GetP11KitServerSocketLock(targetUser *user.User) (string, error) {
+	toolbxRuntimeDirectory, err := GetRuntimeDirectory(targetUser)
+	if err != nil {
+		return "", err
+	}
+
+	p11KitServerSocketLock := filepath.Join(toolbxRuntimeDirectory, "pkcs11.lock")
+	return p11KitServerSocketLock, nil
+}
+
 func GetRuntimeDirectory(targetUser *user.User) (string, error) {
 	if runtimeDirectories == nil {
 		runtimeDirectories = make(map[string]string)

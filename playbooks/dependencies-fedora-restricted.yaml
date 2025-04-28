@@ -1,5 +1,5 @@
 #
-# Copyright © 2023 – 2024 Red Hat, Inc.
+# Copyright © 2023 – 2025 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,6 +44,15 @@
       - systemd
       - udisks2
     state: present
+    update_cache: "{{ true if zuul.attempts > 1 else false }}"
+    use: "{{ 'dnf' if zuul.attempts > 1 else 'auto' }}"
+
+- name: Ensure that 'p11-kit server' is absent
+  become: yes
+  package:
+    name:
+      - p11-kit-server
+    state: absent
     update_cache: "{{ true if zuul.attempts > 1 else false }}"
     use: "{{ 'dnf' if zuul.attempts > 1 else 'auto' }}"
 
