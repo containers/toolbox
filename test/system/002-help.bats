@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2020 – 2024 Red Hat, Inc.
+# Copyright © 2020 – 2025 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ teardown() {
   assert_line --index 3 "create    Create a new Toolbx container"
   assert_line --index 4 "enter     Enter an existing Toolbx container"
   assert_line --index 5 "list      List all existing Toolbx containers and images"
-  assert_line --index 7 "Go to https://github.com/containers/toolbox for further information."
+  assert_line --index 7 "Go to https://containertoolbx.org/ for further information."
   assert [ ${#lines[@]} -eq 8 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
@@ -108,7 +108,7 @@ teardown() {
   assert_line --index 3 "create    Create a new Toolbx container"
   assert_line --index 4 "enter     Enter an existing Toolbx container"
   assert_line --index 5 "list      List all existing Toolbx containers and images"
-  assert_line --index 7 "Go to https://github.com/containers/toolbox for further information."
+  assert_line --index 7 "Go to https://containertoolbx.org/ for further information."
   assert [ ${#lines[@]} -eq 8 ]
 
   # shellcheck disable=SC2154

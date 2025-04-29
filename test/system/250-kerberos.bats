@@ -64,7 +64,7 @@ teardown() {
 
     assert_success
     assert_line --index 0 "# Written by Toolbx"
-    assert_line --index 1 "# https://github.com/containers/toolbox"
+    assert_line --index 1 "# https://containertoolbx.org/"
     assert_line --index 2 "#"
     assert_line --index 3 "# # To disable the KCM credential cache, comment out the following lines."
     assert_line --index 4 ""
@@ -112,7 +112,7 @@ teardown() {
 
   assert_success
   assert_line --index 0 "# Written by Toolbx"
-  assert_line --index 1 "# https://github.com/containers/toolbox"
+  assert_line --index 1 "# https://containertoolbx.org/"
   assert_line --index 2 "#"
   assert_line --index 3 "# # To disable the KCM credential cache, comment out the following lines."
   assert_line --index 4 ""
@@ -145,7 +145,7 @@ teardown() {
 
   assert_success
   assert_line --index 0 "# Written by Toolbx"
-  assert_line --index 1 "# https://github.com/containers/toolbox"
+  assert_line --index 1 "# https://containertoolbx.org/"
   assert_line --index 2 "#"
   assert_line --index 3 "# # To disable the KCM credential cache, comment out the following lines."
   assert_line --index 4 ""

@@ -475,7 +475,7 @@ func showManual(manual string) error {
 			fmt.Printf("%s", usage)
 
 			fmt.Printf("\n")
-			fmt.Printf("Go to https://github.com/containers/toolbox for further information.\n")
+			fmt.Printf("Go to https://containertoolbx.org/ for further information.\n")
 			return nil
 		}
 

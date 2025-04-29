@@ -57,7 +57,7 @@ teardown() {
 
   assert_success
   assert_line --index 0 "# Written by Toolbx"
-  assert_line --index 1 "# https://github.com/containers/toolbox"
+  assert_line --index 1 "# https://containertoolbx.org/"
   assert_line --index 2 ""
   assert_line --index 3 "%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt"
   assert [ ${#lines[@]} -eq 4 ]
@@ -91,7 +91,7 @@ teardown() {
 
   assert_success
   assert_line --index 0 "# Written by Toolbx"
-  assert_line --index 1 "# https://github.com/containers/toolbox"
+  assert_line --index 1 "# https://containertoolbx.org/"
   assert_line --index 2 ""
   assert_line --index 3 "%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt"
   assert [ ${#lines[@]} -eq 4 ]
@@ -128,7 +128,7 @@ teardown() {
 
   assert_success
   assert_line --index 0 "# Written by Toolbx"
-  assert_line --index 1 "# https://github.com/containers/toolbox"
+  assert_line --index 1 "# https://containertoolbx.org/"
   assert_line --index 2 ""
   assert_line --index 3 "%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt"
   assert [ ${#lines[@]} -eq 4 ]

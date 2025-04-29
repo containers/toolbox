@@ -552,7 +552,7 @@ func configureKerberos() error {
 	}
 
 	kcmConfigString := `# Written by Toolbx
-# https://github.com/containers/toolbox
+# https://containertoolbx.org/
 #
 # # To disable the KCM credential cache, comment out the following lines.
 
@@ -577,7 +577,7 @@ func configureRPM() error {
 
 	var builder strings.Builder
 	builder.WriteString("# Written by Toolbx\n")
-	builder.WriteString("# https://github.com/containers/toolbox\n")
+	builder.WriteString("# https://containertoolbx.org/\n")
 	builder.WriteString("\n")
 	builder.WriteString("%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt\n")
 
