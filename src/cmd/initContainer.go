@@ -297,24 +297,8 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	if utils.PathExists("/etc/krb5.conf.d") && !utils.PathExists("/etc/krb5.conf.d/kcm_default_ccache") {
-		logrus.Debug("Setting KCM as the default Kerberos credential cache")
-
-		kcmConfigString := `# Written by Toolbx
-# https://github.com/containers/toolbox
-#
-# # To disable the KCM credential cache, comment out the following lines.
-
-[libdefaults]
-    default_ccache_name = KCM:
-`
-
-		kcmConfigBytes := []byte(kcmConfigString)
-		if err := ioutil.WriteFile("/etc/krb5.conf.d/kcm_default_ccache",
-			kcmConfigBytes,
-			0644); err != nil {
-			return errors.New("failed to set KCM as the default Kerberos credential cache")
-		}
+	if err := configureKerberos(); err != nil {
+		return err
 	}
 
 	if err := configureRPM(); err != nil {
@@ -548,6 +532,34 @@ func applyCDISpecForNvidiaHookUpdateLDCache(hookArgs []string) error {
 
 	if err := ldConfig("toolbx-nvidia.conf", folders); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func configureKerberos() error {
+	if !utils.PathExists("/etc/krb5.conf.d") {
+		return nil
+	}
+
+	if utils.PathExists("/etc/krb5.conf.d/kcm_default_ccache") {
+		return nil
+	}
+
+	logrus.Debug("Configuring Kerberos to use KCM as the default credential cache")
+
+	kcmConfigString := `# Written by Toolbx
+# https://github.com/containers/toolbox
+#
+# # To disable the KCM credential cache, comment out the following lines.
+
+[libdefaults]
+    default_ccache_name = KCM:
+`
+
+	kcmConfigBytes := []byte(kcmConfigString)
+	if err := ioutil.WriteFile("/etc/krb5.conf.d/kcm_default_ccache", kcmConfigBytes, 0644); err != nil {
+		return errors.New("failed to configure Kerberos to use KCM as the default credential cache")
 	}
 
 	return nil
