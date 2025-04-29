@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2024 Red Hat Inc.
+ * Copyright © 2019 – 2025 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -317,23 +317,8 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	if utils.PathExists("/usr/lib/rpm/macros.d") {
-		logrus.Debug("Configuring RPM to ignore bind mounts")
-
-		var builder strings.Builder
-		fmt.Fprintf(&builder, "# Written by Toolbx\n")
-		fmt.Fprintf(&builder, "# https://github.com/containers/toolbox\n")
-		fmt.Fprintf(&builder, "\n")
-		fmt.Fprintf(&builder,
-			"%%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt\n")
-
-		rpmConfigString := builder.String()
-		rpmConfigBytes := []byte(rpmConfigString)
-		if err := ioutil.WriteFile("/usr/lib/rpm/macros.d/macros.toolbox",
-			rpmConfigBytes,
-			0644); err != nil {
-			return fmt.Errorf("failed to configure RPM to ignore bind mounts: %w", err)
-		}
+	if err := configureRPM(); err != nil {
+		return err
 	}
 
 	logrus.Debug("Setting up daily ticker")
@@ -563,6 +548,29 @@ func applyCDISpecForNvidiaHookUpdateLDCache(hookArgs []string) error {
 
 	if err := ldConfig("toolbx-nvidia.conf", folders); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func configureRPM() error {
+	if !utils.PathExists("/usr/lib/rpm/macros.d") {
+		return nil
+	}
+
+	logrus.Debug("Configuring RPM to ignore bind mounts")
+
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "# Written by Toolbx\n")
+	fmt.Fprintf(&builder, "# https://github.com/containers/toolbox\n")
+	fmt.Fprintf(&builder, "\n")
+	fmt.Fprintf(&builder,
+		"%%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt\n")
+
+	rpmConfigString := builder.String()
+	rpmConfigBytes := []byte(rpmConfigString)
+	if err := ioutil.WriteFile("/usr/lib/rpm/macros.d/macros.toolbox", rpmConfigBytes, 0644); err != nil {
+		return fmt.Errorf("failed to configure RPM to ignore bind mounts: %w", err)
 	}
 
 	return nil
