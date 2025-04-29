@@ -1,5 +1,5 @@
 //
-// Copyright © 2021 – 2024 Red Hat Inc.
+// Copyright © 2021 – 2025 Red Hat Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"strings"
 
@@ -32,9 +31,9 @@ import (
 func preRunIsCoreOSBug() error {
 	if containerType := os.Getenv("container"); containerType == "" {
 		var builder strings.Builder
-		fmt.Fprintf(&builder, "/run/.containerenv found on what looks like the host\n")
-		fmt.Fprintf(&builder, "If this is the host, then remove /run/.containerenv and try again.\n")
-		fmt.Fprintf(&builder, "Otherwise, contact your system administrator or file a bug.")
+		builder.WriteString("/run/.containerenv found on what looks like the host\n")
+		builder.WriteString("If this is the host, then remove /run/.containerenv and try again.\n")
+		builder.WriteString("Otherwise, contact your system administrator or file a bug.")
 
 		errMsg := builder.String()
 		return errors.New(errMsg)

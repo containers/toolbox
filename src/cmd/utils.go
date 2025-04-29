@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 – 2024 Red Hat Inc.
+ * Copyright © 2020 – 2025 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -343,9 +343,9 @@ func getCDIFileForNvidia(targetUser *user.User) (string, error) {
 
 func getUsageForCommonCommands() string {
 	var builder strings.Builder
-	fmt.Fprintf(&builder, "create    Create a new Toolbx container\n")
-	fmt.Fprintf(&builder, "enter     Enter an existing Toolbx container\n")
-	fmt.Fprintf(&builder, "list      List all existing Toolbx containers and images\n")
+	builder.WriteString("create    Create a new Toolbx container\n")
+	builder.WriteString("enter     Enter an existing Toolbx container\n")
+	builder.WriteString("list      List all existing Toolbx containers and images\n")
 
 	usage := builder.String()
 	return usage

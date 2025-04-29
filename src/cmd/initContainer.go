@@ -179,10 +179,10 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 	if toolbxFailEntryPoint, ok := getFailEntryPoint(); ok {
 		var builder strings.Builder
-		fmt.Fprintf(&builder, "TOOLBX_FAIL_ENTRY_POINT is set")
+		builder.WriteString("TOOLBX_FAIL_ENTRY_POINT is set")
 		if toolbxFailEntryPoint > 1 {
-			fmt.Fprintf(&builder, "\n")
-			fmt.Fprintf(&builder, "This environment variable should only be set when testing.")
+			builder.WriteString("\n")
+			builder.WriteString("This environment variable should only be set when testing.")
 		}
 
 		errMsg := builder.String()
@@ -576,11 +576,10 @@ func configureRPM() error {
 	logrus.Debug("Configuring RPM to ignore bind mounts")
 
 	var builder strings.Builder
-	fmt.Fprintf(&builder, "# Written by Toolbx\n")
-	fmt.Fprintf(&builder, "# https://github.com/containers/toolbox\n")
-	fmt.Fprintf(&builder, "\n")
-	fmt.Fprintf(&builder,
-		"%%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt\n")
+	builder.WriteString("# Written by Toolbx\n")
+	builder.WriteString("# https://github.com/containers/toolbox\n")
+	builder.WriteString("\n")
+	builder.WriteString("%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt\n")
 
 	rpmConfigString := builder.String()
 	rpmConfigBytes := []byte(rpmConfigString)

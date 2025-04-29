@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2024 Red Hat Inc.
+ * Copyright © 2019 – 2025 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -271,8 +271,8 @@ func runCommand(container string,
 	if err != nil {
 		if errors.Is(err, nvidia.ErrNVMLDriverLibraryVersionMismatch) {
 			var builder strings.Builder
-			fmt.Fprintf(&builder, "the proprietary NVIDIA driver's kernel and user space don't match\n")
-			fmt.Fprintf(&builder, "Check the host operating system and systemd journal.")
+			builder.WriteString("the proprietary NVIDIA driver's kernel and user space don't match\n")
+			builder.WriteString("Check the host operating system and systemd journal.")
 
 			errMsg := builder.String()
 			return errors.New(errMsg)
