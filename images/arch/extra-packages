@@ -4,6 +4,7 @@ flatpak-xdg-utils
 git
 gnupg
 keyutils
+libp11-kit
 lsof
 man-db
 man-pages
