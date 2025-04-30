@@ -2,6 +2,7 @@ curl
 git
 gnupg2
 keyutils
+p11-kit-modules
 tree
 unzip
 zip
