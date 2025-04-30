@@ -551,15 +551,16 @@ func configureKerberos() error {
 		return nil
 	}
 
-	kcmConfigString := `# Written by Toolbx
-# https://containertoolbx.org/
-#
-# # To disable the KCM credential cache, comment out the following lines.
+	var builder strings.Builder
+	builder.WriteString("# Written by Toolbx\n")
+	builder.WriteString("# https://containertoolbx.org/\n")
+	builder.WriteString("#\n")
+	builder.WriteString("# # To disable the KCM credential cache, comment out the following lines.\n")
+	builder.WriteString("\n")
+	builder.WriteString("[libdefaults]\n")
+	builder.WriteString("    default_ccache_name = KCM:\n")
 
-[libdefaults]
-    default_ccache_name = KCM:
-`
-
+	kcmConfigString := builder.String()
 	kcmConfigBytes := []byte(kcmConfigString)
 	if err := ioutil.WriteFile("/etc/krb5.conf.d/kcm_default_ccache", kcmConfigBytes, 0644); err != nil {
 		return errors.New("failed to configure Kerberos to use KCM as the default credential cache")
