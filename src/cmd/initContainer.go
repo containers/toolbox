@@ -538,15 +538,20 @@ func applyCDISpecForNvidiaHookUpdateLDCache(hookArgs []string) error {
 }
 
 func configureKerberos() error {
-	if !utils.PathExists("/etc/krb5.conf.d") {
+	const logPrefix = "Configuring Kerberos to use KCM as the default credential cache"
+	logrus.Debugf("%s", logPrefix)
+
+	if path := "/etc/krb5.conf.d"; !utils.PathExists(path) {
+		logrus.Debugf("%s: directory %s not found", logPrefix, path)
+		logrus.Debugf("%s: skipping", logPrefix)
 		return nil
 	}
 
-	if utils.PathExists("/etc/krb5.conf.d/kcm_default_ccache") {
+	if path := "/etc/krb5.conf.d/kcm_default_ccache"; utils.PathExists(path) {
+		logrus.Debugf("%s: file %s already exists", logPrefix, path)
+		logrus.Debugf("%s: skipping", logPrefix)
 		return nil
 	}
-
-	logrus.Debug("Configuring Kerberos to use KCM as the default credential cache")
 
 	kcmConfigString := `# Written by Toolbx
 # https://github.com/containers/toolbox
