@@ -295,7 +295,6 @@ func ForwardToHost() (int, error) {
 // https://github.com/containers/libpod/tree/master/pkg/cgroups
 func GetCgroupsVersion() (int, error) {
 	var st syscall.Statfs_t
-
 	if err := syscall.Statfs("/sys/fs/cgroup", &st); err != nil {
 		return -1, err
 	}
@@ -477,7 +476,6 @@ func GetInitializedStamp(entryPointPID int, targetUser *user.User) (string, erro
 // GetMountPoint returns the mount point of a target.
 func GetMountPoint(target string) (string, error) {
 	var stdout strings.Builder
-
 	if err := shell.Run("df", nil, &stdout, nil, "--output=target", target); err != nil {
 		return "", err
 	}
@@ -503,7 +501,6 @@ func GetMountOptions(target string) (string, error) {
 
 	output := stdout.String()
 	options := strings.Split(output, "\n")
-
 	mountOptions := strings.TrimSpace(options[0])
 	return mountOptions, nil
 }
@@ -579,6 +576,7 @@ func GetSupportedDistros() []string {
 	for d := range supportedDistros {
 		distros = append(distros, d)
 	}
+
 	return distros
 }
 
@@ -596,12 +594,12 @@ func ImageReferenceCanBeID(image string) bool {
 	if err != nil {
 		panic("regular expression for ID reference matching is invalid")
 	}
+
 	return matched
 }
 
 func ImageReferenceGetBasename(image string) string {
 	var i int
-
 	if ImageReferenceHasDomain(image) {
 		i = strings.IndexRune(image, '/')
 	}
@@ -629,7 +627,6 @@ func ImageReferenceGetDomain(image string) string {
 
 func ImageReferenceGetTag(image string) string {
 	var i int
-
 	if ImageReferenceHasDomain(image) {
 		i = strings.IndexRune(image, '/')
 	}
