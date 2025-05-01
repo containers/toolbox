@@ -31,14 +31,21 @@ print(addr)'
 readonly RESOLVER_SH='resolvectl --legend false --no-pager --type "$0" query "$1" \
                       | cut --delimiter " " --fields 4'
 
-setup() {
+setup_file() {
   bats_require_minimum_version 1.7.0
   _setup_environment
   cleanup_all
   pushd "$HOME" || return 1
+  create_default_container
+  create_distro_container arch latest arch-toolbox-latest
+  create_distro_container fedora 34 fedora-toolbox-34
+  create_distro_container rhel 8.7 rhel-toolbox-8.7
+  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
+  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
+  create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 }
 
-teardown() {
+teardown_file() {
   popd || return 1
   cleanup_all
 }
@@ -46,8 +53,6 @@ teardown() {
 @test "network: No namespace" {
   local ns_host
   ns_host=$(readlink /proc/$$/ns/net)
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run sh -c 'readlink /proc/$$/ns/net'
 
@@ -65,8 +70,6 @@ teardown() {
 }
 
 @test "network: /etc/resolv.conf inside the default container" {
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run readlink /etc/resolv.conf
 
   assert_success
@@ -83,8 +86,6 @@ teardown() {
 }
 
 @test "network: /etc/resolv.conf inside Arch Linux" {
-  create_distro_container arch latest arch-toolbox-latest
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro arch readlink /etc/resolv.conf
 
   assert_success
@@ -101,8 +102,6 @@ teardown() {
 }
 
 @test "network: /etc/resolv.conf inside Fedora 34" {
-  create_distro_container fedora 34 fedora-toolbox-34
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro fedora --release 34 readlink /etc/resolv.conf
 
   assert_success
@@ -119,8 +118,6 @@ teardown() {
 }
 
 @test "network: /etc/resolv.conf inside RHEL 8.7" {
-  create_distro_container rhel 8.7 rhel-toolbox-8.7
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.7 readlink /etc/resolv.conf
 
   assert_success
@@ -137,8 +134,6 @@ teardown() {
 }
 
 @test "network: /etc/resolv.conf inside Ubuntu 16.04" {
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 16.04 readlink /etc/resolv.conf
 
   assert_success
@@ -155,8 +150,6 @@ teardown() {
 }
 
 @test "network: /etc/resolv.conf inside Ubuntu 18.04" {
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 18.04 readlink /etc/resolv.conf
 
   assert_success
@@ -173,8 +166,6 @@ teardown() {
 }
 
 @test "network: /etc/resolv.conf inside Ubuntu 20.04" {
-  create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 20.04 readlink /etc/resolv.conf
 
   assert_success
@@ -206,8 +197,6 @@ teardown() {
   if $ipv4_skip && $ipv6_skip; then
     skip "DNS not working on host"
   fi
-
-  create_default_container
 
   if ! $ipv4_skip; then
     run --keep-empty-lines --separate-stderr "$TOOLBOX" run python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net
@@ -256,8 +245,6 @@ teardown() {
   if $ipv4_skip && $ipv6_skip; then
     skip "DNS not working on host"
   fi
-
-  create_distro_container arch latest arch-toolbox-latest
 
   if ! $ipv4_skip; then
     run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
@@ -310,8 +297,6 @@ teardown() {
   if $ipv4_skip && $ipv6_skip; then
     skip "DNS not working on host"
   fi
-
-  create_distro_container fedora 34 fedora-toolbox-34
 
   if ! $ipv4_skip; then
     run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
@@ -367,8 +352,6 @@ teardown() {
     skip "DNS not working on host"
   fi
 
-  create_distro_container rhel 8.7 rhel-toolbox-8.7
-
   if ! $ipv4_skip; then
     run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
       --distro rhel \
@@ -422,8 +405,6 @@ teardown() {
   if $ipv4_skip && $ipv6_skip; then
     skip "DNS not working on host"
   fi
-
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
 
   if ! $ipv4_skip; then
     run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
@@ -479,8 +460,6 @@ teardown() {
     skip "DNS not working on host"
   fi
 
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
   if ! $ipv4_skip; then
     run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
       --distro ubuntu \
@@ -535,8 +514,6 @@ teardown() {
     skip "DNS not working on host"
   fi
 
-  create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
-
   if ! $ipv4_skip; then
     run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
       --distro ubuntu \
@@ -575,8 +552,6 @@ teardown() {
 }
 
 @test "network: ping(8) inside the default container" {
-  create_default_container
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run ping -c 2 f.root-servers.net
 
   if [ "$status" -eq 1 ]; then
@@ -591,8 +566,6 @@ teardown() {
 }
 
 @test "network: ping(8) inside Arch Linux" {
-  create_distro_container arch latest arch-toolbox-latest
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro arch ping -c 2 f.root-servers.net
 
   if [ "$status" -eq 1 ]; then
@@ -607,8 +580,6 @@ teardown() {
 }
 
 @test "network: ping(8) inside Fedora 34" {
-  create_distro_container fedora 34 fedora-toolbox-34
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro fedora --release 34 ping -c 2 f.root-servers.net
 
   if [ "$status" -eq 1 ]; then
@@ -623,8 +594,6 @@ teardown() {
 }
 
 @test "network: ping(8) inside RHEL 8.7" {
-  create_distro_container rhel 8.7 rhel-toolbox-8.7
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro rhel --release 8.7 ping -c 2 f.root-servers.net
 
   if [ "$status" -eq 1 ]; then
@@ -639,8 +608,6 @@ teardown() {
 }
 
 @test "network: ping(8) inside Ubuntu 16.04" {
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
   run -2 --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 16.04 ping -c 2 f.root-servers.net
 
   assert_failure
@@ -653,8 +620,6 @@ teardown() {
 }
 
 @test "network: ping(8) inside Ubuntu 18.04" {
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 18.04 ping -c 2 f.root-servers.net
 
   if [ "$status" -eq 1 ]; then
@@ -669,8 +634,6 @@ teardown() {
 }
 
 @test "network: ping(8) inside Ubuntu 20.04" {
-  create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run --distro ubuntu --release 20.04 ping -c 2 f.root-servers.net
 
   if [ "$status" -eq 1 ]; then
