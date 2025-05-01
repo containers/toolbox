@@ -21,14 +21,15 @@ load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers.bash'
 
-setup() {
+setup_file() {
   bats_require_minimum_version 1.10.0
   _setup_environment
   cleanup_all
   pushd "$HOME" || return 1
+  create_default_container
 }
 
-teardown() {
+teardown_file() {
   popd || return 1
   cleanup_all
 }
@@ -127,8 +128,6 @@ teardown() {
 }
 
 @test "help: Try unknown command (forwarded to host)" {
-  create_default_container
-
   run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox foo
 
   assert_failure
@@ -151,8 +150,6 @@ teardown() {
 }
 
 @test "help: Try unknown flag (forwarded to host)" {
-  create_default_container
-
   run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox --foo
 
   assert_failure
@@ -175,8 +172,6 @@ teardown() {
 }
 
 @test "help: Try 'create' with unknown flag (forwarded to host)" {
-  create_default_container
-
   run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox create --foo
 
   assert_failure
@@ -199,8 +194,6 @@ teardown() {
 }
 
 @test "help: Try 'enter' with unknown flag (forwarded to host)" {
-  create_default_container
-
   run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox enter --foo
 
   assert_failure
@@ -223,8 +216,6 @@ teardown() {
 }
 
 @test "help: Try 'help' with unknown flag (forwarded to host)" {
-  create_default_container
-
   run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox help --foo
 
   assert_failure
@@ -247,8 +238,6 @@ teardown() {
 }
 
 @test "help: Try 'init-container' with unknown flag (forwarded to host)" {
-  create_default_container
-
   run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox init-container --foo
 
   assert_failure
@@ -271,8 +260,6 @@ teardown() {
 }
 
 @test "help: Try 'list' with unknown flag (forwarded to host)" {
-  create_default_container
-
   run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox list --foo
 
   assert_failure
@@ -295,8 +282,6 @@ teardown() {
 }
 
 @test "help: Try 'rm' with unknown flag (forwarded to host)" {
-  create_default_container
-
   run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox rm --foo
 
   assert_failure
@@ -319,8 +304,6 @@ teardown() {
 }
 
 @test "help: Try 'rmi' with unknown flag (forwarded to host)" {
-  create_default_container
-
   run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox rmi --foo
 
   assert_failure
@@ -343,8 +326,6 @@ teardown() {
 }
 
 @test "help: Try 'run' with unknown flag (forwarded to host)" {
-  create_default_container
-
   run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox run --foo
 
   assert_failure
