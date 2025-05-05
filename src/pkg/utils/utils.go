@@ -328,10 +328,6 @@ func getDefaultReleaseForDistro(distro string) (string, error) {
 	return release, nil
 }
 
-func getDefaultReleaseArch() (string, error) {
-	return "latest", nil
-}
-
 func getDefaultReleaseFedora() (string, error) {
 	release, err := getHostVersionID()
 	if err != nil {
@@ -417,11 +413,6 @@ func GetFullyQualifiedImageFromDistros(image, release string) (string, error) {
 	}
 
 	return "", fmt.Errorf("failed to resolve image %s", image)
-}
-
-func getFullyQualifiedImageArch(image, release string) string {
-	imageFull := "quay.io/toolbx/" + image
-	return imageFull
 }
 
 func getFullyQualifiedImageFedora(image, release string) string {
@@ -754,14 +745,6 @@ func parseRelease(distro, release string) (string, error) {
 	parseReleaseImpl := distroObj.ParseRelease
 	release, err := parseReleaseImpl(release)
 	return release, err
-}
-
-func parseReleaseArch(release string) (string, error) {
-	if release != "latest" && release != "rolling" && release != "" {
-		return "", &ParseReleaseError{"The release must be 'latest'."}
-	}
-
-	return "latest", nil
 }
 
 func parseReleaseFedora(release string) (string, error) {
