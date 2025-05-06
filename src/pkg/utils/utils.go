@@ -172,7 +172,7 @@ func init() {
 	distroDefault = distroFallback
 	releaseDefault = releaseFallback
 
-	hostID, err := GetHostID()
+	hostID, err := getHostID()
 	if err == nil {
 		if distroObj, supportedDistro := supportedDistros[hostID]; supportedDistro {
 			release, err := getDefaultReleaseForDistro(hostID)
@@ -405,30 +405,17 @@ func GetGroupForSudo() (string, error) {
 	return "", errors.New("group for sudo not found")
 }
 
-// GetHostID returns the ID from the os-release files
+// getHostID returns the ID from the os-release files
 //
 // Examples:
 // - host is Fedora, returned string is 'fedora'
-func GetHostID() (string, error) {
+func getHostID() (string, error) {
 	osRelease, err := osrelease.Read()
 	if err != nil {
 		return "", err
 	}
 
 	return osRelease["ID"], nil
-}
-
-// GetHostVariantID returns the VARIANT_ID from the os-release files
-//
-// Examples:
-// - host is Fedora Workstation, returned string is 'workstation'
-func GetHostVariantID() (string, error) {
-	osRelease, err := osrelease.Read()
-	if err != nil {
-		return "", err
-	}
-
-	return osRelease["VARIANT_ID"], nil
 }
 
 // getHostVersionID returns the VERSION_ID from the os-release files
