@@ -328,15 +328,6 @@ func getDefaultReleaseForDistro(distro string) (string, error) {
 	return release, nil
 }
 
-func getDefaultReleaseRHEL() (string, error) {
-	release, err := getHostVersionID()
-	if err != nil {
-		return "", err
-	}
-
-	return release, nil
-}
-
 func getDefaultReleaseUbuntu() (string, error) {
 	release, err := getHostVersionID()
 	if err != nil {
@@ -404,18 +395,6 @@ func GetFullyQualifiedImageFromDistros(image, release string) (string, error) {
 	}
 
 	return "", fmt.Errorf("failed to resolve image %s", image)
-}
-
-func getFullyQualifiedImageRHEL(image, release string) string {
-	i := strings.IndexRune(release, '.')
-	if i == -1 {
-		panicMsg := fmt.Sprintf("release %s not in '<major>.<minor>' format", release)
-		panic(panicMsg)
-	}
-
-	releaseMajor := release[:i]
-	imageFull := "registry.access.redhat.com/ubi" + releaseMajor + "/" + image
-	return imageFull
 }
 
 func getFullyQualifiedImageUbuntu(image, release string) string {
@@ -731,24 +710,6 @@ func parseRelease(distro, release string) (string, error) {
 	parseReleaseImpl := distroObj.ParseRelease
 	release, err := parseReleaseImpl(release)
 	return release, err
-}
-
-func parseReleaseRHEL(release string) (string, error) {
-	if i := strings.IndexRune(release, '.'); i == -1 {
-		return "", &ParseReleaseError{"The release must be in the '<major>.<minor>' format."}
-	}
-
-	releaseN, err := strconv.ParseFloat(release, 32)
-	if err != nil {
-		logrus.Debugf("Parsing release %s as a float failed: %s", release, err)
-		return "", &ParseReleaseError{"The release must be in the '<major>.<minor>' format."}
-	}
-
-	if releaseN <= 0 {
-		return "", &ParseReleaseError{"The release must be a positive number."}
-	}
-
-	return release, nil
 }
 
 func parseReleaseUbuntu(release string) (string, error) {
