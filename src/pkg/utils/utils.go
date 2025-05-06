@@ -40,6 +40,7 @@ import (
 
 type GetDefaultReleaseFunc func() (string, error)
 type GetFullyQualifiedImageFunc func(string, string) string
+type GetP11KitClientPathsFunc func() []string
 type ParseReleaseFunc func(string) (string, error)
 
 type Distro struct {
@@ -48,6 +49,7 @@ type Distro struct {
 	ReleaseRequired        bool
 	GetDefaultRelease      GetDefaultReleaseFunc
 	GetFullyQualifiedImage GetFullyQualifiedImageFunc
+	GetP11KitClientPaths   GetP11KitClientPathsFunc
 	ParseRelease           ParseReleaseFunc
 }
 
@@ -124,6 +126,7 @@ var (
 			false,
 			getDefaultReleaseArch,
 			getFullyQualifiedImageArch,
+			getP11KitClientPathsArch,
 			parseReleaseArch,
 		},
 		"fedora": {
@@ -132,6 +135,7 @@ var (
 			true,
 			getDefaultReleaseFedora,
 			getFullyQualifiedImageFedora,
+			getP11KitClientPathsFedora,
 			parseReleaseFedora,
 		},
 		"rhel": {
@@ -140,6 +144,7 @@ var (
 			true,
 			getDefaultReleaseRHEL,
 			getFullyQualifiedImageRHEL,
+			getP11KitClientPathsRHEL,
 			parseReleaseRHEL,
 		},
 		"ubuntu": {
@@ -148,6 +153,7 @@ var (
 			true,
 			getDefaultReleaseUbuntu,
 			getFullyQualifiedImageUbuntu,
+			getP11KitClientPathsUbuntu,
 			parseReleaseUbuntu,
 		},
 	}
@@ -628,6 +634,39 @@ func ImageReferenceHasDomain(image string) bool {
 	}
 
 	return true
+}
+
+func IsP11KitClientPresent() (bool, error) {
+	var p11KitClientPaths []string
+	var supportedDistro bool
+
+	hostID, err := getHostID()
+	if err == nil {
+		distroObj, ok := supportedDistros[hostID]
+		supportedDistro = ok
+		if supportedDistro {
+			p11KitClientPaths = distroObj.GetP11KitClientPaths()
+		}
+	}
+
+	if !supportedDistro {
+		if err == nil {
+			err = fmt.Errorf("failed to find %s in the list of supported distributions", hostID)
+		}
+
+		for _, distroObj := range supportedDistros {
+			paths := distroObj.GetP11KitClientPaths()
+			p11KitClientPaths = append(p11KitClientPaths, paths...)
+		}
+	}
+
+	for _, path := range p11KitClientPaths {
+		if PathExists(path) {
+			return true, err
+		}
+	}
+
+	return false, err
 }
 
 func SetUpConfiguration() error {

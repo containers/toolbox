@@ -45,6 +45,11 @@ func getFullyQualifiedImageRHEL(image, release string) string {
 	return imageFull
 }
 
+func getP11KitClientPathsRHEL() []string {
+	paths := []string{"/usr/lib64/pkcs11/p11-kit-client.so"}
+	return paths
+}
+
 func parseReleaseRHEL(release string) (string, error) {
 	if i := strings.IndexRune(release, '.'); i == -1 {
 		return "", &ParseReleaseError{"The release must be in the '<major>.<minor>' format."}
