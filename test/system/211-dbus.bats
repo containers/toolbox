@@ -19,14 +19,21 @@ load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers'
 
-setup() {
+setup_file() {
   bats_require_minimum_version 1.7.0
   _setup_environment
   cleanup_all
   pushd "$HOME" || return 1
+  create_default_container
+  create_distro_container arch latest arch-toolbox-latest
+  create_distro_container fedora 34 fedora-toolbox-34
+  create_distro_container rhel 8.7 rhel-toolbox-8.7
+  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
+  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
+  create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 }
 
-teardown() {
+teardown_file() {
   popd || return 1
   cleanup_all
 }
@@ -38,8 +45,6 @@ teardown() {
                          --dest org.freedesktop.DBus \
                          --object-path /org/freedesktop/DBus \
                          --method org.freedesktop.DBus.Peer.Ping)"
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run gdbus call \
                                                             --session \
@@ -67,8 +72,6 @@ teardown() {
                          --dest org.freedesktop.DBus \
                          --object-path /org/freedesktop/DBus \
                          --method org.freedesktop.DBus.Peer.Ping)"
-
-  create_distro_container arch latest arch-toolbox-latest
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro arch \
@@ -98,8 +101,6 @@ teardown() {
                          --dest org.freedesktop.DBus \
                          --object-path /org/freedesktop/DBus \
                          --method org.freedesktop.DBus.Peer.Ping)"
-
-  create_distro_container fedora 34 fedora-toolbox-34
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro fedora \
@@ -131,8 +132,6 @@ teardown() {
                          --object-path /org/freedesktop/DBus \
                          --method org.freedesktop.DBus.Peer.Ping)"
 
-  create_distro_container rhel 8.7 rhel-toolbox-8.7
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro rhel \
     --release 8.7 \
@@ -158,8 +157,6 @@ teardown() {
 @test "dbus: session bus inside Ubuntu 16.04" {
   busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer Ping
 
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro ubuntu \
     --release 16.04 \
@@ -177,8 +174,6 @@ teardown() {
 @test "dbus: session bus inside Ubuntu 18.04" {
   busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer Ping
 
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro ubuntu \
     --release 18.04 \
@@ -195,8 +190,6 @@ teardown() {
 
 @test "dbus: session bus inside Ubuntu 20.04" {
   busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer Ping
-
-  create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro ubuntu \
@@ -221,8 +214,6 @@ teardown() {
                          --method org.freedesktop.DBus.Properties.Get \
                          org.freedesktop.systemd1.Manager \
                          Version)"
-
-  create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run gdbus call \
                                                             --system \
@@ -254,8 +245,6 @@ teardown() {
                          --method org.freedesktop.DBus.Properties.Get \
                          org.freedesktop.systemd1.Manager \
                          Version)"
-
-  create_distro_container arch latest arch-toolbox-latest
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro arch \
@@ -289,8 +278,6 @@ teardown() {
                          --method org.freedesktop.DBus.Properties.Get \
                          org.freedesktop.systemd1.Manager \
                          Version)"
-
-  create_distro_container fedora 34 fedora-toolbox-34
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro fedora \
@@ -326,8 +313,6 @@ teardown() {
                          org.freedesktop.systemd1.Manager \
                          Version)"
 
-  create_distro_container rhel 8.7 rhel-toolbox-8.7
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro rhel \
     --release 8.7 \
@@ -360,8 +345,6 @@ teardown() {
                          org.freedesktop.systemd1.Manager \
                          Version)"
 
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro ubuntu \
     --release 16.04 \
@@ -392,8 +375,6 @@ teardown() {
                          org.freedesktop.systemd1.Manager \
                          Version)"
 
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro ubuntu \
     --release 18.04 \
@@ -423,8 +404,6 @@ teardown() {
                          /org/freedesktop/systemd1 \
                          org.freedesktop.systemd1.Manager \
                          Version)"
-
-  create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 
   run --keep-empty-lines --separate-stderr "$TOOLBOX" run \
     --distro ubuntu \
