@@ -38,6 +38,15 @@ func getFullyQualifiedImageUbuntu(image, release string) string {
 	return imageFull
 }
 
+func getP11KitClientPathsUbuntu() []string {
+	paths := []string{
+		"/usr/lib/aarch64-linux-gnu/pkcs11/p11-kit-client.so",
+		"/usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so",
+	}
+
+	return paths
+}
+
 func parseReleaseUbuntu(release string) (string, error) {
 	releaseParts := strings.Split(release, ".")
 	if len(releaseParts) != 2 {
