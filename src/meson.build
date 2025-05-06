@@ -33,6 +33,7 @@ sources = files(
   'pkg/utils/libsubid-wrappers.c',
   'pkg/utils/arch.go',
   'pkg/utils/errors.go',
+  'pkg/utils/fedora.go',
   'pkg/utils/utils.go',
   'pkg/utils/utils_cgo.go',
   'pkg/utils/utils_test.go',

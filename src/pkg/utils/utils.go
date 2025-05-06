@@ -328,15 +328,6 @@ func getDefaultReleaseForDistro(distro string) (string, error) {
 	return release, nil
 }
 
-func getDefaultReleaseFedora() (string, error) {
-	release, err := getHostVersionID()
-	if err != nil {
-		return "", err
-	}
-
-	return release, nil
-}
-
 func getDefaultReleaseRHEL() (string, error) {
 	release, err := getHostVersionID()
 	if err != nil {
@@ -413,11 +404,6 @@ func GetFullyQualifiedImageFromDistros(image, release string) (string, error) {
 	}
 
 	return "", fmt.Errorf("failed to resolve image %s", image)
-}
-
-func getFullyQualifiedImageFedora(image, release string) string {
-	imageFull := "registry.fedoraproject.org/" + image
-	return imageFull
 }
 
 func getFullyQualifiedImageRHEL(image, release string) string {
@@ -745,24 +731,6 @@ func parseRelease(distro, release string) (string, error) {
 	parseReleaseImpl := distroObj.ParseRelease
 	release, err := parseReleaseImpl(release)
 	return release, err
-}
-
-func parseReleaseFedora(release string) (string, error) {
-	if strings.HasPrefix(release, "F") || strings.HasPrefix(release, "f") {
-		release = release[1:]
-	}
-
-	releaseN, err := strconv.Atoi(release)
-	if err != nil {
-		logrus.Debugf("Parsing release %s as an integer failed: %s", release, err)
-		return "", &ParseReleaseError{"The release must be a positive integer."}
-	}
-
-	if releaseN <= 0 {
-		return "", &ParseReleaseError{"The release must be a positive integer."}
-	}
-
-	return release, nil
 }
 
 func parseReleaseRHEL(release string) (string, error) {
