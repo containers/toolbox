@@ -8,3 +8,4 @@
 /images/rhel       @debarshiray @olivergs
 /images/ubuntu     @Jmennius
 /src/pkg/utils/arch.go                    @Foxboron
+/src/pkg/utils/ubuntu.go                  @Jmennius

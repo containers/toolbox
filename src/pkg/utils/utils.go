@@ -28,7 +28,6 @@ import (
 	"strings"
 	"syscall"
 	"time"
-	"unicode/utf8"
 
 	"github.com/acobaugh/osrelease"
 	"github.com/containers/toolbox/pkg/shell"
@@ -328,15 +327,6 @@ func getDefaultReleaseForDistro(distro string) (string, error) {
 	return release, nil
 }
 
-func getDefaultReleaseUbuntu() (string, error) {
-	release, err := getHostVersionID()
-	if err != nil {
-		return "", err
-	}
-
-	return release, nil
-}
-
 func GetEnvOptionsForPreservedVariables() []string {
 	logrus.Debug("Creating list of environment variables to forward")
 
@@ -395,11 +385,6 @@ func GetFullyQualifiedImageFromDistros(image, release string) (string, error) {
 	}
 
 	return "", fmt.Errorf("failed to resolve image %s", image)
-}
-
-func getFullyQualifiedImageUbuntu(image, release string) string {
-	imageFull := "quay.io/toolbx/" + image
-	return imageFull
 }
 
 // GetGroupForSudo returns the name of the sudoers group.
@@ -710,49 +695,6 @@ func parseRelease(distro, release string) (string, error) {
 	parseReleaseImpl := distroObj.ParseRelease
 	release, err := parseReleaseImpl(release)
 	return release, err
-}
-
-func parseReleaseUbuntu(release string) (string, error) {
-	releaseParts := strings.Split(release, ".")
-	if len(releaseParts) != 2 {
-		return "", &ParseReleaseError{"The release must be in the 'YY.MM' format."}
-	}
-
-	releaseYear, err := strconv.Atoi(releaseParts[0])
-	if err != nil {
-		logrus.Debugf("Parsing release year %s as an integer failed: %s", releaseParts[0], err)
-		return "", &ParseReleaseError{"The release must be in the 'YY.MM' format."}
-	}
-
-	if releaseYear < 4 {
-		return "", &ParseReleaseError{"The release year must be 4 or more."}
-	}
-
-	releaseYearLen := utf8.RuneCountInString(releaseParts[0])
-	if releaseYearLen > 2 {
-		return "", &ParseReleaseError{"The release year cannot have more than two digits."}
-	} else if releaseYear < 10 && releaseYearLen == 2 {
-		return "", &ParseReleaseError{"The release year cannot have a leading zero."}
-	}
-
-	releaseMonth, err := strconv.Atoi(releaseParts[1])
-	if err != nil {
-		logrus.Debugf("Parsing release month %s as an integer failed: %s", releaseParts[1], err)
-		return "", &ParseReleaseError{"The release must be in the 'YY.MM' format."}
-	}
-
-	if releaseMonth < 1 {
-		return "", &ParseReleaseError{"The release month must be between 01 and 12."}
-	} else if releaseMonth > 12 {
-		return "", &ParseReleaseError{"The release month must be between 01 and 12."}
-	}
-
-	releaseMonthLen := utf8.RuneCountInString(releaseParts[1])
-	if releaseMonthLen != 2 {
-		return "", &ParseReleaseError{"The release month must have two digits."}
-	}
-
-	return release, nil
 }
 
 // PathExists wraps around os.Stat providing a nice interface for checking an existence of a path.
