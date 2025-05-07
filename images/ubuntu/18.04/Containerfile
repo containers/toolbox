@@ -33,6 +33,9 @@ RUN rm /extra-packages
 # Allow authentication with empty password, promptless
 RUN sed -i '/^auth.*pam_unix.so/s/nullok_secure/try_first_pass nullok/' /etc/pam.d/common-auth
 
+# Enable the use of p11-kit-client.so to access CA certificates from the host
+RUN mkdir --parents /etc/pkcs11/modules
+
 # Fix empty bind-mount to clear selinuxfs (see #337)
 RUN mkdir /usr/share/empty
 
