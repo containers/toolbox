@@ -23,3 +23,6 @@ RUN yes | pacman -Scc
 
 # Enable sudo permission for wheel users
 RUN echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/toolbox
+
+# Enable the use of p11-kit-client.so to access CA certificates from the host
+RUN mkdir --parents /etc/pkcs11/modules
