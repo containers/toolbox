@@ -17,6 +17,7 @@ test_system = files(
   '220-environment-variables.bats',
   '230-cdi.bats',
   '250-kerberos.bats',
+  '260-pkcs11.bats',
   '270-rpm.bats',
   '501-create.bats',
   '504-run.bats',
