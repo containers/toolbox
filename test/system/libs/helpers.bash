@@ -15,14 +15,20 @@ export XDG_CONFIG_HOME
 readonly XDG_DATA_HOME="$HOME/.local/share"
 export XDG_DATA_HOME
 
-readonly XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$UID}"
+readonly XDG_RUNTIME_DIR="$BATS_SUITE_TMPDIR/xdg-runtime-dir"
 export XDG_RUNTIME_DIR
 
 readonly XDG_STATE_HOME="$HOME/.local/state"
 export XDG_STATE_HOME
 
+readonly CONTAINERS_CONF="$BATS_TEST_DIRNAME/config/containers.conf"
+export CONTAINERS_CONF
+
 readonly CONTAINERS_STORAGE_CONF="$XDG_CONFIG_HOME/containers/storage.conf"
 export CONTAINERS_STORAGE_CONF
+
+readonly DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+export DBUS_SESSION_BUS_ADDRESS
 
 # Helpful globals
 readonly IMAGE_CACHE_DIR="$BATS_SUITE_TMPDIR/image-cache"
@@ -57,6 +63,8 @@ function cleanup_all() {
 function _setup_environment() {
   # shellcheck disable=SC2174
   mkdir --mode 700 --parents "$HOME"
+  mkdir --mode 0700 --parents "$XDG_RUNTIME_DIR"
+
   _setup_containers_storage
 }
 
