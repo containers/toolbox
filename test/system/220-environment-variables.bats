@@ -19,21 +19,26 @@ load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 load 'libs/helpers'
 
-setup() {
+setup_file() {
   bats_require_minimum_version 1.7.0
   _setup_environment
   cleanup_all
   pushd "$HOME" || return 1
+  create_default_container
+  create_distro_container arch latest arch-toolbox-latest
+  create_distro_container fedora 34 fedora-toolbox-34
+  create_distro_container rhel 8.7 rhel-toolbox-8.7
+  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
+  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
+  create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
 }
 
-teardown() {
+teardown_file() {
   popd || return 1
   cleanup_all
 }
 
 @test "environment variables: HISTFILESIZE inside the default container" {
-  create_default_container
-
   if [ "$HISTFILESIZE" = "" ]; then
     # shellcheck disable=SC2030
     HISTFILESIZE=1001
@@ -62,8 +67,6 @@ teardown() {
 @test "environment variables: HISTSIZE inside the default container" {
   skip "https://pagure.io/setup/pull-request/48"
 
-  create_default_container
-
   if [ "$HISTSIZE" = "" ]; then
     # shellcheck disable=SC2030
     HISTSIZE=1001
@@ -90,8 +93,6 @@ teardown() {
 }
 
 @test "environment variables: HISTFILESIZE inside Arch Linux" {
-  create_distro_container arch latest arch-toolbox-latest
-
   # shellcheck disable=SC2031
   if [ "$HISTFILESIZE" = "" ]; then
     # shellcheck disable=SC2030
@@ -119,8 +120,6 @@ teardown() {
 }
 
 @test "environment variables: HISTSIZE inside Arch Linux" {
-  create_distro_container arch latest arch-toolbox-latest
-
   # shellcheck disable=SC2031
   if [ "$HISTSIZE" = "" ]; then
     # shellcheck disable=SC2030
@@ -148,8 +147,6 @@ teardown() {
 }
 
 @test "environment variables: HISTFILESIZE inside Fedora 34" {
-  create_distro_container fedora 34 fedora-toolbox-34
-
   # shellcheck disable=SC2031
   if [ "$HISTFILESIZE" = "" ]; then
     # shellcheck disable=SC2030
@@ -179,8 +176,6 @@ teardown() {
 @test "environment variables: HISTSIZE inside Fedora 34" {
   skip "https://pagure.io/setup/pull-request/48"
 
-  create_distro_container fedora 34 fedora-toolbox-34
-
   # shellcheck disable=SC2031
   if [ "$HISTSIZE" = "" ]; then
     # shellcheck disable=SC2030
@@ -208,8 +203,6 @@ teardown() {
 }
 
 @test "environment variables: HISTFILESIZE inside RHEL 8.7" {
-  create_distro_container rhel 8.7 rhel-toolbox-8.7
-
   # shellcheck disable=SC2031
   if [ "$HISTFILESIZE" = "" ]; then
     # shellcheck disable=SC2030
@@ -239,8 +232,6 @@ teardown() {
 @test "environment variables: HISTSIZE inside RHEL 8.7" {
   skip "https://pagure.io/setup/pull-request/48"
 
-  create_distro_container rhel 8.7 rhel-toolbox-8.7
-
   # shellcheck disable=SC2031
   if [ "$HISTSIZE" = "" ]; then
     # shellcheck disable=SC2030
@@ -268,8 +259,6 @@ teardown() {
 }
 
 @test "environment variables: HISTFILESIZE inside Ubuntu 16.04" {
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
   # shellcheck disable=SC2031
   if [ "$HISTFILESIZE" = "" ]; then
     # shellcheck disable=SC2030
@@ -298,8 +287,6 @@ teardown() {
 }
 
 @test "environment variables: HISTSIZE inside Ubuntu 16.04" {
-  create_distro_container ubuntu 16.04 ubuntu-toolbox-16.04
-
   # shellcheck disable=SC2031
   if [ "$HISTSIZE" = "" ]; then
     # shellcheck disable=SC2030
@@ -327,8 +314,6 @@ teardown() {
 }
 
 @test "environment variables: HISTFILESIZE inside Ubuntu 18.04" {
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
   # shellcheck disable=SC2031
   if [ "$HISTFILESIZE" = "" ]; then
     # shellcheck disable=SC2030
@@ -357,8 +342,6 @@ teardown() {
 }
 
 @test "environment variables: HISTSIZE inside Ubuntu 18.04" {
-  create_distro_container ubuntu 18.04 ubuntu-toolbox-18.04
-
   # shellcheck disable=SC2031
   if [ "$HISTSIZE" = "" ]; then
     # shellcheck disable=SC2030
@@ -386,8 +369,6 @@ teardown() {
 }
 
 @test "environment variables: HISTFILESIZE inside Ubuntu 20.04" {
-  create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
-
   # shellcheck disable=SC2031
   if [ "$HISTFILESIZE" = "" ]; then
     HISTFILESIZE=1001
@@ -415,8 +396,6 @@ teardown() {
 }
 
 @test "environment variables: HISTSIZE inside Ubuntu 20.04" {
-  create_distro_container ubuntu 20.04 ubuntu-toolbox-20.04
-
   # shellcheck disable=SC2031
   if [ "$HISTSIZE" = "" ]; then
     HISTSIZE=1001
