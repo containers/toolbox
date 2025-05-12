@@ -86,5 +86,5 @@ teardown_suite() {
   fi
 
   _clean_cached_images
-  _clean_temporary_storage
+  podman system reset --force >/dev/null
 }

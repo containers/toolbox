@@ -4,14 +4,11 @@ load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 
 # Helpful globals
-readonly TEMP_BASE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/toolbx"
-readonly TEMP_STORAGE_DIR="${TEMP_BASE_DIR}/system-test-storage"
-
 readonly IMAGE_CACHE_DIR="${BATS_SUITE_TMPDIR}/image-cache"
-readonly ROOTLESS_PODMAN_STORE_DIR="${TEMP_STORAGE_DIR}/storage"
-readonly ROOTLESS_PODMAN_RUNROOT_DIR="${TEMP_STORAGE_DIR}/runroot"
-readonly PODMAN_STORE_CONFIG_FILE="${TEMP_STORAGE_DIR}/storage.conf"
-readonly DOCKER_REG_ROOT="${TEMP_STORAGE_DIR}/docker-registry-root"
+readonly ROOTLESS_PODMAN_STORE_DIR="${BATS_SUITE_TMPDIR}/storage"
+readonly ROOTLESS_PODMAN_RUNROOT_DIR="${BATS_SUITE_TMPDIR}/runroot"
+readonly PODMAN_STORE_CONFIG_FILE="${BATS_SUITE_TMPDIR}/storage.conf"
+readonly DOCKER_REG_ROOT="${BATS_SUITE_TMPDIR}/docker-registry-root"
 readonly DOCKER_REG_CERTS_DIR="${BATS_SUITE_TMPDIR}/certs"
 readonly DOCKER_REG_AUTH_DIR="${BATS_SUITE_TMPDIR}/auth"
 readonly DOCKER_REG_URI="localhost:50000"
@@ -43,20 +40,9 @@ function _setup_environment() {
 }
 
 function _setup_containers_storage() {
-  mkdir -p "${TEMP_STORAGE_DIR}"
   # Set up a storage config file for PODMAN
   echo -e "[storage]\n  driver = \"overlay\"\n  rootless_storage_path = \"${ROOTLESS_PODMAN_STORE_DIR}\"\n  runroot = \"${ROOTLESS_PODMAN_RUNROOT_DIR}\"\n" > "${PODMAN_STORE_CONFIG_FILE}"
   export CONTAINERS_STORAGE_CONF="${PODMAN_STORE_CONFIG_FILE}"
-}
-
-
-function _clean_temporary_storage() {
-  podman system reset --force >/dev/null
-
-  rm --force --recursive "${ROOTLESS_PODMAN_STORE_DIR}"
-  rm --force --recursive "${ROOTLESS_PODMAN_RUNROOT_DIR}"
-  rm --force --recursive "${PODMAN_STORE_CONFIG_FILE}"
-  rm --force --recursive "${TEMP_STORAGE_DIR}"
 }
 
 
@@ -202,19 +188,19 @@ function _setup_docker_registry() {
   assert_success
 
   run podman login \
-    --authfile "${TEMP_BASE_DIR}/authfile.json" \
+    --authfile "${BATS_SUITE_TMPDIR}/authfile.json" \
     --username user \
     --password user \
     "${DOCKER_REG_URI}"
   assert_success
 
   # Add fedora-toolbox:34 image to the registry
-  run skopeo copy --dest-authfile "${TEMP_BASE_DIR}/authfile.json" \
+  run skopeo copy --dest-authfile "${BATS_SUITE_TMPDIR}/authfile.json" \
     dir:"${IMAGE_CACHE_DIR}"/fedora-toolbox-34 \
     docker://"${DOCKER_REG_URI}"/fedora-toolbox:34
   assert_success
 
-  run rm "${TEMP_BASE_DIR}/authfile.json"
+  run rm "${BATS_SUITE_TMPDIR}/authfile.json"
   assert_success
 }
 
