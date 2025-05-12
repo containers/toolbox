@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 #
-# Copyright © 2021 – 2024 Red Hat, Inc.
+# Copyright © 2021 – 2025 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -85,6 +85,5 @@ teardown_suite() {
     _clean_docker_registry
   fi
 
-  _clean_cached_images
   podman system reset --force >/dev/null
 }

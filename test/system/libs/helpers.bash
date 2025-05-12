@@ -120,12 +120,6 @@ function _pull_and_cache_distro_image() {
 }
 
 
-# Removes the folder with cached images
-function _clean_cached_images() {
-  rm --force --recursive "${IMAGE_CACHE_DIR}"
-}
-
-
 # Prepares a locally hosted image registry
 #
 # The registry is set up with Podman set to an alternative root. It won't
