@@ -37,6 +37,11 @@ func getFullyQualifiedImageFedora(image, release string) string {
 	return imageFull
 }
 
+func getP11KitClientPathsFedora() []string {
+	paths := []string{"/usr/lib64/pkcs11/p11-kit-client.so"}
+	return paths
+}
+
 func parseReleaseFedora(release string) (string, error) {
 	if strings.HasPrefix(release, "F") || strings.HasPrefix(release, "f") {
 		release = release[1:]
