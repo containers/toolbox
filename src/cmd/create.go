@@ -464,6 +464,12 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		"--volume", runtimeDirectoryMountArg,
 	}...)
 
+	if runtime, _ := podman.GetRuntimeName(); runtime == "crun" {
+		createArgs = append(createArgs, []string{
+			"--group-add", "keep-groups",
+		}...)
+	}
+
 	createArgs = append(createArgs, avahiSocketMount...)
 	createArgs = append(createArgs, kcmSocketMount...)
 	createArgs = append(createArgs, mediaMount...)

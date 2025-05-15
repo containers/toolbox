@@ -213,6 +213,31 @@ func GetImages(args ...string) ([]Image, error) {
 	return images, nil
 }
 
+// GetRuntimeName returns OCI Runtime of Podman in a string
+func GetRuntimeName() (string, error) {
+	var stdout bytes.Buffer
+
+	logLevelString := LogLevel.String()
+	args := []string{"--log-level", logLevelString, "info", "--format", "json"}
+
+	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
+		return "", err
+	}
+
+	var podmanInfo struct {
+		Host struct {
+			OCIRuntime struct {
+				Name string `json:"name"`
+			} `json:"ociRuntime"`
+		} `json:"host"`
+	}
+	if err := json.Unmarshal(stdout.Bytes(), &podmanInfo); err != nil {
+		return "", err
+	}
+
+	return podmanInfo.Host.OCIRuntime.Name, nil
+}
+
 // GetVersion returns version of Podman in a string
 func GetVersion() (string, error) {
 	if podmanVersion != "" {
