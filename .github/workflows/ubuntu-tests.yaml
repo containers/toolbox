@@ -1,5 +1,5 @@
 #
-# Copyright © 2023 – 2024 Red Hat, Inc.
+# Copyright © 2023 – 2025 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,9 +46,11 @@ jobs:
             gcc \
             go-md2man \
             golang-1.21 \
+            lsof \
             meson \
             ninja-build \
             openssl \
+            p11-kit \
             podman \
             shellcheck \
             skopeo \
@@ -162,6 +164,7 @@ jobs:
             test/system/203-network.bats \
             test/system/220-environment-variables.bats \
             test/system/250-kerberos.bats \
+            test/system/260-pkcs11.bats \
             test/system/270-rpm.bats \
             test/system/501-create.bats \
             test/system/505-enter.bats

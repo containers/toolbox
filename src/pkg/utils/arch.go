@@ -25,6 +25,11 @@ func getFullyQualifiedImageArch(image, release string) string {
 	return imageFull
 }
 
+func getP11KitClientPathsArch() []string {
+	paths := []string{"/usr/lib/pkcs11/p11-kit-client.so"}
+	return paths
+}
+
 func parseReleaseArch(release string) (string, error) {
 	if release != "latest" && release != "rolling" && release != "" {
 		return "", &ParseReleaseError{"The release must be 'latest'."}

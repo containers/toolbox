@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022 – 2024 Red Hat Inc.
+ * Copyright © 2022 – 2025 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,12 @@ type DistroError struct {
 	Err    error
 }
 
+type FlockError struct {
+	Path      string
+	Errs      []error
+	errSuffix string
+}
+
 type ImageError struct {
 	Image string
 	Err   error
@@ -56,6 +62,25 @@ func (err *DistroError) Error() string {
 
 func (err *DistroError) Unwrap() error {
 	return err.Err
+}
+
+func (err *FlockError) Error() string {
+	if err.Errs == nil || len(err.Errs) != 2 {
+		panicMsg := fmt.Sprintf("invalid %T", err)
+		panic(panicMsg)
+	}
+
+	errSuffix := " "
+	if err.errSuffix != "" {
+		errSuffix = fmt.Sprintf(" %s ", err.errSuffix)
+	}
+
+	errMsg := fmt.Sprintf("%s%s%s: %s", err.Errs[0], errSuffix, err.Path, err.Errs[1])
+	return errMsg
+}
+
+func (err *FlockError) Unwrap() []error {
+	return err.Errs
 }
 
 func (err *ImageError) Error() string {
