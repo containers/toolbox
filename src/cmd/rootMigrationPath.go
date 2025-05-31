@@ -22,6 +22,7 @@ package cmd
 import (
 	"errors"
 	"os"
+	"os/user"
 	"strings"
 
 	"github.com/containers/toolbox/pkg/utils"
