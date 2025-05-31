@@ -55,8 +55,31 @@ declare -Ag IMAGES=([arch]="quay.io/toolbx/arch-toolbox" \
 
 
 function cleanup_all() {
-  podman rm --all --force >/dev/null
-  podman rmi --all --force >/dev/null
+  ctr_id="$(podman ps --all --format "{{ .ID }}" --no-trunc | head --lines 1)"
+  cat "$XDG_RUNTIME_DIR/crun/$ctr_id/status"
+  echo "Container to kill: $ctr_id"
+  if [ "$ctr_id" != "" ]; then
+    crun --debug --log-level=debug kill --all "$ctr_id" 15
+    echo "Container to kill: crun: $?"
+  fi
+
+  ctr_id="$(podman ps --all --format "{{ .ID }}" --no-trunc | head --lines 2 | tail --lines 1)"
+  echo "Container to kill: $ctr_id"
+  if [ "$ctr_id" != "" ]; then
+    crun --debug --log-level=debug kill --all "$ctr_id" 15
+    echo "Container to kill: crun: $?"
+  fi
+
+  ctr_id="$(podman ps --all --format "{{ .ID }}" --no-trunc | head --lines 3 | tail --lines 1)"
+  echo "Container to kill: $ctr_id"
+  if [ "$ctr_id" != "" ]; then
+    crun --debug --log-level=debug kill --all "$ctr_id" 15
+    echo "Container to kill: crun: $?"
+  fi
+
+  podman --log-level debug stop --all
+  podman rm --all
+  podman rmi --all
 }
 
 
