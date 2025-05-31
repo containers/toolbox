@@ -73,7 +73,7 @@ setup_suite() {
       _pull_and_cache_distro_image fedora "$((system_version-2))" || false
     fi
 
-    _setup_docker_registry
+    # _setup_docker_registry
   fi
 }
 
@@ -92,9 +92,9 @@ teardown_suite() {
 
   _setup_environment
 
-  if echo "$TOOLBX_TEST_SYSTEM_TAGS" | grep "commands-options" >/dev/null 2>/dev/null; then
-    _clean_docker_registry
-  fi
+  # if echo "$TOOLBX_TEST_SYSTEM_TAGS" | grep "commands-options" >/dev/null 2>/dev/null; then
+  #   _clean_docker_registry
+  # fi
 
   podman system reset --force >/dev/null
 }
