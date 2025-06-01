@@ -1,3 +1,51 @@
+0.1.2
+=====
+
+### Security fixes
+
+* Bumped the minimum github.com/briandowns/spinner version to 1.23.2 for
+  CVE-2022-29526 or GHSA-p782-xgp4-8hr8, and other bug fixes
+* Bumped the minimum github.com/NVIDIA/nvidia-container-toolkit version to
+  1.17.4 for CVE-2024-0134 or GHSA-7jm9-xpwx-v999, CVE-2024-0135 or
+  GHSA-9v84-cc9j-pxr6, CVE-2024-0136 or GHSA-vcfp-63cx-4h59, CVE-2024-0137 or
+  GHSA-frhw-w3wm-6cw4, and CVE-2025-23359 or GHSA-4hmh-pm5p-9j7j
+
+### Enhancements
+
+* Added ubuntu-toolbox image definitions for Ubuntu 25.04
+* Gave access to the CA certificates from the host operating system — requires
+  new Toolbx images and 'p11-kit server' on the host.  Note that the UBI-based
+  images for RHEL haven't yet been updated, and this feature is currently
+  disabled for those containers.
+
+### Bug fixes
+
+* Optimized getting the runtime directory
+* Replaced links to the code repository with the website
+* Updated fallback release to 42 for non-fedora hosts
+
+### Dependencies
+
+* Added a new weak dependency on 'p11-kit server'
+* Bumped the minimum github.com/NVIDIA/go-nvlib version to 0.7.1
+* Bumped the minimum github.com/spf13/viper version to 1.20.1 to reduce the
+  number of indirect dependencies
+* Bumped the minimum github.com/stretchr/testify version to 1.10.0
+
+### Tests
+
+* Added runtime environment tests for the Kerberos and RPM configuration
+* Added unit tests for utils.PathExists()
+* Enabled the commands and options tests for 'list' on Arch and Ubuntu 22.04
+* Enabled the system tests for 'create' and networking on Arch Linux
+* Isolated the storage directory from the host's XDG_CACHE_HOME or HOME —
+  bumped the minimum Linux kernel version to 6.6
+* Made the the commands and options tests for 'create' stricter
+* Optimized the runtime environment tests by avoiding a lot of disk I/O
+* Restored the generation and installation of the Bash completions on the CI
+  (regression from Fedora 41)
+
+
 0.1.1
 =====
 
