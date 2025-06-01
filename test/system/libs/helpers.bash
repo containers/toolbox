@@ -4,6 +4,9 @@ load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 
 # Helpful globals
+readonly CONTAINERS_CONF="$BATS_TEST_DIRNAME/config/containers.conf"
+export CONTAINERS_CONF
+
 readonly IMAGE_CACHE_DIR="${BATS_SUITE_TMPDIR}/image-cache"
 readonly ROOTLESS_PODMAN_STORE_DIR="${BATS_SUITE_TMPDIR}/storage"
 readonly ROOTLESS_PODMAN_RUNROOT_DIR="${BATS_SUITE_TMPDIR}/runroot"
@@ -18,6 +21,12 @@ readonly DOCKER_REG_NAME="docker-registry"
 readonly TOOLBX="${TOOLBX:-$(command -v toolbox)}"
 readonly TOOLBX_TEST_SYSTEM_TAGS_ALL="arch-fedora,commands-options,custom-image,runtime-environment,ubuntu"
 readonly TOOLBX_TEST_SYSTEM_TAGS="${TOOLBX_TEST_SYSTEM_TAGS:-$TOOLBX_TEST_SYSTEM_TAGS_ALL}"
+
+readonly XDG_RUNTIME_DIR="$BATS_SUITE_TMPDIR/xdg-runtime-dir"
+export XDG_RUNTIME_DIR
+
+readonly DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+export DBUS_SESSION_BUS_ADDRESS
 
 # Images
 declare -Ag IMAGES=([arch]="quay.io/toolbx/arch-toolbox" \
@@ -36,7 +45,6 @@ function cleanup_all() {
 
 function _setup_environment() {
   _setup_containers_storage
-  check_xdg_runtime_dir
 }
 
 function _setup_containers_storage() {
@@ -560,11 +568,3 @@ function is_fedora_rawhide() (
 
   return 0
 )
-
-
-# Set up the XDG_RUNTIME_DIR variable if not set
-function check_xdg_runtime_dir() {
-  if [[ -z "${XDG_RUNTIME_DIR}" ]]; then
-    export XDG_RUNTIME_DIR="/run/user/${UID}"
-  fi
-}

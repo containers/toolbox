@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+dbus_daemon_pid=0
 missing_dependencies=false
 
 if [ -f "$BATS_TEST_DIRNAME/libs/bats-assert/load.bash" ] && [ -f "$BATS_TEST_DIRNAME/libs/bats-support/load.bash" ]; then
@@ -32,6 +33,11 @@ setup_suite() {
     echo "# Forgot to run 'git submodule init' and 'git submodule update' ?" >&3
     return 1
   fi
+
+  # shellcheck disable=SC2174
+  mkdir --mode 0700 --parents "$XDG_RUNTIME_DIR"
+
+  dbus_daemon_pid="$(dbus-daemon --config-file "$BATS_TEST_DIRNAME/config/dbus-session.conf" --print-pid)"
 
   local system_id
   system_id="$(get_system_id)"
@@ -77,6 +83,11 @@ teardown_suite() {
 
   if $missing_dependencies; then
     return 0
+  fi
+
+  if [ "$dbus_daemon_pid" != 0 ]; then
+      kill -s SIGTERM "$dbus_daemon_pid"
+      dbus_daemon_pid=0
   fi
 
   _setup_environment
