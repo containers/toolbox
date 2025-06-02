@@ -76,8 +76,6 @@
 
 - name: Download Go modules
   command: go mod download -x
-  environment:
-    GOINSECURE: go.opencensus.io
   args:
     chdir: '{{ zuul.project.src_dir }}/src'
 

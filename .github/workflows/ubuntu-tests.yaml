@@ -129,8 +129,6 @@ jobs:
 
       - name: Download Go modules
         run: go mod download -x
-        env:
-          GOINSECURE: go.opencensus.io
         working-directory: containers/toolbox/src
 
       - name: Set up build directory
