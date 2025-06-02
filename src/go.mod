@@ -10,7 +10,7 @@ require (
 	github.com/acobaugh/osrelease v0.1.0
 	github.com/briandowns/spinner v1.23.2
 	github.com/docker/go-units v0.5.0
-	github.com/fsnotify/fsnotify v1.7.0
+	github.com/fsnotify/fsnotify v1.8.0
 	github.com/go-logfmt/logfmt v0.5.0
 	github.com/godbus/dbus/v5 v5.0.6
 	github.com/google/renameio/v2 v2.0.0
