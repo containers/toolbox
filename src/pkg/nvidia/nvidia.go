@@ -1,5 +1,5 @@
 /*
- * Copyright © 2024 Red Hat Inc.
+ * Copyright © 2024 – 2025 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,7 +99,10 @@ func GenerateCDISpec() (*specs.Spec, error) {
 		return nil, ErrPlatformUnsupported
 	}
 
-	cdi, err := nvcdi.New(nvcdi.WithInfoLib(info), nvcdi.WithLogger(logger), nvcdi.WithNvmlLib(nvmLib))
+	cdi, err := nvcdi.New(nvcdi.WithDisabledHook(nvcdi.HookEnableCudaCompat),
+		nvcdi.WithInfoLib(info),
+		nvcdi.WithLogger(logger),
+		nvcdi.WithNvmlLib(nvmLib))
 	if err != nil {
 		logrus.Debugf("Generating Container Device Interface for NVIDIA: failed to create library: %s", err)
 		return nil, errors.New("failed to create Container Device Interface library for NVIDIA")
