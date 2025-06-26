@@ -5,7 +5,7 @@ load 'libs/bats-assert/load'
 
 # Helpful globals
 readonly IMAGE_CACHE_DIR="${BATS_SUITE_TMPDIR}/image-cache"
-readonly ROOTLESS_PODMAN_STORE_DIR="${BATS_SUITE_TMPDIR}/storage"
+readonly TOOLBX_ROOTLESS_STORAGE_PATH="${BATS_SUITE_TMPDIR}/storage"
 readonly ROOTLESS_PODMAN_RUNROOT_DIR="${BATS_SUITE_TMPDIR}/runroot"
 readonly PODMAN_STORE_CONFIG_FILE="${BATS_SUITE_TMPDIR}/storage.conf"
 readonly DOCKER_REG_ROOT="${BATS_SUITE_TMPDIR}/docker-registry-root"
@@ -41,7 +41,7 @@ function _setup_environment() {
 
 function _setup_containers_storage() {
   # Set up a storage config file for PODMAN
-  echo -e "[storage]\n  driver = \"overlay\"\n  rootless_storage_path = \"${ROOTLESS_PODMAN_STORE_DIR}\"\n  runroot = \"${ROOTLESS_PODMAN_RUNROOT_DIR}\"\n" > "${PODMAN_STORE_CONFIG_FILE}"
+  echo -e "[storage]\n  driver = \"overlay\"\n  rootless_storage_path = \"${TOOLBX_ROOTLESS_STORAGE_PATH}\"\n  runroot = \"${ROOTLESS_PODMAN_RUNROOT_DIR}\"\n" > "${PODMAN_STORE_CONFIG_FILE}"
   export CONTAINERS_STORAGE_CONF="${PODMAN_STORE_CONFIG_FILE}"
 }
 
@@ -309,7 +309,7 @@ function pull_distro_image() {
   fi
 
   # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
-  run skopeo copy "dir:${IMAGE_CACHE_DIR}/${image_archive}" "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]${image}"
+  run skopeo copy "dir:${IMAGE_CACHE_DIR}/${image_archive}" "containers-storage:[overlay@$TOOLBX_ROOTLESS_STORAGE_PATH+$TOOLBX_ROOTLESS_STORAGE_PATH]${image}"
 
   # shellcheck disable=SC2154
   if [ "$status" -ne 0 ]; then
@@ -342,8 +342,8 @@ function pull_default_image_and_copy() {
 
   # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
   run skopeo copy \
-      "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]$image" \
-      "containers-storage:[overlay@$ROOTLESS_PODMAN_STORE_DIR+$ROOTLESS_PODMAN_STORE_DIR]$image-copy"
+      "containers-storage:[overlay@$TOOLBX_ROOTLESS_STORAGE_PATH+$TOOLBX_ROOTLESS_STORAGE_PATH]$image" \
+      "containers-storage:[overlay@$TOOLBX_ROOTLESS_STORAGE_PATH+$TOOLBX_ROOTLESS_STORAGE_PATH]$image-copy"
 
   if [ "$status" -ne 0 ]; then
     echo "Failed to copy image $image to $image-copy"
