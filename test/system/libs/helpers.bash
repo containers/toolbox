@@ -3,6 +3,21 @@
 load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
 
+readonly HOME="$BATS_SUITE_TMPDIR/home"
+export HOME
+
+readonly XDG_CACHE_HOME="$HOME/.cache"
+export XDG_CACHE_HOME
+
+readonly XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CONFIG_HOME
+
+readonly XDG_DATA_HOME="$HOME/.local/share"
+export XDG_DATA_HOME
+
+readonly XDG_STATE_HOME="$HOME/.local/state"
+export XDG_STATE_HOME
+
 readonly CONTAINERS_STORAGE_CONF="$BATS_SUITE_TMPDIR/storage.conf"
 export CONTAINERS_STORAGE_CONF
 
@@ -37,6 +52,9 @@ function cleanup_all() {
 
 
 function _setup_environment() {
+  # shellcheck disable=SC2174
+  mkdir --mode 700 --parents "$HOME"
+
   _setup_containers_storage
   check_xdg_runtime_dir
 }

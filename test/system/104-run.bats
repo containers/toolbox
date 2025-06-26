@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2021 – 2024 Red Hat, Inc.
+# Copyright © 2021 – 2025 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -168,13 +168,11 @@ teardown() {
 
 @test "run: Ensure that a login shell is used to invoke the command" {
   create_default_container
-
-  cp "$HOME"/.bash_profile "$HOME"/.bash_profile.orig
-  echo "echo \"$HOME/.bash_profile read\"" >>"$HOME"/.bash_profile
+  cp "$BATS_TEST_DIRNAME/data/bash_profile" "$HOME/.bash_profile"
 
   run "$TOOLBX" run true
 
-  mv "$HOME"/.bash_profile.orig "$HOME"/.bash_profile
+  rm "$HOME/.bash_profile"
 
   assert_success
   assert_line --index 0 "$HOME/.bash_profile read"
