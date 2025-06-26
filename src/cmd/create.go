@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2024 Red Hat Inc.
+ * Copyright © 2019 – 2025 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -300,12 +300,13 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 
 	dbusSystemSocketMountArg := dbusSystemSocket + ":" + dbusSystemSocket
 
-	homeDirEvaled, err := filepath.EvalSymlinks(currentUser.HomeDir)
+	currentUserHomeDir := getCurrentUserHomeDir()
+	homeDirEvaled, err := filepath.EvalSymlinks(currentUserHomeDir)
 	if err != nil {
-		return fmt.Errorf("failed to canonicalize %s", currentUser.HomeDir)
+		return fmt.Errorf("failed to canonicalize %s", currentUserHomeDir)
 	}
 
-	logrus.Debugf("%s canonicalized to %s", currentUser.HomeDir, homeDirEvaled)
+	logrus.Debugf("%s canonicalized to %s", currentUserHomeDir, homeDirEvaled)
 	homeDirMountArg := homeDirEvaled + ":" + homeDirEvaled + ":rslave"
 
 	var avahiSocketMount []string
@@ -412,7 +413,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		"toolbox", "--log-level", "debug",
 		"init-container",
 		"--gid", currentUser.Gid,
-		"--home", currentUser.HomeDir,
+		"--home", currentUserHomeDir,
 		"--shell", userShell,
 		"--uid", currentUser.Uid,
 		"--user", currentUser.Username,

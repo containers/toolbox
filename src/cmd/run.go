@@ -448,7 +448,7 @@ func runCommandWithFallbacks(container string,
 
 					workDir = runFallbackWorkDirs[runFallbackWorkDirsIndex]
 					if workDir == "" {
-						workDir = currentUser.HomeDir
+						workDir = getCurrentUserHomeDir()
 					}
 
 					fmt.Fprintf(os.Stderr, "Using %s instead.\n", workDir)

@@ -341,6 +341,22 @@ func getCDIFileForNvidia(targetUser *user.User) (string, error) {
 	return cdiFile, nil
 }
 
+func getCurrentUserHomeDir() string {
+	if currentUser == nil {
+		panic("current user unknown")
+	}
+
+	userHomeDir, err := os.UserHomeDir()
+	if err == nil {
+		return userHomeDir
+	}
+
+	logrus.Debugf("Getting the current user's home directory: failed to use os.UserHomeDir(): %s", err)
+	logrus.Debug("Using user.Current() instead")
+
+	return currentUser.HomeDir
+}
+
 func getUsageForCommonCommands() string {
 	var builder strings.Builder
 	builder.WriteString("create    Create a new Toolbx container\n")
