@@ -18,12 +18,12 @@ export XDG_DATA_HOME
 readonly XDG_STATE_HOME="$HOME/.local/state"
 export XDG_STATE_HOME
 
-readonly CONTAINERS_STORAGE_CONF="$BATS_SUITE_TMPDIR/storage.conf"
+readonly CONTAINERS_STORAGE_CONF="$XDG_CONFIG_HOME/containers/storage.conf"
 export CONTAINERS_STORAGE_CONF
 
 # Helpful globals
 readonly IMAGE_CACHE_DIR="$BATS_SUITE_TMPDIR/image-cache"
-readonly TOOLBX_ROOTLESS_STORAGE_PATH="$BATS_SUITE_TMPDIR/storage"
+readonly TOOLBX_ROOTLESS_STORAGE_PATH="$XDG_DATA_HOME/containers/storage"
 readonly ROOTLESS_PODMAN_RUNROOT_DIR="$BATS_SUITE_TMPDIR/runroot"
 readonly DOCKER_REG_ROOT="$BATS_SUITE_TMPDIR/docker-registry-root"
 readonly DOCKER_REG_CERTS_DIR="$BATS_SUITE_TMPDIR/certs"
@@ -61,7 +61,9 @@ function _setup_environment() {
 
 function _setup_containers_storage() {
   # Set up a storage config file for PODMAN
-  echo -e "[storage]\n  driver = \"overlay\"\n  rootless_storage_path = \"$TOOLBX_ROOTLESS_STORAGE_PATH\"\n  runroot = \"$ROOTLESS_PODMAN_RUNROOT_DIR\"\n" > "$CONTAINERS_STORAGE_CONF"
+  configuration_directory="$(dirname "$CONTAINERS_STORAGE_CONF")"
+  mkdir --parents "$configuration_directory"
+  echo -e "[storage]\n  driver = \"overlay\"\n  runroot = \"$ROOTLESS_PODMAN_RUNROOT_DIR\"\n" > "$CONTAINERS_STORAGE_CONF"
 }
 
 
