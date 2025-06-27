@@ -92,6 +92,7 @@ var (
 		"HISTIGNORE",
 		"HISTSIZE",
 		"HISTTIMEFORMAT",
+		"HOME",
 		"KONSOLE_VERSION",
 		"LANG",
 		"SHELL",
