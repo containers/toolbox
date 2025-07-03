@@ -23,7 +23,6 @@ load 'libs/helpers'
 
 setup() {
   bats_require_minimum_version 1.8.0
-  _setup_environment
 }
 
 @test "completion: Smoke test with 'bash'" {

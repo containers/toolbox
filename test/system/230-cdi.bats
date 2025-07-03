@@ -23,7 +23,6 @@ load 'libs/helpers'
 
 setup() {
   bats_require_minimum_version 1.10.0
-  _setup_environment
   cleanup_all
   pushd "$HOME" || return 1
   rm --force "$XDG_RUNTIME_DIR/toolbox/cdi-nvidia.json" || return 1

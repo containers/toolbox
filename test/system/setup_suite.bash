@@ -79,8 +79,6 @@ teardown_suite() {
     return 0
   fi
 
-  _setup_environment
-
   if echo "$TOOLBX_TEST_SYSTEM_TAGS" | grep "commands-options" >/dev/null 2>/dev/null; then
     _clean_docker_registry
   fi
