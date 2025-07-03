@@ -15,6 +15,9 @@ export XDG_CONFIG_HOME
 readonly XDG_DATA_HOME="$HOME/.local/share"
 export XDG_DATA_HOME
 
+readonly XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$UID}"
+export XDG_RUNTIME_DIR
+
 readonly XDG_STATE_HOME="$HOME/.local/state"
 export XDG_STATE_HOME
 
@@ -54,9 +57,7 @@ function cleanup_all() {
 function _setup_environment() {
   # shellcheck disable=SC2174
   mkdir --mode 700 --parents "$HOME"
-
   _setup_containers_storage
-  check_xdg_runtime_dir
 }
 
 function _setup_containers_storage() {
@@ -576,11 +577,3 @@ function is_fedora_rawhide() (
 
   return 0
 )
-
-
-# Set up the XDG_RUNTIME_DIR variable if not set
-function check_xdg_runtime_dir() {
-  if [[ -z "${XDG_RUNTIME_DIR}" ]]; then
-    export XDG_RUNTIME_DIR="/run/user/${UID}"
-  fi
-}
