@@ -1,5 +1,5 @@
 #
-# Copyright © 2022 – 2024 Red Hat, Inc.
+# Copyright © 2022 – 2025 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,6 @@
     - include_tasks: dependencies-centos-9-stream.yaml
 
     - name: Set up build directory
-      command: meson -Dmigration_path_for_coreos_toolbox=true builddir
+      command: meson setup -Dmigration_path_for_coreos_toolbox=true builddir
       args:
         chdir: '{{ zuul.project.src_dir }}'
