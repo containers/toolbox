@@ -473,38 +473,6 @@ func GetInitializedStamp(entryPointPID int, targetUser *user.User) (string, erro
 	return initializedStamp, nil
 }
 
-// GetMountPoint returns the mount point of a target.
-func GetMountPoint(target string) (string, error) {
-	var stdout strings.Builder
-	if err := shell.Run("df", nil, &stdout, nil, "--output=target", target); err != nil {
-		return "", err
-	}
-
-	output := stdout.String()
-	options := strings.Split(output, "\n")
-	if len(options) != 3 {
-		return "", errors.New("unexpected output from df(1)")
-	}
-
-	mountPoint := strings.TrimSpace(options[1])
-	return mountPoint, nil
-}
-
-// GetMountOptions returns the mount options of a target.
-func GetMountOptions(target string) (string, error) {
-	var stdout strings.Builder
-	findMntArgs := []string{"--noheadings", "--output", "OPTIONS", target}
-
-	if err := shell.Run("findmnt", nil, &stdout, nil, findMntArgs...); err != nil {
-		return "", err
-	}
-
-	output := stdout.String()
-	options := strings.Split(output, "\n")
-	mountOptions := strings.TrimSpace(options[0])
-	return mountOptions, nil
-}
-
 func GetP11KitServerSocket(targetUser *user.User) (string, error) {
 	toolbxRuntimeDirectory, err := GetRuntimeDirectory(targetUser)
 	if err != nil {
