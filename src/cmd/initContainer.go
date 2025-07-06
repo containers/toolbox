@@ -396,6 +396,12 @@ func initContainer(cmd *cobra.Command, args []string) error {
 	for {
 		select {
 		case <-done:
+			logrus.Debugf("Removing initialization stamp %s", initializedStamp)
+			if err := os.Remove(initializedStamp); err != nil {
+				logrus.Debugf("Removing initialization stamp %s failed: %s", initializedStamp, err)
+				return errors.New("failed to remove initialization stamp")
+			}
+
 			cause := context.Cause(waitForExitCtx)
 			logrus.Debugf("Exiting entry point: %s", cause)
 			return nil
