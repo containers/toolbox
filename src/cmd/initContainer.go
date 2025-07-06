@@ -17,6 +17,7 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -353,6 +354,28 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	referenceCountGlobalLock, err := utils.GetReferenceCountGlobalLock(targetUser)
+	if err != nil {
+		return err
+	}
+
+	var waitForRun bool
+	if referenceCountGlobalLockFile, err := utils.Flock(referenceCountGlobalLock,
+		syscall.LOCK_EX|syscall.LOCK_NB); err == nil {
+		waitForRun = true
+		if err := referenceCountGlobalLockFile.Close(); err != nil {
+			logrus.Debugf("Releasing global reference count lock: %s", err)
+			return utils.ErrFlockRelease
+		}
+	}
+
+	parentCtx := context.Background()
+	waitForExitCtx, waitForExitCancel := context.WithCancelCause(parentCtx)
+	defer waitForExitCancel(errors.New("clean-up"))
+
+	detectWhenContainerIsUnsedAsync(waitForExitCancel, initializedStamp, referenceCountGlobalLock, waitForRun)
+	done := waitForExitCtx.Done()
+
 	logrus.Debugf("Creating initialization stamp %s", initializedStamp)
 
 	initializedStampFile, err := os.Create(initializedStamp)
@@ -372,6 +395,10 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 	for {
 		select {
+		case <-done:
+			cause := context.Cause(waitForExitCtx)
+			logrus.Debugf("Exiting entry point: %s", cause)
+			return nil
 		case event := <-tickerDaily.C:
 			handleDailyTick(event)
 		case event := <-watcherForHostEvents:
@@ -879,6 +906,55 @@ func createSymbolicLink(existingTarget, newLink string) error {
 	return nil
 }
 
+func detectWhenContainerIsUnsedAsync(cancel context.CancelCauseFunc,
+	initializedStamp, referenceCountGlobalLock string,
+	waitForRun bool) {
+
+	go func() {
+		if waitForRun {
+			logrus.Debugf("This entry point was not started by 'toolbox enter' or 'toolbox run'")
+			logrus.Debugf("Waiting for 'toolbox enter' or 'toolbox run'")
+			time.Sleep(25 * time.Second)
+		}
+
+		for {
+			logrus.Debugf("Waiting for 'podman exec' to begin")
+			if err := waitForExecToBegin(referenceCountGlobalLock); err != nil {
+				if errors.Is(err, utils.ErrFlockRelease) {
+					cancel(err)
+				} else {
+					logrus.Debugf("Waiting for 'podman exec' to begin: %s", err)
+					logrus.Debug("This entry point will not exit when the container is unused")
+				}
+
+				return
+			}
+
+			logrus.Debugf("Waiting for the container to be unused")
+			if err := waitForContainerToBeUnused(initializedStamp,
+				referenceCountGlobalLock); err != nil {
+				if errors.Is(err, syscall.EWOULDBLOCK) {
+					logrus.Debug("Detected potentially new use of the container")
+					continue
+				}
+
+				if errors.Is(err, utils.ErrFlockRelease) {
+					cancel(err)
+				} else {
+					logrus.Debugf("Waiting for the container to be unused: %s", err)
+					logrus.Debug("This entry point will not exit when the container is unused")
+				}
+
+				return
+			}
+
+			cause := errors.New("all 'podman exec' sessions exited")
+			cancel(cause)
+			return
+		}
+	}()
+}
+
 func getDelayEntryPoint() (time.Duration, bool) {
 	valueString := os.Getenv("TOOLBX_DELAY_ENTRY_POINT")
 	if valueString == "" {
@@ -1208,6 +1284,43 @@ func updateTimeZoneFromLocalTime() error {
 	}
 
 	if err := writeTimeZone(timeZone); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func waitForExecToBegin(referenceCountGlobalLock string) error {
+	referenceCountGlobalLockFile, err := utils.Flock(referenceCountGlobalLock, syscall.LOCK_EX)
+	if err != nil {
+		return err
+	}
+
+	if err := referenceCountGlobalLockFile.Close(); err != nil {
+		logrus.Debugf("Releasing global reference count lock: %s", err)
+		return utils.ErrFlockRelease
+	}
+
+	return nil
+}
+
+func waitForContainerToBeUnused(initializedStamp, referenceCountGlobalLock string) error {
+	referenceCountLocalLockFile, err := utils.Flock(initializedStamp, syscall.LOCK_EX)
+	if err != nil {
+		if errors.Is(err, syscall.EWOULDBLOCK) {
+			panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
+			panic(panicMsg)
+		}
+
+		return err
+	}
+
+	if _, err := utils.Flock(referenceCountGlobalLock, syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+		if err := referenceCountLocalLockFile.Close(); err != nil {
+			logrus.Debugf("Releasing local reference count lock: %s", err)
+			return utils.ErrFlockRelease
+		}
+
 		return err
 	}
 
