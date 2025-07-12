@@ -28,6 +28,7 @@ func init() {
 	unexportCmd.Flags().StringVar(&unexportBin, "bin", "", "Name of the exported binary to remove")
 	unexportCmd.Flags().StringVar(&unexportApp, "app", "", "Name of the exported application to remove")
 	unexportCmd.Flags().BoolVar(&unexportAll, "all", false, "Remove all exported binaries and applications for the container")
+	unexportCmd.SetHelpFunc(unexportHelp)
 	rootCmd.AddCommand(unexportCmd)
 }
 
