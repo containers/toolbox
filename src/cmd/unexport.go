@@ -119,3 +119,24 @@ func fileContainsContainer(path, container string) bool {
 	}
 	return strings.Contains(string(content), "# toolbox_binary") && strings.Contains(string(content), fmt.Sprintf("name: %s", container))
 }
+
+func unexportHelp(cmd *cobra.Command, args []string) {
+	if utils.IsInsideContainer() {
+		if !utils.IsInsideToolboxContainer() {
+			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
+			return
+		}
+
+		if _, err := utils.ForwardToHost(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+			return
+		}
+
+		return
+	}
+
+	if err := showManual("toolbox-unexport"); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+		return
+	}
+}
