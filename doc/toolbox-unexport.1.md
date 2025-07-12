@@ -1,4 +1,4 @@
-# toolbox-unexport(1)
+% toolbox-unexport 1
 
 ## NAME
 toolbox-unexport - Remove exported binaries and applications for a toolbox container
