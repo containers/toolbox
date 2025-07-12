@@ -27,6 +27,7 @@ func init() {
 	exportCmd.Flags().StringVar(&exportBin, "bin", "", "Path or name of binary to export")
 	exportCmd.Flags().StringVar(&exportApp, "app", "", "Path or name of application to export")
 	exportCmd.Flags().StringVar(&exportContainer, "container", "", "Name of the toolbox container")
+	exportCmd.SetHelpFunc(exportHelp)
 	rootCmd.AddCommand(exportCmd)
 }
 
