@@ -1,4 +1,4 @@
-# toolbox-export(1)
+% toolbox-export 1
 
 ## NAME
 toolbox-export - Export binaries or applications from a toolbox container to your host
