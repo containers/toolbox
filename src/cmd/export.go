@@ -141,3 +141,24 @@ func exportApplication(appName, containerName string) error {
 	fmt.Printf("Successfully exported %s from container %s to %s\n", appName, containerName, exportedPath)
 	return nil
 }
+
+func exportHelp(cmd *cobra.Command, args []string) {
+	if utils.IsInsideContainer() {
+		if !utils.IsInsideToolboxContainer() {
+			fmt.Fprintf(os.Stderr, "Error: this is not a Toolbx container\n")
+			return
+		}
+
+		if _, err := utils.ForwardToHost(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+			return
+		}
+
+		return
+	}
+
+	if err := showManual("toolbox-export"); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+		return
+	}
+}
