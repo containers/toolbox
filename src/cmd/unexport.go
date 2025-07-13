@@ -38,6 +38,7 @@ var unexportCmd = &cobra.Command{
 	Use:   "unexport",
 	Short: "Remove exported binaries and applications for a specific toolbox container",
 	RunE:  runUnexport,
+	ValidArgsFunction: completionContainerNamesFiltered,
 }
 
 func init() {
@@ -45,6 +46,12 @@ func init() {
 	unexportCmd.Flags().StringVar(&unexportBin, "bin", "", "Name of the exported binary to remove")
 	unexportCmd.Flags().StringVar(&unexportApp, "app", "", "Name of the exported application to remove")
 	unexportCmd.Flags().BoolVar(&unexportAll, "all", false, "Remove all exported binaries and applications for the container")
+
+	// Register container flag completion
+	if err := unexportCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
+		panic(fmt.Sprintf("failed to register flag completion function: %v", err))
+	}
+
 	unexportCmd.SetHelpFunc(unexportHelp)
 	rootCmd.AddCommand(unexportCmd)
 }

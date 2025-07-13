@@ -38,12 +38,19 @@ var exportCmd = &cobra.Command{
 	Use:   "export",
 	Short: "Export binaries or applications from a toolbox container",
 	RunE:  runExport,
+	ValidArgsFunction: completionContainerNamesFiltered,
 }
 
 func init() {
 	exportCmd.Flags().StringVar(&exportBin, "bin", "", "Path or name of binary to export")
 	exportCmd.Flags().StringVar(&exportApp, "app", "", "Path or name of application to export")
 	exportCmd.Flags().StringVar(&exportContainer, "container", "", "Name of the toolbox container")
+
+	// Register container flag completion
+	if err := exportCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
+		panic(fmt.Sprintf("failed to register flag completion function: %v", err))
+	}
+
 	exportCmd.SetHelpFunc(exportHelp)
 	rootCmd.AddCommand(exportCmd)
 }
