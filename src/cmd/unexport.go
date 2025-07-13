@@ -122,6 +122,45 @@ func fileContainsContainer(path, container string) bool {
 	return strings.Contains(string(content), "# toolbox_binary") && strings.Contains(string(content), fmt.Sprintf("name: %s", container))
 }
 
+// Exported function: remove all exported binaries and desktop files for a container
+func UnexportAll(container string) ([]string, []string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, nil, err
+	}
+	binDir := filepath.Join(homeDir, ".local", "bin")
+	appsDir := filepath.Join(homeDir, ".local", "share", "applications")
+
+	removedBins := []string{}
+	removedApps := []string{}
+
+	binFiles, _ := os.ReadDir(binDir)
+	for _, f := range binFiles {
+		if f.IsDir() {
+			continue
+		}
+		path := filepath.Join(binDir, f.Name())
+		if fileContainsContainer(path, container) {
+			if err := os.Remove(path); err == nil {
+				removedBins = append(removedBins, path)
+			}
+		}
+	}
+
+	appFiles, _ := os.ReadDir(appsDir)
+	for _, f := range appFiles {
+		name := f.Name()
+		if strings.HasSuffix(name, "-"+container+".desktop") {
+			path := filepath.Join(appsDir, name)
+			if err := os.Remove(path); err == nil {
+				removedApps = append(removedApps, path)
+			}
+		}
+	}
+
+	return removedBins, removedApps, nil
+}
+
 func unexportHelp(cmd *cobra.Command, args []string) {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
