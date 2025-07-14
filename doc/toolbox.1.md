@@ -160,6 +160,10 @@ Remove one or more Toolbx images.
 
 Run a command in an existing Toolbx container.
 
+**toolbox-upgrade(1)**
+
+Upgrade one or more existing Toolbx containers via their Package Manager.
+
 ## FILES ##
 
 **toolbox.conf(5)**
