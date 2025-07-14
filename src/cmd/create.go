@@ -49,11 +49,13 @@ const (
 
 var (
 	createFlags struct {
-		authFile  string
-		container string
-		distro    string
-		image     string
-		release   string
+		authFile     string
+		container    string
+		distro       string
+		image        string
+		release      string
+		extraVolumes []string
+		extraEnvVars []string
 	}
 
 	createToolboxShMounts = []struct {
@@ -103,6 +105,18 @@ func init() {
 		"r",
 		"",
 		"Create a Toolbx container for a different operating system release than the host")
+
+	flags.StringArrayVarP(&createFlags.extraVolumes,
+		"volume",
+		"V",
+		nil,
+		"Mount an additional volume in the toolbox container  (may be repeated)")
+
+	flags.StringArrayVarP(&createFlags.extraEnvVars,
+		"env",
+		"E",
+		nil,
+		"Define an additional environment variable for the container  (may be repeated)")
 
 	createCmd.SetHelpFunc(createHelp)
 
@@ -180,14 +194,14 @@ func create(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := createContainer(container, image, release, createFlags.authFile, true); err != nil {
+	if err := createContainer(container, image, release, createFlags.authFile, createFlags.extraVolumes, createFlags.extraEnvVars, true); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createContainer(container, image, release, authFile string, showCommandToEnter bool) error {
+func createContainer(container, image, release, authFile string, extraVolumes []string, extraEnvVars []string, showCommandToEnter bool) error {
 	if container == "" {
 		panic("container not specified")
 	}
@@ -472,6 +486,14 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	createArgs = append(createArgs, pcscSocketMount...)
 	createArgs = append(createArgs, runMediaMount...)
 	createArgs = append(createArgs, toolboxShMount...)
+
+	for _, v := range extraVolumes {
+		createArgs = append(createArgs, "--volume", v)
+	}
+
+	for _, e := range extraEnvVars {
+		createArgs = append(createArgs, "--env", e)
+	}
 
 	createArgs = append(createArgs, []string{
 		imageFull,
