@@ -162,6 +162,7 @@ jobs:
             test/system/201-ipc.bats \
             test/system/203-network.bats \
             test/system/220-environment-variables.bats \
+            test/system/230-cdi.bats \
             test/system/250-kerberos.bats \
             test/system/270-rpm.bats \
             test/system/501-create.bats \
