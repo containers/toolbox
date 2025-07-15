@@ -45,7 +45,7 @@ jobs:
             flatpak \
             gcc \
             go-md2man \
-            golang-1.21 \
+            golang-1.22 \
             meson \
             ninja-build \
             openssl \
@@ -58,9 +58,9 @@ jobs:
       - name: Ensure that 'p11-kit server' is absent
         run: sudo rm /usr/libexec/p11-kit/p11-kit-server
 
-      - name: Set up PATH for Go 1.21
+      - name: Set up PATH for Go 1.22
         run: |
-          echo "PATH=/usr/lib/go-1.21/bin:$PATH" >> "$GITHUB_ENV"
+          echo "PATH=/usr/lib/go-1.22/bin:$PATH" >> "$GITHUB_ENV"
 
       - name: Checkout Bats
         uses: actions/checkout@v4
