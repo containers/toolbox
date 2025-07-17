@@ -29,15 +29,15 @@ import (
 )
 
 var (
-	exportBin      string
-	exportApp      string
+	exportBin       string
+	exportApp       string
 	exportContainer string
 )
 
 var exportCmd = &cobra.Command{
-	Use:   "export",
-	Short: "Export binaries or applications from a toolbox container",
-	RunE:  runExport,
+	Use:               "export",
+	Short:             "Export binaries or applications from a toolbox container",
+	RunE:              runExport,
 	ValidArgsFunction: completionContainerNamesFiltered,
 }
 
