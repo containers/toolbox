@@ -17,7 +17,9 @@
 package cmd
 
 import (
+	"slices"
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -517,13 +519,10 @@ func callFlatpakSessionHelper(container podman.Container) error {
 	var needsFlatpakSessionHelper bool
 
 	mounts := container.Mounts()
-	for _, mount := range mounts {
-		if mount == "/run/host/monitor" {
+	if slices.Contains(mounts, "/run/host/monitor") {
 			logrus.Debug("Requires org.freedesktop.Flatpak.SessionHelper")
 			needsFlatpakSessionHelper = true
-			break
 		}
-	}
 
 	if !needsFlatpakSessionHelper {
 		return nil
@@ -1110,3 +1109,217 @@ func (err *entryPointError) Is(target error) bool {
 	targetErrMsg := target.Error()
 	return err.msg == targetErrMsg
 }
+
+func runCommandWithOutput(container string,
+			  defaultContainer bool,
+			  image, release string,
+			  preserveFDs uint,
+			  command []string,
+			  emitEscapeSequence, fallbackToBash, pedantic bool) (string, error) {
+
+				  if !pedantic {
+					  if image == "" {
+						  panic("image not specified")
+					  }
+					  if release == "" {
+						  panic("release not specified")
+					  }
+				  }
+
+				  logrus.Debugf("Checking if container %s exists", container)
+
+				  if _, err := podman.ContainerExists(container); err != nil {
+					  logrus.Debugf("Container %s not found", container)
+
+					  if pedantic {
+						  return "", createErrorContainerNotFound(container)
+					  }
+
+					  containers, err := getContainers()
+					  if err != nil {
+						  return "", createErrorContainerNotFound(container)
+					  }
+
+					  if len(containers) == 0 {
+						  shouldCreate := rootFlags.assumeYes || askForConfirmation("No Toolbx containers found. Create now? [y/N]")
+						  if !shouldCreate {
+							  fmt.Printf("A container can be created later with the 'create' command.\n")
+							  fmt.Printf("Run '%s --help' for usage.\n", executableBase)
+							  return "", nil
+						  }
+						  if err := createContainer(container, image, release, "", false); err != nil {
+							  return "", err
+						  }
+					  } else if len(containers) == 1 && defaultContainer {
+						  fmt.Fprintf(os.Stderr, "Error: container %s not found\n", container)
+						  container = containers[0].Name()
+						  fmt.Fprintf(os.Stderr, "Entering container %s instead.\n", container)
+						  fmt.Fprintf(os.Stderr, "Use the 'create' command to create a different Toolbx.\n")
+						  fmt.Fprintf(os.Stderr, "Run '%s --help' for usage.\n", executableBase)
+					  } else {
+						  return "", fmt.Errorf("container %s not found\nUse the '--container' option to select a Toolbx.\nRun '%s --help' for usage.", container, executableBase)
+					  }
+				  }
+
+				  containerObj, err := podman.InspectContainer(container)
+				  if err != nil {
+					  return "", fmt.Errorf("failed to inspect container %s", container)
+				  }
+
+				  if containerObj.EntryPoint() != "toolbox" {
+					  return "", fmt.Errorf("container %s is too old and no longer supported\nRecreate it with Toolbx version 0.0.17 or newer.", container)
+				  }
+
+				  if err := callFlatpakSessionHelper(containerObj); err != nil {
+					  return "", err
+				  }
+
+				  var cdiEnviron []string
+				  cdiSpec, err := nvidia.GenerateCDISpec()
+				  if err != nil {
+					  if errors.Is(err, nvidia.ErrNVMLDriverLibraryVersionMismatch) {
+						  return "", fmt.Errorf("the proprietary NVIDIA driver's kernel and user space don't match\nCheck the host operating system and systemd journal.")
+					  } else if !errors.Is(err, nvidia.ErrPlatformUnsupported) {
+						  return "", err
+					  }
+				  } else {
+					  cdiEnviron = append(cdiEnviron, cdiSpec.ContainerEdits.Env...)
+				  }
+
+				  p11Environ, err := startP11KitServer()
+				  if err != nil {
+					  return "", err
+				  }
+
+				  entryPointPID := containerObj.EntryPointPID()
+				  startTime := time.Unix(-1, 0)
+
+				  if entryPointPID <= 0 {
+					  if cdiSpec != nil {
+						  cdiFile, err := getCDIFileForNvidia(currentUser)
+						  if err != nil {
+							  return "", err
+						  }
+						  if err := saveCDISpecTo(cdiSpec, cdiFile); err != nil {
+							  return "", err
+						  }
+					  }
+
+					  startTime = time.Now()
+					  if err := startContainer(container); err != nil {
+						  return "", err
+					  }
+
+					  containerObj, err = podman.InspectContainer(container)
+					  if err != nil {
+						  return "", fmt.Errorf("failed to inspect container %s", container)
+					  }
+
+					  entryPointPID = containerObj.EntryPointPID()
+					  if entryPointPID <= 0 {
+						  if err := showEntryPointLogs(container, startTime); err != nil {
+							  logrus.Debugf("Reading logs from container %s failed: %s", container, err)
+						  }
+						  return "", fmt.Errorf("invalid entry point PID of container %s", container)
+					  }
+				  }
+
+				  if err := ensureContainerIsInitialized(container, entryPointPID, startTime); err != nil {
+					  return "", err
+				  }
+
+				  environ := append(cdiEnviron, p11Environ...)
+				  return runCommandWithFallbacksWithOutput(container, preserveFDs, command, environ, emitEscapeSequence, fallbackToBash)
+			  }
+
+			  func runCommandWithFallbacksWithOutput(container string,
+								 preserveFDs uint,
+					    command, environ []string,
+					    emitEscapeSequence, fallbackToBash bool) (string, error) {
+
+						    detachKeysSupported := podman.CheckVersion("1.8.1")
+
+						    envOptions := utils.GetEnvOptionsForPreservedVariables()
+						    for _, env := range environ {
+							    envOptions = append(envOptions, "--env="+env)
+						    }
+
+						    preserveFDsString := fmt.Sprint(preserveFDs)
+						    var ttyNeeded bool
+						    var stdout, stderr bytes.Buffer
+
+						    if term.IsTerminal(os.Stdin) && term.IsTerminal(os.Stdout) {
+							    ttyNeeded = true
+						    }
+
+						    workDir := workingDirectory
+						    cmdIdx, dirIdx := 0, 0
+
+						    for {
+							    execArgs := constructExecArgs(container,
+											  preserveFDsString,
+					 command,
+					 detachKeysSupported,
+					 envOptions,
+					 fallbackToBash,
+					 ttyNeeded,
+					 workDir)
+
+							    if emitEscapeSequence {
+								    fmt.Printf("\033]777;container;push;%s;toolbox;%s\033\\", container, currentUser.Uid)
+							    }
+
+							    stdout.Reset()
+							    stderr.Reset()
+
+							    exitCode, err := shell.RunWithExitCode("podman", os.Stdin, &stdout, &stderr, execArgs...)
+
+							    if emitEscapeSequence {
+								    fmt.Printf("\033]777;container;pop;;;%s\033\\", currentUser.Uid)
+							    }
+
+							    switch exitCode {
+								    case 0:
+									    if err != nil {
+										    panic("unexpected error: 'podman exec' succeeded but returned error")
+									    }
+									    return stdout.String(), nil
+								    case 125:
+									    return "", &exitError{exitCode, fmt.Errorf("failed to invoke 'podman exec' in container %s", container)}
+								    case 126:
+									    return "", &exitError{exitCode, fmt.Errorf("failed to invoke command %s in container %s", command[0], container)}
+								    case 127:
+									    if ok, _ := isPathPresent(container, workDir); !ok {
+										    if dirIdx < len(runFallbackWorkDirs) {
+											    fmt.Fprintf(os.Stderr, "Error: directory %s not found in container %s\n", workDir, container)
+											    workDir = runFallbackWorkDirs[dirIdx]
+											    if workDir == "" {
+												    workDir = getCurrentUserHomeDir()
+											    }
+											    fmt.Fprintf(os.Stderr, "Using %s instead.\n", workDir)
+											    dirIdx++
+											    continue
+										    }
+										    return "", &exitError{exitCode, fmt.Errorf("directory %s not found in container %s", workDir, container)}
+									    }
+
+									    if _, err := isCommandPresent(container, command[0]); err != nil {
+										    if fallbackToBash && cmdIdx < len(runFallbackCommands) {
+											    fmt.Fprintf(os.Stderr, "Error: command %s not found in container %s\n", command[0], container)
+											    command = runFallbackCommands[cmdIdx]
+											    fmt.Fprintf(os.Stderr, "Using %s instead.\n", command[0])
+											    cmdIdx++
+											    continue
+										    }
+										    return "", &exitError{exitCode, fmt.Errorf("command %s not found in container %s", command[0], container)}
+									    }
+
+									    if command[0] == "toolbox" {
+										    return "", &exitError{exitCode, nil}
+									    }
+									    return stdout.String(), nil
+								    default:
+									    return "", &exitError{exitCode, nil}
+							    }
+						    }
+					    }

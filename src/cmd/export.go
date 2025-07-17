@@ -72,14 +72,20 @@ func runExport(cmd *cobra.Command, args []string) error {
 }
 
 func exportBinary(binName, containerName string) error {
-	// Find the binary's full path inside the container
-	checkCmd := fmt.Sprintf("toolbox run -c %s which %s", containerName, binName)
-	out, err := exec.Command("sh", "-c", checkCmd).Output()
-	if err != nil || strings.TrimSpace(string(out)) == "" {
+	// 1. Find the binary path in the container
+	checkCmd := []string{"which", binName}
+	out, err := runCommandWithOutput(
+		containerName,
+		false, "", "", 0,
+		checkCmd,
+		false, false, true,
+	)
+	if err != nil || strings.TrimSpace(out) == "" {
 		return fmt.Errorf("binary %s not found in container %s", binName, containerName)
 	}
-	binPath := strings.TrimSpace(string(out))
+	binPath := strings.TrimSpace(out)
 
+	// 2. Prepare export path and script
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return err
@@ -90,7 +96,7 @@ func exportBinary(binName, containerName string) error {
 	# toolbox_binary
 	# name: %s
 	exec toolbox run -c %s %s "$@"
-	`, containerName, containerName, binPath)
+	`, binName, containerName, binPath)
 
 	if err := os.WriteFile(exportedBinPath, []byte(script), 0755); err != nil {
 		return fmt.Errorf("failed to create wrapper: %v", err)
@@ -101,21 +107,35 @@ func exportBinary(binName, containerName string) error {
 }
 
 func exportApplication(appName, containerName string) error {
-	// Find the desktop file inside the container
-	findCmd := fmt.Sprintf("toolbox run -c %s sh -c 'find /usr/share/applications -name \"*%s*.desktop\" | head -1'", containerName, appName)
-	out, err := exec.Command("sh", "-c", findCmd).Output()
-	if err != nil || strings.TrimSpace(string(out)) == "" {
+	// 1. Find the .desktop file inside the container
+	findCmd := []string{
+		"sh", "-c",
+		fmt.Sprintf("find /usr/share/applications -name '*%s*.desktop' | head -1", appName),
+	}
+	out, err := runCommandWithOutput(
+		containerName,
+		false, "", "", 0,
+		findCmd,
+		false, false, true,
+	)
+	if err != nil || strings.TrimSpace(out) == "" {
 		return fmt.Errorf("application %s not found in container %s", appName, containerName)
 	}
-	desktopFile := strings.TrimSpace(string(out))
+	desktopFile := strings.TrimSpace(out)
 
-	// Read the desktop file content
-	catCmd := fmt.Sprintf("toolbox run -c %s cat %s", containerName, desktopFile)
-	content, err := exec.Command("sh", "-c", catCmd).Output()
+	// 2. Read the content of the desktop file
+	catCmd := []string{"cat", desktopFile}
+	content, err := runCommandWithOutput(
+		containerName,
+		false, "", "", 0,
+		catCmd,
+		false, false, true,
+	)
 	if err != nil {
 		return fmt.Errorf("failed to read desktop file: %v", err)
 	}
-	lines := strings.Split(string(content), "\n")
+
+	lines := strings.Split(content, "\n")
 	var newLines []string
 	hasNameTranslations := false
 
@@ -145,6 +165,7 @@ func exportApplication(appName, containerName string) error {
 		}
 	}
 
+	// 3. Write the new desktop file
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return err
@@ -160,7 +181,7 @@ func exportApplication(appName, containerName string) error {
 		return fmt.Errorf("failed to create desktop file: %v", err)
 	}
 
-	// Update desktop database
+	// 4. Refresh desktop database
 	exec.Command("update-desktop-database", appsPath).Run()
 
 	fmt.Printf("Successfully exported %s from container %s to %s\n", appName, containerName, exportedPath)
