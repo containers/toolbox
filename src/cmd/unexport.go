@@ -35,9 +35,9 @@ var (
 )
 
 var unexportCmd = &cobra.Command{
-	Use:   "unexport",
-	Short: "Remove exported binaries and applications for a specific toolbox container",
-	RunE:  runUnexport,
+	Use:               "unexport",
+	Short:             "Remove exported binaries and applications for a specific toolbox container",
+	RunE:              runUnexport,
 	ValidArgsFunction: completionContainerNamesFiltered,
 }
 
