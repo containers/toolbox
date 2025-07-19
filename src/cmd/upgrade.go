@@ -92,13 +92,13 @@ func execUpgradeInContainer(container string) error {
 		{"command -v dnf", "sudo dnf -y upgrade", "dnf"},
 		{"command -v microdnf", "sudo microdnf upgrade -y", "microdnf"},
 		{"command -v yum", "sudo yum -y upgrade", "yum"},
-		{"command -v apt", "sudo apt update && apt upgrade -y", "apt"},
+		{"command -v apt", "sudo apt update && sudo apt upgrade -y", "apt"},
 		{"command -v pacman", "sudo pacman -Syu --noconfirm", "pacman"},
 		{"command -v xbps-install", "sudo xbps-install -Su -y", "xbps"},
 		{"command -v zypper", "sudo zypper update -y", "zypper"},
-		{"command -v apk", "sudo apk update && apk upgrade", "apk"},
-		{"command -v emerge", "sudo emerge --sync && emerge -uDN @world", "emerge"},
-		{"command -v slackpkg", "sudo slackpkg update && slackpkg upgrade-all", "slackpkg"},
+		{"command -v apk", "sudo apk update && sudo apk upgrade", "apk"},
+		{"command -v emerge", "sudo emerge --sync && sudo emerge -uDN @world", "emerge"},
+		{"command -v slackpkg", "sudo slackpkg update && sudo slackpkg upgrade-all", "slackpkg"},
 		{"command -v swupd", "sudo swupd update", "swupd"},
 	}
 
