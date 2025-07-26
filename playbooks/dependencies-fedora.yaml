@@ -39,6 +39,22 @@
       - udisks2
     use: "{{ 'dnf' if zuul.attempts > 1 else 'auto' }}"
 
+- name: Ensure subordinate ID ranges exist for zuul-worker
+  become: true
+  lineinfile:
+    create: true
+    path: "{{ item.file }}"
+    regexp: "^zuul-worker:"
+    line: "zuul-worker:524288:65536"
+  with_items:
+    - { file: /etc/subgid }
+    - { file: /etc/subuid }
+
+- name: Force Podman to refresh user namespace mappings
+  become: true
+  command: podman system migrate
+  ignore_errors: true
+
 - name: Ensure that 'p11-kit server' is absent
   become: yes
   package:
