@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -89,54 +90,31 @@ func runUpgrade(cmd *cobra.Command, args []string) error {
 
 // execUpgradeInContainer runs detection and upgrade inside the specified container
 func execUpgradeInContainer(container string) error {
-	pkgs := []struct {
-		detect  string
-		upgrade string
-		name    string
-	}{
-		{"command -v dnf", "sudo dnf -y upgrade", "dnf"},
-		{"command -v microdnf", "sudo microdnf upgrade -y", "microdnf"},
-		{"command -v yum", "sudo yum -y upgrade", "yum"},
-		{"command -v apt", "sudo apt update && sudo apt upgrade -y", "apt"},
-		{"command -v pacman", "sudo pacman -Syu --noconfirm", "pacman"},
-		{"command -v xbps-install", "sudo xbps-install -Su -y", "xbps"},
-		{"command -v zypper", "sudo zypper update -y", "zypper"},
-		{"command -v apk", "sudo apk update && sudo apk upgrade", "apk"},
-		{"command -v emerge", "sudo emerge --sync && sudo emerge -uDN @world", "emerge"},
-		{"command -v slackpkg", "sudo slackpkg update && sudo slackpkg upgrade-all", "slackpkg"},
-		{"command -v swupd", "sudo swupd update", "swupd"},
+
+	inspectedcontainer, err := podman.InspectContainer(container)
+	if err != nil {
+		return errors.New("Failed to inspect Metadata.")
 	}
 
-	for _, pkg := range pkgs {
-		// Use runCommand to check if package manager exists
-		err := runCommand(container,
-				  false,  // defaultContainer
-		    "",     // image
-		    "",     // release
-		    0,      // preserveFDs
-		    []string{"sh", "-c", pkg.detect},
-		    false,  // emitEscapeSequence
-		    false,  // fallbackToBash
-		    true)   // pedantic
+	labels := inspectedcontainer.Labels()
+	pkgline := labels["com.github.containers.toolbox.package-manager.update"]
+	if pkgline == "" {
+		return errors.New("'com.github.containers.toolbox.package-manager.update' Label not set in Containers Metadata.")
+	} else {
+		// Use runCommand to execute the upgrade
+		upgradeErr := runCommand(inspectedcontainer.Name(),
+			false,
+			"",
+			"",
+			0,
+			[]string{"sh", "-c", pkgline},
+			false,
+			false,
+			true)
 
-		if err == nil {
-			fmt.Printf("Detected package manager: %s\n", pkg.name)
+		return upgradeErr
 
-			// Use runCommand to execute the upgrade
-			upgradeErr := runCommand(container,
-						 false,
-			    "",
-			    "",
-			    0,
-			    []string{"sh", "-c", pkg.upgrade},
-			    false,
-			    false,
-			    true)
-
-			return upgradeErr
-		}
 	}
-	return errors.New("no supported package manager found")
 }
 
 func upgradeHelp(cmd *cobra.Command, args []string) {
