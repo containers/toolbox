@@ -31,8 +31,9 @@ var (
 )
 
 var upgradeCmd = &cobra.Command{
-	Use:               "upgrade",
+	Use:               "upgrade [container]",
 	Short:             "Detect package manager and upgrade packages in toolbx containers",
+	Args:              cobra.MaximumNArgs(1),
 	RunE:              runUpgrade,
 	ValidArgsFunction: completionContainerNamesFiltered,
 }
@@ -51,12 +52,17 @@ func init() {
 }
 
 func runUpgrade(cmd *cobra.Command, args []string) error {
+	// Use positional argument as container name if --container not set
+	if upgradeContainer == "" && len(args) == 1 {
+		upgradeContainer = args[0]
+	}
+
 	if !upgradeAll && upgradeContainer == "" {
-		return errors.New("must specify either --all or --container")
+		return errors.New("must specify either --all or a container name")
 	}
 
 	if upgradeAll && upgradeContainer != "" {
-		return errors.New("cannot specify both --all and --container")
+		return errors.New("cannot specify both --all and a container name")
 	}
 
 	if upgradeAll {
@@ -73,7 +79,6 @@ func runUpgrade(cmd *cobra.Command, args []string) error {
 			fmt.Printf("Upgrading container: %s\n", container.Name())
 			if err := execUpgradeInContainer(container.Name()); err != nil {
 				fmt.Fprintf(os.Stderr, "Error upgrading container %s: %v\n", container.Name(), err)
-				// Continue with next container instead of returning
 			}
 		}
 		return nil
