@@ -1,61 +1,63 @@
 
-% toolbox-upgrade 1
+% toolbox-upgrade(1)
 
 ## NAME
-toolbox\-upgrade - Upgrade packages in Toolbx containers
+toolbox-upgrade - Upgrade packages in Toolbx containers
 
 ## SYNOPSIS
-**toolbox upgrade** [*--all* | *-a*] [*--container* | *-c* *CONTAINER*]
+**toolbox upgrade** [*--all* | *-a*] [*--container* | *-c* *CONTAINER*] [*CONTAINER*]
 
 ## DESCRIPTION
-Upgrades packages inside one or more Toolbx containers by automatically detecting
-the package manager (dnf, apt, pacman, etc.) and running the appropriate upgrade
-command. The container should have been created using the `toolbox create` command.
+Upgrades packages inside one or more Toolbx containers. The container must have been created using `toolbox create` and must include a label specifying how to upgrade its packages.
 
 This command will:
-1. Detect the available package manager in the container
-2. Run the appropriate update/upgrade commands
+1. Read the container's metadata label `com.github.containers.toolbox.package-manager.update`
+2. Run the specified upgrade command inside the container
 3. Report any errors that occur during the process
 
-## OPTIONS
-**--all, -a**
-Upgrade all Toolbx containers. Cannot be used with *--container*.
+The `--container` flag is optional when a positional container name is given.
 
-**--container, -c** *CONTAINER*
-Upgrade a specific Toolbx container. Cannot be used with *--all*.
+## LABEL REQUIREMENT
+Each container **must** have the following OCI label set in its metadata:
+
+`com.github.containers.toolbox.package-manager.update="COMMAND"`
+
+This label defines the exact package upgrade command to run inside the container. For example:
+
+`com.github.containers.toolbox.package-manager.update="sudo dnf --assumeyes update"`
+
+This label is typically the responsibility of the **image publisher** and should be present at container creation.
+
+## OPTIONS
+
+**--all, -a**  
+Upgrade all Toolbx containers. Cannot be used with *--container* or a positional argument.
+
+**--container, -c** *CONTAINER*  
+Upgrade a specific Toolbx container. Optional when a positional container name is provided.
 
 ## EXAMPLES
-**Upgrade packages in a specific container:**
-```
+
+**Upgrade a specific container (positional):**
+
+$ toolbox upgrade fedora-toolbox-38
+
+
+**Upgrade a specific container (flag):**
+
 $ toolbox upgrade --container fedora-toolbox-38
-```
 
-**Upgrade packages in all containers:**
-```
+
+**Upgrade all containers:**
+
 $ toolbox upgrade --all
-```
 
-**Typical output:**
-```
-Detected package manager: dnf
-Updating metadata...
-Upgrading packages...
-Complete!
-```
 
 ## NOTES
-Supported package managers:
-- dnf (Fedora, RHEL)
-- microdnf (Minimal Fedora/RHEL)
-- yum (Older RHEL/Fedora)
-- apt (Debian, Ubuntu)
-- pacman (Arch Linux)
-- xbps (Void Linux)
-- zypper (openSUSE)
-- apk (Alpine Linux)
-- emerge (Gentoo)
-- slackpkg (Slackware)
-- swupd (Clear Linux)
+
+- This command doesn't perform package manager detection itself.
+- It relies entirely on the container image to define the correct update mechanism.
+- The `package-manager.update` label **must be set**; otherwise, the upgrade will fail.
 
 ## SEE ALSO
 `toolbox(1)`, `toolbox-create(1)`, `toolbox-list(1)`
