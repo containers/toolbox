@@ -25,6 +25,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/containers/toolbox/pkg/shell"
@@ -943,7 +944,12 @@ func redirectPath(containerPath, target string, folder bool) error {
 	targetSanitized := sanitizeRedirectionTarget(target)
 
 	if err := os.Remove(containerPath); err != nil {
-		if !errors.Is(err, os.ErrNotExist) {
+		if errors.Is(err, syscall.EBUSY) {
+			return fmt.Errorf("failed to redirect %s to %s: %s is a mount point",
+				containerPath,
+				target,
+				containerPath)
+		} else if !errors.Is(err, os.ErrNotExist) {
 			return fmt.Errorf("failed to redirect %s to %s: %w", containerPath, target, err)
 		}
 	}
