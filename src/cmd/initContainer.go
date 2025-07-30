@@ -942,12 +942,13 @@ func redirectPath(containerPath, target string, folder bool) error {
 	logrus.Debugf("Preparing to redirect %s to %s", containerPath, target)
 	targetSanitized := sanitizeRedirectionTarget(target)
 
-	err := os.Remove(containerPath)
-	if folder {
-		if err != nil && !errors.Is(err, os.ErrNotExist) {
+	if err := os.Remove(containerPath); err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
 			return fmt.Errorf("failed to redirect %s to %s: %w", containerPath, target, err)
 		}
+	}
 
+	if folder {
 		if err := os.MkdirAll(target, 0755); err != nil {
 			return fmt.Errorf("failed to redirect %s to %s: %w", containerPath, target, err)
 		}
