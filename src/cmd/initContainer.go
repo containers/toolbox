@@ -252,6 +252,15 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		if err := mountBind(mount.containerPath, mount.source, mount.flags); err != nil {
 			return err
 		}
+
+		logrus.Debug("Configuring sudo for password-less authentication")
+		passwordlessSudoConfigString := fmt.Sprintf("%%%s ALL = (root) NOPASSWD:ALL\n", sudoGroup)
+		passwordlessSudoConfigBytes := []byte(passwordlessSudoConfigString)
+		if err := ioutil.WriteFile("/etc/sudoers.d/passwordless",
+			passwordlessSudoConfigBytes,
+			440); err != nil {
+			return errors.New("failed to create password-less sudo config")
+		}
 	}
 
 	if utils.PathExists("/sys/fs/selinux") {
