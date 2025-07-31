@@ -136,6 +136,14 @@ Create a new Toolbx container.
 
 Enter a Toolbx container for interactive use.
 
+**toolbox-export(1)**
+
+Export binaries or desktop applications from a toolbox container to the host.
+
+**toolbox-unexport(1)**
+
+Remove exported binaries and applications for a toolbox container.
+
 **toolbox-help(1)**
 
 Display help information about Toolbx.
