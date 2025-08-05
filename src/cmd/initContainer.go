@@ -600,10 +600,11 @@ func configurePKCS11(targetUser *user.User) error {
 		}
 	}
 
-	if path, err := utils.GetP11KitServerSocket(targetUser); err != nil {
+	serverSocket, err := utils.GetP11KitServerSocket(targetUser)
+	if err != nil {
 		return err
-	} else if !utils.PathExists(path) {
-		logrus.Debugf("%s: socket %s not found", logPrefix, path)
+	} else if !utils.PathExists(serverSocket) {
+		logrus.Debugf("%s: socket %s not found", logPrefix, serverSocket)
 		logrus.Debugf("%s: skipping", logPrefix)
 		return nil
 	}
@@ -620,6 +621,10 @@ func configurePKCS11(targetUser *user.User) error {
 		pkcs11ConfigBytes,
 		0644); err != nil {
 		return fmt.Errorf("failed to configure PKCS #11 to read from the host: %w", err)
+	}
+
+	if err := configureSSHD(serverSocket); err != nil {
+		return err
 	}
 
 	return nil
@@ -642,6 +647,51 @@ func configureRPM() error {
 	rpmConfigBytes := []byte(rpmConfigString)
 	if err := ioutil.WriteFile("/usr/lib/rpm/macros.d/macros.toolbox", rpmConfigBytes, 0644); err != nil {
 		return fmt.Errorf("failed to configure RPM to ignore bind mounts: %w", err)
+	}
+
+	return nil
+}
+
+func configureSSHD(p11KitServerSocket string) error {
+	const logPrefix = "Configuring sshd(8) to set P11_KIT_SERVER_ADDRESS"
+	logrus.Debugf("%s", logPrefix)
+
+	sshdConfigD := "/etc/ssh/sshd_config.d"
+	fileInfo, err := os.Stat(sshdConfigD)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			logrus.Debugf("%s: directory %s not found", logPrefix, sshdConfigD)
+			logrus.Debugf("%s: skipping", logPrefix)
+			return nil
+		} else {
+			logrus.Debugf("%s: failed to stat %s: %s", logPrefix, sshdConfigD, err)
+			return fmt.Errorf("failed to stat %s", sshdConfigD)
+		}
+	}
+
+	fileMode := fileInfo.Mode()
+	if !fileMode.IsDir() {
+		logrus.Debugf("%s: directory %s not found", logPrefix, sshdConfigD)
+		logrus.Debugf("%s: skipping", logPrefix)
+		return nil
+	}
+
+	sshdConfig := filepath.Join(sshdConfigD, "90-toolbx.conf")
+
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "# Written by Toolbx\n")
+	fmt.Fprintf(&builder, "# https://containertoolbx.org/\n")
+	fmt.Fprintf(&builder, "\n")
+	fmt.Fprintf(&builder, "SetEnv P11_KIT_SERVER_ADDRESS=unix:path=%s\n", p11KitServerSocket)
+
+	sshdConfigString := builder.String()
+	sshdConfigBytes := []byte(sshdConfigString)
+
+	filePerm := fileMode.Perm()
+	filePerm = filePerm & 0666
+
+	if err := renameio.WriteFile(sshdConfig, sshdConfigBytes, filePerm); err != nil {
+		return fmt.Errorf("failed to configure sshd(8) to set P11_KIT_SERVER_ADDRESS: %w", err)
 	}
 
 	return nil
