@@ -256,7 +256,7 @@ func runCommand(container string,
 	if entryPoint != "toolbox" {
 		var builder strings.Builder
 		fmt.Fprintf(&builder, "container %s is too old and no longer supported\n", container)
-		fmt.Fprintf(&builder, "Recreate it with Toolbx version 0.0.17 or newer.")
+		fmt.Fprintf(&builder, "Recreate it with Toolbx version 0.0.97 or newer.")
 
 		errMsg := builder.String()
 		return errors.New(errMsg)
@@ -528,6 +528,9 @@ func callFlatpakSessionHelper(container podman.Container) error {
 	if !needsFlatpakSessionHelper {
 		return nil
 	}
+
+	fmt.Fprintf(os.Stderr, "Warning: container %s uses deprecated features\n", name)
+	fmt.Fprintf(os.Stderr, "Consider recreating it with Toolbx version 0.0.97 or newer.\n")
 
 	if _, err := utils.CallFlatpakSessionHelper(); err != nil {
 		return err

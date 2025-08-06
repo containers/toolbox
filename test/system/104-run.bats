@@ -316,6 +316,21 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+@test "run: Ensure that containers using o.fd.Flatpak.SessionHelper are deprecated" {
+  local container="deprecated"
+
+  create_container_flatpak_session_helper "$container"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --container "$container" true
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Warning: container $container uses deprecated features"
+  assert_line --index 1 "Consider recreating it with Toolbx version 0.0.97 or newer."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
 @test "run: Try the non-existent default container with none other present" {
   local default_container_name
   default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
@@ -860,6 +875,6 @@ teardown() {
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: container $container is too old and no longer supported"
-  assert_line --index 1 "Recreate it with Toolbx version 0.0.17 or newer."
+  assert_line --index 1 "Recreate it with Toolbx version 0.0.97 or newer."
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }

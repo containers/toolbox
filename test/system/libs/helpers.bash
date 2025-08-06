@@ -577,3 +577,73 @@ function is_fedora_rawhide() (
 
   return 0
 )
+
+
+# Creates a container with org.freedesktop.Flatpak.SessionHelper D-Bus interface
+#
+# Pulling of an image is taken care of by the function
+#
+# Parameters:
+# ===========
+# - container - name of the container
+function create_container_flatpak_session_helper() (
+  local container="$1"
+
+  local default_image
+  default_image="$(get_default_image)"
+
+  pull_default_image
+
+  if ! gdbus call \
+         --session \
+         --dest org.freedesktop.Flatpak \
+         --object-path /org/freedesktop/Flatpak/SessionHelper \
+         --method org.freedesktop.Flatpak.SessionHelper.RequestSession; then
+    echo "failed to call org.freedesktop.Flatpak.SessionHelper.RequestSession" >&2
+    return 1
+  fi
+
+  local user_id_real
+  if ! user_id_real="$(id --real --user)"; then
+    echo "failed to get the real user ID" >&2
+    return 1
+  fi
+
+  if ! podman create \
+         --dns none \
+         --env TOOLBOX_PATH="$TOOLBX" \
+         --hostname toolbox \
+         --ipc host \
+         --label com.github.containers.toolbox=true \
+         --label com.github.debarshiray.toolbox=true \
+         --name "$container" \
+         --network host \
+         --no-hosts \
+         --pid host \
+         --privileged \
+         --security-opt label=disable \
+         --userns keep-id \
+         --user root:root \
+         --volume "$HOME":"$HOME":rslave \
+         --volume "$TOOLBX":/usr/bin/toolbox \
+         --volume "$XDG_RUNTIME_DIR":"$XDG_RUNTIME_DIR" \
+         --volume "$XDG_RUNTIME_DIR/.flatpak-helper/monitor":/run/host/monitor \
+         --volume /dev:/dev:rslave \
+         --volume /etc:/run/host/etc \
+         --volume /run:/run/host/run:rslave \
+         --volume /tmp:/run/host/tmp:rslave \
+         --volume /usr:/run/host/usr:rslave \
+         --volume /var:/run/host/var:rslave \
+         "$default_image" \
+         toolbox init-container \
+           --home "$HOME" \
+           --monitor-host \
+           --shell "$SHELL" \
+           --uid "$user_id_real" \
+           --user "$USER"; then
+    echo "failed to create container $container" >&2
+    return 1
+  fi
+
+  return 0
+)
