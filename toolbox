@@ -1252,7 +1252,7 @@ init_container()
         fi
 
         if [ -d /run/host/monitor ] 2>&3; then
-            if ! localtime_target=$(readlink /etc/localtime >/dev/null 2>&3) \
+            if ! localtime_target=$(readlink /etc/localtime 2>&3) \
                || [ "$localtime_target" != "/run/host/monitor/localtime" ] 2>&3; then
                 echo "$base_toolbox_command: redirecting /etc/localtime to /run/host/monitor/localtime" >&3
 
