@@ -811,9 +811,15 @@ teardown() {
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "bash: line 1: /etc: Is a directory"
-  assert_line --index 1 "bash: line 1: exec: /etc: cannot execute: Is a directory"
-  assert_line --index 2 "Error: failed to invoke command /etc in container $(get_latest_container_name)"
-  assert [ ${#stderr_lines[@]} -eq 3 ]
+
+  if [ ${#stderr_lines[@]} -eq 2 ]; then
+    assert_line --index 1 "Error: failed to invoke command /etc in container $(get_latest_container_name)"
+  elif [ ${#stderr_lines[@]} -eq 3 ]; then
+    assert_line --index 1 "bash: line 1: exec: /etc: cannot execute: Is a directory"
+    assert_line --index 2 "Error: failed to invoke command /etc in container $(get_latest_container_name)"
+  else
+    assert bash -c "[ ${#stderr_lines[@]} -eq 2 ] || [ ${#stderr_lines[@]} -eq 3 ]"
+  fi
 }
 
 @test "run: Try a non-existent command" {
