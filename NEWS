@@ -1,3 +1,35 @@
+0.2
+===
+
+### Security fixes
+
+* Bumped the minimum github.com/go-viper/mapstructure/v2 version to 2.3.0 for
+  GHSA-fv92-fjc5-jj9h or GO-2025-3787
+* Bumped the minimum github.com/NVIDIA/nvidia-container-toolkit version to
+  1.17.8 for CVE-2025-23266 and CVE-2025-23267
+
+### Bug fixes
+
+* Improved error handling when creating symbolic links inside the container
+  to initialize it
+* Preserved environment variables set by a KDE session and Konsole
+* Unbroke access to CA certificates in sshd(8) sessions (regression in 0.1.2)
+* Unbroke overriding the HOME variable (regression in 0.0.90)
+
+### Dependencies
+
+* Bumped the minimum Go version to 1.22
+
+### Tests
+
+* Enabled the runtime environment tests for the Container Device Interface
+  specification and resource limits on Ubuntu 22.04
+* Isolated the host's HOME from the system tests
+* Unbroke the missing subordinate ID ranges (regression in Fedora Rawhide)
+* Unbroke the 'toolbox run /etc' tests with Bash >= 5.3 (regression in Fedora
+  Rawhide)
+
+
 0.1.2
 =====
 
