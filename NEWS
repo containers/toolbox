@@ -31,6 +31,7 @@
 * Bumped the minimum github.com/spf13/viper version to 1.20.1 to reduce the
   number of indirect dependencies
 * Bumped the minimum github.com/stretchr/testify version to 1.10.0
+* Bumped the minimum Go version to 1.21
 
 ### Tests
 
@@ -65,7 +66,7 @@
 
 ----
 
-Copyright © 2024 Red Hat, Inc.
+Copyright © 2024 – 2025 Red Hat, Inc.
 All rights reserved.
 
 Copying and distribution of this file, with or without modification,
