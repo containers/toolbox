@@ -29,7 +29,7 @@ setup() {
   run --separate-stderr "$TOOLBX" --version
 
   assert_success
-  assert_output --regexp '^toolbox version [0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$'
+  assert_output --regexp '^toolbox version [0-9]+\.[0-9]+(\.[0-9]+)?$'
   assert [ ${#lines[@]} -eq 1 ]
 
   # shellcheck disable=SC2154
