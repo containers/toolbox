@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2019 – 2024 Red Hat, Inc.
+# Copyright © 2019 – 2025 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ setup() {
   run --separate-stderr "$TOOLBX" --version
 
   assert_success
-  assert_output --regexp '^toolbox version [0-9]+\.[0-9]+(\.[0-9]+)?$'
+  assert_output --regexp '^toolbox version 0\.[1-9][0-9]*(\.[1-9][0-9]*)?$'
   assert [ ${#lines[@]} -eq 1 ]
 
   # shellcheck disable=SC2154
