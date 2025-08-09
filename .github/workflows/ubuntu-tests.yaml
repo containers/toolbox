@@ -155,6 +155,7 @@ jobs:
             test/system/101-create.bats \
             test/system/102-list.bats \
             test/system/103-container.bats \
+            test/system/104-run.bats \
             test/system/105-enter.bats \
             test/system/106-rm.bats \
             test/system/107-rmi.bats \
