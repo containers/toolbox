@@ -577,3 +577,86 @@ function is_fedora_rawhide() (
 
   return 0
 )
+
+
+# Creates a container with org.freedesktop.Flatpak.SessionHelper D-Bus interface
+#
+# Pulling of an image is taken care of by the function
+#
+# Parameters:
+# ===========
+# - container_name - name of the container
+function create_container_flatpak_dbus() (
+  local container_name
+
+  container_name="$1"
+
+  flatpak_helper_monitor_path=$(get_flatpak_helper_monitor_path) \
+    || fail "Error getting Flatpak Helper monitor path"
+
+  home_dir_evaled=$(get_home_dir_evaled_path) \
+    || fail "Error getting Home directory evaled path"
+
+  pull_default_image
+  distro="$(get_system_id)"
+  version="$(get_system_version)"
+  image_full="${IMAGES[$distro]}:$version"
+
+  podman_cmd=(
+      podman create \
+          --dns none \
+          --env TOOLBOX_PATH="$TOOLBX" \
+          --name "$container_name" \
+          --network host \
+          --no-hosts \
+          --pid host \
+          --privileged \
+          --userns=keep-id \
+          --user root:root \
+          --volume /etc:/run/host/etc \
+          --volume "$flatpak_helper_monitor_path":/run/host/monitor \
+          --volume "$home_dir_evaled":"$home_dir_evaled":rslave \
+          --volume "$TOOLBX":/usr/bin/toolbox \
+          --volume /usr:/run/host/usr:rslave \
+          --volume "$XDG_RUNTIME_DIR":"$XDG_RUNTIME_DIR" \
+          "$image_full" \
+          toolbox init-container \
+                  --home "$HOME" \
+                  --shell "$SHELL" \
+                  --uid "$(id -ru)" \
+                  --user "$USER"
+    )
+
+    # Print the full command
+    # printf "%q " "${podman_cmd[@]}" >> /tmp/toolbox_podman_command.log
+
+    "${podman_cmd[@]}" || fail "Podman couldn't create container '$container_name'"
+)
+
+
+#Returns the D-Bus object path to the Flatpak session helper monitor
+get_flatpak_helper_monitor_path(){
+    if ! output=$(gdbus call \
+                    --session \
+                    --dest org.freedesktop.Flatpak \
+                    --object-path /org/freedesktop/Flatpak/SessionHelper \
+                    --method org.freedesktop.Flatpak.SessionHelper.RequestSession); then
+        echo "failed to call org.freedesktop.Flatpak.SessionHelper.RequestSession" >&2
+        return 1
+    fi
+
+    echo "$output" | grep -o "/.*/monitor"
+    return 0
+}
+
+
+#Returns the fully-resolved (symlink-free) absolute path of the user's home directory
+get_home_dir_evaled_path(){
+    if ! home_dir_evaled_path=$(readlink -f "$HOME" 2>/dev/null); then
+        echo "failed to resolve symlinks of $HOME directory." >&2
+        return 1
+    fi
+
+    echo "$home_dir_evaled_path"
+    return 0
+}

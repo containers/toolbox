@@ -863,3 +863,36 @@ teardown() {
   assert_line --index 1 "Recreate it with Toolbx version 0.0.17 or newer."
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
+
+@test "run: Ensure that label 'com.github.containers.toolbox=true' is present in toolbx container" {
+  local container_name="toolbox-container"
+
+  create_container "$container_name"
+
+  run podman inspect --format '{{ index .Config.Labels "com.github.containers.toolbox" }}' "$container_name"
+
+  assert_success
+  assert_output --regexp "true"
+
+  run "$TOOLBX" run --container "$container_name" true
+  assert [ ${#lines[@]} -eq 0 ]
+  assert_success
+}
+
+@test "run: Ensure that the warning message appears when using deprecated container (created before version 0.0.97)" {
+  local container_name="toolbox-container-deprecated"
+
+  create_container_flatpak_dbus "$container_name"
+
+  in_container_command="true"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --container "$container_name" "$in_container_command"
+
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Warning: container $container_name uses deprecated features"
+  assert_line --index 1 "Consider recreating it with Toolbox version 0.0.97 or newer."
+
+  assert [ "$status" -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}

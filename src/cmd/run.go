@@ -529,6 +529,9 @@ func callFlatpakSessionHelper(container podman.Container) error {
 		return nil
 	}
 
+	fmt.Fprintf(os.Stderr, "Warning: container %s uses deprecated features\n", container.Name())
+	fmt.Fprintf(os.Stderr, "Consider recreating it with Toolbox version 0.0.97 or newer.\n")
+
 	if _, err := utils.CallFlatpakSessionHelper(); err != nil {
 		return err
 	}
