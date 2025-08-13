@@ -362,9 +362,7 @@ func getUsageForCommonCommands() string {
 	builder.WriteString("create    Create a new Toolbx container\n")
 	builder.WriteString("enter     Enter an existing Toolbx container\n")
 	builder.WriteString("list      List all existing Toolbx containers and images\n")
-	builder.WriteString("export    Export existing Binaries and Applications from Toolbx containers to the Host\n")
-	builder.WriteString("unexport  Unexport Toolbx containers exported Binaries and Applications from the Host\n")
-
+	
 	usage := builder.String()
 	return usage
 }
