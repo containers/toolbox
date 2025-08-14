@@ -9,6 +9,8 @@ test_system = files(
   '106-rm.bats',
   '107-rmi.bats',
   '108-completion.bats',
+  '109-export.bats',
+  '110-unexport.bats',
   '201-ipc.bats',
   '203-network.bats',
   '206-user.bats',
