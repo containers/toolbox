@@ -9,6 +9,7 @@ test_system = files(
   '106-rm.bats',
   '107-rmi.bats',
   '108-completion.bats',
+  '111-upgrade.bats',
   '201-ipc.bats',
   '203-network.bats',
   '206-user.bats',
