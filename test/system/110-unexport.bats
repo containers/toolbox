@@ -47,6 +47,18 @@ install_test_apps() {
   assert [ ! -f "$HOME/.local/share/applications/gimp-$(get_latest_container_name).desktop" ]
 }
 
+@test "unexport: Remove exported Neovim binary from Fedora container" {
+  create_default_container
+  install_test_apps
+  run "$TOOLBX" export --bin nvim --container "$(get_latest_container_name)"
+  assert_success
+  assert [ -f "$HOME/.local/bin/nvim" ]
+
+  run "$TOOLBX" unexport --bin nvim --container "$(get_latest_container_name)"
+  assert_success
+  assert [ ! -f "$HOME/.local/bin/nvim" ]
+}
+
 @test "unexport: Remove all exported items from Fedora container" {
   create_default_container
   install_test_apps
