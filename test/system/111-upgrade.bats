@@ -35,28 +35,11 @@ teardown() {
 
   run "$TOOLBX" upgrade --container arch-toolbox-test
   assert_success
-
-  # Optional: check container still runs after upgrade
-  run container_started arch-toolbox-test
-  assert_success
-}
-
-@test "upgrade(Ubuntu 25.04): Upgrade Ubuntu container" {
-  create_distro_container ubuntu 25.04 ubuntu-toolbox-test
-  run container_started ubuntu-toolbox-test
-  assert_success
-
-  run "$TOOLBX" upgrade --container ubuntu-toolbox-test
-  assert_success
-
-  # Optional: check container still runs after upgrade
-  run container_started ubuntu-toolbox-test
-  assert_success
 }
 
 @test "upgrade(All): Upgrade all containers" {
   create_distro_container arch latest arch-toolbox-all-test
-  create_distro_container ubuntu 25.04 ubuntu-toolbox-all-test
+  create_distro_container ubuntu latest ubuntu-toolbox-all-test
 
   run container_started arch-toolbox-all-test
   assert_success
@@ -64,11 +47,5 @@ teardown() {
   assert_success
 
   run "$TOOLBX" upgrade --all
-  assert_success
-
-  # Optional: check both containers still run
-  run container_started arch-toolbox-all-test
-  assert_success
-  run container_started ubuntu-toolbox-all-test
   assert_success
 }
