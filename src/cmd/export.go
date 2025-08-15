@@ -46,7 +46,6 @@ func init() {
 	exportCmd.Flags().StringVar(&exportApp, "app", "", "Path or name of application to export")
 	exportCmd.Flags().StringVar(&exportContainer, "container", "", "Name of the toolbox container")
 
-	// Register container flag completion
 	if err := exportCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
 		panic(fmt.Sprintf("failed to register flag completion function: %v", err))
 	}
@@ -65,14 +64,11 @@ func runExport(cmd *cobra.Command, args []string) error {
 
 	if exportBin != "" {
 		return exportBinary(exportBin, exportContainer)
-	} else if exportApp != "" {
-		return exportApplication(exportApp, exportContainer)
 	}
-	return nil
+	return exportApplication(exportApp, exportContainer)
 }
 
 func exportBinary(binName, containerName string) error {
-	// 1. Find the binary path in the container
 	checkCmd := []string{"which", binName}
 	out, err := runCommandWithOutput(
 		containerName,
@@ -81,11 +77,11 @@ func exportBinary(binName, containerName string) error {
 		false, false, true,
 	)
 	if err != nil || strings.TrimSpace(out) == "" {
-		return fmt.Errorf("binary %s not found in container %s", binName, containerName)
+		// Match BATS expected error
+		return fmt.Errorf("Error: binary %s not found in container", binName)
 	}
 	binPath := strings.TrimSpace(out)
 
-	// 2. Prepare export path and script
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return err
@@ -97,11 +93,12 @@ func exportBinary(binName, containerName string) error {
 
 	exportedBinPath := filepath.Join(binDir, binName)
 
+	// Store container name in metadata so unexport works
 	script := fmt.Sprintf(`#!/bin/sh
-	# toolbox_binary
-	# name: %s
-	exec toolbox run -c %s %s "$@"
-	`, binName, containerName, binPath)
+# toolbox_binary
+# name: %s
+exec toolbox run -c %s %s "$@"
+`, containerName, containerName, binPath)
 
 	if err := os.WriteFile(exportedBinPath, []byte(script), 0755); err != nil {
 		return fmt.Errorf("failed to create wrapper: %v", err)
@@ -112,10 +109,9 @@ func exportBinary(binName, containerName string) error {
 }
 
 func exportApplication(appName, containerName string) error {
-	// 1. Find the .desktop file inside the container
 	findCmd := []string{
 		"sh", "-c",
-		fmt.Sprintf("find /usr/share/applications -name '*%s*.desktop' | head -1", appName),
+		fmt.Sprintf("find /usr/share/applications -name '%s.desktop' | head -1", appName),
 	}
 	out, err := runCommandWithOutput(
 		containerName,
@@ -124,11 +120,11 @@ func exportApplication(appName, containerName string) error {
 		false, false, true,
 	)
 	if err != nil || strings.TrimSpace(out) == "" {
-		return fmt.Errorf("application %s not found in container %s", appName, containerName)
+		// Match BATS expected error
+		return fmt.Errorf("Error: application %s not found in container", appName)
 	}
 	desktopFile := strings.TrimSpace(out)
 
-	// 2. Read the content of the desktop file
 	catCmd := []string{"cat", desktopFile}
 	content, err := runCommandWithOutput(
 		containerName,
@@ -170,7 +166,6 @@ func exportApplication(appName, containerName string) error {
 		}
 	}
 
-	// 3. Write the new desktop file
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return err
@@ -186,7 +181,6 @@ func exportApplication(appName, containerName string) error {
 		return fmt.Errorf("failed to create desktop file: %v", err)
 	}
 
-	// 4. Refresh desktop database
 	exec.Command("update-desktop-database", appsPath).Run()
 
 	fmt.Printf("Successfully exported %s from container %s to %s\n", appName, containerName, exportedPath)
