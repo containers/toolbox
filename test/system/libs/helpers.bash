@@ -255,6 +255,25 @@ function build_image_without_name() {
 }
 
 
+function build_non_toolbx_image() {
+  local image_name="localhost/non-toolbx:test-$$"
+
+  echo -e "FROM scratch\n\nLABEL test=\"non-toolbx\"" > "$BATS_TEST_TMPDIR"/Containerfile
+
+  run podman build --quiet --tag "$image_name" "$BATS_TEST_TMPDIR"
+
+  assert_success
+  assert_line --index 0 --regexp "^[a-f0-9]{64}$"
+
+  # shellcheck disable=SC2154
+  assert [ ${#lines[@]} -eq 1 ]
+
+  rm -f "$BATS_TEST_TMPDIR"/Containerfile
+
+  echo "$image_name"
+}
+
+
 function check_bats_version() {
     local required_version
     required_version="$1"
@@ -419,6 +438,24 @@ function create_default_container() {
 
   "$TOOLBX" --assumeyes create >/dev/null \
     || fail "Toolbx couldn't create default container"
+}
+
+
+# Creates a container with specific name and image
+#
+# Parameters:
+# ===========
+# - image - name of the image
+# - container_name - name of the container
+function create_image_container() {
+  local image
+  local container_name
+
+  image="$1"
+  container_name="$2"
+
+  "$TOOLBX" --assumeyes create --container "${container_name}" --image "${image}" >/dev/null \
+    || fail "Toolbx couldn't create container '$container_name'"
 }
 
 
