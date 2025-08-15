@@ -90,7 +90,12 @@ func exportBinary(binName, containerName string) error {
 	if err != nil {
 		return err
 	}
-	exportedBinPath := filepath.Join(homeDir, ".local", "bin", binName)
+	binDir := filepath.Join(homeDir, ".local", "bin")
+	if err := os.MkdirAll(binDir, 0755); err != nil {
+		return fmt.Errorf("failed to create bin directory: %v", err)
+	}
+
+	exportedBinPath := filepath.Join(binDir, binName)
 
 	script := fmt.Sprintf(`#!/bin/sh
 	# toolbox_binary
