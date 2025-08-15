@@ -47,7 +47,6 @@ func init() {
 	unexportCmd.Flags().StringVar(&unexportApp, "app", "", "Name of the exported application to remove")
 	unexportCmd.Flags().BoolVar(&unexportAll, "all", false, "Remove all exported binaries and applications for the container")
 
-	// Register container flag completion
 	if err := unexportCmd.RegisterFlagCompletionFunc("container", completionContainerNames); err != nil {
 		panic(fmt.Sprintf("failed to register flag completion function: %v", err))
 	}
@@ -82,20 +81,25 @@ func runUnexport(cmd *cobra.Command, args []string) error {
 				removedBins = append(removedBins, path)
 			}
 		}
+		if len(removedBins) == 0 {
+			return fmt.Errorf("Error: binary %s not exported from container", unexportBin)
+		}
 	}
 
 	if unexportApp != "" {
-		// Remove .desktop file that matches app name and container
 		matches, _ := filepath.Glob(filepath.Join(appsDir, fmt.Sprintf("*%s-%s.desktop", unexportApp, unexportContainer)))
 		for _, path := range matches {
 			if err := os.Remove(path); err == nil {
 				removedApps = append(removedApps, path)
 			}
 		}
+		if len(removedApps) == 0 {
+			return fmt.Errorf("Error: application %s not exported from container", unexportApp)
+		}
 	}
 
 	if unexportAll {
-		// Remove all binaries for this container in .local/bin
+		// Remove all binaries for this container
 		binFiles, _ := os.ReadDir(binDir)
 		for _, f := range binFiles {
 			if f.IsDir() {
@@ -109,7 +113,7 @@ func runUnexport(cmd *cobra.Command, args []string) error {
 			}
 		}
 
-		// Remove all .desktop files for this container in .local/share/applications
+		// Remove all desktop files for this container
 		appFiles, _ := os.ReadDir(appsDir)
 		for _, f := range appFiles {
 			name := f.Name()
@@ -136,16 +140,15 @@ func runUnexport(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// fileContainsContainer returns true if the file exists and has a toolbox_binary comment with name: <container>
 func fileContainsContainer(path, container string) bool {
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return false
 	}
-	return strings.Contains(string(content), "# toolbox_binary") && strings.Contains(string(content), fmt.Sprintf("name: %s", container))
+	return strings.Contains(string(content), "# toolbox_binary") &&
+		strings.Contains(string(content), fmt.Sprintf("name: %s", container))
 }
 
-// Exported function: remove all exported binaries and desktop files for a container
 func UnexportAll(container string) ([]string, []string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
