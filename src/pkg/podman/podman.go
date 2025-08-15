@@ -352,12 +352,12 @@ func IsToolboxImage(image string) (bool, error) {
 	}
 
 	if info["Labels"] == nil {
-		return false, fmt.Errorf("%s is not a Toolbx image", image)
+		return false, nil
 	}
 
 	labels := info["Labels"].(map[string]interface{})
 	if labels["com.github.containers.toolbox"] != "true" && labels["com.github.debarshiray.toolbox"] != "true" {
-		return false, fmt.Errorf("%s is not a Toolbx image", image)
+		return false, nil
 	}
 
 	return true, nil

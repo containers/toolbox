@@ -90,8 +90,11 @@ func rmi(cmd *cobra.Command, args []string) error {
 		}
 
 		for _, image := range args {
-			if _, err := podman.IsToolboxImage(image); err != nil {
+			if isToolboxImage, err := podman.IsToolboxImage(image); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				continue
+			} else if !isToolboxImage {
+				fmt.Fprintf(os.Stderr, "Error: %s is not a Toolbx image\n", image)
 				continue
 			}
 
