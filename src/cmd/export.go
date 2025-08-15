@@ -22,6 +22,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/containers/toolbox/pkg/utils"
@@ -69,18 +70,77 @@ func runExport(cmd *cobra.Command, args []string) error {
 }
 
 func exportBinary(binName, containerName string) error {
-	checkCmd := []string{"which", binName}
+	// Run command with strict environment
 	out, err := runCommandWithOutput(
 		containerName,
 		false, "", "", 0,
-		checkCmd,
-		false, false, true,
+		[]string{"sh", "--noprofile", "--norc", "-c",
+			fmt.Sprintf("command -v %q 2>/dev/null || which %q 2>/dev/null || type -P %q 2>/dev/null || true",
+				    binName, binName, binName)},
+				  false, false, true,
 	)
-	if err != nil || strings.TrimSpace(out) == "" {
-		// Match BATS expected error
-		return fmt.Errorf("Error: binary %s not found in container", binName)
+	if err != nil {
+		return fmt.Errorf("failed to run command inside container: %v", err)
 	}
-	binPath := strings.TrimSpace(out)
+
+	// Nuclear option for cleaning output
+	cleanOutput := func(s string) string {
+		// 1. Remove all ANSI escape sequences
+		ansiRegex := regexp.MustCompile(`\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])`)
+		s = ansiRegex.ReplaceAllString(s, "")
+
+		// 2. Remove non-printable characters except newlines
+		s = strings.Map(func(r rune) rune {
+			if r >= 32 && r <= 126 || r == '\n' {
+				return r
+			}
+			return -1
+		}, s)
+
+		// 3. Remove hyperlinks and terminal OSC sequences
+		s = regexp.MustCompile(`\x1B\]8;;.*?\x1B\\`).ReplaceAllString(s, "")
+
+		// 4. Trim each line and remove empty lines
+		lines := strings.Split(s, "\n")
+		var cleanLines []string
+		for _, line := range lines {
+			line = strings.TrimSpace(line)
+			if line != "" {
+				cleanLines = append(cleanLines, line)
+			}
+		}
+		return strings.Join(cleanLines, "\n")
+	}
+
+	cleaned := cleanOutput(out)
+
+	// Extract first valid absolute path
+	var binPath string
+	lines := strings.Split(cleaned, "\n")
+	for _, line := range lines {
+		// Skip anything that looks like error messages
+		if strings.Contains(line, ": ") || strings.Contains(line, "error") {
+			continue
+		}
+
+		// Must be absolute path without spaces
+		if strings.HasPrefix(line, "/") && !strings.ContainsAny(line, " \t\r") {
+			binPath = filepath.Clean(line)
+			break
+		}
+	}
+
+	if binPath == "" {
+		return fmt.Errorf("binary %q not found in container (searched in: %q)", binName, cleaned)
+	}
+
+	// Verify the binary exists and is executable
+	if _, err := runCommandWithOutput(
+		containerName, false, "", "", 0,
+		[]string{"test", "-x", binPath}, false, false, true,
+	); err != nil {
+		return fmt.Errorf("found path %q but it's not executable: %v", binPath, err)
+	}
 
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -92,13 +152,12 @@ func exportBinary(binName, containerName string) error {
 	}
 
 	exportedBinPath := filepath.Join(binDir, binName)
-
-	// Store container name in metadata so unexport works
 	script := fmt.Sprintf(`#!/bin/sh
-# toolbox_binary
-# name: %s
-exec toolbox run -c %s %s "$@"
-`, containerName, containerName, binPath)
+	# toolbox_binary
+	# name: %s
+	BIN_PATH="%s"
+	exec toolbox run -c %s "$BIN_PATH" "$@"
+	`, binName, binPath, containerName)
 
 	if err := os.WriteFile(exportedBinPath, []byte(script), 0755); err != nil {
 		return fmt.Errorf("failed to create wrapper: %v", err)
@@ -109,38 +168,74 @@ exec toolbox run -c %s %s "$@"
 }
 
 func exportApplication(appName, containerName string) error {
-	findCmd := []string{
-		"sh", "-c",
-		fmt.Sprintf("find /usr/share/applications -name '%s.desktop' | head -1", appName),
-	}
-	out, err := runCommandWithOutput(
-		containerName,
-		false, "", "", 0,
-		findCmd,
-		false, false, true,
-	)
+	// Step 1: Run find inside container to locate candidate desktop files
+	findCmd := []string{"sh", "-c", fmt.Sprintf("find /usr/share/applications -name '%s.desktop'", appName)}
+	out, err := runCommandWithOutput(containerName, false, "", "", 0, findCmd, false, false, true)
 	if err != nil || strings.TrimSpace(out) == "" {
-		// Match BATS expected error
 		return fmt.Errorf("Error: application %s not found in container", appName)
 	}
-	desktopFile := strings.TrimSpace(out)
 
-	catCmd := []string{"cat", desktopFile}
-	content, err := runCommandWithOutput(
-		containerName,
-		false, "", "", 0,
-		catCmd,
-		false, false, true,
-	)
-	if err != nil {
-		return fmt.Errorf("failed to read desktop file: %v", err)
+	// Step 2: Nuclear cleaning of find output
+	cleanOutput := func(s string) string {
+		ansiRegex := regexp.MustCompile(`\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])`)
+		s = ansiRegex.ReplaceAllString(s, "")
+		s = regexp.MustCompile(`\x1B\]8;;.*?\x1B\\`).ReplaceAllString(s, "")
+		s = strings.Map(func(r rune) rune {
+			if r >= 32 && r <= 126 || r == '\n' {
+				return r
+			}
+			return -1
+		}, s)
+		lines := strings.Split(s, "\n")
+		var cleanLines []string
+		for _, line := range lines {
+			line = strings.TrimSpace(line)
+			if line != "" {
+				cleanLines = append(cleanLines, line)
+			}
+		}
+		return strings.Join(cleanLines, "\n")
 	}
 
-	lines := strings.Split(content, "\n")
+	cleaned := cleanOutput(out)
+
+	// Step 3: Scan bottom-to-top for the first valid absolute path ending with .desktop
+	var desktopFile string
+	lines := strings.Split(cleaned, "\n")
+	for i := len(lines) - 1; i >= 0; i-- {
+		line := lines[i]
+		if strings.HasPrefix(line, "/") && strings.HasSuffix(line, ".desktop") && !strings.ContainsAny(line, " \t") {
+			desktopFile = filepath.Clean(line)
+			break
+		}
+	}
+
+	if desktopFile == "" {
+		return fmt.Errorf("invalid desktop file path in container output: %q", cleaned)
+	}
+
+	// Step 4: Read the desktop file content safely
+	catCmd := []string{"cat", desktopFile}
+	content, err := runCommandWithOutput(containerName, false, "", "", 0, catCmd, false, false, true)
+	if err != nil {
+		return fmt.Errorf("failed to read desktop file %q: %v", desktopFile, err)
+	}
+
+	lines = strings.Split(cleanOutput(content), "\n")
 	var newLines []string
+	started := false
 	hasNameTranslations := false
 
+	// Step 5: Rewrite desktop file fields
 	for _, line := range lines {
+		if !started {
+			if strings.TrimSpace(line) == "[Desktop Entry]" {
+				started = true
+				newLines = append(newLines, line)
+			}
+			continue
+		}
+
 		if strings.HasPrefix(line, "Exec=") {
 			execCmd := line[5:]
 			line = fmt.Sprintf("Exec=toolbox run -c %s %s", containerName, execCmd)
