@@ -157,7 +157,7 @@ func exportBinary(binName, containerName string) error {
 	# name: %s
 	BIN_PATH="%s"
 	exec toolbox run -c %s "$BIN_PATH" "$@"
-	`, binName, binPath, containerName)
+	`, containerName, binPath, containerName)
 
 	if err := os.WriteFile(exportedBinPath, []byte(script), 0755); err != nil {
 		return fmt.Errorf("failed to create wrapper: %v", err)
