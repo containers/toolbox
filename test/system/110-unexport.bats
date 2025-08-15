@@ -51,8 +51,8 @@ install_test_apps() {
   create_default_container
   install_test_apps
   run "$TOOLBX" export --app gimp --container "$(get_latest_container_name)"
+  assert_success
   run "$TOOLBX" export --bin nvim --container "$(get_latest_container_name)"
-
   assert_success
   assert [ -f "$HOME/.local/share/applications/gimp-$(get_latest_container_name).desktop" ]
   assert [ -f "$HOME/.local/bin/nvim" ]
