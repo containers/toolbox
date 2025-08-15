@@ -863,3 +863,50 @@ teardown() {
   assert_line --index 1 "Recreate it with Toolbx version 0.0.17 or newer."
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
+
+@test "run: With a non-Toolbx image and prompt for confirmation - Yes" {
+  containerName="test-container-non-toolbx"
+  image="$(build_non_toolbx_image)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --container "$containerName" true <<< "y"
+
+  assert_failure
+  assert_line --index 0 "Container '$containerName' uses a non-Toolbx image '$image' and may not work properly (see https://containertoolbx.org/doc/). Continue anyway? [y/N]: "
+  assert [ ${#lines[@]} -eq 1 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: failed to start container $containerName"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "run: With a non-Toolbx image and prompt for confirmation - No" {
+  containerName="test-container-non-toolbx"
+  image="$(build_non_toolbx_image)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --container "$containerName" true <<< "n"
+
+  assert_success
+  assert_line --index 0 "Container '$containerName' uses a non-Toolbx image '$image' and may not work properly (see https://containertoolbx.org/doc/). Continue anyway? [y/N]: "
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "run: With a non-Toolbx image and prompt for confirmation - assumeyes" {
+  containerName="test-container-non-toolbx"
+  image="$(build_non_toolbx_image)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes run --container "$containerName" true
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: failed to start container $containerName"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}

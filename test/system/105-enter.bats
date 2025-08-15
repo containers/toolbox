@@ -147,6 +147,53 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
+@test "enter: With a non-Toolbx image and prompt for confirmation - Yes" {
+  containerName="test-container-non-toolbx"
+  image="$(build_non_toolbx_image)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" enter --container "$containerName" <<< "y"
+
+  assert_failure
+  assert_line --index 0 "Container '$containerName' uses a non-Toolbx image '$image' and may not work properly (see https://containertoolbx.org/doc/). Continue anyway? [y/N]: "
+  assert [ ${#lines[@]} -eq 1 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: failed to start container $containerName"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "enter: With a non-Toolbx image and prompt for confirmation - No" {
+  containerName="test-container-non-toolbx"
+  image="$(build_non_toolbx_image)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" enter --container "$containerName" <<< "n"
+
+  assert_success
+  assert_line --index 0 "Container '$containerName' uses a non-Toolbx image '$image' and may not work properly (see https://containertoolbx.org/doc/). Continue anyway? [y/N]: "
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "enter: With a non-Toolbx image and prompt for confirmation - assumeyes" {
+  containerName="test-container-non-toolbx"
+  image="$(build_non_toolbx_image)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes enter --container "$containerName"
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: failed to start container $containerName"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
 # TODO: Write the test
 @test "enter: Enter the default Toolbx" {
   skip "Testing of entering Toolbxes is not implemented"

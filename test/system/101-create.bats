@@ -1009,3 +1009,56 @@ teardown() {
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
+
+@test "create: With a non-Toolbx image and prompt for confirmation - Yes" {
+  image="$(build_non_toolbx_image)"
+  containerName="test-container-non-toolbx"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" "$containerName" <<< "y"
+
+  assert_success
+  assert_line --index 0 "Image '$image' is not a Toolbx image and may not work properly (see https://containertoolbx.org/doc/). Continue anyway? [y/N]: Created container: $containerName"
+  assert_line --index 1 "Enter with: toolbox enter $containerName"
+  assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$containerName"
+}
+
+@test "create: With a non-Toolbx image and prompt for confirmation - No" {
+  image="$(build_non_toolbx_image)"
+  containerName="test-container-non-toolbx"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" "$containerName" <<< "n"
+
+  assert_success
+  assert_line --index 0 "Image '$image' is not a Toolbx image and may not work properly (see https://containertoolbx.org/doc/). Continue anyway? [y/N]: "
+  assert [ ${#lines[@]} -eq 1 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run podman ps --all
+
+  assert_success
+  assert [ ${#lines[@]} -eq 1 ]
+}
+
+@test "create: With a non-Toolbx image and prompt for confirmation - assumeyes" {
+  image="$(build_non_toolbx_image)"
+  containerName="test-container-non-toolbx"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --assumeyes --image "$image" "$containerName"
+
+  assert_success
+  assert_line --index 0 "Created container: $containerName"
+  assert_line --index 1 "Enter with: toolbox enter $containerName"
+  assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$containerName"
+}
