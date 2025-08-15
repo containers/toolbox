@@ -65,15 +65,12 @@ install_test_apps() {
   assert [ -f "$HOME/.local/bin/nvim" ]
 }
 
-@test "export: Export Neovim app and bin" {
+@test "export: Fail to export non-installed binary" {
   create_default_container
-  install_test_apps
 
-  run "$TOOLBX" export --app nvim --bin nvim --container "$(get_latest_container_name)"
-  assert_success
-
-  assert [ -f "$HOME/.local/share/applications/nvim-$(get_latest_container_name).desktop" ]
-  assert [ -f "$HOME/.local/bin/nvim" ]
+  run --separate-stderr "$TOOLBX" export --bin fakeapp --container "$(get_latest_container_name)"
+  assert_failure
+  assert_output --partial "Error: binary fakeapp not found in container"
 }
 
 @test "export: Fail to export non-installed app" {
