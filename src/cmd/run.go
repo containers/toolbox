@@ -183,6 +183,8 @@ func runCommand(container string,
 		}
 	}
 
+	checkImageCompatibility := true
+
 	logrus.Debugf("Checking if container %s exists", container)
 
 	if _, err := podman.ContainerExists(container); err != nil {
@@ -225,6 +227,10 @@ func runCommand(container string,
 			if err := createContainer(container, image, release, "", false); err != nil {
 				return err
 			}
+
+			// set to false -> check was already made when creating container during toolbx enter
+			checkImageCompatibility = false
+
 		} else if containersCount == 1 && defaultContainer {
 			fmt.Fprintf(os.Stderr, "Error: container %s not found\n", container)
 
@@ -247,6 +253,19 @@ func runCommand(container string,
 	containerObj, err := podman.InspectContainer(container)
 	if err != nil {
 		return fmt.Errorf("failed to inspect container %s", container)
+	}
+
+	if checkImageCompatibility && !rootFlags.assumeYes {
+		imageFull := containerObj.Image()
+
+		if isToolboxImage, err := podman.IsToolboxImage(imageFull); err != nil {
+			logrus.Debugf("Failed to verify image '%s' compatibility for container '%s': %s", imageFull, container, err)
+		} else if !isToolboxImage {
+			prompt := fmt.Sprintf("Container '%s' uses a non-Toolbx image '%s' and may not work properly (see https://containertoolbx.org/doc/). Continue anyway? [y/N]:", container, imageFull)
+			if !askForConfirmation(prompt) {
+				return nil
+			}
+		}
 	}
 
 	entryPoint := containerObj.EntryPoint()
