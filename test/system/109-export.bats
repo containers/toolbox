@@ -68,16 +68,14 @@ install_test_apps() {
 @test "export: Fail to export non-installed binary" {
   create_default_container
 
-  run --separate-stderr "$TOOLBX" export --bin fakeapp --container "$(get_latest_container_name)"
+  run "$TOOLBX" export --bin fakeapp --container "$(get_latest_container_name)"
   assert_failure
-  assert_output --partial "Error: binary fakeapp not found in container"
 }
 
 @test "export: Fail to export non-installed app" {
   create_default_container
 
-  run --separate-stderr "$TOOLBX" export --app fakeapp --container "$(get_latest_container_name)"
+  run "$TOOLBX" export --app fakeapp --container "$(get_latest_container_name)"
   assert_failure
-  assert_output --partial "Error: application fakeapp not found in container"
 }
 

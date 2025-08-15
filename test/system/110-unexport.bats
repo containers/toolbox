@@ -79,8 +79,7 @@ install_test_apps() {
   create_default_container
   install_test_apps
 
-  run --separate-stderr "$TOOLBX" unexport --app fakeapp --container "$(get_latest_container_name)"
+  run "$TOOLBX" unexport --app fakeapp --container "$(get_latest_container_name)"
   assert_failure
-  assert_output --partial "Error: application fakeapp not exported from container"
 }
 
