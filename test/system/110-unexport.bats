@@ -50,7 +50,9 @@ install_test_apps() {
 @test "unexport: Remove all exported items from Fedora container" {
   create_default_container
   install_test_apps
-  run "$TOOLBX" export --app gimp --bin nvim --container "$(get_latest_container_name)"
+  run "$TOOLBX" export --app gimp --container "$(get_latest_container_name)"
+  run "$TOOLBX" export --bin nvim --container "$(get_latest_container_name)"
+
   assert_success
   assert [ -f "$HOME/.local/share/applications/gimp-$(get_latest_container_name).desktop" ]
   assert [ -f "$HOME/.local/bin/nvim" ]
