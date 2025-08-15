@@ -76,8 +76,8 @@ func exportBinary(binName, containerName string) error {
 		false, "", "", 0,
 		[]string{"sh", "--noprofile", "--norc", "-c",
 			fmt.Sprintf("command -v %q 2>/dev/null || which %q 2>/dev/null || type -P %q 2>/dev/null || true",
-				    binName, binName, binName)},
-				  false, false, true,
+				binName, binName, binName)},
+		false, false, true,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to run command inside container: %v", err)
