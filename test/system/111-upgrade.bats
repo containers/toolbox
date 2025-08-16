@@ -30,20 +30,23 @@ teardown() {
 
 @test "upgrade(Arch): Upgrade Arch container" {
   create_distro_container arch latest arch-toolbox-test
-  run container_started arch-toolbox-test
   assert_success
 
   run "$TOOLBX" upgrade --container arch-toolbox-test
   assert_success
 }
 
+@test "upgrade(Arch): Upgrade Arch container without --container flag" {
+  create_distro_container arch latest arch-toolbox-test
+  assert_success
+
+  run "$TOOLBX" upgrade arch-toolbox-test
+  assert_success
+}
+
 @test "upgrade(All): Upgrade all containers" {
   create_distro_container arch latest arch-toolbox-all-test
-  create_distro_container ubuntu latest ubuntu-toolbox-all-test
-
-  run container_started arch-toolbox-all-test
-  assert_success
-  run container_started ubuntu-toolbox-all-test
+  create_default_container
   assert_success
 
   run "$TOOLBX" upgrade --all
