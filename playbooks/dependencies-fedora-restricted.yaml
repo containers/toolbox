@@ -47,6 +47,15 @@
     update_cache: "{{ true if zuul.attempts > 1 else false }}"
     use: "{{ 'dnf' if zuul.attempts > 1 else 'auto' }}"
 
+- name: Ensure that dbus-daemon(1) is absent
+  become: yes
+  package:
+    name:
+      - dbus-daemon
+    state: absent
+    update_cache: "{{ true if zuul.attempts > 1 else false }}"
+    use: "{{ 'dnf' if zuul.attempts > 1 else 'auto' }}"
+
 - name: Ensure that 'p11-kit server' is absent
   become: yes
   package:
