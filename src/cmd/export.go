@@ -82,7 +82,7 @@ func exportBinary(binName, containerName string) error {
 	// Run inside container, redirecting output to host file
 	cmd := fmt.Sprintf(
 		"(command -v %q || which %q || type -P %q || true) > /run/host%s",
-			   binName, binName, binName, tmpFile,
+		binName, binName, binName, tmpFile,
 	)
 	if _, err := runCommandWithOutput(
 		containerName,
