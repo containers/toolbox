@@ -22,8 +22,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
+	"time"
 
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/spf13/cobra"
@@ -70,71 +70,42 @@ func runExport(cmd *cobra.Command, args []string) error {
 }
 
 func exportBinary(binName, containerName string) error {
-	// Run command with strict environment
-	out, err := runCommandWithOutput(
+	// Ensure host export tmp dir exists
+	tmpDir := "/tmp/toolbox-export"
+	if err := os.MkdirAll(tmpDir, 0755); err != nil {
+		return fmt.Errorf("failed to create toolbox-export tmp dir: %v", err)
+	}
+
+	// Unique tmp file
+	tmpFile := filepath.Join(tmpDir, fmt.Sprintf("%s-%d.bin", binName, time.Now().UnixNano()))
+
+	// Run inside container, redirecting output to host file
+	cmd := fmt.Sprintf(
+		"(command -v %q || which %q || type -P %q || true) > /run/host%s",
+			   binName, binName, binName, tmpFile,
+	)
+	if _, err := runCommandWithOutput(
 		containerName,
 		false, "", "", 0,
-		[]string{"sh", "--noprofile", "--norc", "-c",
-			fmt.Sprintf("command -v %q 2>/dev/null || which %q 2>/dev/null || type -P %q 2>/dev/null || true",
-				binName, binName, binName)},
+		[]string{"sh", "--noprofile", "--norc", "-c", cmd},
 		false, false, true,
-	)
-	if err != nil {
+	); err != nil {
 		return fmt.Errorf("failed to run command inside container: %v", err)
 	}
 
-	// Nuclear option for cleaning output
-	cleanOutput := func(s string) string {
-		// 1. Remove all ANSI escape sequences
-		ansiRegex := regexp.MustCompile(`\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])`)
-		s = ansiRegex.ReplaceAllString(s, "")
-
-		// 2. Remove non-printable characters except newlines
-		s = strings.Map(func(r rune) rune {
-			if r >= 32 && r <= 126 || r == '\n' {
-				return r
-			}
-			return -1
-		}, s)
-
-		// 3. Remove hyperlinks and terminal OSC sequences
-		s = regexp.MustCompile(`\x1B\]8;;.*?\x1B\\`).ReplaceAllString(s, "")
-
-		// 4. Trim each line and remove empty lines
-		lines := strings.Split(s, "\n")
-		var cleanLines []string
-		for _, line := range lines {
-			line = strings.TrimSpace(line)
-			if line != "" {
-				cleanLines = append(cleanLines, line)
-			}
-		}
-		return strings.Join(cleanLines, "\n")
+	// Read back file content
+	content, err := os.ReadFile(tmpFile)
+	defer os.Remove(tmpFile)
+	if err != nil {
+		return fmt.Errorf("failed to read back exported binary path: %v", err)
 	}
 
-	cleaned := cleanOutput(out)
-
-	// Extract first valid absolute path
-	var binPath string
-	lines := strings.Split(cleaned, "\n")
-	for _, line := range lines {
-		// Skip anything that looks like error messages
-		if strings.Contains(line, ": ") || strings.Contains(line, "error") {
-			continue
-		}
-
-		// Must be absolute path without spaces
-		if strings.HasPrefix(line, "/") && !strings.ContainsAny(line, " \t\r") {
-			binPath = filepath.Clean(line)
-			break
-		}
-	}
-
+	binPath := strings.TrimSpace(string(content))
 	if binPath == "" {
-		return fmt.Errorf("binary %q not found in container (searched in: %q)", binName, cleaned)
+		return fmt.Errorf("binary %q not found in container", binName)
 	}
 
-	// Verify the binary exists and is executable
+	// Verify it's executable inside container
 	if _, err := runCommandWithOutput(
 		containerName, false, "", "", 0,
 		[]string{"test", "-x", binPath}, false, false, true,
@@ -142,6 +113,7 @@ func exportBinary(binName, containerName string) error {
 		return fmt.Errorf("found path %q but it's not executable: %v", binPath, err)
 	}
 
+	// Create wrapper in ~/.local/bin
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return err
@@ -168,65 +140,51 @@ func exportBinary(binName, containerName string) error {
 }
 
 func exportApplication(appName, containerName string) error {
-	// Step 1: Run find inside container to locate candidate desktop files
-	findCmd := []string{"sh", "-c", fmt.Sprintf("find /usr/share/applications -name '%s.desktop'", appName)}
-	out, err := runCommandWithOutput(containerName, false, "", "", 0, findCmd, false, false, true)
-	if err != nil || strings.TrimSpace(out) == "" {
+	tmpDir := "/tmp/toolbox-export"
+	if err := os.MkdirAll(tmpDir, 0755); err != nil {
+		return fmt.Errorf("failed to create toolbox-export tmp dir: %v", err)
+	}
+
+	// Unique tmp files
+	findFile := filepath.Join(tmpDir, fmt.Sprintf("%s-%d.find", appName, time.Now().UnixNano()))
+	catFile := filepath.Join(tmpDir, fmt.Sprintf("%s-%d.desktop", appName, time.Now().UnixNano()))
+
+	// Step 1: Run find inside container and redirect to host file
+	findCmd := fmt.Sprintf("find /usr/share/applications -name '%s.desktop' > /run/host%s", appName, findFile)
+	if _, err := runCommandWithOutput(containerName, false, "", "", 0, []string{"sh", "-c", findCmd}, false, false, true); err != nil {
+		return fmt.Errorf("failed to run find inside container: %v", err)
+	}
+
+	// Read back found desktop path
+	findOutput, err := os.ReadFile(findFile)
+	defer os.Remove(findFile)
+	if err != nil {
+		return fmt.Errorf("failed to read find output: %v", err)
+	}
+	desktopFile := strings.TrimSpace(string(findOutput))
+	if desktopFile == "" {
 		return fmt.Errorf("Error: application %s not found in container", appName)
 	}
 
-	// Step 2: Nuclear cleaning of find output
-	cleanOutput := func(s string) string {
-		ansiRegex := regexp.MustCompile(`\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])`)
-		s = ansiRegex.ReplaceAllString(s, "")
-		s = regexp.MustCompile(`\x1B\]8;;.*?\x1B\\`).ReplaceAllString(s, "")
-		s = strings.Map(func(r rune) rune {
-			if r >= 32 && r <= 126 || r == '\n' {
-				return r
-			}
-			return -1
-		}, s)
-		lines := strings.Split(s, "\n")
-		var cleanLines []string
-		for _, line := range lines {
-			line = strings.TrimSpace(line)
-			if line != "" {
-				cleanLines = append(cleanLines, line)
-			}
-		}
-		return strings.Join(cleanLines, "\n")
-	}
-
-	cleaned := cleanOutput(out)
-
-	// Step 3: Scan bottom-to-top for the first valid absolute path ending with .desktop
-	var desktopFile string
-	lines := strings.Split(cleaned, "\n")
-	for i := len(lines) - 1; i >= 0; i-- {
-		line := lines[i]
-		if strings.HasPrefix(line, "/") && strings.HasSuffix(line, ".desktop") && !strings.ContainsAny(line, " \t") {
-			desktopFile = filepath.Clean(line)
-			break
-		}
-	}
-
-	if desktopFile == "" {
-		return fmt.Errorf("invalid desktop file path in container output: %q", cleaned)
-	}
-
-	// Step 4: Read the desktop file content safely
-	catCmd := []string{"cat", desktopFile}
-	content, err := runCommandWithOutput(containerName, false, "", "", 0, catCmd, false, false, true)
-	if err != nil {
+	// Step 2: Cat the desktop file content into host tmp
+	catCmd := fmt.Sprintf("cat %q > /run/host%s", desktopFile, catFile)
+	if _, err := runCommandWithOutput(containerName, false, "", "", 0, []string{"sh", "-c", catCmd}, false, false, true); err != nil {
 		return fmt.Errorf("failed to read desktop file %q: %v", desktopFile, err)
 	}
 
-	lines = strings.Split(cleanOutput(content), "\n")
+	// Read back content
+	content, err := os.ReadFile(catFile)
+	defer os.Remove(catFile)
+	if err != nil {
+		return fmt.Errorf("failed to read desktop content: %v", err)
+	}
+	lines := strings.Split(string(content), "\n")
+
 	var newLines []string
 	started := false
 	hasNameTranslations := false
 
-	// Step 5: Rewrite desktop file fields
+	// Rewrite desktop file fields
 	for _, line := range lines {
 		if !started {
 			if strings.TrimSpace(line) == "[Desktop Entry]" {

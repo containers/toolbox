@@ -491,6 +491,7 @@ func runCommandWithFallbacks(container string,
 	// code should not be reached
 }
 
+// This function can capture/supress stdout from toolbox containers
 func runCommandWithOutput(container string,
 	defaultContainer bool,
 	image, release string,
