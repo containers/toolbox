@@ -78,6 +78,9 @@ func rm(cmd *cobra.Command, args []string) error {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 				continue
 			}
+
+			// Unexport Binaries and Applications from this Container from the Host
+			UnexportAll(container.Name())
 		}
 	} else {
 		if len(args) == 0 {
@@ -105,6 +108,9 @@ func rm(cmd *cobra.Command, args []string) error {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 				continue
 			}
+
+			// Unexport Binaries and Applications from this Container from the Host
+			UnexportAll(container)
 		}
 	}
 
