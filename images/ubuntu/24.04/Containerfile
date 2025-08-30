@@ -1,6 +1,7 @@
 FROM docker.io/library/ubuntu:24.04
 
 LABEL com.github.containers.toolbox="true" \
+      com.github.containers.toolbox.package-manager.update="sudo DEBIAN_FRONTEND=noninteractive apt-get update -y && sudo apt-get upgrade -y" \
       name="ubuntu-toolbox" \
       version="24.04" \
       usage="This image is meant to be used with the toolbox command" \
