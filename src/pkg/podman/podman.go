@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/HarryMichal/go-version"
@@ -363,6 +364,73 @@ func IsToolboxImage(image string) (bool, error) {
 	return true, nil
 }
 
+func IsLDPRELOADEnvSet(image string) (bool, error) {
+	info, err := InspectImage(image)
+	if err != nil {
+		return false, fmt.Errorf("failed to inspect image %s: %s", image, err)
+	}
+
+	if info["Config"] == nil {
+		return false, nil
+	}
+
+	config := info["Config"].(map[string]interface{})
+	if config["Env"] == nil {
+		return false, nil
+	}
+
+	env := config["Env"]
+	switch envVars := env.(type) {
+	case []interface{}:
+		for _, envVar := range envVars {
+			if envVarStr, ok := envVar.(string); ok {
+				envVarStrTrimmed := strings.TrimSpace(envVarStr)
+				if strings.HasPrefix(envVarStrTrimmed, "LD_PRELOAD=") {
+					return true, nil
+				}
+			}
+		}
+	case []string:
+		for _, envVar := range envVars {
+			envVarTrimmed := strings.TrimSpace(envVar)
+			if strings.HasPrefix(envVarTrimmed, "LD_PRELOAD=") {
+				return true, nil
+			}
+		}
+	default:
+		return false, fmt.Errorf("unexpected type '%T' of environment variables in image %s", env, image)
+	}
+
+	return false, nil
+}
+
+func HasImageEntrypoint(image string) (bool, error) {
+	info, err := InspectImage(image)
+	if err != nil {
+		return false, fmt.Errorf("failed to inspect image %s: %s", image, err)
+	}
+
+	if info["Config"] == nil {
+		return false, nil
+	}
+
+	config := info["Config"].(map[string]interface{})
+	if config["Entrypoint"] == nil {
+		return false, nil
+	}
+
+	entrypoint := config["Entrypoint"]
+
+	switch ep := entrypoint.(type) {
+	case []interface{}:
+		return len(ep) > 0, nil
+	case []string:
+		return len(ep) > 0, nil
+	default:
+		return false, fmt.Errorf("unexpected type '%T' of entrypoint of image %s", entrypoint, image)
+	}
+}
+
 func Logs(container string, since time.Time, stderr io.Writer) error {
 	ctx := context.Background()
 	err := LogsContext(ctx, container, false, since, stderr)
@@ -505,4 +573,39 @@ func SystemMigrate(ociRuntimeRequired string) error {
 	}
 
 	return nil
+}
+
+func DoesImageFulfillRequirements(image string) (bool, string, error) {
+	var warnings []string
+
+	isToolboxImage, err := IsToolboxImage(image)
+	if err != nil {
+		return false, "", fmt.Errorf("failed to verify image compatibility: %w", err)
+	}
+	if !isToolboxImage {
+		warnings = append(warnings, fmt.Sprintf("Warning: Image '%s' does not contain either of the labels 'com.github.containers.toolbox=true' and 'com.github.debarshiray.toolbox=true'", image))
+	}
+
+	isLDPRELOADEnvSet, err := IsLDPRELOADEnvSet(image)
+	if err != nil {
+		return false, "", fmt.Errorf("failed to validate LD_PRELOAD variable settings: %w", err)
+	}
+	if isLDPRELOADEnvSet {
+		warnings = append(warnings, fmt.Sprintf("Warning: Image '%s' has environment variable LD_PRELOAD set, which may cause container vulnerability (Container Escape)", image))
+	}
+
+	hasEntrypoint, err := HasImageEntrypoint(image)
+	if err != nil {
+		return false, "", fmt.Errorf("failed to check image entrypoint: %w", err)
+	}
+	if hasEntrypoint {
+		warnings = append(warnings, fmt.Sprintf("Warning: Image '%s' has an entrypoint defined", image))
+	}
+
+	if len(warnings) > 0 {
+		warningMessage := strings.Join(warnings, "\n")
+		return false, warningMessage, nil
+	}
+
+	return true, "", nil
 }
