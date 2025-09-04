@@ -623,36 +623,14 @@ func configurePKCS11(targetUser *user.User) error {
 		return fmt.Errorf("failed to configure PKCS #11 to read from the host: %w", err)
 	}
 
-	if err := configureSSHD(serverSocket); err != nil {
+	if err := configurePKCS11SSHD(serverSocket); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func configureRPM() error {
-	if !utils.PathExists("/usr/lib/rpm/macros.d") {
-		return nil
-	}
-
-	logrus.Debug("Configuring RPM to ignore bind mounts")
-
-	var builder strings.Builder
-	builder.WriteString("# Written by Toolbx\n")
-	builder.WriteString("# https://containertoolbx.org/\n")
-	builder.WriteString("\n")
-	builder.WriteString("%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt\n")
-
-	rpmConfigString := builder.String()
-	rpmConfigBytes := []byte(rpmConfigString)
-	if err := ioutil.WriteFile("/usr/lib/rpm/macros.d/macros.toolbox", rpmConfigBytes, 0644); err != nil {
-		return fmt.Errorf("failed to configure RPM to ignore bind mounts: %w", err)
-	}
-
-	return nil
-}
-
-func configureSSHD(p11KitServerSocket string) error {
+func configurePKCS11SSHD(p11KitServerSocket string) error {
 	const logPrefix = "Configuring sshd(8) to set P11_KIT_SERVER_ADDRESS"
 	logrus.Debugf("%s", logPrefix)
 
@@ -692,6 +670,28 @@ func configureSSHD(p11KitServerSocket string) error {
 
 	if err := renameio.WriteFile(sshdConfig, sshdConfigBytes, filePerm); err != nil {
 		return fmt.Errorf("failed to configure sshd(8) to set P11_KIT_SERVER_ADDRESS: %w", err)
+	}
+
+	return nil
+}
+
+func configureRPM() error {
+	if !utils.PathExists("/usr/lib/rpm/macros.d") {
+		return nil
+	}
+
+	logrus.Debug("Configuring RPM to ignore bind mounts")
+
+	var builder strings.Builder
+	builder.WriteString("# Written by Toolbx\n")
+	builder.WriteString("# https://containertoolbx.org/\n")
+	builder.WriteString("\n")
+	builder.WriteString("%_netsharedpath /dev:/media:/mnt:/proc:/sys:/tmp:/var/lib/flatpak:/var/lib/libvirt\n")
+
+	rpmConfigString := builder.String()
+	rpmConfigBytes := []byte(rpmConfigString)
+	if err := ioutil.WriteFile("/usr/lib/rpm/macros.d/macros.toolbox", rpmConfigBytes, 0644); err != nil {
+		return fmt.Errorf("failed to configure RPM to ignore bind mounts: %w", err)
 	}
 
 	return nil
