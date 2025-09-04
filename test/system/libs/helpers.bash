@@ -39,6 +39,42 @@ readonly TOOLBX="${TOOLBX:-$(command -v toolbox)}"
 readonly TOOLBX_TEST_SYSTEM_TAGS_ALL="arch-fedora,commands-options,custom-image,runtime-environment,ubuntu"
 readonly TOOLBX_TEST_SYSTEM_TAGS="${TOOLBX_TEST_SYSTEM_TAGS:-$TOOLBX_TEST_SYSTEM_TAGS_ALL}"
 
+
+# Common test messages (used across multiple test suites)
+export MSG_CONFIRMATION_PROMPT="One or more of the image's requirements are not met. Continue anyway? [y/N]: "
+
+# Helper functions for generating common messages
+function created_container_message() {
+  local container_name="$1"
+  echo "Created container: $container_name"
+}
+
+function enter_with_message() {
+  local container_name="$1"
+  echo "Enter with: toolbox enter $container_name"
+}
+
+function failed_start_error_message() {
+  local container_name="$1"
+  echo "Error: failed to start container $container_name"
+}
+
+# Helper functions for generating image warning messages
+function warning_non_toolbx_image() {
+  local image="$1"
+  echo "Warning: Image '$image' does not contain either of the labels 'com.github.containers.toolbox=true' and 'com.github.debarshiray.toolbox=true'"
+}
+
+function warning_ld_preload_image() {
+  local image="$1"
+  echo "Warning: Image '$image' has environment variable LD_PRELOAD set, which may cause container vulnerability (Container Escape)"
+}
+
+function warning_entrypoint_image() {
+  local image="$1"
+  echo "Warning: Image '$image' has an entrypoint defined"
+}
+
 # Images
 declare -Ag IMAGES=([arch]="quay.io/toolbx/arch-toolbox" \
                    [busybox]="quay.io/toolbox_tests/busybox" \
@@ -255,12 +291,24 @@ function build_image_without_name() {
 }
 
 
-function build_non_toolbx_image() {
-  local image_name="localhost/non-toolbx:test-$$"
+# Generic helper function to build test images with custom Containerfile content
+#
+# Parameters
+# ==========
+# - image_name - Used as part of the image name
+# - containerfile_content - Complete Containerfile content to build the image
+#
+# The function creates a temporary Containerfile with the provided content,
+# builds the image using Podman, and returns the full image name that was built.
+function _build_test_image_generic() {
+  local image_name="$1"
+  local containerfile_content="$2"
 
-  echo -e "FROM scratch\n\nLABEL test=\"non-toolbx\"" > "$BATS_TEST_TMPDIR"/Containerfile
+  local image_name_full="localhost/${image_name}:test-$$"
 
-  run podman build --quiet --tag "$image_name" "$BATS_TEST_TMPDIR"
+  echo -e "$containerfile_content" > "$BATS_TEST_TMPDIR"/Containerfile
+
+  run podman build --quiet --tag "$image_name_full" "$BATS_TEST_TMPDIR"
 
   assert_success
   assert_line --index 0 --regexp "^[a-f0-9]{64}$"
@@ -270,7 +318,27 @@ function build_non_toolbx_image() {
 
   rm -f "$BATS_TEST_TMPDIR"/Containerfile
 
-  echo "$image_name"
+  echo "$image_name_full"
+}
+
+
+function build_non_toolbx_image() {
+  _build_test_image_generic "non-toolbx" "FROM scratch\n\nLABEL test=\"non-toolbx\""
+}
+
+
+function build_image_with_ld_preload() {
+  _build_test_image_generic "ld-preload" "FROM scratch\n\nENV LD_PRELOAD=foobar.so\n\nLABEL com.github.containers.toolbox=true"
+}
+
+
+function build_image_with_entrypoint() {
+  _build_test_image_generic "entrypoint" "FROM scratch\n\nENTRYPOINT [\"/bin/sh\", \"-c\", \"echo 'Hello, World!'\"]\n\nLABEL com.github.containers.toolbox=true"
+}
+
+
+function build_image_with_all_warnings() {
+  _build_test_image_generic "all-warnings" "FROM scratch\n\nENV LD_PRELOAD=foobar.so\n\nENTRYPOINT [\"/bin/sh\", \"-c\", \"echo 'Multiple warnings!'\"]\n\nLABEL test=\"all-warnings\""
 }
 
 
