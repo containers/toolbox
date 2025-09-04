@@ -241,14 +241,15 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		}
 	}
 
-	if !rootFlags.assumeYes {
-		if isToolboxImage, err := podman.IsToolboxImage(imageFull); err != nil {
-			return fmt.Errorf("failed to verify image compatibility: %w", err)
-		} else if !isToolboxImage {
-			prompt := fmt.Sprintf("Image '%s' is not a Toolbx image and may not work properly (see https://containertoolbx.org/doc/). Continue anyway? [y/N]:", imageFull)
-			if !askForConfirmation(prompt) {
-				return nil
-			}
+	isImageCompatible, warningMessage, err := podman.DoesImageFulfillRequirements(imageFull)
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+
+	if !isImageCompatible {
+		fmt.Fprintf(os.Stderr, "%s\n", warningMessage)
+		if !rootFlags.assumeYes && !askForConfirmation("One or more of the image's requirements are not met. Continue anyway? [y/N]:") {
+			return nil
 		}
 	}
 

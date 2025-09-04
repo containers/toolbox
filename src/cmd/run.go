@@ -255,16 +255,15 @@ func runCommand(container string,
 		return fmt.Errorf("failed to inspect container %s", container)
 	}
 
-	if checkImageCompatibility && !rootFlags.assumeYes {
-		imageFull := containerObj.Image()
+	isImageCompatible, warningMessage, err := podman.DoesImageFulfillRequirements(containerObj.Image())
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
 
-		if isToolboxImage, err := podman.IsToolboxImage(imageFull); err != nil {
-			logrus.Debugf("Failed to verify image '%s' compatibility for container '%s': %s", imageFull, container, err)
-		} else if !isToolboxImage {
-			prompt := fmt.Sprintf("Container '%s' uses a non-Toolbx image '%s' and may not work properly (see https://containertoolbx.org/doc/). Continue anyway? [y/N]:", container, imageFull)
-			if !askForConfirmation(prompt) {
-				return nil
-			}
+	if !isImageCompatible && checkImageCompatibility {
+		fmt.Fprintf(os.Stderr, "%s\n", warningMessage)
+		if !rootFlags.assumeYes && !askForConfirmation("One or more of the image's requirements are not met. Continue anyway? [y/N]:") {
+			return nil
 		}
 	}
 
