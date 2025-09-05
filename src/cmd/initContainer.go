@@ -634,7 +634,7 @@ func configurePKCS11SSHD(p11KitServerSocket string) error {
 	const logPrefix = "Configuring sshd(8) to set P11_KIT_SERVER_ADDRESS"
 	logrus.Debugf("%s", logPrefix)
 
-	sshdConfigD := "/etc/ssh/sshd_config.d"
+	const sshdConfigD = "/etc/ssh/sshd_config.d"
 	fileInfo, err := os.Stat(sshdConfigD)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
