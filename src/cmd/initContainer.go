@@ -627,6 +627,14 @@ func configurePKCS11(targetUser *user.User) error {
 		return err
 	}
 
+	if err := configurePKCS11Su(serverSocket); err != nil {
+		return err
+	}
+
+	if err := configurePKCS11Sudo(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -670,6 +678,88 @@ func configurePKCS11SSHD(serverSocket string) error {
 
 	if err := renameio.WriteFile(sshdConfig, sshdConfigBytes, filePerm); err != nil {
 		return fmt.Errorf("failed to configure sshd(8) to set P11_KIT_SERVER_ADDRESS: %w", err)
+	}
+
+	return nil
+}
+
+func configurePKCS11Su(serverSocket string) error {
+	const logPrefix = "Configuring su(1) to set P11_KIT_SERVER_ADDRESS"
+	logrus.Debugf("%s", logPrefix)
+
+	const profileD = "/etc/profile.d"
+	fileInfo, err := os.Stat(profileD)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			err := createErrorProfileDNotFound()
+			return err
+		} else {
+			logrus.Debugf("%s: failed to stat %s: %s", logPrefix, profileD, err)
+			return fmt.Errorf("failed to stat %s", profileD)
+		}
+	}
+
+	fileMode := fileInfo.Mode()
+	if !fileMode.IsDir() {
+		err := createErrorProfileDNotFound()
+		return err
+	}
+
+	profile := filepath.Join(profileD, "toolbx-pkcs11.sh")
+
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "# shellcheck shell=sh\n")
+	fmt.Fprintf(&builder, "#\n")
+	fmt.Fprintf(&builder, "# Written by Toolbx\n")
+	fmt.Fprintf(&builder, "# https://containertoolbx.org/\n")
+	fmt.Fprintf(&builder, "\n")
+	fmt.Fprintf(&builder, "export P11_KIT_SERVER_ADDRESS=unix:path=%s\n", serverSocket)
+
+	profileString := builder.String()
+	profileBytes := []byte(profileString)
+
+	if err := renameio.WriteFile(profile, profileBytes, 0644); err != nil {
+		return fmt.Errorf("failed to configure su(1) to set P11_KIT_SERVER_ADDRESS: %w", err)
+	}
+
+	return nil
+}
+
+func configurePKCS11Sudo() error {
+	const logPrefix = "Configuring sudo(8) to set P11_KIT_SERVER_ADDRESS"
+	logrus.Debugf("%s", logPrefix)
+
+	const sudoersD = "/etc/sudoers.d"
+	fileInfo, err := os.Stat(sudoersD)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			err := createErrorSudoersDNotFound()
+			return err
+		} else {
+			logrus.Debugf("%s: failed to stat %s: %s", logPrefix, sudoersD, err)
+			return fmt.Errorf("failed to stat %s", sudoersD)
+		}
+	}
+
+	fileMode := fileInfo.Mode()
+	if !fileMode.IsDir() {
+		err := createErrorSudoersDNotFound()
+		return err
+	}
+
+	sudoers := filepath.Join(sudoersD, "90-toolbx-pkcs11")
+
+	var builder strings.Builder
+	builder.WriteString("# Written by Toolbx\n")
+	builder.WriteString("# https://containertoolbx.org/\n")
+	builder.WriteString("\n")
+	builder.WriteString("Defaults env_keep += \"P11_KIT_SERVER_ADDRESS\"\n")
+
+	sudoersString := builder.String()
+	sudoersBytes := []byte(sudoersString)
+
+	if err := renameio.WriteFile(sudoers, sudoersBytes, 0440); err != nil {
+		return fmt.Errorf("failed to configure sudo(8) to set P11_KIT_SERVER_ADDRESS: %w", err)
 	}
 
 	return nil

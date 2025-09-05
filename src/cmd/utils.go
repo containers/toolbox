@@ -331,6 +331,32 @@ func createErrorInvalidRelease(hint string) error {
 	return errors.New(errMsg)
 }
 
+func createErrorProfileDNotFound() error {
+	const profileD = "/etc/profile.d"
+
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "directory %s not found in container\n", profileD)
+	fmt.Fprintf(&builder, "The shell start-up scripts must include files from %s in\n", profileD)
+	fmt.Fprintf(&builder, "containers.\n")
+	fmt.Fprintf(&builder, "Go to https://containertoolbx.org/ for further information.")
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
+func createErrorSudoersDNotFound() error {
+	const sudoersD = "/etc/sudoers.d"
+
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "directory %s not found in container\n", sudoersD)
+	fmt.Fprintf(&builder, "The sudoers(5) policy must include files from %s in\n", sudoersD)
+	fmt.Fprintf(&builder, "containers with /etc/pkcs11/modules and p11-kit-client.so.\n")
+	fmt.Fprintf(&builder, "Go to https://containertoolbx.org/ for further information.")
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
 func getCDIFileForNvidia(targetUser *user.User) (string, error) {
 	toolboxRuntimeDirectory, err := utils.GetRuntimeDirectory(targetUser)
 	if err != nil {
