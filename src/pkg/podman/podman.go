@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 – 2024 Red Hat Inc.
+ * Copyright © 2019 – 2025 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -431,7 +431,7 @@ func RemoveContainer(container string, forceDelete bool) error {
 			panic("unexpected error: 'podman rm' finished successfully")
 		}
 	case 1:
-		err = fmt.Errorf("container %s does not exist", container)
+		err = fmt.Errorf("container %s not found", container)
 	case 2:
 		err = fmt.Errorf("container %s is running", container)
 	default:
@@ -464,7 +464,7 @@ func RemoveImage(image string, forceDelete bool) error {
 			panic("unexpected error: 'podman rmi' finished successfully")
 		}
 	case 1:
-		err = fmt.Errorf("image %s does not exist", image)
+		err = fmt.Errorf("image %s not found", image)
 	case 2:
 		err = fmt.Errorf("image %s has dependent children", image)
 	default:
