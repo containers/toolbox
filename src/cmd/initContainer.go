@@ -630,7 +630,7 @@ func configurePKCS11(targetUser *user.User) error {
 	return nil
 }
 
-func configurePKCS11SSHD(p11KitServerSocket string) error {
+func configurePKCS11SSHD(serverSocket string) error {
 	const logPrefix = "Configuring sshd(8) to set P11_KIT_SERVER_ADDRESS"
 	logrus.Debugf("%s", logPrefix)
 
@@ -660,7 +660,7 @@ func configurePKCS11SSHD(p11KitServerSocket string) error {
 	fmt.Fprintf(&builder, "# Written by Toolbx\n")
 	fmt.Fprintf(&builder, "# https://containertoolbx.org/\n")
 	fmt.Fprintf(&builder, "\n")
-	fmt.Fprintf(&builder, "SetEnv P11_KIT_SERVER_ADDRESS=unix:path=%s\n", p11KitServerSocket)
+	fmt.Fprintf(&builder, "SetEnv P11_KIT_SERVER_ADDRESS=unix:path=%s\n", serverSocket)
 
 	sshdConfigString := builder.String()
 	sshdConfigBytes := []byte(sshdConfigString)
