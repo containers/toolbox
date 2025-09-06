@@ -35,7 +35,7 @@ readonly RESOLVER_SH='resolvectl --legend false --no-pager --type "$0" query "$1
 
 setup_file() {
   bats_require_minimum_version 1.10.0
-  cleanup_all
+  # cleanup_all
   pushd "$HOME" || return 1
 
   if echo "$TOOLBX_TEST_SYSTEM_TAGS" | grep "arch" >/dev/null 2>/dev/null; then
