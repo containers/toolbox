@@ -121,7 +121,7 @@ func enter(cmd *cobra.Command, args []string) error {
 
 	command := []string{userShell, "-l"}
 
-	if err := runCommand(container, defaultContainer, image, release, 0, command, true, true, false); err != nil {
+	if err := runCommand(container, defaultContainer, image, release, 0, "", command, true, true, false); err != nil {
 		return err
 	}
 
