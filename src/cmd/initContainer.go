@@ -610,10 +610,11 @@ func configurePKCS11(targetUser *user.User) error {
 	}
 
 	var builder strings.Builder
-	builder.WriteString("# Written by Toolbx\n")
-	builder.WriteString("# https://containertoolbx.org/\n")
-	builder.WriteString("\n")
-	builder.WriteString("module: p11-kit-client.so\n")
+	fmt.Fprintf(&builder, "# Written by Toolbx\n")
+	fmt.Fprintf(&builder, "# https://containertoolbx.org/\n")
+	fmt.Fprintf(&builder, "\n")
+	fmt.Fprintf(&builder, "module: p11-kit-client.so\n")
+	fmt.Fprintf(&builder, "server-address: unix:path=%s\n", serverSocket)
 
 	pkcs11ConfigString := builder.String()
 	pkcs11ConfigBytes := []byte(pkcs11ConfigString)
