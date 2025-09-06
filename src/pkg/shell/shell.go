@@ -39,7 +39,7 @@ func RunContext(ctx context.Context, name string, stdin io.Reader, stdout, stder
 		return err
 	}
 	if exitCode != 0 {
-		return fmt.Errorf("failed to invoke %s(1)", name)
+		return fmt.Errorf("failed to invoke %s(%d)", name, exitCode)
 	}
 	return nil
 }
