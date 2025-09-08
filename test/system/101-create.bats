@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2019 – 2024 Red Hat, Inc.
+# Copyright © 2019 – 2025 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -157,7 +157,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run podman ps -a
+  run podman ps --all
 
   assert_output --regexp "Created[[:blank:]]+arch-toolbox-latest"
 }
@@ -182,7 +182,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run podman ps -a
+  run podman ps --all
 
   assert_output --regexp "Created[[:blank:]]+arch-toolbox-latest"
 }
@@ -207,7 +207,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run podman ps -a
+  run podman ps --all
 
   assert_output --regexp "Created[[:blank:]]+arch-toolbox-latest"
 }
@@ -223,7 +223,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run podman ps -a
+  run podman ps --all
 
   assert_output --regexp "Created[[:blank:]]+fedora-toolbox-34"
 }
@@ -239,7 +239,7 @@ teardown() {
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
-  run podman ps -a
+  run podman ps --all
 
   assert_output --regexp "Created[[:blank:]]+rhel-toolbox-8.10"
 }
