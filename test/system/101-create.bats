@@ -50,6 +50,14 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$default_container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$default_container"
+
+  assert_success
+  assert_output "true"
 }
 
 @test "create: With a custom name (using option --container)" {
@@ -69,6 +77,14 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$container"
+
+  assert_success
+  assert_output "true"
 }
 
 @test "create: With a custom image and name (using option --container)" {
@@ -88,6 +104,14 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$container"
+
+  assert_success
+  assert_output "true"
 }
 
 @test "create: Try without --assumeyes" {
@@ -182,6 +206,14 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$container"
+
+  assert_success
+  assert_output "true"
 }
 
 @test "create: Arch Linux ('--release latest')" {
@@ -210,6 +242,14 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$container"
+
+  assert_success
+  assert_output "true"
 }
 
 @test "create: Arch Linux ('--release rolling')" {
@@ -238,6 +278,14 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$container"
+
+  assert_success
+  assert_output "true"
 }
 
 @test "create: Fedora 34" {
@@ -257,6 +305,14 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$container"
+
+  assert_success
+  assert_output "true"
 }
 
 @test "create: RHEL 8.10" {
@@ -276,6 +332,14 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$container"
+
+  assert_success
+  assert_output "true"
 }
 
 @test "create: Ubuntu 16.04" {
@@ -295,6 +359,14 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$container"
+
+  assert_success
+  assert_output "true"
 }
 
 @test "create: Ubuntu 18.04" {
@@ -314,6 +386,14 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$container"
+
+  assert_success
+  assert_output "true"
 }
 
 @test "create: Ubuntu 20.04" {
@@ -333,6 +413,14 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$container"
+
+  assert_success
+  assert_output "true"
 }
 
 @test "create: With a custom image without a name" {
@@ -350,6 +438,14 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$image"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$image"
+
+  assert_success
+  assert_output "true"
 }
 
 @test "create: With a custom image without a name, and container name (using positional argument)" {
@@ -369,6 +465,14 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$container"
+
+  assert_success
+  assert_output "true"
 }
 
 @test "create: With a custom image without a name, and container name (using option --container)" {
@@ -388,6 +492,14 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$container"
+
+  assert_success
+  assert_output "true"
 }
 
 @test "create: Try the same name again" {
@@ -1069,4 +1181,12 @@ teardown() {
 
   assert_success
   assert_output --regexp "Created[[:blank:]]+$container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$container"
+
+  assert_success
+  assert_output "true"
 }
