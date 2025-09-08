@@ -159,6 +159,7 @@ teardown() {
 
   run podman ps --all
 
+  assert_success
   assert_output --regexp "Created[[:blank:]]+arch-toolbox-latest"
 }
 
@@ -184,6 +185,7 @@ teardown() {
 
   run podman ps --all
 
+  assert_success
   assert_output --regexp "Created[[:blank:]]+arch-toolbox-latest"
 }
 
@@ -209,6 +211,7 @@ teardown() {
 
   run podman ps --all
 
+  assert_success
   assert_output --regexp "Created[[:blank:]]+arch-toolbox-latest"
 }
 
@@ -225,6 +228,7 @@ teardown() {
 
   run podman ps --all
 
+  assert_success
   assert_output --regexp "Created[[:blank:]]+fedora-toolbox-34"
 }
 
@@ -241,6 +245,7 @@ teardown() {
 
   run podman ps --all
 
+  assert_success
   assert_output --regexp "Created[[:blank:]]+rhel-toolbox-8.10"
 }
 
