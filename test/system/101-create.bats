@@ -50,11 +50,13 @@ teardown() {
 @test "create: With a custom name (using option --container)" {
   pull_default_image
 
-  run --separate-stderr "$TOOLBX" create --container "custom-containerName"
+  local container="custom-containerName"
+
+  run --separate-stderr "$TOOLBX" create --container "$container"
 
   assert_success
-  assert_line --index 0 "Created container: custom-containerName"
-  assert_line --index 1 "Enter with: toolbox enter custom-containerName"
+  assert_line --index 0 "Created container: $container"
+  assert_line --index 1 "Enter with: toolbox enter $container"
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
@@ -62,11 +64,13 @@ teardown() {
 @test "create: With a custom image and name (using option --container)" {
   pull_distro_image fedora 34
 
-  run --separate-stderr "$TOOLBX" create --container "fedora34" --image fedora-toolbox:34
+  local container="fedora34"
+
+  run --separate-stderr "$TOOLBX" create --container "$container" --image fedora-toolbox:34
 
   assert_success
-  assert_line --index 0 "Created container: fedora34"
-  assert_line --index 1 "Enter with: toolbox enter fedora34"
+  assert_line --index 0 "Created container: $container"
+  assert_line --index 1 "Enter with: toolbox enter $container"
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
@@ -143,15 +147,17 @@ teardown() {
 
   pull_distro_image arch latest
 
+  local container="arch-toolbox-latest"
+
   run --separate-stderr "$TOOLBX" create --distro arch
 
   assert_success
-  assert_line --index 0 "Created container: arch-toolbox-latest"
+  assert_line --index 0 "Created container: $container"
 
   if [ "$system_id" = "arch" ]; then
     assert_line --index 1 "Enter with: toolbox enter"
   else
-    assert_line --index 1 "Enter with: toolbox enter arch-toolbox-latest"
+    assert_line --index 1 "Enter with: toolbox enter $container"
   fi
 
   assert [ ${#lines[@]} -eq 2 ]
@@ -160,7 +166,7 @@ teardown() {
   run podman ps --all
 
   assert_success
-  assert_output --regexp "Created[[:blank:]]+arch-toolbox-latest"
+  assert_output --regexp "Created[[:blank:]]+$container"
 }
 
 @test "create: Arch Linux ('--release latest')" {
@@ -169,15 +175,17 @@ teardown() {
 
   pull_distro_image arch latest
 
+  local container="arch-toolbox-latest"
+
   run --separate-stderr "$TOOLBX" create --distro arch --release latest
 
   assert_success
-  assert_line --index 0 "Created container: arch-toolbox-latest"
+  assert_line --index 0 "Created container: $container"
 
   if [ "$system_id" = "arch" ]; then
     assert_line --index 1 "Enter with: toolbox enter"
   else
-    assert_line --index 1 "Enter with: toolbox enter arch-toolbox-latest"
+    assert_line --index 1 "Enter with: toolbox enter $container"
   fi
 
   assert [ ${#lines[@]} -eq 2 ]
@@ -186,7 +194,7 @@ teardown() {
   run podman ps --all
 
   assert_success
-  assert_output --regexp "Created[[:blank:]]+arch-toolbox-latest"
+  assert_output --regexp "Created[[:blank:]]+$container"
 }
 
 @test "create: Arch Linux ('--release rolling')" {
@@ -195,15 +203,17 @@ teardown() {
 
   pull_distro_image arch latest
 
+  local container="arch-toolbox-latest"
+
   run --separate-stderr "$TOOLBX" create --distro arch --release rolling
 
   assert_success
-  assert_line --index 0 "Created container: arch-toolbox-latest"
+  assert_line --index 0 "Created container: $container"
 
   if [ "$system_id" = "arch" ]; then
     assert_line --index 1 "Enter with: toolbox enter"
   else
-    assert_line --index 1 "Enter with: toolbox enter arch-toolbox-latest"
+    assert_line --index 1 "Enter with: toolbox enter $container"
   fi
 
   assert [ ${#lines[@]} -eq 2 ]
@@ -212,92 +222,102 @@ teardown() {
   run podman ps --all
 
   assert_success
-  assert_output --regexp "Created[[:blank:]]+arch-toolbox-latest"
+  assert_output --regexp "Created[[:blank:]]+$container"
 }
 
 @test "create: Fedora 34" {
   pull_distro_image fedora 34
 
+  local container="fedora-toolbox-34"
+
   run --separate-stderr "$TOOLBX" create --distro fedora --release f34
 
   assert_success
-  assert_line --index 0 "Created container: fedora-toolbox-34"
-  assert_line --index 1 "Enter with: toolbox enter fedora-toolbox-34"
+  assert_line --index 0 "Created container: $container"
+  assert_line --index 1 "Enter with: toolbox enter $container"
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run podman ps --all
 
   assert_success
-  assert_output --regexp "Created[[:blank:]]+fedora-toolbox-34"
+  assert_output --regexp "Created[[:blank:]]+$container"
 }
 
 @test "create: RHEL 8.10" {
   pull_distro_image rhel 8.10
 
+  local container="rhel-toolbox-8.10"
+
   run --separate-stderr "$TOOLBX" create --distro rhel --release 8.10
 
   assert_success
-  assert_line --index 0 "Created container: rhel-toolbox-8.10"
-  assert_line --index 1 "Enter with: toolbox enter rhel-toolbox-8.10"
+  assert_line --index 0 "Created container: $container"
+  assert_line --index 1 "Enter with: toolbox enter $container"
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run podman ps --all
 
   assert_success
-  assert_output --regexp "Created[[:blank:]]+rhel-toolbox-8.10"
+  assert_output --regexp "Created[[:blank:]]+$container"
 }
 
 @test "create: Ubuntu 16.04" {
   pull_distro_image ubuntu 16.04
 
+  local container="ubuntu-toolbox-16.04"
+
   run --separate-stderr "$TOOLBX" create --distro ubuntu --release 16.04
 
   assert_success
-  assert_line --index 0 "Created container: ubuntu-toolbox-16.04"
-  assert_line --index 1 "Enter with: toolbox enter ubuntu-toolbox-16.04"
+  assert_line --index 0 "Created container: $container"
+  assert_line --index 1 "Enter with: toolbox enter $container"
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run podman ps --all
 
   assert_success
-  assert_output --regexp "Created[[:blank:]]+ubuntu-toolbox-16.04"
+  assert_output --regexp "Created[[:blank:]]+$container"
 }
 
 @test "create: Ubuntu 18.04" {
   pull_distro_image ubuntu 18.04
 
+  local container="ubuntu-toolbox-18.04"
+
   run --separate-stderr "$TOOLBX" create --distro ubuntu --release 18.04
 
   assert_success
-  assert_line --index 0 "Created container: ubuntu-toolbox-18.04"
-  assert_line --index 1 "Enter with: toolbox enter ubuntu-toolbox-18.04"
+  assert_line --index 0 "Created container: $container"
+  assert_line --index 1 "Enter with: toolbox enter $container"
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run podman ps --all
 
   assert_success
-  assert_output --regexp "Created[[:blank:]]+ubuntu-toolbox-18.04"
+  assert_output --regexp "Created[[:blank:]]+$container"
 }
 
 @test "create: Ubuntu 20.04" {
   pull_distro_image ubuntu 20.04
 
+  local container="ubuntu-toolbox-20.04"
+
   run --separate-stderr "$TOOLBX" create --distro ubuntu --release 20.04
 
   assert_success
-  assert_line --index 0 "Created container: ubuntu-toolbox-20.04"
-  assert_line --index 1 "Enter with: toolbox enter ubuntu-toolbox-20.04"
+  assert_line --index 0 "Created container: $container"
+  assert_line --index 1 "Enter with: toolbox enter $container"
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run podman ps --all
 
   assert_success
-  assert_output --regexp "Created[[:blank:]]+ubuntu-toolbox-20.04"
+  assert_output --regexp "Created[[:blank:]]+$container"
 }
 
 @test "create: With a custom image without a name" {
@@ -320,35 +340,39 @@ teardown() {
 @test "create: With a custom image without a name, and container name (using positional argument)" {
   image="$(build_image_without_name)"
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" non-default
+  local container="non-default"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" "$container"
 
   assert_success
-  assert_line --index 0 "Created container: non-default"
-  assert_line --index 1 "Enter with: toolbox enter non-default"
+  assert_line --index 0 "Created container: $container"
+  assert_line --index 1 "Enter with: toolbox enter $container"
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run podman ps --all
 
   assert_success
-  assert_output --regexp "Created[[:blank:]]+non-default"
+  assert_output --regexp "Created[[:blank:]]+$container"
 }
 
 @test "create: With a custom image without a name, and container name (using option --container)" {
   image="$(build_image_without_name)"
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" --container non-default
+  local container="non-default"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" --container "$container"
 
   assert_success
-  assert_line --index 0 "Created container: non-default"
-  assert_line --index 1 "Enter with: toolbox enter non-default"
+  assert_line --index 0 "Created container: $container"
+  assert_line --index 1 "Enter with: toolbox enter $container"
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
   run podman ps --all
 
   assert_success
-  assert_output --regexp "Created[[:blank:]]+non-default"
+  assert_output --regexp "Created[[:blank:]]+$container"
 }
 
 @test "create: Try the same name again" {
@@ -1004,13 +1028,15 @@ teardown() {
   assert_line --index 2 "Use 'toolbox --verbose ...' for further details."
   assert [ ${#stderr_lines[@]} -eq 3 ]
 
+  local container="fedora-toolbox-34"
+
   run --separate-stderr "$TOOLBX" --assumeyes create --authfile "$authfile" --image "$DOCKER_REG_URI/$image"
 
   rm "$authfile"
 
   assert_success
-  assert_line --index 0 "Created container: fedora-toolbox-34"
-  assert_line --index 1 "Enter with: toolbox enter fedora-toolbox-34"
+  assert_line --index 0 "Created container: $container"
+  assert_line --index 1 "Enter with: toolbox enter $container"
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
