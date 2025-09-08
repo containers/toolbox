@@ -45,6 +45,11 @@ teardown() {
 
   # shellcheck disable=SC2154
   assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$default_container"
 }
 
 @test "create: With a custom name (using option --container)" {
@@ -59,6 +64,11 @@ teardown() {
   assert_line --index 1 "Enter with: toolbox enter $container"
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$container"
 }
 
 @test "create: With a custom image and name (using option --container)" {
@@ -73,6 +83,11 @@ teardown() {
   assert_line --index 1 "Enter with: toolbox enter $container"
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$container"
 }
 
 @test "create: Try without --assumeyes" {
@@ -389,6 +404,11 @@ teardown() {
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$default_container"
+
   run -1 --keep-empty-lines --separate-stderr "$TOOLBX" create
 
   assert_failure
@@ -398,6 +418,11 @@ teardown() {
   assert_line --index 1 "Enter with: toolbox enter"
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#stderr_lines[@]} -eq 3 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$default_container"
 }
 
 @test "create: Try an unsupported distribution" {
@@ -1039,4 +1064,9 @@ teardown() {
   assert_line --index 1 "Enter with: toolbox enter $container"
   assert [ ${#lines[@]} -eq 2 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$container"
 }
