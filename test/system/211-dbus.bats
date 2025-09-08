@@ -49,7 +49,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "dbus: session bus inside the default container" {
+@test "dbus: Session bus inside the default container" {
   local expected_response
   expected_response="$(gdbus call \
                          --session \
@@ -72,7 +72,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "dbus: session bus inside Arch Linux" {
+@test "dbus: Session bus inside Arch Linux" {
   local expected_response
   expected_response="$(gdbus call \
                          --session \
@@ -97,7 +97,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "dbus: session bus inside Fedora 34" {
+@test "dbus: Session bus inside Fedora 34" {
   local expected_response
   expected_response="$(gdbus call \
                          --session \
@@ -123,7 +123,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "dbus: session bus inside RHEL 8.10" {
+@test "dbus: Session bus inside RHEL 8.10" {
   local expected_response
   expected_response="$(gdbus call \
                          --session \
@@ -149,7 +149,7 @@ teardown_file() {
 }
 
 # bats test_tags=ubuntu
-@test "dbus: session bus inside Ubuntu 16.04" {
+@test "dbus: Session bus inside Ubuntu 16.04" {
   busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer Ping
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run \
@@ -167,7 +167,7 @@ teardown_file() {
 }
 
 # bats test_tags=ubuntu
-@test "dbus: session bus inside Ubuntu 18.04" {
+@test "dbus: Session bus inside Ubuntu 18.04" {
   busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer Ping
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run \
@@ -185,7 +185,7 @@ teardown_file() {
 }
 
 # bats test_tags=ubuntu
-@test "dbus: session bus inside Ubuntu 20.04" {
+@test "dbus: Session bus inside Ubuntu 20.04" {
   busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.Peer Ping
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run \
@@ -203,7 +203,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "dbus: system bus inside the default container" {
+@test "dbus: System bus inside the default container" {
   local expected_response
   expected_response="$(gdbus call \
                          --system \
@@ -230,7 +230,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "dbus: system bus inside Arch Linux" {
+@test "dbus: System bus inside Arch Linux" {
   local expected_response
   expected_response="$(gdbus call \
                          --system \
@@ -259,7 +259,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "dbus: system bus inside Fedora 34" {
+@test "dbus: System bus inside Fedora 34" {
   local expected_response
   expected_response="$(gdbus call \
                          --system \
@@ -289,7 +289,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "dbus: system bus inside RHEL 8.10" {
+@test "dbus: System bus inside RHEL 8.10" {
   local expected_response
   expected_response="$(gdbus call \
                          --system \
@@ -319,7 +319,7 @@ teardown_file() {
 }
 
 # bats test_tags=ubuntu
-@test "dbus: system bus inside Ubuntu 16.04" {
+@test "dbus: System bus inside Ubuntu 16.04" {
   local expected_response
   expected_response="$(busctl --system get-property \
                          org.freedesktop.systemd1 \
@@ -345,7 +345,7 @@ teardown_file() {
 }
 
 # bats test_tags=ubuntu
-@test "dbus: system bus inside Ubuntu 18.04" {
+@test "dbus: System bus inside Ubuntu 18.04" {
   local expected_response
   expected_response="$(busctl --system get-property \
                          org.freedesktop.systemd1 \
@@ -371,7 +371,7 @@ teardown_file() {
 }
 
 # bats test_tags=ubuntu
-@test "dbus: system bus inside Ubuntu 20.04" {
+@test "dbus: System bus inside Ubuntu 20.04" {
   local expected_response
   expected_response="$(busctl --system get-property \
                          org.freedesktop.systemd1 \

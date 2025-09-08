@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2023 – 2024 Red Hat, Inc.
+# Copyright © 2023 – 2025 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: real-time non-blocking time (hard)" {
+@test "ulimit: Real-time non-blocking time (hard)" {
   local limit
   limit=$(ulimit -H -R)
 
@@ -49,7 +49,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: real-time non-blocking time (soft)" {
+@test "ulimit: Real-time non-blocking time (soft)" {
   local limit
   limit=$(ulimit -S -R)
 
@@ -64,7 +64,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: core file size (hard)" {
+@test "ulimit: Core file size (hard)" {
   local limit
   limit=$(ulimit -H -c)
 
@@ -79,7 +79,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: core file size (soft)" {
+@test "ulimit: Core file size (soft)" {
   local limit
   limit=$(ulimit -S -c)
 
@@ -94,7 +94,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: data segment size (hard)" {
+@test "ulimit: Data segment size (hard)" {
   local limit
   limit=$(ulimit -H -d)
 
@@ -109,7 +109,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: data segment size (soft)" {
+@test "ulimit: Data segment size (soft)" {
   local limit
   limit=$(ulimit -S -d)
 
@@ -124,7 +124,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: scheduling priority (hard)" {
+@test "ulimit: Scheduling priority (hard)" {
   local limit
   limit=$(ulimit -H -e)
 
@@ -139,7 +139,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: scheduling priority (soft)" {
+@test "ulimit: Scheduling priority (soft)" {
   local limit
   limit=$(ulimit -S -e)
 
@@ -154,7 +154,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: file size (hard)" {
+@test "ulimit: File size (hard)" {
   local limit
   limit=$(ulimit -H -f)
 
@@ -169,7 +169,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: file size (soft)" {
+@test "ulimit: File size (soft)" {
   local limit
   limit=$(ulimit -S -f)
 
@@ -184,7 +184,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: number of pending signals (hard)" {
+@test "ulimit: Number of pending signals (hard)" {
   local limit
   limit=$(ulimit -H -i)
 
@@ -199,7 +199,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: number of pending signals (soft)" {
+@test "ulimit: Number of pending signals (soft)" {
   local limit
   limit=$(ulimit -S -i)
 
@@ -214,7 +214,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: locked memory size (hard)" {
+@test "ulimit: Locked memory size (hard)" {
   local limit
   limit=$(ulimit -H -l)
 
@@ -229,7 +229,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: locked memory size (soft)" {
+@test "ulimit: Locked memory size (soft)" {
   local limit
   limit=$(ulimit -S -l)
 
@@ -244,7 +244,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: resident memory size (hard)" {
+@test "ulimit: Resident memory size (hard)" {
   local limit
   limit=$(ulimit -H -m)
 
@@ -259,7 +259,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: resident memory size (soft)" {
+@test "ulimit: Resident memory size (soft)" {
   local limit
   limit=$(ulimit -S -m)
 
@@ -274,7 +274,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: number of open files (hard)" {
+@test "ulimit: Number of open files (hard)" {
   local limit
   limit=$(ulimit -H -n)
 
@@ -289,7 +289,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: number of open files (soft)" {
+@test "ulimit: Number of open files (soft)" {
   local limit
   limit=$(ulimit -H -n)
 
@@ -304,7 +304,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: pipe size (hard)" {
+@test "ulimit: Pipe size (hard)" {
   local limit
   limit=$(ulimit -H -p)
 
@@ -319,7 +319,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: pipe size (soft)" {
+@test "ulimit: Pipe size (soft)" {
   local limit
   limit=$(ulimit -S -p)
 
@@ -364,7 +364,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: real-time scheduling priority (hard)" {
+@test "ulimit: Real-time scheduling priority (hard)" {
   local limit
   limit=$(ulimit -H -r)
 
@@ -379,7 +379,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: real-time scheduling priority (soft)" {
+@test "ulimit: Real-time scheduling priority (soft)" {
   local limit
   limit=$(ulimit -S -r)
 
@@ -394,7 +394,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: stack size (hard)" {
+@test "ulimit: Stack size (hard)" {
   local limit
   limit=$(ulimit -H -s)
 
@@ -409,7 +409,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: stack size (soft)" {
+@test "ulimit: Stack size (soft)" {
   local limit
   limit=$(ulimit -S -s)
 
@@ -454,7 +454,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: number of user processes (hard)" {
+@test "ulimit: Number of user processes (hard)" {
   local limit
   limit=$(ulimit -H -u)
 
@@ -469,7 +469,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: number of user processes (soft)" {
+@test "ulimit: Number of user processes (soft)" {
   local limit
   limit=$(ulimit -S -u)
 
@@ -484,7 +484,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: virtual memory size (hard)" {
+@test "ulimit: Virtual memory size (hard)" {
   local limit
   limit=$(ulimit -H -v)
 
@@ -499,7 +499,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: virtual memory size (soft)" {
+@test "ulimit: Virtual memory size (soft)" {
   local limit
   limit=$(ulimit -S -v)
 
@@ -514,7 +514,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: number of file locks (hard)" {
+@test "ulimit: Number of file locks (hard)" {
   local limit
   limit=$(ulimit -H -x)
 
@@ -529,7 +529,7 @@ teardown_file() {
 }
 
 # bats test_tags=arch-fedora
-@test "ulimit: number of file locks (soft)" {
+@test "ulimit: Number of file locks (soft)" {
   local limit
   limit=$(ulimit -S -x)
 
