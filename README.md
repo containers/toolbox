@@ -6,6 +6,21 @@ troubleshooting the host operating system, without having to install software
 on the host. It is built on top of [Podman](https://podman.io/) and other
 standard container technologies from [OCI](https://opencontainers.org/).
 
+> [!NOTE]
+> Toolbx was
+> [previously](https://github.com/containers/toolbox/commit/c3403dae8cb0544e)
+> known as Toolbox, and even
+> [before that](https://github.com/containers/toolbox/commit/c6b5a4836fe63601)
+> as Fedora Toolbox. Work is in progress to update the name to Toolbx in
+> various places. Thus this Git repository and the binary are still `toolbox`
+> and the package may still be `toolbox` on various systems.
+>
+> If you'd like to help,
+> [here's](https://github.com/containers/toolbox/commit/c3403dae8cb0544e)
+> a to-do list.
+>
+> "Toolbx" with a capital "T" and without an "o" is now the canonical name.
+
 Toolbx environments have seamless access to the user's home directory,
 the Wayland and X11 sockets, networking (including Avahi), removable devices
 (like USB sticks), systemd journal, SSH agent, D-Bus, ulimits, /dev and the
