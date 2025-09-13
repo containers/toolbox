@@ -1,6 +1,7 @@
 FROM docker.io/library/archlinux:base-devel
 
 LABEL com.github.containers.toolbox="true" \
+      com.github.containers.toolbox.package-manager.update="sudo pacman -Syu --noconfirm" \
       name="arch-toolbox" \
       version="base-devel" \
       usage="This image is meant to be used with the toolbox command" \
