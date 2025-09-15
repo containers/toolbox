@@ -26,7 +26,7 @@ setup() {
 }
 
 @test "completion: Smoke test with 'bash'" {
-  run "$TOOLBX" completion bash
+  run --keep-empty-lines "$TOOLBX" completion bash
 
   assert_success
   assert [ ${#lines[@]} -gt 0 ]
@@ -36,7 +36,7 @@ setup() {
 }
 
 @test "completion: Smoke test with 'fish'" {
-  run "$TOOLBX" completion fish
+  run --keep-empty-lines "$TOOLBX" completion fish
 
   assert_success
   assert [ ${#lines[@]} -gt 0 ]
@@ -44,7 +44,7 @@ setup() {
 }
 
 @test "completion: Smoke test with 'zsh'" {
-  run "$TOOLBX" completion zsh
+  run --keep-empty-lines "$TOOLBX" completion zsh
 
   assert_success
   assert [ ${#lines[@]} -gt 0 ]
@@ -52,7 +52,7 @@ setup() {
 }
 
 @test "completion: Try without any arguments" {
-  run --separate-stderr "$TOOLBX" completion
+  run --keep-empty-lines --separate-stderr "$TOOLBX" completion
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -63,7 +63,7 @@ setup() {
 }
 
 @test "completion: Try with invalid arguments" {
-  run --separate-stderr "$TOOLBX" completion foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" completion foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -74,7 +74,7 @@ setup() {
 }
 
 @test "completion: Try with unknown flag" {
-  run --separate-stderr "$TOOLBX" completion --foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" completion --foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -85,7 +85,7 @@ setup() {
 }
 
 @test "completion: Try with unsupported shell" {
-  run --separate-stderr "$TOOLBX" completion powershell
+  run --keep-empty-lines --separate-stderr "$TOOLBX" completion powershell
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
