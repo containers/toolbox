@@ -26,10 +26,10 @@ setup() {
 }
 
 @test "version: Check version using option --version" {
-  run --separate-stderr "$TOOLBX" --version
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --version
 
   assert_success
-  assert_output --regexp '^toolbox version 0\.[1-9][0-9]*(\.[1-9][0-9]*)?$'
+  assert_line --index 0 --regexp '^toolbox version 0\.[1-9][0-9]*(\.[1-9][0-9]*)?$'
   assert [ ${#lines[@]} -eq 1 ]
 
   # shellcheck disable=SC2154
