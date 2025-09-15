@@ -36,7 +36,7 @@ teardown() {
 
   pull_default_image
 
-  run --separate-stderr "$TOOLBX" create
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create
 
   assert_success
   assert_line --index 0 "Created container: $default_container"
@@ -65,7 +65,7 @@ teardown() {
 
   local container="custom-containerName"
 
-  run --separate-stderr "$TOOLBX" create --container "$container"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --container "$container"
 
   assert_success
   assert_line --index 0 "Created container: $container"
@@ -92,7 +92,7 @@ teardown() {
 
   local container="fedora34"
 
-  run --separate-stderr "$TOOLBX" create --container "$container" --image fedora-toolbox:34
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --container "$container" --image fedora-toolbox:34
 
   assert_success
   assert_line --index 0 "Created container: $container"
@@ -127,7 +127,7 @@ teardown() {
 }
 
 @test "create: Try with an invalid custom name (using positional argument)" {
-  run --separate-stderr "$TOOLBX" --assumeyes create "ßpeci@l.N@m€"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create "ßpeci@l.N@m€"
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -139,7 +139,7 @@ teardown() {
 }
 
 @test "create: Try with an invalid custom name (using option --container)" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --container "ßpeci@l.N@m€"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --container "ßpeci@l.N@m€"
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -153,7 +153,7 @@ teardown() {
 @test "create: Try with an invalid custom image" {
   local image="ßpeci@l.N@m€"
 
-  run --separate-stderr "$TOOLBX" create --image "$image"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image"
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -188,7 +188,7 @@ teardown() {
 
   local container="arch-toolbox-latest"
 
-  run --separate-stderr "$TOOLBX" create --distro arch
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --distro arch
 
   assert_success
   assert_line --index 0 "Created container: $container"
@@ -224,7 +224,7 @@ teardown() {
 
   local container="arch-toolbox-latest"
 
-  run --separate-stderr "$TOOLBX" create --distro arch --release latest
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --distro arch --release latest
 
   assert_success
   assert_line --index 0 "Created container: $container"
@@ -260,7 +260,7 @@ teardown() {
 
   local container="arch-toolbox-latest"
 
-  run --separate-stderr "$TOOLBX" create --distro arch --release rolling
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --distro arch --release rolling
 
   assert_success
   assert_line --index 0 "Created container: $container"
@@ -293,7 +293,7 @@ teardown() {
 
   local container="fedora-toolbox-34"
 
-  run --separate-stderr "$TOOLBX" create --distro fedora --release f34
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --distro fedora --release f34
 
   assert_success
   assert_line --index 0 "Created container: $container"
@@ -320,7 +320,7 @@ teardown() {
 
   local container="rhel-toolbox-8.10"
 
-  run --separate-stderr "$TOOLBX" create --distro rhel --release 8.10
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --distro rhel --release 8.10
 
   assert_success
   assert_line --index 0 "Created container: $container"
@@ -347,7 +347,7 @@ teardown() {
 
   local container="ubuntu-toolbox-16.04"
 
-  run --separate-stderr "$TOOLBX" create --distro ubuntu --release 16.04
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --distro ubuntu --release 16.04
 
   assert_success
   assert_line --index 0 "Created container: $container"
@@ -374,7 +374,7 @@ teardown() {
 
   local container="ubuntu-toolbox-18.04"
 
-  run --separate-stderr "$TOOLBX" create --distro ubuntu --release 18.04
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --distro ubuntu --release 18.04
 
   assert_success
   assert_line --index 0 "Created container: $container"
@@ -401,7 +401,7 @@ teardown() {
 
   local container="ubuntu-toolbox-20.04"
 
-  run --separate-stderr "$TOOLBX" create --distro ubuntu --release 20.04
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --distro ubuntu --release 20.04
 
   assert_success
   assert_line --index 0 "Created container: $container"
@@ -540,7 +540,7 @@ teardown() {
 @test "create: Try an unsupported distribution" {
   local distro="foo"
 
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro "$distro"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro "$distro"
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -564,7 +564,7 @@ teardown() {
 }
 
 @test "create: Try a non-existent image (using --assumeyes)" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --image foo.org/bar
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --image foo.org/bar
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -576,7 +576,7 @@ teardown() {
 }
 
 @test "create: Try Arch Linux with an invalid release ('--release foo')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro arch --release foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro arch --release foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -588,7 +588,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release -3')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release -3
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release -3
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -600,7 +600,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release -3.0')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release -3.0
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release -3.0
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -612,7 +612,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release -3.1')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release -3.1
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release -3.1
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -624,7 +624,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release 0')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 0
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 0
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -636,7 +636,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release 0.0')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 0.0
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 0.0
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -648,7 +648,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release 0.1')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 0.1
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 0.1
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -660,7 +660,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release 3.0')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 3.0
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 3.0
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -672,7 +672,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release 3.1')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 3.1
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 3.1
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -684,7 +684,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release foo')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -696,7 +696,7 @@ teardown() {
 }
 
 @test "create: Try Fedora with an invalid release ('--release 3foo')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 3foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --release 3foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -708,7 +708,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release 8')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -720,7 +720,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release 8.0.0')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8.0.0
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8.0.0
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -732,7 +732,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release 8.0.1')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8.0.1
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8.0.1
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -744,7 +744,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release 8.3.0')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8.3.0
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8.3.0
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -756,7 +756,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release 8.3.1')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8.3.1
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8.3.1
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -768,7 +768,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release foo')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -780,7 +780,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release 8.2foo')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8.2foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 8.2foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -792,7 +792,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release -2.1')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release -2.1
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release -2.1
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -804,7 +804,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release -2.-1')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release -2.-1
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release -2.-1
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -816,7 +816,7 @@ teardown() {
 }
 
 @test "create: Try RHEL with an invalid release ('--release 2.-1')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 2.-1
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro rhel --release 2.-1
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -828,7 +828,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 20')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 20
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 20
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -840,7 +840,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 20.04.0')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 20.04.0
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 20.04.0
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -852,7 +852,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 20.04.1')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 20.04.1
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 20.04.1
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -864,7 +864,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release foo')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -876,7 +876,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 20foo')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 20foo
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 20foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -888,7 +888,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release foo.bar')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release foo.bar
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release foo.bar
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -900,7 +900,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release foo.bar.baz')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release foo.bar.baz
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release foo.bar.baz
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -912,7 +912,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 3.10')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 3.10
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 3.10
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -924,7 +924,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 202.4')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 202.4
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 202.4
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -936,7 +936,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 202.04')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 202.04
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 202.04
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -948,7 +948,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 2020.4')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 2020.4
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 2020.4
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -960,7 +960,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 2020.04')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 2020.04
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 2020.04
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -972,7 +972,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 04.10')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 04.10
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 04.10
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -984,7 +984,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 4.bar')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 4.bar
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 4.bar
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -996,7 +996,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 4.bar.baz')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 4.bar.baz
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 4.bar.baz
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -1008,7 +1008,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 4.0')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 4.0
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 4.0
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -1020,7 +1020,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 4.00')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 4.00
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 4.00
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -1032,7 +1032,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 4.13')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 4.13
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 4.13
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -1044,7 +1044,7 @@ teardown() {
 }
 
 @test "create: Try Ubuntu with an invalid release ('--release 20.4')" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 20.4
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro ubuntu --release 20.4
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -1065,7 +1065,7 @@ teardown() {
     distro="rhel"
   fi
 
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro "$distro"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro "$distro"
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -1088,7 +1088,7 @@ teardown() {
 }
 
 @test "create: Try using both --distro and --image (using --assumeyes)" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --image fedora-toolbox:34
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --distro fedora --image fedora-toolbox:34
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -1110,7 +1110,7 @@ teardown() {
 }
 
 @test "create: Try using both --image and --release (using --assumeyes)" {
-  run --separate-stderr "$TOOLBX" --assumeyes create --image fedora-toolbox:34 --release 34
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --image fedora-toolbox:34 --release 34
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -1123,7 +1123,7 @@ teardown() {
 @test "create: Try a non-existent authentication file" {
   local file="$BATS_TEST_TMPDIR/non-existent-file"
 
-  run --separate-stderr "$TOOLBX" create --authfile "$file"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --authfile "$file"
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -1155,7 +1155,7 @@ teardown() {
   run podman login --authfile "$authfile" --username user --password user "$DOCKER_REG_URI"
   assert_success
 
-  run --separate-stderr "$TOOLBX" --assumeyes create --image "$DOCKER_REG_URI/$image"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --image "$DOCKER_REG_URI/$image"
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
@@ -1167,7 +1167,9 @@ teardown() {
 
   local container="fedora-toolbox-34"
 
-  run --separate-stderr "$TOOLBX" --assumeyes create --authfile "$authfile" --image "$DOCKER_REG_URI/$image"
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create \
+                                             --authfile "$authfile" \
+                                             --image "$DOCKER_REG_URI/$image"
 
   rm "$authfile"
 
