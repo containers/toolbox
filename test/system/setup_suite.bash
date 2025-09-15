@@ -24,7 +24,7 @@ else
 fi
 
 setup_suite() {
-  bats_require_minimum_version 1.7.0
+  bats_require_minimum_version 1.10.0
   echo "# test suite: Set up" >&3
 
   if $missing_dependencies; then
@@ -72,7 +72,7 @@ setup_suite() {
 }
 
 teardown_suite() {
-  bats_require_minimum_version 1.7.0
+  bats_require_minimum_version 1.10.0
   echo "# test suite: Tear down" >&3
 
   if $missing_dependencies; then

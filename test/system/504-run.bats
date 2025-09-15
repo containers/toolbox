@@ -1,6 +1,6 @@
 # shellcheck shell=bats
 #
-# Copyright © 2024 Red Hat, Inc.
+# Copyright © 2024 – 2025 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ load 'libs/bats-assert/load'
 load 'libs/helpers'
 
 setup() {
-  bats_require_minimum_version 1.8.0
+  bats_require_minimum_version 1.10.0
   cleanup_all
   pushd "$HOME" || return 1
 }

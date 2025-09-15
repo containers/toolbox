@@ -22,7 +22,7 @@ load 'libs/bats-assert/load'
 load 'libs/helpers'
 
 setup() {
-  bats_require_minimum_version 1.8.0
+  bats_require_minimum_version 1.10.0
   cleanup_all
   pushd "$HOME" || return 1
 }

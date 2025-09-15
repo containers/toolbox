@@ -22,7 +22,7 @@ load 'libs/bats-assert/load'
 load 'libs/helpers.bash'
 
 setup() {
-  bats_require_minimum_version 1.8.0
+  bats_require_minimum_version 1.10.0
 }
 
 @test "version: Check version using option --version" {
