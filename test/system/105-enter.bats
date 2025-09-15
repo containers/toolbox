@@ -31,7 +31,7 @@ teardown() {
 }
 
 @test "enter: Try to enter the default container with no containers created" {
-  run "$TOOLBX" enter <<< "n"
+  run --keep-empty-lines "$TOOLBX" enter <<< "n"
 
   assert_success
   assert_line --index 0 "No Toolbx containers found. Create now? [y/N] A container can be created later with the 'create' command."
@@ -45,7 +45,7 @@ teardown() {
   create_container first
   create_container second
 
-  run "$TOOLBX" enter
+  run --keep-empty-lines "$TOOLBX" enter
 
   assert_failure
   assert_line --index 0 "Error: container $default_container_name not found"
@@ -54,7 +54,7 @@ teardown() {
 }
 
 @test "enter: Try to enter a specific container with no containers created " {
-  run "$TOOLBX" enter wrong-container <<< "n"
+  run --keep-empty-lines "$TOOLBX" enter wrong-container <<< "n"
 
   assert_success
   assert_line --index 0 "No Toolbx containers found. Create now? [y/N] A container can be created later with the 'create' command."
@@ -64,7 +64,7 @@ teardown() {
 @test "enter: Try to enter a specific non-existent container with other containers present" {
   create_container other-container
 
-  run "$TOOLBX" enter wrong-container
+  run --keep-empty-lines "$TOOLBX" enter wrong-container
 
   assert_failure
   assert_line --index 0 "Error: container wrong-container not found"
@@ -75,7 +75,7 @@ teardown() {
 @test "enter: Try to enter a container based on unsupported distribution" {
   local distro="foo"
 
-  run "$TOOLBX" --assumeyes enter --distro "$distro"
+  run --keep-empty-lines "$TOOLBX" --assumeyes enter --distro "$distro"
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--distro'"
@@ -85,7 +85,7 @@ teardown() {
 }
 
 @test "enter: Try to enter a container based on Fedora but with wrong version" {
-  run "$TOOLBX" enter -d fedora -r foobar
+  run --keep-empty-lines "$TOOLBX" enter -d fedora -r foobar
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -93,7 +93,7 @@ teardown() {
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#lines[@]} -eq 3 ]
 
-  run "$TOOLBX" enter --distro fedora --release -3
+  run --keep-empty-lines "$TOOLBX" enter --distro fedora --release -3
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -103,7 +103,7 @@ teardown() {
 }
 
 @test "enter: Try to enter a container based on RHEL but with wrong version" {
-  run "$TOOLBX" enter --distro rhel --release 8
+  run --keep-empty-lines "$TOOLBX" enter --distro rhel --release 8
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -111,7 +111,7 @@ teardown() {
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#lines[@]} -eq 3 ]
 
-  run "$TOOLBX" enter --distro rhel --release 8.2foo
+  run --keep-empty-lines "$TOOLBX" enter --distro rhel --release 8.2foo
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -119,7 +119,7 @@ teardown() {
   assert_line --index 2 "Run 'toolbox --help' for usage."
   assert [ ${#lines[@]} -eq 3 ]
 
-  run "$TOOLBX" enter --distro rhel --release -2.1
+  run --keep-empty-lines "$TOOLBX" enter --distro rhel --release -2.1
 
   assert_failure
   assert_line --index 0 "Error: invalid argument for '--release'"
@@ -138,7 +138,7 @@ teardown() {
     distro="rhel"
   fi
 
-  run "$TOOLBX" enter -d "$distro"
+  run --keep-empty-lines "$TOOLBX" enter -d "$distro"
 
   assert_failure
   assert_line --index 0 "Error: option '--release' is needed"
