@@ -33,10 +33,10 @@ teardown() {
 
 @test "rm: Try to remove a non-existent container" {
   container_name="nonexistentcontainer"
-  run "$TOOLBX" rm "$container_name"
+  run --keep-empty-lines "$TOOLBX" rm "$container_name"
 
   #assert_failure  #BUG: it should return 1
-  assert_output "Error: failed to inspect container $container_name"
+  assert_line --index 0 "Error: failed to inspect container $container_name"
 }
 
 @test "rm: Try to remove a running container" {
@@ -44,16 +44,16 @@ teardown() {
   create_container running
   start_container running
 
-  run "$TOOLBX" rm running
+  run --keep-empty-lines "$TOOLBX" rm running
 
   #assert_failure  #BUG: it should return 1
-  assert_output "Error: container running is running"
+  assert_line --index 0 "Error: container running is running"
 }
 
 @test "rm: Remove a not running container" {
   create_container not-running
 
-  run "$TOOLBX" rm not-running
+  run --keep-empty-lines "$TOOLBX" rm not-running
 
   assert_success
   assert_output ""
@@ -63,7 +63,7 @@ teardown() {
   create_container running
   start_container running
 
-  run "$TOOLBX" rm --force running
+  run --keep-empty-lines "$TOOLBX" rm --force running
 
   assert_success
   assert_output ""
@@ -77,7 +77,7 @@ teardown() {
   create_container not-running
   start_container running
 
-  run "$TOOLBX" rm --force --all
+  run --keep-empty-lines "$TOOLBX" rm --force --all
 
   assert_success
   assert_output ""
