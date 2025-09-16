@@ -69,6 +69,7 @@
 
 * Added runtime environment tests for the Kerberos and RPM configuration
 * Added unit tests for utils.PathExists()
+* Dropped the PODMAN and SKOPEO environment variables
 * Enabled the commands and options tests for 'list' on Arch and Ubuntu 22.04
 * Enabled the system tests for 'create' and networking on Arch Linux
 * Isolated the storage directory from the host's XDG_CACHE_HOME or HOME —
