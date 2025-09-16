@@ -1,3 +1,30 @@
+0.3
+===
+
+### Security fixes
+
+* Bumped the minimum github.com/go-viper/mapstructure/v2 version to 2.4.0 for
+  GHSA-2464-8j7c-4cjm
+
+### Bug fixes
+
+* Deprecated all containers that need the org.freedesktop.Flatpak.SessionHelper
+  D-Bus interface to keep /etc/localtime and /etc/timezone synchronized with
+  the host
+* Started using a configuration file for the 'p11-kit server' socket on the
+  host, used to access the CA certificates, with p11-kit >= 0.25.6.  Older
+  p11-kit versions will continue to work using the P11_KIT_SERVER_ADDRESS
+  environment variable.
+* Unbroke access to CA certificates in su(1) and sudo(8) sessions (regression
+  in 0.1.2)
+
+### Tests
+
+* Fixed the DNS resolver written in Python, used by the runtime environment
+  tests for networking, to correctly request IPv4 addresses
+* Made the the commands and options tests stricter
+
+
 0.2
 ===
 
