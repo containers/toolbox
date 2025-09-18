@@ -8,6 +8,8 @@ toolbox\-create - Create a new Toolbx container
                [*--distro DISTRO* | *-d DISTRO*]
                [*--image NAME* | *-i NAME*]
                [*--release RELEASE* | *-r RELEASE*]
+               [*--volume* | *-V* [SOURCE-VOLUME|HOST-DIR:]CONTAINER-DIR[:OPTIONS]]
+               [*--env* | *-E* NAME[=VALUE]]
                [*CONTAINER*]
 
 ## DESCRIPTION
