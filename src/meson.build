@@ -36,6 +36,11 @@ sources = files(
   'pkg/version/version.go',
 )
 
+go_tags = []
+if migration_path_for_coreos_toolbox
+  go_tags += 'migration_path_for_coreos_toolbox'
+endif
+
 toolbox_go = custom_target(
   'toolbox',
   command: [
@@ -44,6 +49,10 @@ toolbox_go = custom_target(
     '-C', meson.current_source_dir(),
     '-trimpath',
     '-buildmode=c-archive',
+    '-tags', ','.join(go_tags),
+    '-ldflags',
+    '-X github.com/containers/toolbox/pkg/version.currentVersion='
+    + meson.project_version(),
     '-o', meson.project_build_root() + '/@OUTPUT@',
     '@INPUT@',
   ],
