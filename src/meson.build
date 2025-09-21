@@ -60,7 +60,7 @@ toolbox_go = custom_target(
   output: 'toolbox.a',
 )
 
-cc_exe = cc.cmd_array().get(-1)
+cc_exe = find_program(cc.cmd_array().get(-1))
 readlink = find_program('readlink')
 dirname = find_program('dirname')
 
@@ -73,6 +73,23 @@ message('Host machine libc:', libc_dir)
 rpath = '/run/host' + libc_dir
 message('Setting rpath:', rpath)
 
+# objcopy only writes to files, but /proc/self/fd/1 is stdout so take that
+objcopy = find_program('objcopy')
+ldpath = run_command(
+  objcopy,
+  '-O', 'binary',
+  '--only-section=.interp',
+  cc_exe.full_path(),
+  '/proc/self/fd/1',
+  capture: true,
+  check: true,
+)
+
+# .interp ends in a null char, so make sure to strip it
+dynamic_linker = '/run/host' + ldpath.stdout().strip('\0')
+
+message('Setting dynamic linker:', dynamic_linker)
+
 toolbox = executable(
   'toolbox',
   sources: [],
@@ -81,6 +98,7 @@ toolbox = executable(
     '-Wl,-z,lazy',
     '-Wl,--export-dynamic',
     '-Wl,--unresolved-symbols=ignore-in-object-files',
+    '-Wl,-dynamic-linker,' + dynamic_linker,
   ],
   build_rpath: rpath,
   install_rpath: rpath,
