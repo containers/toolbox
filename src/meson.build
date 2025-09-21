@@ -75,7 +75,8 @@ message('Setting rpath:', rpath)
 
 # objcopy only writes to files, but /proc/self/fd/1 is stdout so take that
 objcopy = find_program('objcopy')
-ldpath = run_command(
+
+ld_path = run_command(
   objcopy,
   '-O', 'binary',
   '--only-section=.interp',
@@ -86,7 +87,11 @@ ldpath = run_command(
 )
 
 # .interp ends in a null char, so make sure to strip it
-dynamic_linker = '/run/host' + ldpath.stdout().strip('\0')
+ld_path_str = ld_path.stdout().strip('\0')
+
+ld_canon = run_command(readlink, '--canonicalize', ld_path_str, capture: true, check: true).stdout().strip()
+
+dynamic_linker = '/run/host' + ld_canon
 
 message('Setting dynamic linker:', dynamic_linker)
 
