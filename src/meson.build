@@ -34,6 +34,7 @@ sources = files(
   'pkg/utils/utils_cgo.go',
   'pkg/utils/utils_test.go',
   'pkg/version/version.go',
+  'toolbox.go',
 )
 
 go_tags = []
@@ -54,10 +55,8 @@ toolbox_go = custom_target(
     '-X github.com/containers/toolbox/pkg/version.currentVersion='
     + meson.project_version(),
     '-o', meson.project_build_root() + '/@OUTPUT@',
-    '@INPUT@',
   ],
   depend_files: sources,
-  input: 'toolbox.go',
   output: 'toolbox.a',
 )
 
