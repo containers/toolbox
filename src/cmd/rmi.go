@@ -73,7 +73,7 @@ func rmi(cmd *cobra.Command, args []string) error {
 		}
 
 		for _, image := range toolboxImages {
-			imageID := image.ID
+			imageID := image.ID()
 			if err := podman.RemoveImage(imageID, rmiFlags.forceDelete); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 				continue
@@ -90,8 +90,14 @@ func rmi(cmd *cobra.Command, args []string) error {
 		}
 
 		for _, image := range args {
-			if _, err := podman.IsToolboxImage(image); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+			imageObj, err := podman.InspectImage(image)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: failed to inspect image %s\n", image)
+				continue
+			}
+
+			if !imageObj.IsToolbx() {
+				fmt.Fprintf(os.Stderr, "Error: %s is not a Toolbx image\n", image)
 				continue
 			}
 
