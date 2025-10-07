@@ -23,6 +23,7 @@ sources = files(
   'pkg/nvidia/nvidia.go',
   'pkg/podman/container.go',
   'pkg/podman/errors.go',
+  'pkg/podman/image.go',
   'pkg/podman/podman.go',
   'pkg/podman/containerInspect_test.go',
   'pkg/shell/shell.go',

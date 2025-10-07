@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"sort"
 	"text/tabwriter"
 
 	"github.com/containers/toolbox/pkg/podman"
@@ -34,12 +33,6 @@ var (
 	listFlags struct {
 		onlyContainers bool
 		onlyImages     bool
-	}
-
-	// toolboxLabels holds labels used by containers/images that mark them as compatible with Toolbx
-	toolboxLabels = map[string]string{
-		"com.github.debarshiray.toolbox": "true",
-		"com.github.containers.toolbox":  "true",
 	}
 )
 
@@ -154,38 +147,20 @@ func listHelp(cmd *cobra.Command, args []string) {
 func getImages(fillNameWithID bool) ([]podman.Image, error) {
 	logrus.Debug("Fetching all images")
 	var args []string
-	images, err := podman.GetImages(args...)
+	images, err := podman.GetImages(fillNameWithID, true, args...)
 	if err != nil {
 		logrus.Debugf("Fetching all images failed: %s", err)
 		return nil, errors.New("failed to get images")
 	}
 
-	processed := make(map[string]struct{})
 	var toolboxImages []podman.Image
 
-	for _, image := range images {
-		if _, ok := processed[image.ID]; ok {
-			continue
+	for images.Next() {
+		if image := images.Get(); image.IsToolbx() {
+			toolboxImages = append(toolboxImages, image)
 		}
-
-		processed[image.ID] = struct{}{}
-		var isToolboxImage bool
-
-		for label := range toolboxLabels {
-			if _, ok := image.Labels[label]; ok {
-				isToolboxImage = true
-				break
-			}
-		}
-
-		if isToolboxImage {
-			flattenedImages := image.FlattenNames(fillNameWithID)
-			toolboxImages = append(toolboxImages, flattenedImages...)
-		}
-
 	}
 
-	sort.Sort(podman.ImageSlice(toolboxImages))
 	return toolboxImages, nil
 }
 
@@ -195,14 +170,14 @@ func listOutput(images []podman.Image, containers []podman.Container) {
 		fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
 
 		for _, image := range images {
-			if len(image.Names) != 1 {
+			if len(image.Names()) != 1 {
 				panic("cannot list unflattened Image")
 			}
 
 			fmt.Fprintf(writer, "%s\t%s\t%s\n",
-				utils.ShortID(image.ID),
-				image.Names[0],
-				image.Created)
+				utils.ShortID(image.ID()),
+				image.Names()[0],
+				image.Created())
 		}
 
 		writer.Flush()
