@@ -42,8 +42,8 @@ container, SELinux label separation is disabled, and the host file system can
 be accessed by the container at /run/host. The container has access to the
 host's Kerberos credentials cache if it's configured to use KCM caches.
 
-A Toolbx container can be identified by the `com.github.containers.toolbox`
-label or the `/run/.toolboxenv` file.
+A Toolbx container can be identified by the
+`com.github.containers.toolbox` label or the `/run/.toolbxenv` file.
 
 The entry point of a Toolbx container is the `toolbox init-container` command
 which plays a role in setting up the container, along with the options passed
