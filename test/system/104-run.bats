@@ -220,10 +220,20 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
-@test "run: Ensure that /run/.toolboxenv exists" {
+@test "run: Ensure that legacy /run/.toolboxenv exists" {
   create_default_container
 
   run --keep-empty-lines --separate-stderr "$TOOLBX" run test -f /run/.toolboxenv
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "run: Ensure that /run/.toolbxenv exists" {
+  create_default_container
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run test -f /run/.toolbxenv
 
   assert_success
   assert [ ${#lines[@]} -eq 0 ]

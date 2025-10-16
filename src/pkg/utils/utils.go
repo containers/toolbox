@@ -765,7 +765,7 @@ func IsInsideContainer() bool {
 }
 
 func IsInsideToolboxContainer() bool {
-	return PathExists("/run/.toolboxenv")
+	return PathExists("/run/.toolbxenv") || PathExists("/run/.toolboxenv")
 }
 
 // ResolveContainerAndImageNames takes care of standardizing names of containers and images.
