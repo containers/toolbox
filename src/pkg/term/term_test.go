@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023 – 2024 Red Hat Inc.
+ * Copyright © 2023 – 2025 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"golang.org/x/sys/unix"
 )
 
 func TestIsTerminalTemporaryFile(t *testing.T) {
 	dir := t.TempDir()
 	file, err := os.CreateTemp(dir, "TestIsTerminalTempFile")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	fileName := file.Name()
 	defer os.Remove(fileName)
 	defer file.Close()
@@ -38,7 +39,7 @@ func TestIsTerminalTemporaryFile(t *testing.T) {
 
 func TestIsTerminalTerminal(t *testing.T) {
 	file, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer file.Close()
 
 	ok := IsTerminal(file)
@@ -47,7 +48,7 @@ func TestIsTerminalTerminal(t *testing.T) {
 
 func TestNewStateFromDifferent(t *testing.T) {
 	file, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer file.Close()
 
 	oldState, err := GetState(file)
@@ -66,7 +67,7 @@ func TestNewStateFromDifferent(t *testing.T) {
 
 func TestNewStateFromNOP(t *testing.T) {
 	file, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer file.Close()
 
 	oldState, err := GetState(file)
@@ -85,7 +86,7 @@ func TestNewStateFromNOP(t *testing.T) {
 
 func TestSetStateDifferent(t *testing.T) {
 	file, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer file.Close()
 
 	oldState, err := GetState(file)
@@ -118,7 +119,7 @@ func TestSetStateDifferent(t *testing.T) {
 
 func TestSetStateNOP(t *testing.T) {
 	file, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer file.Close()
 
 	oldState, err := GetState(file)

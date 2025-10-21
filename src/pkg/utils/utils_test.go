@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestImageReferenceCanBeID(t *testing.T) {
@@ -370,7 +371,7 @@ func TestPathExistsDoesNotExist(t *testing.T) {
 
 func TestPathExistsExecutable(t *testing.T) {
 	path, err := os.Executable()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	exists := PathExists(path)
 	assert.True(t, exists)
 }
