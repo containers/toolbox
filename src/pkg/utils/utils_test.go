@@ -18,6 +18,7 @@ package utils
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -373,5 +374,27 @@ func TestPathExistsExecutable(t *testing.T) {
 	path, err := os.Executable()
 	require.NoError(t, err)
 	exists := PathExists(path)
+	assert.True(t, exists)
+}
+
+func TestPathExistsSymlinkTargetDoesNotExist(t *testing.T) {
+	dir := t.TempDir()
+	link := filepath.Join(dir, "link")
+	err := os.Symlink("/target/does/not/exist", link)
+	require.NoError(t, err)
+
+	exists := PathExists(link)
+	assert.False(t, exists)
+}
+
+func TestPathExistsSymlinkTargetExists(t *testing.T) {
+	target, err := os.Executable()
+	require.NoError(t, err)
+	dir := t.TempDir()
+	link := filepath.Join(dir, "link")
+	err = os.Symlink(target, link)
+	require.NoError(t, err)
+
+	exists := PathExists(link)
 	assert.True(t, exists)
 }
