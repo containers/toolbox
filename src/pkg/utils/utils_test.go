@@ -363,13 +363,14 @@ func TestParseRelease(t *testing.T) {
 	}
 }
 
-func TestPathExists(t *testing.T) {
+func TestPathExistsDoesNotExist(t *testing.T) {
+	exists := PathExists("/does/not/exist")
+	assert.False(t, exists)
+}
+
+func TestPathExistsExecutable(t *testing.T) {
 	path, err := os.Executable()
 	assert.NoError(t, err)
 	exists := PathExists(path)
 	assert.True(t, exists)
-
-	path = "/does/not/exist"
-	exists = PathExists(path)
-	assert.False(t, exists)
 }
