@@ -371,8 +371,7 @@ func TestPathExistsDoesNotExist(t *testing.T) {
 }
 
 func TestPathExistsExecutable(t *testing.T) {
-	path, err := os.Executable()
-	require.NoError(t, err)
+	path := t.TempDir()
 	exists := PathExists(path)
 	assert.True(t, exists)
 }
