@@ -147,6 +147,220 @@ teardown() {
   assert [ ${#lines[@]} -eq 3 ]
 }
 
+@test "enter: With a non-Toolbx image and prompt for confirmation - Yes" {
+  containerName="test-container-non-toolbx"
+  image="$(build_non_toolbx_image)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" enter --container "$containerName" <<< "y"
+
+  assert_failure
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}"
+  assert [ ${#lines[@]} -eq 1 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_non_toolbx_image "$image")"
+  assert_line --index 1 "$(failed_start_error_message "$containerName")"
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
+@test "enter: With a non-Toolbx image and prompt for confirmation - No" {
+  containerName="test-container-non-toolbx"
+  image="$(build_non_toolbx_image)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" enter --container "$containerName" <<< "n"
+
+  assert_success
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}"
+  assert [ ${#lines[@]} -eq 1 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_non_toolbx_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "enter: With a non-Toolbx image and prompt for confirmation - assumeyes" {
+  containerName="test-container-non-toolbx"
+  image="$(build_non_toolbx_image)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes enter --container "$containerName"
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_non_toolbx_image "$image")"
+  assert_line --index 1 "$(failed_start_error_message "$containerName")"
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
+@test "enter: With an image with LD_PRELOAD set and prompt for confirmation - Yes" {
+  containerName="test-container-ld-preload"
+  image="$(build_image_with_ld_preload)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" enter --container "$containerName" <<< "y"
+
+  assert_failure
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}"
+  assert [ ${#lines[@]} -eq 1 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_ld_preload_image "$image")"
+  assert_line --index 1 "$(failed_start_error_message "$containerName")"
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
+@test "enter: With an image with LD_PRELOAD set and prompt for confirmation - No" {
+  containerName="test-container-ld-preload"
+  image="$(build_image_with_ld_preload)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" enter --container "$containerName" <<< "n"
+
+  assert_success
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}"
+  assert [ ${#lines[@]} -eq 1 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_ld_preload_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "enter: With an image with LD_PRELOAD set and prompt for confirmation - assumeyes" {
+  containerName="test-container-ld-preload"
+  image="$(build_image_with_ld_preload)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes enter --container "$containerName"
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_ld_preload_image "$image")"
+  assert_line --index 1 "$(failed_start_error_message "$containerName")"
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
+@test "enter: With an image with an entrypoint set and prompt for confirmation - Yes" {
+  containerName="test-container-entrypoint"
+  image="$(build_image_with_entrypoint)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" enter --container "$containerName" <<< "y"
+
+  assert_failure
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}"
+  assert [ ${#lines[@]} -eq 1 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_entrypoint_image "$image")"
+  assert_line --index 1 "$(failed_start_error_message "$containerName")"
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
+@test "enter: With an image with an entrypoint set and prompt for confirmation - No" {
+  containerName="test-container-entrypoint"
+  image="$(build_image_with_entrypoint)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" enter --container "$containerName" <<< "n"
+
+  assert_success
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}"
+  assert [ ${#lines[@]} -eq 1 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_entrypoint_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+}
+
+@test "enter: With an image with an entrypoint set and prompt for confirmation - assumeyes" {
+  containerName="test-container-entrypoint"
+  image="$(build_image_with_entrypoint)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes enter --container "$containerName"
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_entrypoint_image "$image")"
+  assert_line --index 1 "$(failed_start_error_message "$containerName")"
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
+@test "enter: With an image having all warnings and prompt for confirmation - Yes" {
+  containerName="test-container-all-warnings"
+  image="$(build_image_with_all_warnings)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" enter --container "$containerName" <<< "y"
+
+  assert_failure
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}"
+  assert [ ${#lines[@]} -eq 1 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_non_toolbx_image "$image")"
+  assert_line --index 1 "$(warning_ld_preload_image "$image")"
+  assert_line --index 2 "$(warning_entrypoint_image "$image")"
+  assert_line --index 3 "$(failed_start_error_message "$containerName")"
+  assert [ ${#stderr_lines[@]} -eq 4 ]
+}
+
+@test "enter: With an image having all warnings and prompt for confirmation - No" {
+  containerName="test-container-all-warnings"
+  image="$(build_image_with_all_warnings)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" enter --container "$containerName" <<< "n"
+
+  assert_success
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}"
+  assert [ ${#lines[@]} -eq 1 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_non_toolbx_image "$image")"
+  assert_line --index 1 "$(warning_ld_preload_image "$image")"
+  assert_line --index 2 "$(warning_entrypoint_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "enter: With an image having all warnings and prompt for confirmation - assumeyes" {
+  containerName="test-container-all-warnings"
+  image="$(build_image_with_all_warnings)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes enter --container "$containerName"
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_non_toolbx_image "$image")"
+  assert_line --index 1 "$(warning_ld_preload_image "$image")"
+  assert_line --index 2 "$(warning_entrypoint_image "$image")"
+  assert_line --index 3 "$(failed_start_error_message "$containerName")"
+  assert [ ${#stderr_lines[@]} -eq 4 ]
+}
+
 # TODO: Write the test
 @test "enter: Enter the default Toolbx" {
   skip "Testing of entering Toolbxes is not implemented"
