@@ -56,6 +56,7 @@ var (
 		distro      string
 		preserveFDs uint
 		release     string
+		workDir     string
 	}
 
 	runFallbackCommands = [][]string{{"/bin/bash", "-l"}}
@@ -95,6 +96,12 @@ func init() {
 		"r",
 		"",
 		"Run command inside a Toolbx container for a different operating system release than the host")
+
+	flags.StringVarP(&runFlags.workDir,
+		"workdir",
+		"w",
+		"",
+		"Run command inside a Toolbx container within the given working directory.")
 
 	runCmd.SetHelpFunc(runHelp)
 
@@ -156,6 +163,7 @@ func run(cmd *cobra.Command, args []string) error {
 		image,
 		release,
 		runFlags.preserveFDs,
+		runFlags.workDir,
 		command,
 		false,
 		false,
@@ -170,6 +178,7 @@ func runCommand(container string,
 	defaultContainer bool,
 	image, release string,
 	preserveFDs uint,
+	workDir string,
 	command []string,
 	emitEscapeSequence, fallbackToBash, pedantic bool) error {
 
@@ -344,6 +353,7 @@ func runCommand(container string,
 	environ := append(cdiEnviron, p11KitServerEnviron...)
 	if err := runCommandWithFallbacks(container,
 		preserveFDs,
+		workDir,
 		command,
 		environ,
 		emitEscapeSequence,
@@ -356,6 +366,7 @@ func runCommand(container string,
 
 func runCommandWithFallbacks(container string,
 	preserveFDs uint,
+	workDir string,
 	command, environ []string,
 	emitEscapeSequence, fallbackToBash bool) error {
 
@@ -391,7 +402,10 @@ func runCommandWithFallbacks(container string,
 
 	runFallbackCommandsIndex := 0
 	runFallbackWorkDirsIndex := 0
-	workDir := workingDirectory
+
+	if workDir == "" {
+		workDir = workingDirectory
+	}
 
 	for {
 		execArgs := constructExecArgs(container,
