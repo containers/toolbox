@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+dbus_daemon_pid=0
 missing_dependencies=false
 
 if [ -f "$BATS_TEST_DIRNAME/libs/bats-assert/load.bash" ] && [ -f "$BATS_TEST_DIRNAME/libs/bats-support/load.bash" ]; then
@@ -40,6 +41,7 @@ setup_suite() {
   system_version="$(get_system_version)"
 
   _setup_environment
+  dbus_daemon_pid="$(dbus-daemon --config-file "$BATS_TEST_DIRNAME/config/dbus-session.conf" --print-pid)"
 
   if echo "$TOOLBX_TEST_SYSTEM_TAGS" | grep "arch" >/dev/null 2>/dev/null; then
     _pull_and_cache_distro_image arch latest || false
@@ -67,7 +69,7 @@ setup_suite() {
       _pull_and_cache_distro_image fedora "$((system_version-2))" || false
     fi
 
-    _setup_docker_registry
+    # _setup_docker_registry
   fi
 }
 
@@ -79,9 +81,14 @@ teardown_suite() {
     return 0
   fi
 
-  if echo "$TOOLBX_TEST_SYSTEM_TAGS" | grep "commands-options" >/dev/null 2>/dev/null; then
-    _clean_docker_registry
+  if [ "$dbus_daemon_pid" != 0 ]; then
+      kill -s SIGTERM "$dbus_daemon_pid"
+      dbus_daemon_pid=0
   fi
+
+  # if echo "$TOOLBX_TEST_SYSTEM_TAGS" | grep "commands-options" >/dev/null 2>/dev/null; then
+  #   _clean_docker_registry
+  # fi
 
   podman system reset --force >/dev/null
 }

@@ -21,6 +21,7 @@ go_md2man = find_program('go-md2man')
 
 bats = find_program('bats', required: false)
 codespell = find_program('codespell', required: false)
+dbus_daemon = find_program('dbus-daemon', required: false)
 htpasswd = find_program('htpasswd', required: false)
 openssl = find_program('openssl', required: false)
 
