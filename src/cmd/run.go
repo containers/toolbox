@@ -243,6 +243,35 @@ func runCommand(container string,
 		}
 	}
 
+	logrus.Debug("Acquiring global reference count lock")
+
+	referenceCountGlobalLock, err := utils.GetReferenceCountGlobalLock(currentUser)
+	if err != nil {
+		return err
+	}
+
+	referenceCountGlobalLockFile, err := utils.Flock(referenceCountGlobalLock, syscall.LOCK_SH)
+	if err != nil {
+		logrus.Debugf("Acquiring global reference count lock: %s", err)
+
+		var errFlock *utils.FlockError
+
+		if errors.As(err, &errFlock) {
+			if errors.Is(err, utils.ErrFlockAcquire) {
+				err = utils.ErrFlockAcquire
+			} else if errors.Is(err, utils.ErrFlockCreate) {
+				err = utils.ErrFlockCreate
+			} else {
+				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
+				panic(panicMsg)
+			}
+		}
+
+		return err
+	}
+
+	defer referenceCountGlobalLockFile.Close()
+
 	logrus.Debugf("Inspecting container %s", container)
 	containerObj, err := podman.InspectContainer(container)
 	if err != nil {
@@ -335,11 +364,45 @@ func runCommand(container string,
 		logrus.Debugf("Waiting for container %s to finish initializing", container)
 	}
 
-	if err := ensureContainerIsInitialized(container, entryPointPID, startContainerTimestamp); err != nil {
+	initializedStamp, err := utils.GetInitializedStamp(entryPointPID, currentUser)
+	if err != nil {
+		return err
+	}
+
+	if err := ensureContainerIsInitialized(container, initializedStamp, startContainerTimestamp); err != nil {
 		return err
 	}
 
 	logrus.Debugf("Container %s is initialized", container)
+	logrus.Debug("Acquiring local reference count lock")
+
+	referenceCountLocalLockFile, err := utils.Flock(initializedStamp, syscall.LOCK_SH)
+	if err != nil {
+		logrus.Debugf("Acquiring local reference count lock: %s", err)
+
+		var errFlock *utils.FlockError
+
+		if errors.As(err, &errFlock) {
+			if errors.Is(err, utils.ErrFlockAcquire) {
+				err = utils.ErrFlockAcquire
+			} else if errors.Is(err, utils.ErrFlockCreate) {
+				err = utils.ErrFlockCreate
+			} else {
+				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
+				panic(panicMsg)
+			}
+		}
+
+		return err
+	}
+
+	defer referenceCountLocalLockFile.Close()
+
+	logrus.Debug("Releasing global reference count lock")
+	if err := referenceCountGlobalLockFile.Close(); err != nil {
+		logrus.Debugf("Releasing global reference count lock: %s", err)
+		return utils.ErrFlockRelease
+	}
 
 	environ := append(cdiEnviron, p11KitServerEnviron...)
 	if err := runCommandWithFallbacks(container,
@@ -601,12 +664,7 @@ func constructExecArgs(container, preserveFDs string,
 	return execArgs
 }
 
-func ensureContainerIsInitialized(container string, entryPointPID int, timestamp time.Time) error {
-	initializedStamp, err := utils.GetInitializedStamp(entryPointPID, currentUser)
-	if err != nil {
-		return err
-	}
-
+func ensureContainerIsInitialized(container, initializedStamp string, timestamp time.Time) error {
 	logrus.Debugf("Checking if initialization stamp %s exists", initializedStamp)
 
 	shouldUsePolling := isUsePollingSet()
