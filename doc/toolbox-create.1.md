@@ -8,6 +8,8 @@ toolbox\-create - Create a new Toolbx container
                [*--distro DISTRO* | *-d DISTRO*]
                [*--image NAME* | *-i NAME*]
                [*--release RELEASE* | *-r RELEASE*]
+               [*--build BUILDCONTEXT* | *-b BUILDCONTEXT*]
+               [*--build-tag TAG* | *-t TAG*]
                [*CONTAINER*]
 
 ## DESCRIPTION
@@ -109,6 +111,22 @@ remote registry.
 
 Create a Toolbx container for a different operating system RELEASE than the
 host. Cannot be used with `--image`.
+
+**--build** BUILDCONTEXT, **-b** BUILDCONTEXT
+
+Build a toolbx image from the build context found at BUILDCONTEXT by passing it
+to `podman build`. Afterwards it sets the tag to `localhost/<name of the image>`
+by extracting the name from the image and then creates the container like normal.
+
+You cannot use `--distro`, `--release` or `--image` together with this option.
+
+**--build-tag** TAG, **-t** TAG
+
+Overwrites the tagging behaviour of `--build` by tagging the image with TAG via
+`podman build --tag`. If no repository if given or podman doesn't know it,
+localhost is used.
+
+Can only be used when `--build` is also used.
 
 ## EXAMPLES
 

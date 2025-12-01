@@ -145,7 +145,8 @@ func run(cmd *cobra.Command, args []string) error {
 		"--container",
 		runFlags.distro,
 		"",
-		runFlags.release)
+		runFlags.release,
+		podman.BuildOptions{Context: "", Tag: ""})
 
 	if err != nil {
 		return err
