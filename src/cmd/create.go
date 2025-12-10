@@ -441,8 +441,8 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		"--dns", "none",
 	}
 
-        // Add '--group-add keep-groups' when available, so the container inherits
-        // the host user's supplementary groups (eg. vboxusers).
+	// Add '--group-add keep-groups' when available, so the container inherits
+	// the host user's supplementary groups (eg. vboxusers).
 	createArgs = append(createArgs, keepGroups...)
 	createArgs = append(createArgs, toolbxDelayEntryPointEnv...)
 	createArgs = append(createArgs, toolbxFailEntryPointEnv...)
