@@ -290,12 +290,12 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	// container so that group-only device access under /dev keeps working.
 	// Requires Podman >= 3.2.0 where '--group-add keep-groups' was introduced
 	// and only makes sense for non-root (rootless) users. :contentReference[oaicite:0]{index=0}
-    	logrus.Debug("Checking if 'podman create' supports '--group-add keep-groups'")
-    	var keepGroups []string
-    	if currentUser.Uid != "0" && podman.CheckVersion("3.2.0") {
-        	logrus.Debug("'podman create' supports '--group-add keep-groups'")
-        	keepGroups = []string{"--group-add", "keep-groups"}
-   	 }
+	logrus.Debug("Checking if 'podman create' supports '--group-add keep-groups'")
+	var keepGroups []string
+	if currentUser.Uid != "0" && podman.CheckVersion("3.2.0") {
+		logrus.Debug("'podman create' supports '--group-add keep-groups'")
+		keepGroups = []string{"--group-add", "keep-groups"}
+	}
 
 	var usernsArg string
 	if currentUser.Uid == "0" {
