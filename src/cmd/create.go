@@ -463,6 +463,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		"--volume", homeDirMountArg,
 		"--volume", toolboxPathMountArg,
 		"--volume", runtimeDirectoryMountArg,
+		"--env", fmt.Sprintf("HOME=%s", currentUser.HomeDir),
 	}...)
 
 	createArgs = append(createArgs, avahiSocketMount...)
