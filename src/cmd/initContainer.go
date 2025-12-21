@@ -163,7 +163,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 
 	utils.EnsureXdgRuntimeDirIsSet(initContainerFlags.uid)
 
-	logrus.Debug("Creating /run/.toolboxenv")
+	logrus.Debug("Creating legacy /run/.toolboxenv")
 
 	toolboxEnvFile, err := os.Create("/run/.toolboxenv")
 	if err != nil {
@@ -171,6 +171,15 @@ func initContainer(cmd *cobra.Command, args []string) error {
 	}
 
 	defer toolboxEnvFile.Close()
+
+	logrus.Debug("Creating /run/.toolbxenv")
+
+	toolbxEnvFile, err := os.Create("/run/.toolbxenv")
+	if err != nil {
+		return errors.New("failed to create /run/.toolbxenv")
+	}
+
+	defer toolbxEnvFile.Close()
 
 	if toolbxDelayEntryPoint, ok := getDelayEntryPoint(); ok {
 		delayString := toolbxDelayEntryPoint.String()
