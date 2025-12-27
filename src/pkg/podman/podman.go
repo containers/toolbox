@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sort"
 	"strconv"
 	"time"
 
@@ -31,15 +32,6 @@ import (
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
-
-type Image struct {
-	Created string
-	ID      string
-	Labels  map[string]string
-	Names   []string
-}
-
-type ImageSlice []Image
 
 var (
 	podmanVersion string
@@ -52,82 +44,6 @@ var (
 
 	LogLevel = logrus.ErrorLevel
 )
-
-func (image *Image) FlattenNames(fillNameWithID bool) []Image {
-	var ret []Image
-
-	if len(image.Names) == 0 {
-		flattenedImage := *image
-
-		if fillNameWithID {
-			shortID := utils.ShortID(image.ID)
-			flattenedImage.Names = []string{shortID}
-		} else {
-			flattenedImage.Names = []string{"<none>"}
-		}
-
-		ret = []Image{flattenedImage}
-		return ret
-	}
-
-	ret = make([]Image, 0, len(image.Names))
-
-	for _, name := range image.Names {
-		flattenedImage := *image
-		flattenedImage.Names = []string{name}
-		ret = append(ret, flattenedImage)
-	}
-
-	return ret
-}
-
-func (image *Image) UnmarshalJSON(data []byte) error {
-	var raw struct {
-		Created interface{}
-		ID      string
-		Labels  map[string]string
-		Names   []string
-	}
-
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return err
-	}
-
-	// Until Podman 2.0.x the field 'Created' held a human-readable string in
-	// format "5 minutes ago". Since Podman 2.1 the field holds an integer with
-	// Unix time. Go interprets numbers in JSON as float64.
-	switch value := raw.Created.(type) {
-	case string:
-		image.Created = value
-	case float64:
-		image.Created = utils.HumanDuration(int64(value))
-	}
-
-	image.ID = raw.ID
-	image.Labels = raw.Labels
-	image.Names = raw.Names
-	return nil
-}
-
-func (images ImageSlice) Len() int {
-	return len(images)
-}
-
-func (images ImageSlice) Less(i, j int) bool {
-	if len(images[i].Names) != 1 {
-		panic("cannot sort unflattened ImageSlice")
-	}
-
-	if len(images[j].Names) != 1 {
-		panic("cannot sort unflattened ImageSlice")
-	}
-
-	return images[i].Names[0] < images[j].Names[0]
-}
-
-func (images ImageSlice) Swap(i, j int) {
-	images[i], images[j] = images[j], images[i]
-}
 
 // CheckVersion compares provided version with the version of Podman.
 //
@@ -190,27 +106,49 @@ func GetContainers(args ...string) (*Containers, error) {
 
 // GetImages is a wrapper function around `podman images --format json` command.
 //
+// Parameter fillNameWithID is a boolean that indicates if the image names should be filled with the ID, when there are no names.
 // Parameter args accepts an array of strings to be passed to the wrapped command (eg. ["-a", "--filter", "123"]).
 //
 // Returned value is a slice of Images.
 //
 // If a problem happens during execution, first argument is nil and second argument holds the error message.
-func GetImages(args ...string) ([]Image, error) {
+func GetImages(fillNameWithID bool, sortByName bool, args ...string) (*Images, error) {
 	var stdout bytes.Buffer
 
 	logLevelString := LogLevel.String()
 	args = append([]string{"--log-level", logLevelString, "images", "--format", "json"}, args...)
+
 	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
 		return nil, err
 	}
 
 	data := stdout.Bytes()
-	var images []Image
+	var images []imageImages
 	if err := json.Unmarshal(data, &images); err != nil {
 		return nil, err
 	}
 
-	return images, nil
+	// Images flattening
+	processed := make(map[string]struct{})
+	var retImages []imageImages
+
+	for _, image := range images {
+		if _, ok := processed[image.ID()]; ok {
+			continue
+		}
+
+		processed[image.ID()] = struct{}{}
+
+		flattenedImages := image.flattenNames(fillNameWithID)
+		retImages = append(retImages, flattenedImages...)
+	}
+
+	ret := Images{retImages, 0}
+	if sortByName {
+		sort.Sort(ret)
+	}
+
+	return &ret, nil
 }
 
 // GetVersion returns version of Podman in a string
@@ -252,31 +190,30 @@ func GetFullyQualifiedImageFromRepoTags(image string) (string, error) {
 	if utils.ImageReferenceHasDomain(image) {
 		imageFull = image
 	} else {
-		info, err := InspectImage(image)
+		imageObj, err := InspectImage(image)
 		if err != nil {
 			return "", fmt.Errorf("failed to inspect image %s", image)
 		}
 
-		if info["RepoTags"] == nil {
+		if imageObj.RepoTags() == nil {
 			return "", &ImageError{image, ErrImageRepoTagsMissing}
 		}
 
-		repoTags := info["RepoTags"].([]interface{})
+		repoTags := imageObj.RepoTags()
 		if len(repoTags) == 0 {
 			return "", &ImageError{image, ErrImageRepoTagsEmpty}
 		}
 
 		for _, repoTag := range repoTags {
-			repoTagString := repoTag.(string)
-			tag := utils.ImageReferenceGetTag(repoTagString)
+			tag := utils.ImageReferenceGetTag(repoTag)
 			if tag != "latest" {
-				imageFull = repoTagString
+				imageFull = repoTag
 				break
 			}
 		}
 
 		if imageFull == "" {
-			imageFull = repoTags[0].(string)
+			imageFull = repoTags[0]
 		}
 	}
 
@@ -325,7 +262,7 @@ func InspectContainer(container string) (Container, error) {
 }
 
 // InspectImage is a wrapper around 'podman inspect --type image' command
-func InspectImage(image string) (map[string]interface{}, error) {
+func InspectImage(image string) (Image, error) {
 	var stdout bytes.Buffer
 
 	logLevelString := LogLevel.String()
@@ -336,31 +273,12 @@ func InspectImage(image string) (map[string]interface{}, error) {
 	}
 
 	output := stdout.Bytes()
-	var info []map[string]interface{}
-
-	if err := json.Unmarshal(output, &info); err != nil {
+	var images []imageInspect
+	if err := json.Unmarshal(output, &images); err != nil {
 		return nil, err
 	}
 
-	return info[0], nil
-}
-
-func IsToolboxImage(image string) (bool, error) {
-	info, err := InspectImage(image)
-	if err != nil {
-		return false, fmt.Errorf("failed to inspect image %s", image)
-	}
-
-	if info["Labels"] == nil {
-		return false, fmt.Errorf("%s is not a Toolbx image", image)
-	}
-
-	labels := info["Labels"].(map[string]interface{})
-	if labels["com.github.containers.toolbox"] != "true" && labels["com.github.debarshiray.toolbox"] != "true" {
-		return false, fmt.Errorf("%s is not a Toolbx image", image)
-	}
-
-	return true, nil
+	return &images[0], nil
 }
 
 func Logs(container string, since time.Time, stderr io.Writer) error {
