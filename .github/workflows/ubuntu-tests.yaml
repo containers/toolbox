@@ -19,7 +19,7 @@ name: ubuntu-tests
 on:
   pull_request:
     branches:
-      - main
+      - release-0.0.99.5
   schedule:
     - cron: '0 0 * * *'
 

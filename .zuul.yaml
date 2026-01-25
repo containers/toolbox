@@ -17,6 +17,7 @@
 ---
 - job:
     name: unit-test
+    branches: release-0.0.99.5
     description: Run Toolbx's unit tests declared in Meson
     timeout: 1800
     nodeset:
@@ -28,6 +29,7 @@
 
 - job:
     name: unit-test-migration-path-for-coreos-toolbox
+    branches: release-0.0.99.5
     description: Run Toolbx's unit tests declared in Meson when built with -Dmigration_path_for_coreos_toolbox
     timeout: 600
     nodeset:
@@ -39,6 +41,7 @@
 
 - job:
     name: unit-test-restricted
+    branches: release-0.0.99.5
     description: Run Toolbx's unit tests declared in Meson in a restricted build environment
     timeout: 1800
     nodeset:
@@ -50,6 +53,7 @@
 
 - job:
     name: system-test-fedora-rawhide
+    branches: release-0.0.99.5
     description: Run Toolbx's system tests in Fedora Rawhide
     timeout: 10800
     nodeset:
@@ -61,6 +65,7 @@
 
 - job:
     name: system-test-fedora-43
+    branches: release-0.0.99.5
     description: Run Toolbx's system tests in Fedora 43
     timeout: 9000
     nodeset:
@@ -72,6 +77,7 @@
 
 - job:
     name: system-test-fedora-42
+    branches: release-0.0.99.5
     description: Run Toolbx's system tests in Fedora 42
     timeout: 9000
     nodeset:
