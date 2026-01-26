@@ -70,24 +70,12 @@
     pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test.yaml
 
-- job:
-    name: system-test-fedora-40
-    description: Run Toolbx's system tests in Fedora 40
-    timeout: 9000
-    nodeset:
-      nodes:
-        - name: fedora-40
-          label: cloud-fedora-40
-    pre-run: playbooks/setup-env.yaml
-    run: playbooks/system-test.yaml
-
 - project:
     periodic:
       jobs:
         - system-test-fedora-rawhide
         - system-test-fedora-42
         - system-test-fedora-41
-        - system-test-fedora-40
     check:
       jobs:
         - unit-test
@@ -95,7 +83,6 @@
         - system-test-fedora-rawhide
         - system-test-fedora-42
         - system-test-fedora-41
-        - system-test-fedora-40
     gate:
       jobs:
         - unit-test
@@ -103,4 +90,3 @@
         - system-test-fedora-rawhide
         - system-test-fedora-42
         - system-test-fedora-41
-        - system-test-fedora-40
