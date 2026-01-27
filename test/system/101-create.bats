@@ -639,8 +639,6 @@ teardown() {
 }
 
 @test "create: Try using both --distro and --image" {
-  pull_distro_image fedora 34
-
   run "$TOOLBOX" --assumeyes create --distro fedora --image fedora-toolbox:34
 
   assert_failure
@@ -650,8 +648,6 @@ teardown() {
 }
 
 @test "create: Try using both --image and --release" {
-  pull_distro_image fedora 34
-
   run "$TOOLBOX" --assumeyes create --image fedora-toolbox:34 --release 34
 
   assert_failure
