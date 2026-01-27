@@ -70,7 +70,13 @@ teardown() {
 
   assert_success
   assert_line --index 1 --partial "<none>"
-  assert [ ${#lines[@]} -eq 3 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 2 ]
+  else
+    assert [ ${#lines[@]} -eq 3 ]
+  fi
+
   if check_bats_version 1.7.0; then
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
@@ -91,7 +97,13 @@ teardown() {
   assert_success
   assert_line --index 1 --partial "$default_image"
   assert_line --index 2 --partial "$default_image-copy"
-  assert [ ${#lines[@]} -eq 4 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 3 ]
+  else
+    assert [ ${#lines[@]} -eq 4 ]
+  fi
+
   if check_bats_version 1.7.0; then
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
@@ -113,7 +125,13 @@ teardown() {
   assert_success
   assert_line --index 1 --partial "fedora-toolbox:34"
   assert_line --index 2 --partial "$(get_system_id)-toolbox:$(get_system_version)"
-  assert [ ${#lines[@]} -eq 4 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 3 ]
+  else
+    assert [ ${#lines[@]} -eq 4 ]
+  fi
+
   if check_bats_version 1.7.0; then
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
@@ -125,7 +143,13 @@ teardown() {
   assert_line --index 1 --partial "$(get_system_id)-toolbox-$(get_system_version)"
   assert_line --index 2 --partial "non-default-one"
   assert_line --index 3 --partial "non-default-two"
-  assert [ ${#lines[@]} -eq 5 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 4 ]
+  else
+    assert [ ${#lines[@]} -eq 5 ]
+  fi
+
   if check_bats_version 1.7.0; then
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
@@ -139,7 +163,13 @@ teardown() {
   assert_line --index 5 --partial "$(get_system_id)-toolbox-$(get_system_version)"
   assert_line --index 6 --partial "non-default-one"
   assert_line --index 7 --partial "non-default-two"
-  assert [ ${#lines[@]} -eq 9 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 8 ]
+  else
+    assert [ ${#lines[@]} -eq 9 ]
+  fi
+
   if check_bats_version 1.7.0; then
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
@@ -159,7 +189,13 @@ teardown() {
   assert_line --index 1 --partial "<none>"
   assert_line --index 2 --partial "fedora-toolbox:34"
   assert_line --index 3 --partial "$default_image"
-  assert [ ${#lines[@]} -eq 5 ]
+
+  if check_bats_version 1.10.0; then
+    assert [ ${#lines[@]} -eq 4 ]
+  else
+    assert [ ${#lines[@]} -eq 5 ]
+  fi
+
   if check_bats_version 1.7.0; then
     assert [ ${#stderr_lines[@]} -eq 0 ]
   fi
