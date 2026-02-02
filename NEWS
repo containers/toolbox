@@ -1,3 +1,14 @@
+Overview of changes in 0.0.99.5.1
+=================================
+
+* Avoid running out of storage space when running the system tests on the CI
+* Bump the minimum github.com/sirupsen/logrus version to 1.9.3 for
+  CVE-2022-29526 or GHSA-p782-xgp4-8hr8
+* Optimized the system tests by avoiding a lot of disk I/O
+* Unbreak Podman's and Toolbx's downstream Fedora CI
+* Unbreak the 'toolbox run /etc' tests with Bash >= 5.3
+
+
 Overview of changes in 0.0.99.5
 ===============================
 
