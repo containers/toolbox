@@ -42,7 +42,8 @@ teardown_file() {
   assert_line --index 0 "Error: missing command"
   assert_line --index 2 "create    Create a new Toolbx container"
   assert_line --index 3 "enter     Enter an existing Toolbx container"
-  assert_line --index 4 "list      List all existing Toolbx containers and images"
+  assert_line --index 4 "run       Run a command in an existing Toolbx container"
+  assert_line --index 5 "list      List all existing Toolbx containers and images"
   assert_line --index 6 "Run 'toolbox --help' for usage."
   assert [ ${#stderr_lines[@]} -eq 7 ]
 }
@@ -74,8 +75,9 @@ teardown_file() {
   assert_line --index 2 "Common commands are:"
   assert_line --index 3 "create    Create a new Toolbx container"
   assert_line --index 4 "enter     Enter an existing Toolbx container"
-  assert_line --index 5 "list      List all existing Toolbx containers and images"
-  assert_line --index 7 "Go to https://containertoolbx.org/ for further information."
+  assert_line --index 5 "run       Run a command in an existing Toolbx container"
+  assert_line --index 6 "list      List all existing Toolbx containers and images"
+  assert_line --index 8 "Go to https://containertoolbx.org/ for further information."
   assert [ ${#lines[@]} -eq 8 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
@@ -107,8 +109,9 @@ teardown_file() {
   assert_line --index 2 "Common commands are:"
   assert_line --index 3 "create    Create a new Toolbx container"
   assert_line --index 4 "enter     Enter an existing Toolbx container"
-  assert_line --index 5 "list      List all existing Toolbx containers and images"
-  assert_line --index 7 "Go to https://containertoolbx.org/ for further information."
+  assert_line --index 5 "run       Run a command in an existing Toolbx container"
+  assert_line --index 6 "list      List all existing Toolbx containers and images"
+  assert_line --index 8 "Go to https://containertoolbx.org/ for further information."
   assert [ ${#lines[@]} -eq 8 ]
 
   # shellcheck disable=SC2154
