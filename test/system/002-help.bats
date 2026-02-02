@@ -44,7 +44,7 @@ teardown_file() {
   assert_line --index 3 "enter     Enter an existing Toolbx container"
   assert_line --index 4 "run       Run a command in an existing Toolbx container"
   assert_line --index 5 "list      List all existing Toolbx containers and images"
-  assert_line --index 6 "Run 'toolbox --help' for usage."
+  assert_line --index 7 "Run 'toolbox --help' for usage."
   assert [ ${#stderr_lines[@]} -eq 8 ]
 }
 
