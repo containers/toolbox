@@ -27,7 +27,7 @@ setup() {
   run --separate-stderr $TOOLBOX --version
 
   assert_success
-  assert_output --regexp '^toolbox version [0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$'
+  assert_output --regexp '^toolbox version 0\.0\.99\.4\.[1-9][0-9]*$'
   assert [ ${#lines[@]} -eq 1 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
