@@ -102,7 +102,7 @@
 * Isolated the storage directory from the host's XDG_CACHE_HOME or HOME —
   bumped the minimum Linux kernel version to 6.6
 * Made the the commands and options tests for 'create' stricter
-* Optimized the runtime environment tests by avoiding a lot of disk I/O
+* Optimized the system tests by avoiding a lot of disk I/O
 * Restored the generation and installation of the Bash completions on the CI
   (regression from Fedora 41)
 
