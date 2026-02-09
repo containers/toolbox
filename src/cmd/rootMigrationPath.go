@@ -24,6 +24,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -56,7 +57,7 @@ func rootRunImpl(cmd *cobra.Command, args []string) error {
 		return &exitError{exitCode, err}
 	}
 
-	container, image, release, err := resolveContainerAndImageNames("", "", "", "", "")
+	container, image, release, err := resolveContainerAndImageNames("", "", "", "", "", podman.BuildOptions{Context: "", Tag: ""})
 	if err != nil {
 		return err
 	}

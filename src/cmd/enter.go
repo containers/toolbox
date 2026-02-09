@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/spf13/cobra"
 )
@@ -108,7 +109,8 @@ func enter(cmd *cobra.Command, args []string) error {
 		containerArg,
 		enterFlags.distro,
 		"",
-		enterFlags.release)
+		enterFlags.release,
+		podman.BuildOptions{Context: "", Tag: ""})
 
 	if err != nil {
 		return err
