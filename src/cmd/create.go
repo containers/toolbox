@@ -404,9 +404,9 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 
 	logLevelString := podman.LogLevel.String()
 
-	userShell := os.Getenv("SHELL")
-	if userShell == "" {
-		return errors.New("failed to get the current user's login shell")
+	userShell, err := getCurrentUserShell()
+	if err != nil {
+		return err
 	}
 
 	entryPoint := []string{

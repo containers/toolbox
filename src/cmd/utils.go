@@ -31,6 +31,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -381,6 +382,44 @@ func getCurrentUserHomeDir() string {
 	logrus.Debug("Using user.Current() instead")
 
 	return currentUser.HomeDir
+}
+
+func getCurrentUserShell() (string, error) {
+	if currentUser == nil {
+		panic("current user unknown")
+	}
+
+	if userShell := os.Getenv("SHELL"); userShell != "" {
+		return userShell, nil
+	}
+
+	logrus.Debug("Getting the current user's login shell: failed to read SHELL")
+	logrus.Debug("Using 'getent passwd' instead")
+
+	var stderr strings.Builder
+	var stdout strings.Builder
+
+	if err := shell.Run("getent", nil, &stdout, &stderr, "passwd", currentUser.Uid); err != nil {
+		errString := stderr.String()
+		logrus.Debugf("Getting the current user's login shell failed: %s", errString)
+		return "", fmt.Errorf("failed to get the current user's login shell: %w", err)
+	}
+
+	output := stdout.String()
+	passwdLine := strings.TrimSpace(output)
+	if len(passwdLine) == 0 {
+		return "", errors.New("failed to get the current user's login shell: no getent(1) output")
+	}
+
+	passwdLineParts := strings.Split(passwdLine, ":")
+	passwdLinePartsCount := len(passwdLineParts)
+	if passwdLinePartsCount != 7 {
+		logrus.Debugf("Getting the current user's login shell: failed to parse getent(1) output: %s",
+			passwdLine)
+		return "", errors.New("failed to get the current user's login shell: invalid getent(1) output")
+	}
+
+	return passwdLineParts[passwdLinePartsCount-1], nil
 }
 
 func getUsageForCommonCommands() string {
