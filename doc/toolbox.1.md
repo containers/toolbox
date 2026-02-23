@@ -30,10 +30,10 @@ containers — they mostly don't even have package managers like DNF or YUM.
 This makes it difficult to set up a development environment or troubleshoot
 the operating system in the usual way.
 
-Toolbx solves this problem by providing a fully mutable container within
-which one can install their favourite development and troubleshooting tools,
-editors and SDKs. For example, it's possible to do `yum install ansible`
-without affecting the base operating system.
+Toolbx solves this problem by providing a fully mutable container within which
+one can install their favourite development and troubleshooting tools, editors
+and SDKs. For example, it's possible to do `yum install ansible` without
+affecting the base operating system.
 
 However, this tool doesn't *require* using an OSTree based system. It works
 equally well on Fedora Workstation and Server, and that's a useful way to

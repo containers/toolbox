@@ -31,9 +31,8 @@ The following options are understood:
 
 **--distro** DISTRO, **-d** DISTRO
 
-Enter a Toolbx container for a different operating system DISTRO than the
-host. Has to be coupled with `--release` unless the selected DISTRO matches the
-host.
+Enter a Toolbx container for a different operating system DISTRO than the host.
+Has to be coupled with `--release` unless the selected DISTRO matches the host.
 
 **--release** RELEASE, **-r** RELEASE
 

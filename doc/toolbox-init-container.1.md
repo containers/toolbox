@@ -26,9 +26,9 @@ init-container` command.
 OCI containers are inherently immutable. Configuration options passed through
 `podman create` are baked into the definition of the OCI container, and can't
 be changed later. This means that changes and improvements made in newer
-versions of Toolbx can't be applied to pre-existing Toolbx containers
-created by older versions of Toolbx. This is avoided by using the entry point
-to configure the container at runtime.
+versions of Toolbx can't be applied to pre-existing Toolbx containers created
+by older versions of Toolbx. This is avoided by using the entry point to
+configure the container at runtime.
 
 The entry point of a Toolbx container customizes the container to fit the
 current user by ensuring that it has a user that matches the one on the host,

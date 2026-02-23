@@ -28,9 +28,9 @@ The following options are understood:
 
 **--container** NAME, **-c** NAME
 
-Run command inside a Toolbx container with the given NAME. This is useful
-when there are multiple Toolbx containers created from the same image, or
-entirely customized containers created from custom-built images.
+Run command inside a Toolbx container with the given NAME. This is useful when
+there are multiple Toolbx containers created from the same image, or entirely
+customized containers created from custom-built images.
 
 **--distro** DISTRO, **-d** DISTRO
 
@@ -40,13 +40,13 @@ matches the host system.
 
 **--preserve-fds** N
 
-Pass down to command N additional file descriptors (in addition to 0, 1,
-2). The total number of file descriptors will be 3+N.
+Pass down to command N additional file descriptors (in addition to 0, 1, 2).
+The total number of file descriptors will be 3+N.
 
 **--release** RELEASE, **-r** RELEASE
 
-Run command inside a Toolbx container for a different operating system
-RELEASE than the host.
+Run command inside a Toolbx container for a different operating system RELEASE
+than the host.
 
 ## EXIT STATUS
 

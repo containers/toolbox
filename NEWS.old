@@ -114,8 +114,8 @@ Overview of changes in 0.0.99.4
   building the fedora-toolbox images
 * Be more strict when looking for a C compiler for building
 * Call 'systemd-tmpfiles --create' when installing
-* Check if subordinate ID ranges are present for also the UID, and not just
-  the username
+* Check if subordinate ID ranges are present for also the UID, and not just the
+  username
 * Document the toolbox.conf configuration file
 * Don't create a nested pseudo-terminal device during 'run' if the standard
   input and output streams are not connected to a terminal
@@ -126,8 +126,8 @@ Overview of changes in 0.0.99.4
 * Enable running non-nested display servers from a virtual terminal
 * Enforce all the default 'go vet' checks on all Go sources
 * Enforce gofmt on all Go sources
-* Ensure that the 'distro' option is valid, instead of silently falling back
-  to Fedora
+* Ensure that the 'distro' option is valid, instead of silently falling back to
+  Fedora
 * Ensure that 'run' has the same container environment as 'enter'
 * Ensure that the fedora-toolbox images has all the locales known to glibc,
   and not just C, POSIX and C.UTF-8

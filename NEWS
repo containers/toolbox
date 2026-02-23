@@ -37,8 +37,8 @@
 
 ### Bug fixes
 
-* Improved error handling when creating symbolic links inside the container
-  to initialize it
+* Improved error handling when creating symbolic links inside the container to
+  initialize it
 * Preserved environment variables set by a KDE session and Konsole
 * Unbroke access to CA certificates in sshd(8) sessions (regression in 0.1.2)
 * Unbroke overriding the HOME variable (regression in 0.0.90)

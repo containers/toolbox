@@ -16,18 +16,18 @@ standard container technologies from [OCI](https://opencontainers.org/).
 > and the package may still be `toolbox` on various systems.
 >
 > If you'd like to help,
-> [here's](https://github.com/containers/toolbox/commit/c3403dae8cb0544e)
-> a to-do list.
+> [here's](https://github.com/containers/toolbox/commit/c3403dae8cb0544e) a
+> to-do list.
 >
 > "Toolbx" with a capital "T" and without an "o" is now the canonical name.
 
-Toolbx environments have seamless access to the user's home directory,
-the Wayland and X11 sockets, networking (including Avahi), removable devices
-(like USB sticks), systemd journal, SSH agent, D-Bus, ulimits, /dev and the
-udev database, etc..
+Toolbx environments have seamless access to the user's home directory, the
+Wayland and X11 sockets, networking (including Avahi), removable devices (like
+USB sticks), systemd journal, SSH agent, D-Bus, ulimits, /dev and the udev
+database, etc..
 
-This is particularly useful on
-[OSTree](https://ostreedev.github.io/ostree/) based operating systems like
+This is particularly useful on [OSTree](https://ostreedev.github.io/ostree/)
+based operating systems like
 [Fedora CoreOS](https://fedoraproject.org/coreos/) and
 [Silverblue](https://fedoraproject.org/silverblue/). The intention of these
 systems is to discourage installation of software on the host, and instead
@@ -35,10 +35,10 @@ install software as (or in) containers — they mostly don't even have package
 managers like DNF or YUM. This makes it difficult to set up a development
 environment or troubleshoot the operating system in the usual way.
 
-Toolbx solves this problem by providing a fully mutable container within
-which one can install their favourite development and troubleshooting tools,
-editors and SDKs. For example, it's possible to do `yum install ansible`
-without affecting the base operating system.
+Toolbx solves this problem by providing a fully mutable container within which
+one can install their favourite development and troubleshooting tools, editors
+and SDKs. For example, it's possible to do `yum install ansible` without
+affecting the base operating system.
 
 However, this tool doesn't *require* using an OSTree based system. It works
 equally well on Fedora Workstation and Server, and that's a useful way to
@@ -46,8 +46,7 @@ incrementally adopt containerization.
 
 The Toolbx environment is based on an [OCI](https://www.opencontainers.org/)
 image. On Fedora this is the `fedora-toolbox` image. This image is used to
-create a Toolbx container that offers the interactive command line
-environment.
+create a Toolbx container that offers the interactive command line environment.
 
 Note that Toolbx makes no promise about security beyond what's already
 available in the usual command line environment on the host that everybody is

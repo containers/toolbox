@@ -12,15 +12,15 @@ toolbox\-create - Create a new Toolbx container
 
 ## DESCRIPTION
 
-Creates a new Toolbx container. You can then use the `toolbox enter` command
-to interact with the container at any point.
+Creates a new Toolbx container. You can then use the `toolbox enter` command to
+interact with the container at any point.
 
 A Toolbx container is an OCI container created from an OCI image. On Fedora,
-the default image is known as `fedora-toolbox:N`, where N is the release of
-the host. If the image is not present locally, then it is pulled from a
-well-known registry like `registry.fedoraproject.org`. Other images may be
-used on other host operating systems. If the host is not recognized, then the
-Fedora image will be used.
+the default image is known as `fedora-toolbox:N`, where N is the release of the
+host. If the image is not present locally, then it is pulled from a well-known
+registry like `registry.fedoraproject.org`. Other images may be used on other
+host operating systems. If the host is not recognized, then the Fedora image
+will be used.
 
 The container is created with `podman create`, and its entry point is set to
 `toolbox init-container`.
@@ -32,10 +32,10 @@ using the CONTAINER argument.
 
 ### Container Configuration
 
-A Toolbx container seamlessly integrates with the rest of the operating
-system by providing access to the user's home directory, the Wayland and X11
-sockets, networking (including Avahi), removable devices (like USB sticks),
-systemd journal, SSH agent, D-Bus, ulimits, /dev and the udev database, etc..
+A Toolbx container seamlessly integrates with the rest of the operating system
+by providing access to the user's home directory, the Wayland and X11 sockets,
+networking (including Avahi), removable devices (like USB sticks), systemd
+journal, SSH agent, D-Bus, ulimits, /dev and the udev database, etc..
 
 The user ID and account details from the host is propagated into the Toolbx
 container, SELinux label separation is disabled, and the host file system can
@@ -57,9 +57,9 @@ init-container` command.
 OCI containers are inherently immutable. Configuration options passed through
 `podman create` are baked into the definition of the OCI container, and can't
 be changed later. This means that changes and improvements made in newer
-versions of Toolbx can't be applied to pre-existing Toolbx containers
-created by older versions of Toolbx. This is avoided by using the entry point
-to configure the container at runtime.
+versions of Toolbx can't be applied to pre-existing Toolbx containers created
+by older versions of Toolbx. This is avoided by using the entry point to
+configure the container at runtime.
 
 The entry point of a Toolbx container customizes the container to fit the
 current user by ensuring that it has a user that matches the one on the host,
@@ -138,4 +138,5 @@ $ toolbox create --authfile ~/auth.json --image registry.example.com/bar
 
 ## SEE ALSO
 
-`toolbox(1)`, `toolbox-init-container(1)`, `podman(1)`, `podman-create(1)`, `podman-login(1)`, `podman-pull(1)`, `containers-auth.json(5)`
+`toolbox(1)`, `toolbox-init-container(1)`, `podman(1)`, `podman-create(1)`,
+`podman-login(1)`, `podman-pull(1)`, `containers-auth.json(5)`

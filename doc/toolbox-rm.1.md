@@ -8,8 +8,8 @@ toolbox\-rm - Remove one or more Toolbx containers
 
 ## DESCRIPTION
 
-Removes one or more Toolbx containers from the host. The container should
-have been created using the `toolbox create` command.
+Removes one or more Toolbx containers from the host. The container should have
+been created using the `toolbox create` command.
 
 A Toolbx container is an OCI container. Therefore, `toolbox rm` can be used
 interchangeably with `podman rm`.
