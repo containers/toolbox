@@ -44,7 +44,8 @@ to the host's Kerberos credentials cache if it's configured to use KCM caches.
 
 A Toolbx container can be identified by the `com.github.containers.toolbox`
 label with various Podman commands (like `podman inspect`) or the
-`/run/.toolbxenv` file.
+`/run/.toolbxenv` file. The `/run/.containerenv` file contains some metadata
+about the container.
 
 The entry point of a Toolbx container is the `toolbox init-container` command
 which plays a role in setting up the container, along with the options passed
