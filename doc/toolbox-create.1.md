@@ -36,12 +36,11 @@ A Toolbx container seamlessly integrates with the rest of the operating system
 by providing access to the user's home directory, the Wayland and X11 sockets,
 networking (including Avahi and CA certificates), removable devices (like USB
 sticks), systemd journal, SSH agent, D-Bus, ulimits, `/dev` and the udev
-database, etc.
+database, etc. The host file system can be accessed at `/run/host`.
 
 The user ID and account details from the host is propagated into the Toolbx
-container, SELinux label separation is disabled, and the host file system can
-be accessed by the container at `/run/host`. The container has access to the
-host's Kerberos credentials cache if it's configured to use KCM caches.
+container, SELinux label separation is disabled, and the container has access
+to the host's Kerberos credentials cache if it's configured to use KCM caches.
 
 A Toolbx container can be identified by the `com.github.containers.toolbox`
 label with various Podman commands (like `podman inspect`) or the
