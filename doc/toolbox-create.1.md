@@ -50,9 +50,10 @@ label with various Podman commands (like `podman inspect`) or the
 `/run/.toolbxenv` file. The `/run/.containerenv` file contains some metadata
 about the container.
 
-The entry point of a Toolbx container is the `toolbox init-container` command
-which plays a role in setting up the container, along with the options passed
-to `podman create`.
+The entry point of a Toolbx container is the `toolbox init-container` command.
+It plays a role in setting up the container, along with the options passed to
+`podman create`, and mitigating the immutable nature of the configuration of
+OCI containers.
 
 ### Entry Point
 
