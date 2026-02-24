@@ -38,6 +38,10 @@ networking (including Avahi and CA certificates), removable devices (like USB
 sticks), systemd journal, SSH agent, D-Bus, ulimits, `/dev` and the udev
 database, etc. The host file system can be accessed at `/run/host`.
 
+Note that Toolbx makes no promise about security beyond what’s already
+available in the usual command line environment on the host that everybody is
+familiar with.
+
 The user ID and account details from the host is propagated into the Toolbx
 container, SELinux label separation is disabled, and the container has access
 to the host's Kerberos credentials cache if it's configured to use KCM caches.
