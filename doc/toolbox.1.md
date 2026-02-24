@@ -21,7 +21,7 @@ Podman and other standard container technologies from OCI.
 Toolbx environments have seamless access to the user’s home directory, the
 Wayland and X11 sockets, networking (including Avahi), removable devices (like
 USB sticks), systemd journal, SSH agent, D-Bus, ulimits, /dev and the udev
-database, etc..
+database, etc.
 
 This is particularly useful on OSTree based operating systems like Fedora
 CoreOS and Silverblue. The intention of these systems is to discourage
