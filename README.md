@@ -36,7 +36,7 @@ managers like DNF or YUM. This makes it difficult to set up a development
 environment or troubleshoot the operating system in the usual way.
 
 Toolbx solves this problem by providing a fully mutable container within which
-one can install their favourite development and troubleshooting tools, editors
+one can install their favorite development and troubleshooting tools, editors
 and SDKs. For example, it's possible to do `yum install ansible` without
 affecting the base operating system.
 
