@@ -24,7 +24,7 @@ standard container technologies from [OCI](https://opencontainers.org/).
 Toolbx environments have seamless access to the user's home directory, the
 Wayland and X11 sockets, networking (including Avahi and CA certificates),
 removable devices (like USB sticks), systemd journal, SSH agent, D-Bus,
-ulimits, /dev and the udev database, etc.
+ulimits, `/dev` and the udev database, etc.
 
 This is particularly useful on [OSTree](https://ostreedev.github.io/ostree/)
 based operating systems like
