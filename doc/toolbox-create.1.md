@@ -34,8 +34,9 @@ using the CONTAINER argument.
 
 A Toolbx container seamlessly integrates with the rest of the operating system
 by providing access to the user's home directory, the Wayland and X11 sockets,
-networking (including Avahi), removable devices (like USB sticks), systemd
-journal, SSH agent, D-Bus, ulimits, /dev and the udev database, etc.
+networking (including Avahi and CA certificates), removable devices (like USB
+sticks), systemd journal, SSH agent, D-Bus, ulimits, /dev and the udev
+database, etc.
 
 The user ID and account details from the host is propagated into the Toolbx
 container, SELinux label separation is disabled, and the host file system can
