@@ -32,30 +32,30 @@ using the CONTAINER argument.
 
 ### Container Configuration
 
-A Toolbx container seamlessly integrates with the rest of the operating system
-by providing access to the user's home directory, the Wayland and X11 sockets,
-networking (including Avahi and CA certificates), removable devices (like USB
-sticks), systemd journal, SSH agent, D-Bus, ulimits, `/dev` and the udev
-database, etc. The host file system can be accessed at `/run/host`.
+Toolbx environments have seamless access to the user’s home directory, the
+Wayland and X11 sockets, networking (including Avahi and CA certificates),
+removable devices (like USB sticks), systemd journal, SSH agent, D-Bus,
+ulimits, `/dev` and the udev database, etc. The host file system can be
+accessed at `/run/host`.
 
 Note that Toolbx makes no promise about security beyond what’s already
 available in the usual command line environment on the host that everybody is
 familiar with.
 
-The user ID and account details from the host is propagated into the Toolbx
-container, SELinux label separation is disabled, and the container has access
-to the host's Kerberos credentials cache if it's configured to use KCM caches.
-Crucial configuration files, such as `/etc/host.conf`, `/etc/hosts`,
-`/etc/localtime`, `/etc/resolv.conf` and `/etc/timezone`, inside the container
-are kept synchronized with the host.
+The user ID and account details from the host operating system are propagated
+into the Toolbx containers, SELinux label separation is disabled, and the
+containers have access to the host’s Kerberos credentials cache if it’s
+configured to use KCM caches. Crucial configuration files, such as
+`/etc/host.conf`, `/etc/hosts`, `/etc/localtime`, `/etc/resolv.conf` and
+`/etc/timezone`, inside the containers are kept synchronized with the host.
 
-A Toolbx container can be identified by the `com.github.containers.toolbox`
-label with various Podman commands (like `podman inspect`) or the
-`/run/.toolbxenv` file. The `/run/.containerenv` file contains some metadata
-about the container.
+Toolbx containers can be identified by the `com.github.containers.toolbox`
+label with various Podman commands (like `podman inspect`) or by the presence
+of the `/run/.toolbxenv` file. The `/run/.containerenv` file contains some
+metadata about the containers.
 
-The entry point of a Toolbx container is the `toolbox init-container` command.
-It plays a role in setting up the container, along with the options passed to
+The entry point of the containers is the `toolbox init-container` command.
+It plays a role in setting up the containers, along with the options passed to
 `podman create`, and mitigating the immutable nature of the configuration of
 OCI containers.
 
