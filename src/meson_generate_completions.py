@@ -29,6 +29,6 @@ source_dir = sys.argv[1]
 completion_type = sys.argv[2]
 
 os.chdir(source_dir)
-output = subprocess.run(['go', 'run', '.', 'completion', completion_type], check=True)
+output = subprocess.run(['go', 'run', '-ldflags=-extldflags=-Wl,-z,lazy' '.', 'completion', completion_type], check=True)
 
 sys.exit(0)
