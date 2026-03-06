@@ -61,9 +61,9 @@ func rootRunImpl(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	userShell := os.Getenv("SHELL")
-	if userShell == "" {
-		return errors.New("failed to get the current user's login shell")
+	userShell, err := getCurrentUserShell()
+	if err != nil {
+		return err
 	}
 
 	command := []string{userShell, "-l"}

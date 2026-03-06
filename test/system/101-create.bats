@@ -60,6 +60,35 @@ teardown() {
   assert_output "true"
 }
 
+@test "create: Smoke test with SHELL unset" {
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
+  pull_default_image
+  unset SHELL
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create
+
+  assert_success
+  assert_line --index 0 "Created container: $default_container"
+  assert_line --index 1 "Enter with: toolbox enter"
+  assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$default_container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$default_container"
+
+  assert_success
+  assert_output "true"
+}
+
 @test "create: With a custom name (using option --container)" {
   pull_default_image
 
