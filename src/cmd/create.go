@@ -406,7 +406,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 
 	userShell := os.Getenv("SHELL")
 	if userShell == "" {
-		return errors.New("failed to get the current user's default shell")
+		return errors.New("failed to get the current user's login shell")
 	}
 
 	entryPoint := []string{

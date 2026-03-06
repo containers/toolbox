@@ -11,8 +11,8 @@ toolbox\-enter - Enter a Toolbx container for interactive use
 ## DESCRIPTION
 
 Spawns an interactive shell inside a Toolbx container that was created using
-the `toolbox create` command. It tries to spawn the user's default shell, but
-if it's not available inside the container then it falls back to `/bin/bash`.
+the `toolbox create` command. It tries to spawn the user's login shell, but if
+it's not available inside the container then it falls back to `/bin/bash`.
 
 When invoked without any options, `toolbox enter` will try to enter the default
 Toolbx container for the host, or if there's only one container available then
