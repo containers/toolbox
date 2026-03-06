@@ -179,9 +179,9 @@ func GetContainers(args ...string) (*Containers, error) {
 		return nil, err
 	}
 
-	data := stdout.Bytes()
+	output := stdout.Bytes()
 	var containers []containerPS
-	if err := json.Unmarshal(data, &containers); err != nil {
+	if err := json.Unmarshal(output, &containers); err != nil {
 		return nil, err
 	}
 
@@ -204,9 +204,9 @@ func GetImages(args ...string) ([]Image, error) {
 		return nil, err
 	}
 
-	data := stdout.Bytes()
+	output := stdout.Bytes()
 	var images []Image
-	if err := json.Unmarshal(data, &images); err != nil {
+	if err := json.Unmarshal(output, &images); err != nil {
 		return nil, err
 	}
 
