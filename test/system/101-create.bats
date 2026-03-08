@@ -1192,3 +1192,257 @@ teardown() {
   assert_success
   assert_output "true"
 }
+
+@test "create: With a non-Toolbx image and prompt for confirmation - Yes" {
+  image="$(build_non_toolbx_image)"
+  containerName="test-container-non-toolbx"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" "$containerName" <<< "y"
+
+  assert_success
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}$(created_container_message "$containerName")"
+  assert_line --index 1 "$(enter_with_message "$containerName")"
+  assert [ ${#lines[@]} -eq 2 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_non_toolbx_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$containerName"
+}
+
+@test "create: With a non-Toolbx image and prompt for confirmation - No" {
+  image="$(build_non_toolbx_image)"
+  containerName="test-container-non-toolbx"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" "$containerName" <<< "n"
+
+  assert_success
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}"
+  assert [ ${#lines[@]} -eq 1 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_non_toolbx_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+
+  run podman ps --all
+
+  assert_success
+  assert [ ${#lines[@]} -eq 1 ]
+}
+
+@test "create: With a non-Toolbx image and prompt for confirmation - assumeyes" {
+  image="$(build_non_toolbx_image)"
+  containerName="test-container-non-toolbx"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --assumeyes --image "$image" "$containerName"
+
+  assert_success
+  assert_line --index 0 "$(created_container_message "$containerName")"
+  assert_line --index 1 "$(enter_with_message "$containerName")"
+  assert [ ${#lines[@]} -eq 2 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_non_toolbx_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$containerName"
+}
+
+@test "create: With an image with LD_PRELOAD set and prompt for confirmation - Yes" {
+  containerName="test-container-ld-preload"
+  image="$(build_image_with_ld_preload)"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" "$containerName" <<< "y"
+
+  assert_success
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}$(created_container_message "$containerName")"
+  assert_line --index 1 "$(enter_with_message "$containerName")"
+  assert [ ${#lines[@]} -eq 2 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_ld_preload_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$containerName"
+}
+
+@test "create: With an image with LD_PRELOAD set and prompt for confirmation - No" {
+  containerName="test-container-ld-preload"
+  image="$(build_image_with_ld_preload)"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" "$containerName" <<< "n"
+
+  assert_success
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}"
+  assert [ ${#lines[@]} -eq 1 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_ld_preload_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+
+  run podman ps --all
+
+  assert_success
+  assert [ ${#lines[@]} -eq 1 ]
+}
+
+@test "create: With an image with LD_PRELOAD set and prompt for confirmation - assumeyes" {
+  containerName="test-container-ld-preload"
+  image="$(build_image_with_ld_preload)"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --image "$image" "$containerName"
+
+  assert_success
+  assert_line --index 0 "$(created_container_message "$containerName")"
+  assert_line --index 1 "$(enter_with_message "$containerName")"
+  assert [ ${#lines[@]} -eq 2 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_ld_preload_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$containerName"
+}
+
+@test "create: With an image with an entrypoint set and prompt for confirmation - Yes" {
+  containerName="test-container-entrypoint"
+  image="$(build_image_with_entrypoint)"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" "$containerName" <<< "y"
+
+  assert_success
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}$(created_container_message "$containerName")"
+  assert_line --index 1 "$(enter_with_message "$containerName")"
+  assert [ ${#lines[@]} -eq 2 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_entrypoint_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$containerName"
+}
+
+@test "create: With an image with an entrypoint set and prompt for confirmation - No" {
+  containerName="test-container-entrypoint"
+  image="$(build_image_with_entrypoint)"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" "$containerName" <<< "n"
+
+  assert_success
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}"
+  assert [ ${#lines[@]} -eq 1 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_entrypoint_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+
+  run podman ps --all
+
+  assert_success
+  assert [ ${#lines[@]} -eq 1 ]
+}
+
+@test "create: With an image with an entrypoint set and prompt for confirmation - assumeyes" {
+  containerName="test-container-entrypoint"
+  image="$(build_image_with_entrypoint)"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create --image "$image" "$containerName"
+
+  assert_success
+  assert_line --index 0 "$(created_container_message "$containerName")"
+  assert_line --index 1 "$(enter_with_message "$containerName")"
+  assert [ ${#lines[@]} -eq 2 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_entrypoint_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 1 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$containerName"
+}
+
+@test "create: With an image having all warnings and prompt for confirmation - Yes" {
+  containerName="test-container-all-warnings"
+  image="$(build_image_with_all_warnings)"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" "$containerName" <<< "y"
+
+  assert_success
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}$(created_container_message "$containerName")"
+  assert_line --index 1 "$(enter_with_message "$containerName")"
+  assert [ ${#lines[@]} -eq 2 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_non_toolbx_image "$image")"
+  assert_line --index 1 "$(warning_ld_preload_image "$image")"
+  assert_line --index 2 "$(warning_entrypoint_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$containerName"
+}
+
+@test "create: With an image having all warnings and prompt for confirmation - No" {
+  containerName="test-container-all-warnings"
+  image="$(build_image_with_all_warnings)"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --image "$image" "$containerName" <<< "n"
+
+  assert_success
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}"
+  assert [ ${#lines[@]} -eq 1 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_non_toolbx_image "$image")"
+  assert_line --index 1 "$(warning_ld_preload_image "$image")"
+  assert_line --index 2 "$(warning_entrypoint_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+
+  run podman ps --all
+
+  assert_success
+  assert [ ${#lines[@]} -eq 1 ]
+}
+
+@test "create: With an image having all warnings and prompt for confirmation - assumeyes" {
+  containerName="test-container-all-warnings"
+  image="$(build_image_with_all_warnings)"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create --assumeyes --image "$image" "$containerName"
+
+  assert_success
+  assert_line --index 0 "$(created_container_message "$containerName")"
+  assert_line --index 1 "$(enter_with_message "$containerName")"
+  assert [ ${#lines[@]} -eq 2 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_non_toolbx_image "$image")"
+  assert_line --index 1 "$(warning_ld_preload_image "$image")"
+  assert_line --index 2 "$(warning_entrypoint_image "$image")"
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$containerName"
+}

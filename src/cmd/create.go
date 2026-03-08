@@ -241,6 +241,18 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		}
 	}
 
+	isImageCompatible, warningMessage, err := podman.DoesImageFulfillRequirements(imageFull)
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+
+	if !isImageCompatible {
+		fmt.Fprintf(os.Stderr, "%s\n", warningMessage)
+		if !rootFlags.assumeYes && !askForConfirmation("One or more of the image's requirements are not met. Continue anyway? [y/N]:") {
+			return nil
+		}
+	}
+
 	var toolbxDelayEntryPointEnv []string
 
 	if toolbxDelayEntryPoint, ok := os.LookupEnv("TOOLBX_DELAY_ENTRY_POINT"); ok {
