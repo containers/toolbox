@@ -396,7 +396,9 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 
 	var slashHomeLink []string
 
-	if slashHomeEvaled, _ := filepath.EvalSymlinks("/home"); slashHomeEvaled == "/var/home" {
+	if slashHomeEvaled, err := filepath.EvalSymlinks("/home"); err != nil {
+		logrus.Debugf("Checking if /home is a symbolic link to /var/home failed: %s", err)
+	} else if slashHomeEvaled == "/var/home" {
 		logrus.Debug("/home is a symbolic link to /var/home")
 		slashHomeLink = []string{"--home-link"}
 	}
