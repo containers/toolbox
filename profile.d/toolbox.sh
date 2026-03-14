@@ -4,7 +4,7 @@
 [ "${BASH_VERSION:-}" != "" ] || [ "${ZSH_VERSION:-}" != "" ] || return 0
 [ "$PS1" != "" ] || return 0
 
-[ -z "$XDG_CONFIG_HOME" ] && toolbox_config="$HOME/.config/toolbox" || toolbox_config="$XDG_CONFIG_HOME/toolbox"
+toolbox_config="${XDG_CONFIG_HOME:-$HOME/.config}/toolbox"
 host_welcome_stub="$toolbox_config/host-welcome-shown"
 toolbox_welcome_stub="$toolbox_config/toolbox-welcome-shown"
 
