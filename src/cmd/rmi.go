@@ -66,6 +66,8 @@ func rmi(cmd *cobra.Command, args []string) error {
 		return &exitError{exitCode, err}
 	}
 
+	errCount := 0
+
 	if rmiFlags.deleteAll {
 		toolboxImages, err := getImages(false)
 		if err != nil {
@@ -76,6 +78,7 @@ func rmi(cmd *cobra.Command, args []string) error {
 			imageID := image.ID
 			if err := podman.RemoveImage(imageID, rmiFlags.forceDelete); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				errCount++
 				continue
 			}
 		}
@@ -92,14 +95,21 @@ func rmi(cmd *cobra.Command, args []string) error {
 		for _, image := range args {
 			if _, err := podman.IsToolboxImage(image); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				errCount++
 				continue
 			}
 
 			if err := podman.RemoveImage(image, rmiFlags.forceDelete); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				errCount++
 				continue
 			}
 		}
+	}
+
+	if errCount != 0 {
+		errMsg := fmt.Sprintf("failed to remove %d images", errCount)
+		return errors.New(errMsg)
 	}
 
 	return nil
