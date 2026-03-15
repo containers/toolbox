@@ -17,6 +17,7 @@
 package utils
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"os"
@@ -891,4 +892,47 @@ func ResolveContainerAndImageNames(container, distroCLI, imageCLI, releaseCLI st
 	logrus.Debugf("Release: '%s'", release)
 
 	return container, image, release, nil
+}
+
+// IsKCMSocketEnabled checks if the KCM cache is enabled or not, by verifying the unix domain socket used
+// by kcm exists. Normally, the default path is - /var/run/.heim_org.h5l.kcm-socket.
+//
+// However, we should be vary that this path is configurable. It can be overriden by setting the
+// kcm_socket field in the [libdefaults] section to point to the new path, inside /etc/krb5.conf.
+func IsKCMSocketEnabled() (bool, error) {
+	kcmSocketPath := "/var/run/.heim_org.h5l.kcm-socket"
+
+	file, err := os.Open("/etc/krb5.conf")
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return false, err
+	} else if err == nil {
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		insideLibdefaultsSection := false
+
+		for scanner.Scan() {
+			text := strings.TrimSpace(scanner.Text())
+			if strings.HasPrefix(text, "[") {
+				insideLibdefaultsSection = text == "[libdefaults]"
+				continue
+			}
+
+			if insideLibdefaultsSection {
+				parts := strings.SplitN(text, "=", 2)
+				if len(parts) == 2 && strings.TrimSpace(parts[0]) == "kcm_socket" {
+					kcmSocketPath = strings.TrimSpace(parts[1])
+				}
+			}
+		}
+	}
+
+	info, err := os.Stat(kcmSocketPath)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return false, err
+	} else if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+
+	return info.Mode()&os.ModeSocket != 0, nil
 }
