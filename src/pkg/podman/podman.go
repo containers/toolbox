@@ -53,7 +53,7 @@ var (
 	LogLevel = logrus.ErrorLevel
 )
 
-func (image *Image) FlattenNames(fillNameWithID bool) []Image {
+func (image *Image) flattenNames(fillNameWithID bool) []Image {
 	var ret []Image
 
 	if len(image.Names) == 0 {
@@ -190,12 +190,14 @@ func GetContainers(args ...string) (*Containers, error) {
 
 // GetImages is a wrapper function around `podman images --format json` command.
 //
+// Parameter fillNameWithID is a boolean that indicates if the image names should be filled with the ID, when there
+// are no names.
 // Parameter args accepts an array of strings to be passed to the wrapped command (eg. ["-a", "--filter", "123"]).
 //
 // Returned value is a slice of Images.
 //
 // If a problem happens during execution, first argument is nil and second argument holds the error message.
-func GetImages(args ...string) ([]Image, error) {
+func GetImages(fillNameWithID bool, args ...string) ([]Image, error) {
 	var stdout bytes.Buffer
 
 	logLevelString := LogLevel.String()
@@ -210,7 +212,20 @@ func GetImages(args ...string) ([]Image, error) {
 		return nil, err
 	}
 
-	return images, nil
+	processedIDs := make(map[string]struct{})
+	var processedImages []Image
+
+	for _, image := range images {
+		if _, ok := processedIDs[image.ID]; ok {
+			continue
+		}
+
+		processedIDs[image.ID] = struct{}{}
+		flattenedImages := image.flattenNames(fillNameWithID)
+		processedImages = append(processedImages, flattenedImages...)
+	}
+
+	return processedImages, nil
 }
 
 // GetVersion returns version of Podman in a string

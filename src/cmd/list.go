@@ -154,21 +154,15 @@ func listHelp(cmd *cobra.Command, args []string) {
 func getImages(fillNameWithID bool) ([]podman.Image, error) {
 	logrus.Debug("Fetching all images")
 	var args []string
-	images, err := podman.GetImages(args...)
+	images, err := podman.GetImages(fillNameWithID, args...)
 	if err != nil {
 		logrus.Debugf("Fetching all images failed: %s", err)
 		return nil, errors.New("failed to get images")
 	}
 
-	processed := make(map[string]struct{})
 	var toolboxImages []podman.Image
 
 	for _, image := range images {
-		if _, ok := processed[image.ID]; ok {
-			continue
-		}
-
-		processed[image.ID] = struct{}{}
 		var isToolboxImage bool
 
 		for label := range toolboxLabels {
@@ -179,8 +173,7 @@ func getImages(fillNameWithID bool) ([]podman.Image, error) {
 		}
 
 		if isToolboxImage {
-			flattenedImages := image.FlattenNames(fillNameWithID)
-			toolboxImages = append(toolboxImages, flattenedImages...)
+			toolboxImages = append(toolboxImages, image)
 		}
 
 	}
