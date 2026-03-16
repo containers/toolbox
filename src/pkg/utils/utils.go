@@ -897,7 +897,7 @@ func ResolveContainerAndImageNames(container, distroCLI, imageCLI, releaseCLI st
 // IsKCMSocketEnabled checks if the KCM cache is enabled or not, by verifying the unix domain socket used
 // by kcm exists. Normally, the default path is - /var/run/.heim_org.h5l.kcm-socket.
 //
-// However, we should be vary that this path is configurable. It can be overriden by setting the
+// However, we should be vary that this path is configurable. It can be overridden by setting the
 // kcm_socket field in the [libdefaults] section to point to the new path, inside /etc/krb5.conf.
 func IsKCMSocketEnabled() (bool, error) {
 	kcmSocketPath := "/var/run/.heim_org.h5l.kcm-socket"
