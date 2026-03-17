@@ -35,12 +35,6 @@ var (
 		onlyContainers bool
 		onlyImages     bool
 	}
-
-	// toolboxLabels holds labels used by containers/images that mark them as compatible with Toolbx
-	toolboxLabels = map[string]string{
-		"com.github.debarshiray.toolbox": "true",
-		"com.github.containers.toolbox":  "true",
-	}
 )
 
 var listCmd = &cobra.Command{
@@ -160,26 +154,8 @@ func getImages(fillNameWithID bool) ([]podman.Image, error) {
 		return nil, errors.New("failed to get images")
 	}
 
-	var toolboxImages []podman.Image
-
-	for _, image := range images {
-		var isToolboxImage bool
-
-		for label := range toolboxLabels {
-			if _, ok := image.Labels[label]; ok {
-				isToolboxImage = true
-				break
-			}
-		}
-
-		if isToolboxImage {
-			toolboxImages = append(toolboxImages, image)
-		}
-
-	}
-
-	sort.Sort(podman.ImageSlice(toolboxImages))
-	return toolboxImages, nil
+	sort.Sort(podman.ImageSlice(images))
+	return images, nil
 }
 
 func listOutput(images []podman.Image, containers []podman.Container) {

@@ -188,7 +188,7 @@ func GetContainers(args ...string) (*Containers, error) {
 	return &Containers{containers, 0}, nil
 }
 
-// GetImages is a wrapper function around `podman images --format json` command.
+// GetImages is a wrapper function around `podman images --format json` command that returns all Toolbx images
 //
 // Parameter fillNameWithID is a boolean that indicates if the image names should be filled with the ID, when there
 // are no names.
@@ -213,7 +213,7 @@ func GetImages(fillNameWithID bool, args ...string) ([]Image, error) {
 	}
 
 	processedIDs := make(map[string]struct{})
-	var processedImages []Image
+	var toolbxImages []Image
 
 	for _, image := range images {
 		if _, ok := processedIDs[image.ID]; ok {
@@ -221,11 +221,13 @@ func GetImages(fillNameWithID bool, args ...string) ([]Image, error) {
 		}
 
 		processedIDs[image.ID] = struct{}{}
-		flattenedImages := image.flattenNames(fillNameWithID)
-		processedImages = append(processedImages, flattenedImages...)
+		if isToolbx(image.Labels) {
+			flattenedImages := image.flattenNames(fillNameWithID)
+			toolbxImages = append(toolbxImages, flattenedImages...)
+		}
 	}
 
-	return processedImages, nil
+	return toolbxImages, nil
 }
 
 // GetVersion returns version of Podman in a string
