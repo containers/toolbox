@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"sort"
 	"text/tabwriter"
 
 	"github.com/containers/toolbox/pkg/podman"
@@ -154,7 +153,6 @@ func getImages(fillNameWithID bool) ([]podman.Image, error) {
 		return nil, errors.New("failed to get images")
 	}
 
-	sort.Sort(podman.ImageSlice(images))
 	return images, nil
 }
 

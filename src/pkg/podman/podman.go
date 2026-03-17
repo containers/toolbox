@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sort"
 	"strconv"
 	"time"
 
@@ -39,7 +40,7 @@ type Image struct {
 	Names   []string
 }
 
-type ImageSlice []Image
+type imageSlice []Image
 
 var (
 	podmanVersion string
@@ -109,23 +110,23 @@ func (image *Image) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (images ImageSlice) Len() int {
+func (images imageSlice) Len() int {
 	return len(images)
 }
 
-func (images ImageSlice) Less(i, j int) bool {
+func (images imageSlice) Less(i, j int) bool {
 	if len(images[i].Names) != 1 {
-		panic("cannot sort unflattened ImageSlice")
+		panic("cannot sort unflattened imageSlice")
 	}
 
 	if len(images[j].Names) != 1 {
-		panic("cannot sort unflattened ImageSlice")
+		panic("cannot sort unflattened imageSlice")
 	}
 
 	return images[i].Names[0] < images[j].Names[0]
 }
 
-func (images ImageSlice) Swap(i, j int) {
+func (images imageSlice) Swap(i, j int) {
 	images[i], images[j] = images[j], images[i]
 }
 
@@ -227,6 +228,7 @@ func GetImages(fillNameWithID bool, args ...string) ([]Image, error) {
 		}
 	}
 
+	sort.Sort(imageSlice(toolbxImages))
 	return toolbxImages, nil
 }
 
