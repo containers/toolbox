@@ -378,6 +378,14 @@ func IsToolboxImage(image string) (bool, error) {
 	return true, nil
 }
 
+func isToolbx(labels map[string]string) bool {
+	if labels["com.github.containers.toolbox"] == "true" || labels["com.github.debarshiray.toolbox"] == "true" {
+		return true
+	}
+
+	return false
+}
+
 func Logs(container string, since time.Time, stderr io.Writer) error {
 	ctx := context.Background()
 	err := LogsContext(ctx, container, false, since, stderr)

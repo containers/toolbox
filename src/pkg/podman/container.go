@@ -297,11 +297,3 @@ func (containers *Containers) Next() bool {
 func (containers *Containers) Reset() {
 	containers.i = 0
 }
-
-func isToolbx(labels map[string]string) bool {
-	if labels["com.github.containers.toolbox"] == "true" || labels["com.github.debarshiray.toolbox"] == "true" {
-		return true
-	}
-
-	return false
-}
