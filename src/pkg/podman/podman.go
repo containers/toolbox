@@ -193,16 +193,15 @@ func GetContainers(args ...string) (*Containers, error) {
 //
 // Parameter fillNameWithID is a boolean that indicates if the image names should be filled with the ID, when there
 // are no names.
-// Parameter args accepts an array of strings to be passed to the wrapped command (eg. ["-a", "--filter", "123"]).
 //
 // Returned value is a slice of Images.
 //
 // If a problem happens during execution, first argument is nil and second argument holds the error message.
-func GetImages(fillNameWithID bool, args ...string) ([]Image, error) {
+func GetImages(fillNameWithID bool) ([]Image, error) {
 	var stdout bytes.Buffer
 
 	logLevelString := LogLevel.String()
-	args = append([]string{"--log-level", logLevelString, "images", "--format", "json"}, args...)
+	args := []string{"--log-level", logLevelString, "images", "--format", "json"}
 	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
 		return nil, err
 	}
