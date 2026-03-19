@@ -86,9 +86,12 @@ func list(cmd *cobra.Command, args []string) error {
 	var err error
 
 	if lsImages {
-		images, err = getImages(false)
+		logrus.Debug("Getting all images")
+
+		images, err = podman.GetImages(false)
 		if err != nil {
-			return err
+			logrus.Debugf("Getting all images failed: %s", err)
+			return errors.New("failed to get images")
 		}
 	}
 
@@ -142,18 +145,6 @@ func listHelp(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 		return
 	}
-}
-
-func getImages(fillNameWithID bool) ([]podman.Image, error) {
-	logrus.Debug("Fetching all images")
-
-	images, err := podman.GetImages(fillNameWithID)
-	if err != nil {
-		logrus.Debugf("Fetching all images failed: %s", err)
-		return nil, errors.New("failed to get images")
-	}
-
-	return images, nil
 }
 
 func listOutput(images []podman.Image, containers []podman.Container) {

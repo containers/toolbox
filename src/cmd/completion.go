@@ -20,7 +20,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/utils"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -129,8 +131,13 @@ func completionImageNames(cmd *cobra.Command, _ []string, _ string) ([]string, c
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
 
+	logrus.Debug("Getting all images")
+
 	var imageNames []string
-	if images, err := getImages(true); err == nil {
+
+	if images, err := podman.GetImages(true); err != nil {
+		logrus.Debugf("Getting all images failed: %s", err)
+	} else {
 		for _, image := range images {
 			if len(image.Names) != 1 {
 				panic("cannot complete unflattened Image")
@@ -144,8 +151,13 @@ func completionImageNames(cmd *cobra.Command, _ []string, _ string) ([]string, c
 }
 
 func completionImageNamesFiltered(_ *cobra.Command, args []string, _ string) ([]string, cobra.ShellCompDirective) {
+	logrus.Debug("Getting all images")
+
 	var imageNames []string
-	if images, err := getImages(true); err == nil {
+
+	if images, err := podman.GetImages(true); err != nil {
+		logrus.Debugf("Getting all images failed: %s", err)
+	} else {
 		for _, image := range images {
 			skip := false
 

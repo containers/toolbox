@@ -24,6 +24,7 @@ import (
 
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/utils"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -67,9 +68,12 @@ func rmi(cmd *cobra.Command, args []string) error {
 	}
 
 	if rmiFlags.deleteAll {
-		toolboxImages, err := getImages(false)
+		logrus.Debug("Getting all images")
+
+		toolboxImages, err := podman.GetImages(false)
 		if err != nil {
-			return err
+			logrus.Debugf("Getting all images failed: %s", err)
+			return errors.New("failed to get images")
 		}
 
 		for _, image := range toolboxImages {
