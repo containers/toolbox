@@ -118,9 +118,8 @@ func getContainers() ([]podman.Container, error) {
 	var toolboxContainers []podman.Container
 
 	for containers.Next() {
-		if container := containers.Get(); container.IsToolbx() {
-			toolboxContainers = append(toolboxContainers, container)
-		}
+		container := containers.Get()
+		toolboxContainers = append(toolboxContainers, container)
 	}
 
 	return toolboxContainers, nil

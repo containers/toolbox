@@ -163,7 +163,7 @@ func ContainerExists(container string) (bool, error) {
 	return true, nil
 }
 
-// GetContainers is a wrapper function around `podman ps --format json` command.
+// GetContainers is a wrapper function around `podman ps --format json` command that returns all Toolbx containers
 //
 // Returned value is a slice of Containers.
 //
@@ -184,7 +184,14 @@ func GetContainers() (*Containers, error) {
 		return nil, err
 	}
 
-	return &Containers{containers, 0}, nil
+	var toolbxContainers []containerPS
+	for _, container := range containers {
+		if container.IsToolbx() {
+			toolbxContainers = append(toolbxContainers, container)
+		}
+	}
+
+	return &Containers{toolbxContainers, 0}, nil
 }
 
 // GetImages is a wrapper function around `podman images --format json` command that returns all Toolbx images
