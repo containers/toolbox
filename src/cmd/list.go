@@ -108,8 +108,8 @@ func list(cmd *cobra.Command, args []string) error {
 
 func getContainers() ([]podman.Container, error) {
 	logrus.Debug("Fetching all containers")
-	args := []string{"--all", "--sort", "names"}
-	containers, err := podman.GetContainers(args...)
+
+	containers, err := podman.GetContainers()
 	if err != nil {
 		logrus.Debugf("Fetching all containers failed: %s", err)
 		return nil, errors.New("failed to get containers")

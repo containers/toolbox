@@ -165,16 +165,14 @@ func ContainerExists(container string) (bool, error) {
 
 // GetContainers is a wrapper function around `podman ps --format json` command.
 //
-// Parameter args accepts an array of strings to be passed to the wrapped command (eg. ["-a", "--filter", "123"]).
-//
 // Returned value is a slice of Containers.
 //
 // If a problem happens during execution, first argument is nil and second argument holds the error message.
-func GetContainers(args ...string) (*Containers, error) {
+func GetContainers() (*Containers, error) {
 	var stdout bytes.Buffer
 
 	logLevelString := LogLevel.String()
-	args = append([]string{"--log-level", logLevelString, "ps", "--format", "json"}, args...)
+	args := []string{"--log-level", logLevelString, "ps", "--all", "--format", "json", "--sort", "names"}
 
 	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
 		return nil, err
