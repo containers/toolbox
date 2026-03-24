@@ -82,7 +82,7 @@ func list(cmd *cobra.Command, args []string) error {
 	}
 
 	var images []podman.Image
-	var containers []podman.Container
+	var containers *podman.Containers
 	var err error
 
 	if lsImages {
@@ -96,33 +96,17 @@ func list(cmd *cobra.Command, args []string) error {
 	}
 
 	if lsContainers {
-		containers, err = getContainers()
+		logrus.Debug("Getting all containers")
+
+		containers, err = podman.GetContainers()
 		if err != nil {
-			return err
+			logrus.Debugf("Getting all containers failed: %s", err)
+			return errors.New("failed to get containers")
 		}
 	}
 
 	listOutput(images, containers)
 	return nil
-}
-
-func getContainers() ([]podman.Container, error) {
-	logrus.Debug("Fetching all containers")
-
-	containers, err := podman.GetContainers()
-	if err != nil {
-		logrus.Debugf("Fetching all containers failed: %s", err)
-		return nil, errors.New("failed to get containers")
-	}
-
-	var toolboxContainers []podman.Container
-
-	for containers.Next() {
-		container := containers.Get()
-		toolboxContainers = append(toolboxContainers, container)
-	}
-
-	return toolboxContainers, nil
 }
 
 func listHelp(cmd *cobra.Command, args []string) {
@@ -146,7 +130,7 @@ func listHelp(cmd *cobra.Command, args []string) {
 	}
 }
 
-func listOutput(images []podman.Image, containers []podman.Container) {
+func listOutput(images []podman.Image, containers *podman.Containers) {
 	if len(images) != 0 {
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
@@ -165,11 +149,11 @@ func listOutput(images []podman.Image, containers []podman.Container) {
 		writer.Flush()
 	}
 
-	if len(images) != 0 && len(containers) != 0 {
+	if len(images) != 0 && containers.Len() != 0 {
 		fmt.Println()
 	}
 
-	if len(containers) != 0 {
+	if containers.Len() != 0 {
 		const boldGreenColor = "\033[1;32m"
 		const defaultColor = "\033[0;00m" // identical to resetColor, but same length as boldGreenColor
 		const resetColor = "\033[0m"
@@ -194,7 +178,9 @@ func listOutput(images []podman.Image, containers []podman.Container) {
 
 		fmt.Fprintf(writer, "\n")
 
-		for _, container := range containers {
+		for containers.Next() {
+			container := containers.Get()
+
 			isRunning := false
 			if podman.CheckVersion("2.0.0") {
 				status := container.Status()

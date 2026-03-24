@@ -24,6 +24,7 @@ import (
 
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/utils"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -67,12 +68,16 @@ func rm(cmd *cobra.Command, args []string) error {
 	}
 
 	if rmFlags.deleteAll {
-		toolboxContainers, err := getContainers()
+		logrus.Debug("Getting all containers")
+
+		toolboxContainers, err := podman.GetContainers()
 		if err != nil {
-			return err
+			logrus.Debugf("Getting all containers failed: %s", err)
+			return errors.New("failed to get containers")
 		}
 
-		for _, container := range toolboxContainers {
+		for toolboxContainers.Next() {
+			container := toolboxContainers.Get()
 			containerID := container.ID()
 			if err := podman.RemoveContainer(containerID, rmFlags.forceDelete); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)

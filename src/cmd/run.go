@@ -193,13 +193,16 @@ func runCommand(container string,
 			return err
 		}
 
-		containers, err := getContainers()
+		logrus.Debug("Getting all containers")
+
+		containers, err := podman.GetContainers()
 		if err != nil {
+			logrus.Debugf("Getting all containers failed: %s", err)
 			err := createErrorContainerNotFound(container)
 			return err
 		}
 
-		containersCount := len(containers)
+		containersCount := containers.Len()
 		logrus.Debugf("Found %d containers", containersCount)
 
 		if containersCount == 0 {
@@ -228,7 +231,9 @@ func runCommand(container string,
 		} else if containersCount == 1 && defaultContainer {
 			fmt.Fprintf(os.Stderr, "Error: container %s not found\n", container)
 
-			container = containers[0].Name()
+			containers.Next()
+			containerObj := containers.Get()
+			container = containerObj.Name()
 			fmt.Fprintf(os.Stderr, "Entering container %s instead.\n", container)
 			fmt.Fprintf(os.Stderr, "Use the 'create' command to create a different Toolbx.\n")
 			fmt.Fprintf(os.Stderr, "Run '%s --help' for usage.\n", executableBase)

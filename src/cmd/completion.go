@@ -74,9 +74,15 @@ func completionCommands(cmd *cobra.Command, _ []string, _ string) ([]string, cob
 }
 
 func completionContainerNames(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
+	logrus.Debug("Getting all containers")
+
 	var containerNames []string
-	if containers, err := getContainers(); err == nil {
-		for _, container := range containers {
+
+	if containers, err := podman.GetContainers(); err != nil {
+		logrus.Debugf("Getting all containers failed: %s", err)
+	} else {
+		for containers.Next() {
+			container := containers.Get()
 			name := container.Name()
 			containerNames = append(containerNames, name)
 		}
@@ -90,9 +96,15 @@ func completionContainerNamesFiltered(cmd *cobra.Command, args []string, _ strin
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
 
+	logrus.Debug("Getting all containers")
+
 	var containerNames []string
-	if containers, err := getContainers(); err == nil {
-		for _, container := range containers {
+
+	if containers, err := podman.GetContainers(); err != nil {
+		logrus.Debugf("Getting all containers failed: %s", err)
+	} else {
+		for containers.Next() {
+			container := containers.Get()
 			name := container.Name()
 			skip := false
 			for _, arg := range args {

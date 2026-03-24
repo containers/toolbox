@@ -285,6 +285,14 @@ func (containers *Containers) Get() Container {
 	return &container
 }
 
+func (containers *Containers) Len() int {
+	if containers == nil {
+		return 0
+	}
+
+	return len(containers.data)
+}
+
 func (containers *Containers) Next() bool {
 	available := containers.i < len(containers.data)
 	if available {
