@@ -119,7 +119,9 @@ func init() {
 
 	persistentFlags.CountVarP(&rootFlags.verbose, "verbose", "v", "Set log-level to 'debug'")
 
-	if err := rootCmd.RegisterFlagCompletionFunc("log-level", completionLogLevels); err != nil {
+	logLevels := []string{"trace", "debug", "info", "warn", "error", "fatal", "panic"}
+	completionFn := cobra.FixedCompletions(logLevels, cobra.ShellCompDirectiveNoFileComp)
+	if err := rootCmd.RegisterFlagCompletionFunc("log-level", completionFn); err != nil {
 		panicMsg := fmt.Sprintf("failed to register flag completion function: %v", err)
 		panic(panicMsg)
 	}

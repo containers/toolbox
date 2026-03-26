@@ -194,7 +194,3 @@ func completionImageNamesFiltered(_ *cobra.Command, args []string, _ string) ([]
 
 	return imageNames, cobra.ShellCompDirectiveNoFileComp
 }
-
-func completionLogLevels(_ *cobra.Command, _ []string, _ string) ([]string, cobra.ShellCompDirective) {
-	return []string{"trace", "debug", "info", "warn", "error", "fatal", "panic"}, cobra.ShellCompDirectiveNoFileComp
-}
