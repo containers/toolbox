@@ -15,7 +15,7 @@ require (
 	github.com/godbus/dbus/v5 v5.0.6
 	github.com/google/renameio/v2 v2.0.0
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spf13/cobra v1.5.0
+	github.com/spf13/cobra v1.6.0
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/sys v0.29.0
@@ -28,7 +28,7 @@ require (
 	github.com/fatih/color v1.14.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/opencontainers/runtime-spec v1.2.1 // indirect
