@@ -32,7 +32,7 @@ var completionCmd = &cobra.Command{
 	Hidden:                true,
 	DisableFlagsInUseLine: true,
 	ValidArgs:             []string{"bash", "fish", "zsh"},
-	Args:                  cobra.ExactValidArgs(1),
+	Args:                  cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
 	RunE:                  completion,
 }
 
