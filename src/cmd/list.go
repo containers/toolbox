@@ -140,10 +140,8 @@ func listOutput(images []podman.Image, containers *podman.Containers) {
 				panic("cannot list unflattened Image")
 			}
 
-			fmt.Fprintf(writer, "%s\t%s\t%s\n",
-				utils.ShortID(image.ID),
-				image.Names[0],
-				image.Created)
+			shortID := utils.ShortID(image.ID)
+			fmt.Fprintf(writer, "%s\t%s\t%s\n", shortID, image.Names[0], image.Created)
 		}
 
 		writer.Flush()
@@ -199,11 +197,15 @@ func listOutput(images []podman.Image, containers *podman.Containers) {
 			}
 
 			created := container.Created()
-			id := container.ID()
 			image := container.Image()
 			name := container.Name()
+
+			id := container.ID()
+			shortID := utils.ShortID(id)
+
 			status := container.Status()
-			fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s", utils.ShortID(id), name, created, status, image)
+
+			fmt.Fprintf(writer, "%s\t%s\t%s\t%s\t%s", shortID, name, created, status, image)
 
 			if term.IsTerminal(os.Stdout) {
 				fmt.Fprintf(writer, "%s", resetColor)

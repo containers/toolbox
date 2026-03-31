@@ -57,7 +57,8 @@ var (
 func (image *Image) flattenNames(fillNameWithID bool) []Image {
 	var ret []Image
 
-	if len(image.Names) == 0 {
+	namesCount := len(image.Names)
+	if namesCount == 0 {
 		flattenedImage := *image
 
 		if fillNameWithID {
@@ -71,7 +72,7 @@ func (image *Image) flattenNames(fillNameWithID bool) []Image {
 		return ret
 	}
 
-	ret = make([]Image, 0, len(image.Names))
+	ret = make([]Image, 0, namesCount)
 
 	for _, name := range image.Names {
 		flattenedImage := *image
