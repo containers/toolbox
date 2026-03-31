@@ -76,8 +76,9 @@ func rmi(cmd *cobra.Command, args []string) error {
 			return errors.New("failed to get images")
 		}
 
-		for _, image := range toolboxImages {
-			imageID := image.ID
+		for toolboxImages.Next() {
+			image := toolboxImages.Get()
+			imageID := image.ID()
 			if err := podman.RemoveImage(imageID, rmiFlags.forceDelete); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 				continue

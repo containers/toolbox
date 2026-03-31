@@ -150,12 +150,10 @@ func completionImageNames(cmd *cobra.Command, _ []string, _ string) ([]string, c
 	if images, err := podman.GetImages(true); err != nil {
 		logrus.Debugf("Getting all images failed: %s", err)
 	} else {
-		for _, image := range images {
-			if len(image.Names) != 1 {
-				panic("cannot complete unflattened Image")
-			}
-
-			imageNames = append(imageNames, image.Names[0])
+		for images.Next() {
+			image := images.Get()
+			name := image.Name()
+			imageNames = append(imageNames, name)
 		}
 	}
 
@@ -170,15 +168,12 @@ func completionImageNamesFiltered(_ *cobra.Command, args []string, _ string) ([]
 	if images, err := podman.GetImages(true); err != nil {
 		logrus.Debugf("Getting all images failed: %s", err)
 	} else {
-		for _, image := range images {
+		for images.Next() {
+			image := images.Get()
+			name := image.Name()
 			skip := false
-
-			if len(image.Names) != 1 {
-				panic("cannot complete unflattened Image")
-			}
-
 			for _, arg := range args {
-				if arg == image.Names[0] {
+				if arg == name {
 					skip = true
 					break
 				}
@@ -188,7 +183,7 @@ func completionImageNamesFiltered(_ *cobra.Command, args []string, _ string) ([]
 				continue
 			}
 
-			imageNames = append(imageNames, image.Names[0])
+			imageNames = append(imageNames, name)
 		}
 	}
 

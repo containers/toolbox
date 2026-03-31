@@ -81,7 +81,7 @@ func list(cmd *cobra.Command, args []string) error {
 		lsImages = false
 	}
 
-	var images []podman.Image
+	var images *podman.Images
 	var containers *podman.Containers
 	var err error
 
@@ -130,24 +130,26 @@ func listHelp(cmd *cobra.Command, args []string) {
 	}
 }
 
-func listOutput(images []podman.Image, containers *podman.Containers) {
-	if len(images) != 0 {
+func listOutput(images *podman.Images, containers *podman.Containers) {
+	if images.Len() != 0 {
 		writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		fmt.Fprintf(writer, "%s\t%s\t%s\n", "IMAGE ID", "IMAGE NAME", "CREATED")
 
-		for _, image := range images {
-			if len(image.Names) != 1 {
-				panic("cannot list unflattened Image")
-			}
+		for images.Next() {
+			image := images.Get()
+			created := image.Created()
+			name := image.Name()
 
-			shortID := utils.ShortID(image.ID)
-			fmt.Fprintf(writer, "%s\t%s\t%s\n", shortID, image.Names[0], image.Created)
+			id := image.ID()
+			shortID := utils.ShortID(id)
+
+			fmt.Fprintf(writer, "%s\t%s\t%s\n", shortID, name, created)
 		}
 
 		writer.Flush()
 	}
 
-	if len(images) != 0 && containers.Len() != 0 {
+	if images.Len() != 0 && containers.Len() != 0 {
 		fmt.Println()
 	}
 

@@ -33,14 +33,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type Image struct {
-	Created string
-	ID      string
-	Labels  map[string]string
-	Names   []string
-}
-
-type imageSlice []Image
+type imageSlice []imageImages
 
 var (
 	podmanVersion string
@@ -54,77 +47,14 @@ var (
 	LogLevel = logrus.ErrorLevel
 )
 
-func (image *Image) flattenNames(fillNameWithID bool) []Image {
-	var ret []Image
-
-	namesCount := len(image.Names)
-	if namesCount == 0 {
-		flattenedImage := *image
-
-		if fillNameWithID {
-			shortID := utils.ShortID(image.ID)
-			flattenedImage.Names = []string{shortID}
-		} else {
-			flattenedImage.Names = []string{"<none>"}
-		}
-
-		ret = []Image{flattenedImage}
-		return ret
-	}
-
-	ret = make([]Image, 0, namesCount)
-
-	for _, name := range image.Names {
-		flattenedImage := *image
-		flattenedImage.Names = []string{name}
-		ret = append(ret, flattenedImage)
-	}
-
-	return ret
-}
-
-func (image *Image) UnmarshalJSON(data []byte) error {
-	var raw struct {
-		Created interface{}
-		ID      string
-		Labels  map[string]string
-		Names   []string
-	}
-
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return err
-	}
-
-	// Until Podman 2.0.x the field 'Created' held a human-readable string in
-	// format "5 minutes ago". Since Podman 2.1 the field holds an integer with
-	// Unix time. Go interprets numbers in JSON as float64.
-	switch value := raw.Created.(type) {
-	case string:
-		image.Created = value
-	case float64:
-		image.Created = utils.HumanDuration(int64(value))
-	}
-
-	image.ID = raw.ID
-	image.Labels = raw.Labels
-	image.Names = raw.Names
-	return nil
-}
-
 func (images imageSlice) Len() int {
 	return len(images)
 }
 
 func (images imageSlice) Less(i, j int) bool {
-	if len(images[i].Names) != 1 {
-		panic("cannot sort unflattened imageSlice")
-	}
-
-	if len(images[j].Names) != 1 {
-		panic("cannot sort unflattened imageSlice")
-	}
-
-	return images[i].Names[0] < images[j].Names[0]
+	nameI := images[i].Name()
+	nameJ := images[j].Name()
+	return nameI < nameJ
 }
 
 func (images imageSlice) Swap(i, j int) {
@@ -203,7 +133,7 @@ func GetContainers() (*Containers, error) {
 // Returned value is a slice of Images.
 //
 // If a problem happens during execution, first argument is nil and second argument holds the error message.
-func GetImages(fillNameWithID bool) ([]Image, error) {
+func GetImages(fillNameWithID bool) (*Images, error) {
 	var stdout bytes.Buffer
 
 	logLevelString := LogLevel.String()
@@ -213,28 +143,29 @@ func GetImages(fillNameWithID bool) ([]Image, error) {
 	}
 
 	output := stdout.Bytes()
-	var images []Image
+	var images []imageImages
 	if err := json.Unmarshal(output, &images); err != nil {
 		return nil, err
 	}
 
 	processedIDs := make(map[string]struct{})
-	var toolbxImages []Image
+	var toolbxImages []imageImages
 
 	for _, image := range images {
-		if _, ok := processedIDs[image.ID]; ok {
+		id := image.ID()
+		if _, ok := processedIDs[id]; ok {
 			continue
 		}
 
-		processedIDs[image.ID] = struct{}{}
-		if isToolbx(image.Labels) {
+		processedIDs[id] = struct{}{}
+		if image.IsToolbx() {
 			flattenedImages := image.flattenNames(fillNameWithID)
 			toolbxImages = append(toolbxImages, flattenedImages...)
 		}
 	}
 
 	sort.Sort(imageSlice(toolbxImages))
-	return toolbxImages, nil
+	return &Images{toolbxImages, 0}, nil
 }
 
 // GetVersion returns version of Podman in a string
