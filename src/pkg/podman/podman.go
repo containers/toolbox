@@ -33,8 +33,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type imageSlice []imageImages
-
 var (
 	podmanVersion string
 )
@@ -46,20 +44,6 @@ var (
 
 	LogLevel = logrus.ErrorLevel
 )
-
-func (images imageSlice) Len() int {
-	return len(images)
-}
-
-func (images imageSlice) Less(i, j int) bool {
-	nameI := images[i].Name()
-	nameJ := images[j].Name()
-	return nameI < nameJ
-}
-
-func (images imageSlice) Swap(i, j int) {
-	images[i], images[j] = images[j], images[i]
-}
 
 // CheckVersion compares provided version with the version of Podman.
 //

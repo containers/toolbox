@@ -43,6 +43,8 @@ type imageImages struct {
 	names   []string
 }
 
+type imageSlice []imageImages
+
 func (images *Images) Get() Image {
 	if images == nil {
 		panic("called Images.Get() on a nil Images")
@@ -187,4 +189,18 @@ func (image *imageImages) UnmarshalJSON(data []byte) error {
 	image.labels = raw.Labels
 	image.names = raw.Names
 	return nil
+}
+
+func (images imageSlice) Len() int {
+	return len(images)
+}
+
+func (images imageSlice) Less(i, j int) bool {
+	nameI := images[i].Name()
+	nameJ := images[j].Name()
+	return nameI < nameJ
+}
+
+func (images imageSlice) Swap(i, j int) {
+	images[i], images[j] = images[j], images[i]
 }
