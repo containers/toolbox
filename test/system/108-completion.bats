@@ -62,13 +62,35 @@ setup() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
-@test "completion: Try with invalid arguments" {
+@test "completion: Try with one invalid argument" {
   run --keep-empty-lines --separate-stderr "$TOOLBX" completion foo
 
   assert_failure
   assert [ ${#lines[@]} -eq 0 ]
   lines=("${stderr_lines[@]}")
   assert_line --index 0 "Error: invalid argument \"foo\" for \"toolbox completion\""
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
+@test "completion: Try with two invalid arguments" {
+  run --keep-empty-lines --separate-stderr "$TOOLBX" completion foo bar
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: accepts 1 arg(s), received 2"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
+@test "completion: Try with two valid arguments" {
+  run --keep-empty-lines --separate-stderr "$TOOLBX" completion bash fish
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: accepts 1 arg(s), received 2"
   assert_line --index 1 "Run 'toolbox --help' for usage."
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
