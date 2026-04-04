@@ -67,6 +67,8 @@ func rm(cmd *cobra.Command, args []string) error {
 		return &exitError{exitCode, err}
 	}
 
+	errCount := 0
+
 	if rmFlags.deleteAll {
 		logrus.Debug("Getting all containers")
 
@@ -81,6 +83,7 @@ func rm(cmd *cobra.Command, args []string) error {
 			containerID := container.ID()
 			if err := podman.RemoveContainer(containerID, rmFlags.forceDelete); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				errCount++
 				continue
 			}
 		}
@@ -98,19 +101,27 @@ func rm(cmd *cobra.Command, args []string) error {
 			containerObj, err := podman.InspectContainer(container)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error: failed to inspect container %s\n", container)
+				errCount++
 				continue
 			}
 
 			if !containerObj.IsToolbx() {
 				fmt.Fprintf(os.Stderr, "Error: %s is not a Toolbx container\n", container)
+				errCount++
 				continue
 			}
 
 			if err := podman.RemoveContainer(container, rmFlags.forceDelete); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				errCount++
 				continue
 			}
 		}
+	}
+
+	if errCount != 0 {
+		errMsg := fmt.Sprintf("failed to remove %d containers", errCount)
+		return errors.New(errMsg)
 	}
 
 	return nil
