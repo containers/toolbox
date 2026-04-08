@@ -25,6 +25,7 @@ sources = files(
   'pkg/podman/errors.go',
   'pkg/podman/image.go',
   'pkg/podman/imageImages_test.go',
+  'pkg/podman/imageInspect_test.go',
   'pkg/podman/podman.go',
   'pkg/podman/containerInspect_test.go',
   'pkg/shell/shell.go',
