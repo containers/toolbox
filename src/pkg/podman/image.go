@@ -29,6 +29,7 @@ type Image interface {
 	Labels() map[string]string
 	Name() string
 	Names() []string
+	RepoTags() []string
 }
 
 type Images struct {
@@ -37,10 +38,19 @@ type Images struct {
 }
 
 type imageImages struct {
-	created string
-	id      string
-	labels  map[string]string
-	names   []string
+	created  string
+	id       string
+	labels   map[string]string
+	names    []string
+	repoTags []string
+}
+
+type imageInspect struct {
+	created      string
+	id           string
+	labels       map[string]string
+	namesHistory []string
+	repoTags     []string
 }
 
 type imageSlice []imageImages
@@ -163,12 +173,24 @@ func (image *imageImages) Names() []string {
 	return ret
 }
 
+func (image *imageImages) RepoTags() []string {
+	if image.repoTags == nil {
+		return nil
+	}
+
+	repoTagsCount := len(image.repoTags)
+	ret := make([]string, repoTagsCount)
+	copy(ret, image.repoTags)
+	return ret
+}
+
 func (image *imageImages) UnmarshalJSON(data []byte) error {
 	var raw struct {
-		Created interface{}
-		ID      string
-		Labels  map[string]string
-		Names   []string
+		Created  interface{}
+		ID       string
+		Labels   map[string]string
+		Names    []string
+		RepoTags []string
 	}
 
 	if err := json.Unmarshal(data, &raw); err != nil {
@@ -188,6 +210,96 @@ func (image *imageImages) UnmarshalJSON(data []byte) error {
 	image.id = raw.ID
 	image.labels = raw.Labels
 	image.names = raw.Names
+	image.repoTags = raw.RepoTags
+	return nil
+}
+
+func (image *imageInspect) Created() string {
+	return image.created
+}
+
+func (image *imageInspect) ID() string {
+	return image.id
+}
+
+func (image *imageInspect) IsToolbx() bool {
+	if isToolbx(image.labels) {
+		return true
+	}
+
+	return false
+}
+
+func (image *imageInspect) Labels() map[string]string {
+	if image.labels == nil {
+		return nil
+	}
+
+	labelsCount := len(image.labels)
+	ret := make(map[string]string, labelsCount)
+	for label, value := range image.labels {
+		ret[label] = value
+	}
+
+	return ret
+}
+
+func (image *imageInspect) Name() string {
+	if len(image.namesHistory) == 0 {
+		panic("no name is available in Image name history")
+	}
+
+	return image.namesHistory[0]
+}
+
+func (image *imageInspect) Names() []string {
+	if image.namesHistory == nil {
+		return nil
+	}
+
+	namesHistoryCount := len(image.namesHistory)
+	ret := make([]string, namesHistoryCount)
+	copy(ret, image.namesHistory)
+	return ret
+}
+
+func (image *imageInspect) RepoTags() []string {
+	if image.repoTags == nil {
+		return nil
+	}
+
+	repoTagsCount := len(image.repoTags)
+	ret := make([]string, repoTagsCount)
+	copy(ret, image.repoTags)
+	return ret
+}
+
+func (image *imageInspect) UnmarshalJSON(data []byte) error {
+	var raw struct {
+		Created interface{}
+		ID      string
+		Config  struct {
+			Labels map[string]string
+		}
+		NamesHistory []string
+		RepoTags     []string
+	}
+
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	switch value := raw.Created.(type) {
+	case string:
+		image.created = value
+	case float64:
+		image.created = utils.HumanDuration(int64(value))
+	}
+
+	image.id = raw.ID
+	image.labels = raw.Config.Labels
+	image.namesHistory = raw.NamesHistory
+	image.repoTags = raw.RepoTags
 	return nil
 }
 

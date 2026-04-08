@@ -30,6 +30,7 @@ func TestImageImages(t *testing.T) {
 		isToolbx bool
 		labels   map[string]string
 		names    []string
+		repoTags []string
 	}
 
 	testCases := []struct {
@@ -66,6 +67,7 @@ func TestImageImages(t *testing.T) {
 					names: []string{
 						"registry.fedoraproject.org/f29/fedora-toolbox:29",
 					},
+					repoTags: nil,
 				},
 				{
 					id:       "8c5e0075ddaf4651b73e71dcf420bab922209f246e1165f306f223112a3061a4",
@@ -74,6 +76,7 @@ func TestImageImages(t *testing.T) {
 					names: []string{
 						"localhost/fedora-toolbox-user:29",
 					},
+					repoTags: nil,
 				},
 			},
 		},
@@ -100,6 +103,7 @@ func TestImageImages(t *testing.T) {
 					names: []string{
 						"registry.fedoraproject.org/f30/fedora-toolbox:30",
 					},
+					repoTags: nil,
 				},
 			},
 		},
@@ -154,6 +158,7 @@ func TestImageImages(t *testing.T) {
 					names: []string{
 						"registry.fedoraproject.org/fedora-toolbox:32",
 					},
+					repoTags: nil,
 				},
 			},
 		},
@@ -214,6 +219,7 @@ func TestImageImages(t *testing.T) {
 					names: []string{
 						"registry.fedoraproject.org/fedora-toolbox:35",
 					},
+					repoTags: nil,
 				},
 			},
 		},
@@ -272,6 +278,7 @@ func TestImageImages(t *testing.T) {
 					names: []string{
 						"registry.fedoraproject.org/fedora-toolbox:38",
 					},
+					repoTags: nil,
 				},
 			},
 		},
@@ -345,6 +352,7 @@ func TestImageImages(t *testing.T) {
 					names: []string{
 						"localhost/fedora-toolbox:38",
 					},
+					repoTags: nil,
 				},
 				{
 					id:       "3eda970c1318e5ea564134338746c04d86ae9817c3a0defdc138b8ccdf787285",
@@ -358,6 +366,7 @@ func TestImageImages(t *testing.T) {
 					names: []string{
 						"registry.fedoraproject.org/fedora:38",
 					},
+					repoTags: nil,
 				},
 			},
 		},
@@ -426,7 +435,8 @@ func TestImageImages(t *testing.T) {
 						"vendor":                        "Fedora Project",
 						"version":                       "38",
 					},
-					names: nil,
+					names:    nil,
+					repoTags: nil,
 				},
 				{
 					id:       "3eda970c1318e5ea564134338746c04d86ae9817c3a0defdc138b8ccdf787285",
@@ -440,6 +450,7 @@ func TestImageImages(t *testing.T) {
 					names: []string{
 						"registry.fedoraproject.org/fedora:38",
 					},
+					repoTags: nil,
 				},
 			},
 		},
@@ -486,6 +497,7 @@ func TestImageImages(t *testing.T) {
 					names: []string{
 						"registry.fedoraproject.org/fedora-toolbox:39",
 					},
+					repoTags: nil,
 				},
 			},
 		},
@@ -544,6 +556,7 @@ func TestImageImages(t *testing.T) {
 					names: []string{
 						"registry.fedoraproject.org/fedora-toolbox:40",
 					},
+					repoTags: nil,
 				},
 			},
 		},
@@ -597,7 +610,8 @@ func TestImageImages(t *testing.T) {
 						"vendor":                           "Fedora Project",
 						"version":                          "40",
 					},
-					names: nil,
+					names:    nil,
+					repoTags: nil,
 				},
 			},
 		},
@@ -691,6 +705,7 @@ func TestImageImages(t *testing.T) {
 						"localhost/fedora-toolbox:40",
 						"registry.fedoraproject.org/fedora-toolbox:40",
 					},
+					repoTags: nil,
 				},
 				{
 					id:       "5c5b2e637806fccb644effa4affc4a5d08dc7e6140586ecb8c601c8739e12628",
@@ -712,6 +727,7 @@ func TestImageImages(t *testing.T) {
 						"localhost/fedora-toolbox:40",
 						"registry.fedoraproject.org/fedora-toolbox:40",
 					},
+					repoTags: nil,
 				},
 			},
 		},
@@ -805,6 +821,7 @@ func TestImageImages(t *testing.T) {
 						"registry.fedoraproject.org/fedora-toolbox:40-test",
 						"registry.fedoraproject.org/fedora-toolbox:40",
 					},
+					repoTags: nil,
 				},
 				{
 					id:       "5c5b2e637806fccb644effa4affc4a5d08dc7e6140586ecb8c601c8739e12628",
@@ -826,6 +843,7 @@ func TestImageImages(t *testing.T) {
 						"registry.fedoraproject.org/fedora-toolbox:40-test",
 						"registry.fedoraproject.org/fedora-toolbox:40",
 					},
+					repoTags: nil,
 				},
 			},
 		},
@@ -920,6 +938,7 @@ func TestImageImages(t *testing.T) {
 					names: []string{
 						"docker.io/library/postgres:latest",
 					},
+					repoTags: nil,
 				},
 				{
 					id:       "5c5b2e637806fccb644effa4affc4a5d08dc7e6140586ecb8c601c8739e12628",
@@ -940,6 +959,7 @@ func TestImageImages(t *testing.T) {
 					names: []string{
 						"registry.fedoraproject.org/fedora-toolbox:40",
 					},
+					repoTags: nil,
 				},
 				{
 					id:       "49008798958db0411330d8b6a996c03bdab1d1b10d139e7df2b75ed3298f84a7",
@@ -960,6 +980,7 @@ func TestImageImages(t *testing.T) {
 					names: []string{
 						"registry.fedoraproject.org/fedora-toolbox:40-aarch64",
 					},
+					repoTags: nil,
 				},
 			},
 		},
@@ -1008,6 +1029,13 @@ func TestImageImages(t *testing.T) {
 					}
 
 				}
+
+				repoTags := image.RepoTags()
+				if len(repoTags) != 0 {
+					repoTags[0] = "foo/bar"
+				}
+
+				assert.Equal(t, expect.repoTags, image.RepoTags())
 			}
 		})
 	}
