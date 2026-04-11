@@ -191,31 +191,30 @@ func GetFullyQualifiedImageFromRepoTags(image string) (string, error) {
 	if utils.ImageReferenceHasDomain(image) {
 		imageFull = image
 	} else {
-		info, err := InspectImage(image)
+		imageObj, err := InspectImage(image)
 		if err != nil {
 			return "", fmt.Errorf("failed to inspect image %s", image)
 		}
 
-		if info["RepoTags"] == nil {
+		repoTags := imageObj.RepoTags()
+		if repoTags == nil {
 			return "", &ImageError{image, ErrImageRepoTagsMissing}
 		}
 
-		repoTags := info["RepoTags"].([]interface{})
 		if len(repoTags) == 0 {
 			return "", &ImageError{image, ErrImageRepoTagsEmpty}
 		}
 
 		for _, repoTag := range repoTags {
-			repoTagString := repoTag.(string)
-			tag := utils.ImageReferenceGetTag(repoTagString)
+			tag := utils.ImageReferenceGetTag(repoTag)
 			if tag != "latest" {
-				imageFull = repoTagString
+				imageFull = repoTag
 				break
 			}
 		}
 
 		if imageFull == "" {
-			imageFull = repoTags[0].(string)
+			imageFull = repoTags[0]
 		}
 	}
 
@@ -264,7 +263,7 @@ func InspectContainer(container string) (Container, error) {
 }
 
 // InspectImage is a wrapper around 'podman inspect --type image' command
-func InspectImage(image string) (map[string]interface{}, error) {
+func InspectImage(image string) (Image, error) {
 	var stdout bytes.Buffer
 
 	logLevelString := LogLevel.String()
@@ -275,31 +274,12 @@ func InspectImage(image string) (map[string]interface{}, error) {
 	}
 
 	output := stdout.Bytes()
-	var info []map[string]interface{}
-
-	if err := json.Unmarshal(output, &info); err != nil {
+	var images []imageInspect
+	if err := json.Unmarshal(output, &images); err != nil {
 		return nil, err
 	}
 
-	return info[0], nil
-}
-
-func IsToolboxImage(image string) (bool, error) {
-	info, err := InspectImage(image)
-	if err != nil {
-		return false, fmt.Errorf("failed to inspect image %s", image)
-	}
-
-	if info["Labels"] == nil {
-		return false, fmt.Errorf("%s is not a Toolbx image", image)
-	}
-
-	labels := info["Labels"].(map[string]interface{})
-	if labels["com.github.containers.toolbox"] != "true" && labels["com.github.debarshiray.toolbox"] != "true" {
-		return false, fmt.Errorf("%s is not a Toolbx image", image)
-	}
-
-	return true, nil
+	return &images[0], nil
 }
 
 func isToolbx(labels map[string]string) bool {
