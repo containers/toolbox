@@ -426,6 +426,7 @@ func getUsageForCommonCommands() string {
 	var builder strings.Builder
 	builder.WriteString("create    Create a new Toolbx container\n")
 	builder.WriteString("enter     Enter an existing Toolbx container\n")
+	builder.WriteString("run       Run a command in an existing Toolbx container\n")
 	builder.WriteString("list      List all existing Toolbx containers and images\n")
 
 	usage := builder.String()
