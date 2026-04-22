@@ -486,12 +486,8 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		logrus.Debugf("%s", arg)
 	}
 
-	s := spinner.New(spinner.CharSets[9], 500*time.Millisecond, spinner.WithWriterFile(os.Stdout))
-	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel {
-		s.Prefix = fmt.Sprintf("Creating container %s: ", container)
-		s.Start()
-		defer s.Stop()
-	}
+	s := startSpinner(fmt.Sprintf("Creating container %s: ", container))
+	defer stopSpinner(s)
 
 	if err := shell.Run("podman", nil, nil, nil, createArgs...); err != nil {
 		return fmt.Errorf("failed to create container %s", container)
@@ -735,12 +731,8 @@ func pullImage(image, release, authFile string) (bool, error) {
 
 	logrus.Debugf("Pulling image %s", imageFull)
 
-	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel {
-		s := spinner.New(spinner.CharSets[9], 500*time.Millisecond, spinner.WithWriterFile(os.Stdout))
-		s.Prefix = fmt.Sprintf("Pulling %s: ", imageFull)
-		s.Start()
-		defer s.Stop()
-	}
+	s := startSpinner(fmt.Sprintf("Pulling %s: ", imageFull))
+	defer stopSpinner(s)
 
 	if err := podman.Pull(imageFull, authFile); err != nil {
 		var builder strings.Builder
@@ -961,6 +953,22 @@ func showPromptForDownload(imageFull string) bool {
 
 	shouldPullImage = showPromptForDownloadSecond(imageFull, errPromptForDownload)
 	return shouldPullImage
+}
+
+func startSpinner(message string) *spinner.Spinner {
+	if logLevel := logrus.GetLevel(); logLevel < logrus.DebugLevel {
+		s := spinner.New(spinner.CharSets[9], 500*time.Millisecond, spinner.WithWriterFile(os.Stdout))
+		s.Prefix = message
+		s.Start()
+		return s
+	}
+	return nil
+}
+
+func stopSpinner(s *spinner.Spinner) {
+	if s != nil {
+		s.Stop()
+	}
 }
 
 // systemdNeedsEscape checks whether a byte in a potential dbus ObjectPath needs to be escaped
