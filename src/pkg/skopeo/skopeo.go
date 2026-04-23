@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/containers/toolbox/pkg/architecture"
 	"github.com/containers/toolbox/pkg/shell"
@@ -86,13 +87,49 @@ func (image *Image) VerifyArchitectureMatch(expectedArchID int) error {
 	return nil
 }
 
-func Inspect(ctx context.Context, target string) (*Image, error) {
+func CopyOverrideArch(source, destination string, archID int, authfile string) error {
+
+	destinationWithTransport := "containers-storage:" + destination
+	sourceWithTransport := "docker://" + source
+	args := []string{"copy", "--override-arch", architecture.GetArchNameOCI(archID)}
+
+	if authfile != "" {
+		args = append(args, []string{"--src-authfile", authfile}...)
+	}
+
+	args = append(args, sourceWithTransport, destinationWithTransport)
+
+	if logrus.GetLevel() < logrus.DebugLevel {
+		if err := shell.Run("skopeo", nil, nil, nil, args...); err != nil {
+			return err
+		}
+	} else {
+		if err := shell.Run("skopeo", nil, os.Stderr, nil, args...); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func Inspect(ctx context.Context, target string, archID int, authfile string) (*Image, error) {
 	var stdout bytes.Buffer
 
 	targetWithTransport := "docker://" + target
-	args := []string{"inspect", "--format", "json", targetWithTransport}
+	args := []string{"inspect", "--format", "json"}
 
-	if err := shell.RunContext(ctx, "skopeo", nil, &stdout, nil, args...); err != nil {
+	if !architecture.HasContainerNativeArch(archID) {
+		archName := architecture.GetArchNameOCI(archID)
+		args = append(args, []string{"--override-arch", archName}...)
+	}
+
+	if authfile != "" {
+		args = append(args, []string{"--authfile", authfile}...)
+	}
+
+	args = append(args, targetWithTransport)
+
+	if _, err := shell.RunContextWithExitCode2(ctx, "skopeo", nil, &stdout, nil, args...); err != nil {
 		return nil, err
 	}
 
@@ -101,6 +138,8 @@ func Inspect(ctx context.Context, target string) (*Image, error) {
 	if err := json.Unmarshal(output, &image); err != nil {
 		return nil, err
 	}
+
+	image.NameFull = target
 
 	return &image, nil
 }
