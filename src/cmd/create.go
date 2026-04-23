@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
+	"github.com/containers/toolbox/pkg/architecture"
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/skopeo"
@@ -564,7 +565,7 @@ func getEnterCommand(container string) string {
 }
 
 func getImageSizeFromRegistry(ctx context.Context, imageFull string) (string, error) {
-	image, err := skopeo.Inspect(ctx, imageFull)
+	image, err := skopeo.Inspect(ctx, imageFull, architecture.HostArchID, "")
 	if err != nil {
 		return "", err
 	}
