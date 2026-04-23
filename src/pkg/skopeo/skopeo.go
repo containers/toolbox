@@ -20,15 +20,70 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 
+	"github.com/containers/toolbox/pkg/architecture"
 	"github.com/containers/toolbox/pkg/shell"
+	"github.com/docker/go-units"
+	"github.com/sirupsen/logrus"
 )
 
 type Layer struct {
 	Size json.Number
 }
+
 type Image struct {
-	LayersData []Layer
+	Architecture string `json:"Architecture"`
+	LayersData   []Layer
+	NameFull     string
+}
+
+func (image *Image) GetSize() (float64, error) {
+	var imageSizeFloat float64
+
+	if image.LayersData == nil {
+		return -1, errors.New("'skopeo inspect' did not have LayersData")
+	}
+
+	for _, layer := range image.LayersData {
+		if layerSize, err := layer.Size.Float64(); err != nil {
+			return -1, err
+		} else {
+			imageSizeFloat += layerSize
+		}
+	}
+
+	return imageSizeFloat, nil
+}
+
+func (image *Image) GetSizeHuman() (string, error) {
+	imageSizeFloat, err := image.GetSize()
+	if err != nil {
+		return "", err
+	}
+
+	imageSizeHuman := units.HumanSize(imageSizeFloat)
+	return imageSizeHuman, nil
+}
+
+func (image *Image) VerifyArchitectureMatch(expectedArchID int) error {
+	expectedArchName := architecture.GetArchNameOCI(expectedArchID)
+	logrus.Debugf("Verifying image %s supports architecture %s", image.NameFull, expectedArchName)
+
+	actualArchID, err := architecture.ParseArgArchValue(image.Architecture)
+	if err != nil {
+		return err
+	}
+
+	if actualArchID != expectedArchID {
+		// Single-arch image mismatch
+		return fmt.Errorf("image %s is a single-architecture image for %s, but %s was requested",
+			image.NameFull, image.Architecture, expectedArchName)
+	}
+
+	logrus.Debugf("Architecture verification passed: %s", expectedArchName)
+	return nil
 }
 
 func Inspect(ctx context.Context, target string) (*Image, error) {
