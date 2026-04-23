@@ -17,7 +17,11 @@
 package architecture
 
 import (
+	"debug/elf"
+	"errors"
 	"fmt"
+	"os"
+	"os/exec"
 	"runtime"
 	"strings"
 
@@ -155,6 +159,108 @@ func ImageReferenceGetArchFromTag(image string) int {
 	return NotSpecified
 }
 
+func IsArchSupportedOnCreation(archID int) (string, error) {
+	archName := getArchNameBinfmt(archID)
+	archNameDebug := GetArchNameOCI(archID)
+	logrus.Debugf("Checking QEMU emulation support for architecture %s", archNameDebug)
+
+	qemuBinaryPossibleNames := []string{
+		fmt.Sprintf("qemu-%s-static", archName),
+		fmt.Sprintf("qemu-%s", archName),
+	}
+
+	foundQemuBinaryPath := ""
+	for _, qemuName := range qemuBinaryPossibleNames {
+		qemuBinaryPath, err := exec.LookPath(qemuName)
+
+		if err != nil {
+			if errors.Is(err, exec.ErrNotFound) {
+				continue
+			}
+
+			return "", fmt.Errorf("failed to look up binary '%s': %w", qemuName, err)
+		}
+
+		if isStaticallyLinkedELF(qemuBinaryPath) {
+			foundQemuBinaryPath = qemuBinaryPath
+			break
+		}
+	}
+
+	if foundQemuBinaryPath == "" {
+		err := fmt.Errorf("The host system does not have the required support: No %s statically linked QEMU emulator binary found", archNameDebug)
+		return "", err
+	}
+
+	if !validateBinfmtRegistration(archID, false) {
+		err := fmt.Errorf("The host system does not have the required support: No %s binfmt_misc registration found", archNameDebug)
+		return "", err
+	}
+
+	return foundQemuBinaryPath, nil
+}
+
+func IsArchSupportedOnInitialization(archID int, interpreterPath string) error {
+	archName := getArchNameBinfmt(archID)
+	archNameDebug := GetArchNameOCI(archID)
+	logrus.Debugf("Checking QEMU emulation support for architecture %s", archNameDebug)
+
+	if isStaticallyLinkedELF(interpreterPath) {
+		if !validateBinfmtRegistration(archID, true) {
+			return fmt.Errorf("The host system does not have the required support: No %s binfmt_misc registration found", archNameDebug)
+		}
+		return nil
+	}
+
+	// Fallback: check standard locations on the host
+	logrus.Debugf("Interpreter at %s not found or not statically linked, checking fallback locations in '/run/host/usr/bin/'", interpreterPath)
+	fmt.Fprintf(os.Stderr, "Warning: QEMU emulator not found at expected path '%s', using fallback at '/run/host/usr/bin/'\n", interpreterPath)
+
+	qemuBinaryPossiblePaths := []string{
+		fmt.Sprintf("/run/host/usr/bin/qemu-%s-static", archName),
+		fmt.Sprintf("/run/host/usr/bin/qemu-%s", archName),
+	}
+
+	for _, qemuPath := range qemuBinaryPossiblePaths {
+		if isStaticallyLinkedELF(qemuPath) {
+			logrus.Debugf("Found valid QEMU binary at %s", qemuPath)
+
+			if !validateBinfmtRegistration(archID, true) {
+				return fmt.Errorf("The host system does not have the required support: No %s binfmt_misc registration found", archNameDebug)
+			}
+			return nil
+		}
+	}
+
+	return fmt.Errorf("The host system does not have the required support: No %s statically linked QEMU emulator binary found", archNameDebug)
+}
+
+func isStaticallyLinkedELF(filePath string) bool {
+	if !utils.PathExists(filePath) {
+		logrus.Debugf("File '%s' does not exist\n", filePath)
+		return false
+	}
+
+	f, err := elf.Open(filePath)
+	if err != nil {
+		logrus.Debugf("File '%s' is not an ELF file\n", filePath)
+		return false
+	}
+	defer f.Close()
+
+	// Check for PT_INTERP program header
+	for _, prog := range f.Progs {
+		if prog.Type == elf.PT_INTERP {
+			// Dynamically linked
+			logrus.Debugf("File '%s' is dynamically linked\n", filePath)
+			return false
+		}
+	}
+
+	// Statically linked
+	return true
+}
+
 func ParseArgArchValue(value string) (int, error) {
 	archID, exists := supportedArgArchValues[value]
 	if !exists {
@@ -162,4 +268,26 @@ func ParseArgArchValue(value string) (int, error) {
 	}
 
 	return archID, nil
+}
+
+func validateBinfmtRegistration(archID int, withinContainer bool) bool {
+	archName := getArchNameBinfmt(archID)
+	inContainerPathPrefix := ""
+
+	if withinContainer {
+		inContainerPathPrefix = "/run/host"
+	}
+
+	qemuBinfmtPossiblePaths := []string{
+		fmt.Sprintf("%s/proc/sys/fs/binfmt_misc/qemu-%s", inContainerPathPrefix, archName),
+		fmt.Sprintf("%s/proc/sys/fs/binfmt_misc/qemu-%s-static", inContainerPathPrefix, archName),
+	}
+
+	for _, binfmtPath := range qemuBinfmtPossiblePaths {
+		if utils.PathExists(binfmtPath) {
+			logrus.Debugf("Architecture %s is supported", archName)
+			return true
+		}
+	}
+	return false
 }
