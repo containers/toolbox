@@ -862,6 +862,58 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
+@test "run: Ensure that --env passes an environment variable to the container" {
+  create_default_container
+
+  run --keep-empty-lines "$TOOLBX" run --env FOO=bar printenv FOO
+
+  assert_success
+  assert_line --index 0 "bar"
+  assert [ ${#lines[@]} -eq 1 ]
+}
+
+@test "run: Ensure that multiple --env flags work" {
+  create_default_container
+
+  run --keep-empty-lines "$TOOLBX" run --env FOO=bar --env BAZ=qux /bin/sh -c 'printenv FOO && printenv BAZ'
+
+  assert_success
+  assert_line --index 0 "bar"
+  assert_line --index 1 "qux"
+  assert [ ${#lines[@]} -eq 2 ]
+}
+
+@test "run: Ensure that --workdir sets the working directory" {
+  create_default_container
+
+  run --keep-empty-lines "$TOOLBX" run --workdir /tmp pwd
+
+  assert_success
+  assert_line --index 0 "/tmp"
+  assert [ ${#lines[@]} -eq 1 ]
+}
+
+@test "run: Try --workdir with a relative path" {
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --workdir relative/path true
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: invalid argument for '--workdir'"
+  assert_line --index 1 "The working directory must be an absolute path."
+  assert_line --index 2 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 3 ]
+}
+
+@test "run: Ensure that --use-fallback-shell works with an existing command" {
+  create_default_container
+
+  run --keep-empty-lines "$TOOLBX" run --use-fallback-shell true
+
+  assert_success
+  assert_output ""
+}
+
 @test "run: Try an old unsupported container" {
   local default_image
   default_image="$(get_default_image)"
