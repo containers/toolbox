@@ -525,9 +525,11 @@ func resolveArchitectureID(arch string, image string) (int, error) {
 	return archID, nil
 }
 
-func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI, releaseCLI string) (
+func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI, releaseCLI string, archID int) (
 	string, string, string, error,
 ) {
+	containerWasEmpty := container == ""
+
 	container, image, release, err := utils.ResolveContainerAndImageNames(container,
 		distroCLI,
 		imageCLI,
@@ -579,6 +581,17 @@ func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI,
 			return "", "", "", err
 		} else {
 			return "", "", "", err
+		}
+	}
+
+	if containerWasEmpty && !architecture.HasContainerNativeArch(archID) {
+		archIDFromTag := architecture.ImageReferenceGetArchFromTag(image)
+
+		if archIDFromTag == architecture.NotSpecified {
+			archName := architecture.GetArchNameOCI(archID)
+			if archName != "" {
+				container = container + "-" + archName
+			}
 		}
 	}
 
