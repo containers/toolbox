@@ -664,6 +664,20 @@ func IsP11KitClientPresent() (bool, error) {
 	return false, err
 }
 
+func IsSupportedDistroImage(image string) bool {
+	basename := ImageReferenceGetBasename(image)
+	if basename == "" {
+		return false
+	}
+
+	for _, distroObj := range supportedDistros {
+		if distroObj.ImageBasename == basename {
+			return true
+		}
+	}
+	return false
+}
+
 func SetUpConfiguration() error {
 	logrus.Debug("Setting up configuration")
 
