@@ -175,7 +175,8 @@ func create(cmd *cobra.Command, args []string) error {
 		containerArg,
 		createFlags.distro,
 		createFlags.image,
-		createFlags.release)
+		createFlags.release,
+		architecture.HostArchID)
 
 	if err != nil {
 		return err
