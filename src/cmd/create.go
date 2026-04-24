@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -32,20 +33,23 @@ import (
 	"github.com/containers/toolbox/pkg/skopeo"
 	"github.com/containers/toolbox/pkg/term"
 	"github.com/containers/toolbox/pkg/utils"
-	"github.com/docker/go-units"
 	"github.com/godbus/dbus/v5"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
-type promptForDownloadError struct {
-	ImageSize string
-}
-
 const (
 	alpha    = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`
 	num      = `0123456789`
 	alphanum = alpha + num
+)
+
+type pullImageDecision int
+
+const (
+	pullNo      pullImageDecision = iota // 0 - User declined or default
+	pullYes                              // 1 - User confirmed
+	pullUnknown                          // 2 - Need second prompt
 )
 
 var (
@@ -540,6 +544,13 @@ func createContainer(container, image, release, authFile string, archConfig arch
 	return nil
 }
 
+func boolToPullDecision(shouldPull bool) pullImageDecision {
+	if shouldPull {
+		return pullYes
+	}
+	return pullNo
+}
+
 func createHelp(cmd *cobra.Command, args []string) {
 	if utils.IsInsideContainer() {
 		if !utils.IsInsideToolboxContainer() {
@@ -599,42 +610,19 @@ func getEnterCommand(container string) string {
 	return enterCommand
 }
 
-func getImageSizeFromRegistry(ctx context.Context, imageFull string) (string, error) {
-	image, err := skopeo.Inspect(ctx, imageFull, architecture.HostArchID, "")
-	if err != nil {
-		return "", err
-	}
-
-	if image.LayersData == nil {
-		return "", errors.New("'skopeo inspect' did not have LayersData")
-	}
-
-	var imageSizeFloat float64
-
-	for _, layer := range image.LayersData {
-		if layerSize, err := layer.Size.Float64(); err != nil {
-			return "", err
-		} else {
-			imageSizeFloat += layerSize
-		}
-	}
-
-	imageSizeHuman := units.HumanSize(imageSizeFloat)
-	return imageSizeHuman, nil
-}
-
-func getImageSizeFromRegistryAsync(ctx context.Context, imageFull string) (<-chan string, <-chan error) {
-	retValCh := make(chan string)
+func getImageFromRegistryAsync(ctx context.Context, imageFull string, archID int, authFile string) (<-chan *skopeo.Image, <-chan error) {
+	retValCh := make(chan *skopeo.Image)
 	errCh := make(chan error)
 
 	go func() {
-		imageSize, err := getImageSizeFromRegistry(ctx, imageFull)
+		image, err := skopeo.Inspect(ctx, imageFull, archID, authFile)
+
 		if err != nil {
 			errCh <- err
 			return
 		}
 
-		retValCh <- imageSize
+		retValCh <- image
 	}()
 
 	return retValCh, errCh
@@ -745,10 +733,18 @@ func pullImage(image, release, authFile string, archID int) (bool, bool, error) 
 
 	promptForDownload := true
 	var shouldPullImage bool
+	var imageInfo *skopeo.Image
+	var imageInspectErr error
 
 	if rootFlags.assumeYes || domain == "localhost" {
 		promptForDownload = false
 		shouldPullImage = true
+
+		if isNonNativeArch {
+			s := startSpinner("Fetching non-native architecture image info: ")
+			imageInfo, imageInspectErr = skopeo.Inspect(context.Background(), imageFull, archID, authFile)
+			stopSpinner(s)
+		}
 	}
 
 	if promptForDownload {
@@ -762,11 +758,20 @@ func pullImage(image, release, authFile string, archID int) (bool, bool, error) 
 			return false, false, errors.New(errMsg)
 		}
 
-		shouldPullImage = showPromptForDownload(imageFull)
+		shouldPullImage, imageInfo, imageInspectErr = showPromptForDownload(imageFull, archID, authFile)
 	}
 
 	if !shouldPullImage {
 		return false, false, nil
+	}
+
+	if imageInspectErr != nil && isNonNativeArch {
+		if errors.Is(imageInspectErr, exec.ErrNotFound) {
+			return false, false, createErrorSkopeoNotFound(imageFull, archID)
+		}
+
+		// For now, log and continue (imageInfo will be nil)
+		logrus.Debugf("Failed to inspect image: %s", imageInspectErr)
 	}
 
 	logrus.Debugf("Pulling image %s", imageFull)
@@ -782,6 +787,17 @@ func pullImage(image, release, authFile string, archID int) (bool, bool, error) 
 		}
 	} else {
 		logrus.Debugf("'skopeo copy' is used for pulling non-native architecture image %s", imageFull)
+
+		if imageInfo == nil {
+			// Multi-arch image mismatch
+			expectedArchName := architecture.GetArchNameOCI(archID)
+			return false, false, fmt.Errorf("failed to verify: image %s does not support architecture %s or the image does not exists at all",
+				imageFull, expectedArchName)
+		}
+
+		if err := imageInfo.VerifyArchitectureMatch(archID); err != nil {
+			return false, false, err
+		}
 
 		if err := skopeo.CopyOverrideArch(imageFull, imageFullWithArch, archID, authFile); err != nil {
 			return false, false, createErrorImagePull(imageFull, domain)
@@ -802,8 +818,9 @@ func createPromptForDownload(imageFull, imageSize string) string {
 	return prompt
 }
 
-func showPromptForDownloadFirst(imageFull string) (bool, error) {
+func showPromptForDownloadFirst(imageFull string, archID int, authFile string) (pullImageDecision, *skopeo.Image, error) {
 	prompt := createPromptForDownload(imageFull, " ... MB")
+	isNonnativeArch := !architecture.HasContainerNativeArch(archID)
 
 	parentCtx := context.Background()
 	askCtx, askCancel := context.WithCancelCause(parentCtx)
@@ -811,48 +828,69 @@ func showPromptForDownloadFirst(imageFull string) (bool, error) {
 
 	askCh, askErrCh := askForConfirmationAsync(askCtx, prompt, nil)
 
-	imageSizeCtx, imageSizeCancel := context.WithCancelCause(parentCtx)
-	defer imageSizeCancel(errors.New("clean-up"))
+	imageCtx, imageCancel := context.WithCancelCause(parentCtx)
+	defer imageCancel(errors.New("clean-up"))
 
-	imageSizeCh, imageSizeErrCh := getImageSizeFromRegistryAsync(imageSizeCtx, imageFull)
+	imageCh, imageErrCh := getImageFromRegistryAsync(imageCtx, imageFull, archID, authFile)
 
-	var imageSize string
-	var shouldPullImage bool
+	var image *skopeo.Image = nil
+	var shouldPullImage pullImageDecision = pullNo
+	var imageInspectErr error = nil
 
 	select {
 	case val := <-askCh:
-		shouldPullImage = val
-		cause := fmt.Errorf("%w: received confirmation without image size", context.Canceled)
-		imageSizeCancel(cause)
+		shouldPullImage = boolToPullDecision(val)
+
+		if isNonnativeArch {
+			if shouldPullImage == pullNo {
+				return pullNo, nil, nil
+			}
+
+			s := startSpinner("Fetching non-native architecture image info: ")
+
+			select {
+			case img := <-imageCh:
+				stopSpinner(s)
+				image = img
+				return shouldPullImage, image, nil
+			case err := <-imageErrCh:
+				stopSpinner(s)
+				return shouldPullImage, nil, err
+			}
+		} else {
+			cause := fmt.Errorf("%w: received confirmation without image info", context.Canceled)
+			imageCancel(cause)
+		}
 	case err := <-askErrCh:
-		shouldPullImage = false
-		cause := fmt.Errorf("failed to ask for confirmation without image size: %w", err)
-		imageSizeCancel(cause)
-	case val := <-imageSizeCh:
-		imageSize = val
-		cause := fmt.Errorf("%w: received image size", context.Canceled)
+		shouldPullImage = pullNo
+		cause := fmt.Errorf("failed to ask for confirmation without image info: %w", err)
+		imageCancel(cause)
+	case val := <-imageCh:
+		image = val
+		cause := fmt.Errorf("%w: received image info", context.Canceled)
 		askCancel(cause)
-	case err := <-imageSizeErrCh:
-		cause := fmt.Errorf("failed to get image size: %w", err)
+	case err := <-imageErrCh:
+		imageInspectErr = err
+		cause := fmt.Errorf("failed to get image info: %w", err)
 		askCancel(cause)
 	}
 
-	if imageSizeCtx.Err() != nil && askCtx.Err() == nil {
-		cause := context.Cause(imageSizeCtx)
-		logrus.Debugf("Show prompt for download: image size canceled: %s", cause)
-		return shouldPullImage, nil
+	if imageCtx.Err() != nil && askCtx.Err() == nil {
+		cause := context.Cause(imageCtx)
+		logrus.Debugf("Show prompt for download: image info canceled: %s", cause)
+		return shouldPullImage, nil, nil
 	}
 
 	var done bool
 
-	if imageSizeCtx.Err() == nil && askCtx.Err() != nil {
+	if imageCtx.Err() == nil && askCtx.Err() != nil {
 		select {
 		case val := <-askCh:
-			logrus.Debugf("Show prompt for download: received pending confirmation without image size")
-			shouldPullImage = val
+			logrus.Debugf("Show prompt for download: received pending confirmation without image info")
+			shouldPullImage = boolToPullDecision(val)
 			done = true
 		case err := <-askErrCh:
-			logrus.Debugf("Show prompt for download: failed to ask for confirmation without image size: %s",
+			logrus.Debugf("Show prompt for download: failed to ask for confirmation without image info: %s",
 				err)
 		}
 	} else {
@@ -863,13 +901,13 @@ func showPromptForDownloadFirst(imageFull string) (bool, error) {
 	logrus.Debugf("Show prompt for download: ask canceled: %s", cause)
 
 	if done {
-		return shouldPullImage, nil
+		return shouldPullImage, image, imageInspectErr
+	} else {
+		return pullUnknown, image, imageInspectErr
 	}
-
-	return false, &promptForDownloadError{imageSize}
 }
 
-func showPromptForDownloadSecond(imageFull string, errFirst *promptForDownloadError) bool {
+func showPromptForDownloadSecond(imageFull, imageSize string) bool {
 	oldState, err := term.GetState(os.Stdin)
 	if err != nil {
 		logrus.Debugf("Show prompt for download: failed to get terminal state: %s", err)
@@ -895,12 +933,7 @@ func showPromptForDownloadSecond(imageFull string, errFirst *promptForDownloadEr
 
 	discardCh, discardErrCh := discardInputAsync(discardCtx)
 
-	var prompt string
-	if errors.Is(errFirst, context.Canceled) {
-		prompt = createPromptForDownload(imageFull, errFirst.ImageSize)
-	} else {
-		prompt = createPromptForDownload(imageFull, "")
-	}
+	prompt := createPromptForDownload(imageFull, imageSize)
 
 	fmt.Printf("\r")
 
@@ -981,22 +1014,37 @@ func showPromptForDownloadSecond(imageFull string, errFirst *promptForDownloadEr
 	return shouldPullImage
 }
 
-func showPromptForDownload(imageFull string) bool {
+func showPromptForDownload(imageFull string, archID int, authFile string) (bool, *skopeo.Image, error) {
 	fmt.Println("Image required to create Toolbx container.")
 
-	shouldPullImage, err := showPromptForDownloadFirst(imageFull)
-	if err == nil {
-		return shouldPullImage
+	var shouldPullImageFirst pullImageDecision
+	var image *skopeo.Image
+	var imageInspectErr error
+
+	shouldPullImageFirst, image, imageInspectErr = showPromptForDownloadFirst(imageFull, archID, authFile)
+
+	switch shouldPullImageFirst {
+	case pullYes:
+		return true, image, imageInspectErr
+	case pullNo:
+		return false, image, imageInspectErr
 	}
 
-	var errPromptForDownload *promptForDownloadError
-	if !errors.As(err, &errPromptForDownload) {
-		panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
-		panic(panicMsg)
+	var imageSize string
+	var shouldPullImageSecond bool
+	var getSizeErr error
+
+	if image == nil {
+		imageSize = "n/a"
+	} else {
+		imageSize, getSizeErr = image.GetSizeHuman()
+		if getSizeErr != nil {
+			imageSize = "n/a"
+		}
 	}
 
-	shouldPullImage = showPromptForDownloadSecond(imageFull, errPromptForDownload)
-	return shouldPullImage
+	shouldPullImageSecond = showPromptForDownloadSecond(imageFull, imageSize)
+	return shouldPullImageSecond, image, imageInspectErr
 }
 
 func startSpinner(message string) *spinner.Spinner {
@@ -1041,18 +1089,4 @@ func systemdPathBusEscape(path string) string {
 		}
 	}
 	return string(n)
-}
-
-func (err *promptForDownloadError) Error() string {
-	innerErr := err.Unwrap()
-	errMsg := innerErr.Error()
-	return errMsg
-}
-
-func (err *promptForDownloadError) Unwrap() error {
-	if err.ImageSize == "" {
-		return errors.New("failed to get image size")
-	}
-
-	return context.Canceled
 }

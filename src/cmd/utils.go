@@ -367,6 +367,14 @@ func createErrorProfileDNotFound() error {
 	return errors.New(errMsg)
 }
 
+func createErrorSkopeoNotFound(imageFull string, archID int) error {
+	archName := architecture.GetArchNameOCI(archID)
+	return fmt.Errorf(
+		"Cannot inspect image %s for architecture %s: skopeo is not installed.\n"+
+			"Skopeo is required for creating non-native architecture containers.",
+		imageFull, archName)
+}
+
 func createErrorSudoersDNotFound() error {
 	const sudoersD = "/etc/sudoers.d"
 
