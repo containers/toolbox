@@ -31,6 +31,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/containers/toolbox/pkg/architecture"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/sirupsen/logrus"
@@ -261,6 +262,18 @@ func discardInputAsync(ctx context.Context) (<-chan int, <-chan error) {
 	return retValCh, errCh
 }
 
+func createErrorConflictingArchSpecs(archCLI, archTag int) error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "conflicting architecture specifications\n")
+	fmt.Fprintf(&builder, "--arch=%s but image tag specifies %s\n",
+		architecture.GetArchNameOCI(archCLI),
+		architecture.GetArchNameOCI(archTag))
+	fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+	errMsg := builder.String()
+	return errors.New(errMsg)
+}
+
 func createErrorContainerNotFound(container string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "container %s not found\n", container)
@@ -483,9 +496,40 @@ func poll(pollFn pollFunc, eventFD int32, fds ...int32) error {
 	}
 }
 
-func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI, releaseCLI string) (
+func resolveArchitectureID(arch string, image string) (int, error) {
+	archID := architecture.NotSpecified
+	if arch != "" {
+		archIDParsed, err := architecture.ParseArgArchValue(arch)
+		if err != nil {
+			return architecture.NotSpecified, err
+		}
+		archID = archIDParsed
+	}
+
+	if image != "" && utils.IsSupportedDistroImage(image) {
+		archIDFromTag := architecture.ImageReferenceGetArchFromTag(image)
+
+		if archID == architecture.NotSpecified && archIDFromTag != architecture.NotSpecified {
+			logrus.Debug("non-native architecture was detected in the image tag -> cross-architecture approach is going to be used")
+
+			archID = archIDFromTag
+		} else if archID != archIDFromTag && archIDFromTag != architecture.NotSpecified {
+			return architecture.NotSpecified, createErrorConflictingArchSpecs(archID, archIDFromTag)
+		}
+	}
+
+	if archID == architecture.NotSpecified {
+		archID = architecture.HostArchID
+	}
+
+	return archID, nil
+}
+
+func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI, releaseCLI string, archID int) (
 	string, string, string, error,
 ) {
+	containerWasEmpty := container == ""
+
 	container, image, release, err := utils.ResolveContainerAndImageNames(container,
 		distroCLI,
 		imageCLI,
@@ -540,7 +584,33 @@ func resolveContainerAndImageNames(container, containerArg, distroCLI, imageCLI,
 		}
 	}
 
+	if containerWasEmpty && !architecture.HasContainerNativeArch(archID) {
+		archIDFromTag := architecture.ImageReferenceGetArchFromTag(image)
+
+		if archIDFromTag == architecture.NotSpecified {
+			archName := architecture.GetArchNameOCI(archID)
+			if archName != "" {
+				container = container + "-" + archName
+			}
+		}
+	}
+
 	return container, image, release, nil
+}
+
+func resolveImageNameWithArchitectureSuffix(image string, archID int) string {
+	if architecture.HasContainerNativeArch(archID) {
+		return image
+	}
+
+	archIDFromTag := architecture.ImageReferenceGetArchFromTag(image)
+	isSupportedDistroImage := utils.IsSupportedDistroImage(image)
+
+	if isSupportedDistroImage && archIDFromTag == architecture.NotSpecified {
+		return image + "-" + architecture.GetArchNameOCI(archID)
+	}
+
+	return image
 }
 
 // showManual tries to open the specified manual page using man on stdout
