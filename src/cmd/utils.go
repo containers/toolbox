@@ -294,6 +294,15 @@ func createErrorDistroWithoutRelease(distro string) error {
 	return errors.New(errMsg)
 }
 
+func createErrorImagePull(image, domain string) error {
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "failed to pull image %s\n", image)
+	fmt.Fprintf(&builder, "If it was a private image, log in with: podman login %s\n", domain)
+	fmt.Fprintf(&builder, "Use '%s --verbose ...' for further details.", executableBase)
+
+	return errors.New(builder.String())
+}
+
 func createErrorInvalidContainer(containerArg string) error {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "invalid argument for '%s'\n", containerArg)

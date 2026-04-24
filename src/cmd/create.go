@@ -50,6 +50,7 @@ const (
 
 var (
 	createFlags struct {
+		arch      string
 		authFile  string
 		container string
 		distro    string
@@ -75,6 +76,12 @@ var createCmd = &cobra.Command{
 
 func init() {
 	flags := createCmd.Flags()
+
+	flags.StringVarP(&createFlags.arch,
+		"arch",
+		"a",
+		"",
+		"Create a Toolbx container for a different architecture than the host")
 
 	flags.StringVar(&createFlags.authFile,
 		"authfile",
@@ -171,25 +178,43 @@ func create(cmd *cobra.Command, args []string) error {
 		containerArg = "--container"
 	}
 
+	var archConfig architecture.Config
+
+	archID, err := resolveArchitectureID(createFlags.arch, createFlags.image)
+	if err != nil {
+		return err
+	}
+	archConfig.ID = archID
+
+	if !architecture.HasContainerNativeArch(archConfig.ID) {
+		archName := architecture.GetArchNameOCI(archConfig.ID)
+		qemuEmulatorPath, err := architecture.IsArchSupportedOnCreation(archID)
+		if err != nil {
+			errNotSupported := fmt.Errorf("Cannot create container for architecture %s\n%s", archName, err)
+			return errNotSupported
+		}
+		archConfig.QemuEmulatorPath = qemuEmulatorPath
+	}
+
 	container, image, release, err := resolveContainerAndImageNames(container,
 		containerArg,
 		createFlags.distro,
 		createFlags.image,
 		createFlags.release,
-		architecture.HostArchID)
+		archConfig.ID)
 
 	if err != nil {
 		return err
 	}
 
-	if err := createContainer(container, image, release, createFlags.authFile, true); err != nil {
+	if err := createContainer(container, image, release, createFlags.authFile, archConfig, true); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createContainer(container, image, release, authFile string, showCommandToEnter bool) error {
+func createContainer(container, image, release, authFile string, archConfig architecture.Config, showCommandToEnter bool) error {
 	if container == "" {
 		panic("container not specified")
 	}
@@ -216,12 +241,17 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		return errors.New(errMsg)
 	}
 
-	pulled, err := pullImage(image, release, authFile)
+	pulled, couldBeNonnativeArch, err := pullImage(image, release, authFile, archConfig.ID)
 	if err != nil {
 		return err
 	}
+
 	if !pulled {
 		return nil
+	}
+
+	if couldBeNonnativeArch {
+		image = resolveImageNameWithArchitectureSuffix(image, archConfig.ID)
 	}
 
 	imageFull, err := podman.GetFullyQualifiedImageFromRepoTags(image)
@@ -448,6 +478,10 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		"--label", "com.github.containers.toolbox=true",
 	}...)
 
+	createArgs = append(createArgs, []string{
+		"--label", "toolbox-arch=" + architecture.GetArchNameOCI(archConfig.ID),
+	}...)
+
 	createArgs = append(createArgs, devPtsMount...)
 
 	createArgs = append(createArgs, []string{
@@ -663,11 +697,13 @@ func getServiceSocket(serviceName string, unitName string) (string, error) {
 	return "", fmt.Errorf("failed to find a SOCK_STREAM socket for %s", unitName)
 }
 
-func pullImage(image, release, authFile string) (bool, error) {
+func pullImage(image, release, authFile string, archID int) (bool, bool, error) {
+	isNonNativeArch := !architecture.HasContainerNativeArch(archID)
+
 	if ok := utils.ImageReferenceCanBeID(image); ok {
 		logrus.Debugf("Looking up image %s", image)
 		if _, err := podman.ImageExists(image); err == nil {
-			return true, nil
+			return true, false, nil
 		}
 	}
 
@@ -678,7 +714,7 @@ func pullImage(image, release, authFile string) (bool, error) {
 		logrus.Debugf("Looking up image %s", imageLocal)
 
 		if _, err := podman.ImageExists(imageLocal); err == nil {
-			return true, nil
+			return true, false, nil
 		}
 	}
 
@@ -690,13 +726,15 @@ func pullImage(image, release, authFile string) (bool, error) {
 		var err error
 		imageFull, err = utils.GetFullyQualifiedImageFromDistros(image, release)
 		if err != nil {
-			return false, fmt.Errorf("image %s not found in local storage and known registries", image)
+			return false, false, fmt.Errorf("image %s not found in local storage and known registries", image)
 		}
 	}
 
-	logrus.Debugf("Looking up image %s", imageFull)
-	if _, err := podman.ImageExists(imageFull); err == nil {
-		return true, nil
+	imageFullWithArch := resolveImageNameWithArchitectureSuffix(imageFull, archID)
+
+	logrus.Debugf("Looking up image %s", imageFullWithArch)
+	if _, err := podman.ImageExists(imageFullWithArch); err == nil {
+		return true, isNonNativeArch, nil
 	}
 
 	domain := utils.ImageReferenceGetDomain(imageFull)
@@ -721,14 +759,14 @@ func pullImage(image, release, authFile string) (bool, error) {
 			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
 
 			errMsg := builder.String()
-			return false, errors.New(errMsg)
+			return false, false, errors.New(errMsg)
 		}
 
 		shouldPullImage = showPromptForDownload(imageFull)
 	}
 
 	if !shouldPullImage {
-		return false, nil
+		return false, false, nil
 	}
 
 	logrus.Debugf("Pulling image %s", imageFull)
@@ -736,17 +774,21 @@ func pullImage(image, release, authFile string) (bool, error) {
 	s := startSpinner(fmt.Sprintf("Pulling %s: ", imageFull))
 	defer stopSpinner(s)
 
-	if err := podman.Pull(imageFull, authFile); err != nil {
-		var builder strings.Builder
-		fmt.Fprintf(&builder, "failed to pull image %s\n", imageFull)
-		fmt.Fprintf(&builder, "If it was a private image, log in with: podman login %s\n", domain)
-		fmt.Fprintf(&builder, "Use '%s --verbose ...' for further details.", executableBase)
+	if !isNonNativeArch {
+		logrus.Debugf("'podman pull' is used for pulling image %s", imageFull)
 
-		errMsg := builder.String()
-		return false, errors.New(errMsg)
+		if err := podman.Pull(imageFull, authFile); err != nil {
+			return false, false, createErrorImagePull(imageFull, domain)
+		}
+	} else {
+		logrus.Debugf("'skopeo copy' is used for pulling non-native architecture image %s", imageFull)
+
+		if err := skopeo.CopyOverrideArch(imageFull, imageFullWithArch, archID, authFile); err != nil {
+			return false, false, createErrorImagePull(imageFull, domain)
+		}
 	}
 
-	return true, nil
+	return true, isNonNativeArch, nil
 }
 
 func createPromptForDownload(imageFull, imageSize string) string {
