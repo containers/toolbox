@@ -964,8 +964,15 @@ func showEntryPointLog(line string) error {
 	}
 
 	if !logLevelFound {
-		errMsg, _ := strings.CutPrefix(line, "Error: ")
-		return &entryPointError{errMsg}
+		// Messages sent to stderr with a 'Warning:' prefix in the entry point
+		// are propagated to stderr on the host
+		if strings.HasPrefix(line, "Warning:") {
+			fmt.Fprintf(os.Stderr, "%s\n", line)
+			return nil
+		} else {
+			errMsg, _ := strings.CutPrefix(line, "Error: ")
+			return &entryPointError{errMsg}
+		}
 	}
 
 	logger := logrus.StandardLogger()

@@ -28,6 +28,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/containers/toolbox/pkg/architecture"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/fsnotify/fsnotify"
@@ -41,6 +42,8 @@ import (
 
 var (
 	initContainerFlags struct {
+		archID      int
+		archInterp  string
 		gid         int
 		home        string
 		homeLink    bool
@@ -84,6 +87,16 @@ var initContainerCmd = &cobra.Command{
 
 func init() {
 	flags := initContainerCmd.Flags()
+
+	flags.IntVar(&initContainerFlags.archID,
+		"arch",
+		architecture.HostArchID,
+		"Specify the Toolbx container's architecture ID.")
+
+	flags.StringVar(&initContainerFlags.archInterp,
+		"arch-emulator-path",
+		"",
+		"Register an emulator using binfmt_misc with PATH as the interpreter for a non-native architecture container.")
 
 	flags.IntVar(&initContainerFlags.gid,
 		"gid",
@@ -254,6 +267,31 @@ func initContainer(cmd *cobra.Command, args []string) error {
 			if err := redirectPath("/mnt", "/var/mnt", true); err != nil {
 				return err
 			}
+		}
+	}
+
+	if !architecture.HasContainerNativeArch(initContainerFlags.archID) {
+		archName := architecture.GetArchNameOCI(initContainerFlags.archID)
+		interpreterPath := "/run/host" + initContainerFlags.archInterp
+
+		if err := validateCrossArchEmulation(initContainerFlags.archID); err != nil {
+			return err
+		}
+
+		logrus.Debugf("Mounting binfmt_misc file system in container for architecture %s", archName)
+		if err := architecture.MountBinfmtMisc(); err != nil {
+			return err
+		}
+
+		err := architecture.IsArchSupportedOnInitialization(initContainerFlags.archID, interpreterPath)
+		if err != nil {
+			errNotSupported := fmt.Errorf("Cannot run container for architecture %s:\n%s", archName, err)
+			return errNotSupported
+		}
+
+		logrus.Debugf("Registering QEMU emulator for architecture %s in binfmt_mist", archName)
+		if err := architecture.RegisterBinfmtMisc(initContainerFlags.archID, interpreterPath); err != nil {
+			return err
 		}
 	}
 
@@ -1220,6 +1258,28 @@ func updateTimeZoneFromLocalTime() error {
 		return err
 	}
 
+	return nil
+}
+
+func validateCrossArchEmulation(archID int) error {
+	archName := architecture.GetArchNameOCI(archID)
+	logrus.Debugf("Testing QEMU emulation for architecture %s", archName)
+
+	_, err := shell.RunWithExitCode2("true", nil, nil, nil)
+
+	if err != nil {
+		if errors.Is(err, syscall.ENOEXEC) {
+			return fmt.Errorf(
+				"QEMU emulation for architecture %s is not working\n"+
+					"Please verify that:\n"+
+					"  1. QEMU user-mode emulation is installed on the host system: qemu-user-static package\n"+
+					"  2. binfmt_misc is properly configured on the host system",
+				archName)
+		}
+		return fmt.Errorf("failed to test QEMU emulation for architecture %s: %w", archName, err)
+	}
+
+	logrus.Debugf("Test of QEMU emulation for architecture %s has succeeded", archName)
 	return nil
 }
 

@@ -449,6 +449,8 @@ func createContainer(container, image, release, authFile string, archConfig arch
 	entryPoint := []string{
 		"toolbox", "--log-level", "debug",
 		"init-container",
+		"--arch", fmt.Sprintf("%d", archConfig.ID),
+		"--arch-emulator-path", archConfig.QemuEmulatorPath,
 		"--gid", currentUser.Gid,
 		"--home", currentUserHomeDir,
 		"--shell", userShell,
