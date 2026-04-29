@@ -1,4 +1,4 @@
-![README](data/gfx/README.gif)
+![README](data/gfx/README.gif) DNM
 
 [Toolbx](https://containertoolbx.org/) is a tool for Linux, which allows the
 use of interactive command line environments for software development and
