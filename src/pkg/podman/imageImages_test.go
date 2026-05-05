@@ -32,10 +32,9 @@ func TestImageImages(t *testing.T) {
 	}
 
 	testCases := []struct {
-		name        string
-		data        string
-		expects     []expect
-		imagesCount int
+		name    string
+		data    string
+		expects []expect
 	}{
 		{
 			name: "podman 1.1.2, fedora-toolbox:29",
@@ -76,7 +75,6 @@ func TestImageImages(t *testing.T) {
 					},
 				},
 			},
-			imagesCount: 2,
 		},
 		{
 			name: "podman 1.8.0, fedora-toolbox:30",
@@ -103,7 +101,6 @@ func TestImageImages(t *testing.T) {
 					},
 				},
 			},
-			imagesCount: 1,
 		},
 		{
 			name: "podman 2.2.1, fedora-toolbox:32",
@@ -158,7 +155,6 @@ func TestImageImages(t *testing.T) {
 					},
 				},
 			},
-			imagesCount: 1,
 		},
 		{
 			name: "podman 3.4.7, fedora-toolbox:35",
@@ -219,7 +215,6 @@ func TestImageImages(t *testing.T) {
 					},
 				},
 			},
-			imagesCount: 1,
 		},
 		{
 			name: "podman 4.9.4, fedora-toolbox:38",
@@ -278,7 +273,6 @@ func TestImageImages(t *testing.T) {
 					},
 				},
 			},
-			imagesCount: 1,
 		},
 		{
 			name: "podman 4.9.4, fedora-toolbox:38 locally built",
@@ -365,7 +359,6 @@ func TestImageImages(t *testing.T) {
 					},
 				},
 			},
-			imagesCount: 2,
 		},
 		{
 			name: "podman 4.9.4, fedora-toolbox:38 locally built without a name",
@@ -448,7 +441,6 @@ func TestImageImages(t *testing.T) {
 					},
 				},
 			},
-			imagesCount: 2,
 		},
 		{
 			name: "podman 4.9.4, fedora-toolbox:39",
@@ -495,7 +487,6 @@ func TestImageImages(t *testing.T) {
 					},
 				},
 			},
-			imagesCount: 1,
 		},
 		{
 			name: "podman 5.4.2, fedora-toolbox:40",
@@ -554,7 +545,6 @@ func TestImageImages(t *testing.T) {
 					},
 				},
 			},
-			imagesCount: 1,
 		},
 		{
 			name: "podman 5.4.2, fedora-toolbox:40 with its name removed",
@@ -609,7 +599,6 @@ func TestImageImages(t *testing.T) {
 					names: nil,
 				},
 			},
-			imagesCount: 1,
 		},
 		{
 			name: "podman 5.4.2, fedora-toolbox:40 and its copy with different registries",
@@ -724,7 +713,6 @@ func TestImageImages(t *testing.T) {
 					},
 				},
 			},
-			imagesCount: 2,
 		},
 		{
 			name: "podman 5.4.2, fedora-toolbox:40 and its copy with different tags",
@@ -839,7 +827,6 @@ func TestImageImages(t *testing.T) {
 					},
 				},
 			},
-			imagesCount: 2,
 		},
 		{
 			name: "podman 5.4.2, fedora-toolbox:40, fedora-toolbox:40-aarch64, postgres:latest",
@@ -974,7 +961,6 @@ func TestImageImages(t *testing.T) {
 					},
 				},
 			},
-			imagesCount: 3,
 		},
 	}
 
@@ -984,7 +970,8 @@ func TestImageImages(t *testing.T) {
 			var images []imageImages
 			err := json.Unmarshal(data, &images)
 			assert.NoError(t, err)
-			assert.Len(t, images, tc.imagesCount)
+			expectsCount := len(tc.expects)
+			assert.Len(t, images, expectsCount)
 
 			for i, expect := range tc.expects {
 				image := images[i]
