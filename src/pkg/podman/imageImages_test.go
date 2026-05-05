@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestImageImages(t *testing.T) {
@@ -971,7 +972,7 @@ func TestImageImages(t *testing.T) {
 			err := json.Unmarshal(data, &images)
 			assert.NoError(t, err)
 			expectsCount := len(tc.expects)
-			assert.Len(t, images, expectsCount)
+			require.Len(t, images, expectsCount)
 
 			for i, expect := range tc.expects {
 				image := images[i]
