@@ -49,10 +49,6 @@ The Toolbx environment is based on an [OCI](https://www.opencontainers.org/)
 image. On Fedora this is the `fedora-toolbox` image. This image is used to
 create a Toolbx container that offers the interactive command line environment.
 
-Note that Toolbx makes no promise about security beyond what's already
-available in the usual command line environment on the host that everybody is
-familiar with.
-
 
 ## Installation & Use
 
@@ -60,6 +56,15 @@ See our guides on
 [installing & getting started](https://containertoolbx.org/install/) with
 Toolbx and [Linux distro support](https://containertoolbx.org/distros/).
 
+
+## Security
+
+Using the word `containers` gives the false impression of heightened security.
+Toolbox is not a mechanism to run untrusted software in a sandboxed environment.
+Toolbox provides developers with access to their private data and keys
+(such as $HOME), hardware peripherals (such as cameras and microphones), etc.
+
+Do not use it to run the things that you aren't comfortable to run on your host.
 
 ##
 
