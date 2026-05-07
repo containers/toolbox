@@ -76,7 +76,7 @@ func init() {
 	flags.StringVarP(&runFlags.container,
 		"container",
 		"c",
-		"",
+		os.Getenv("TOOLBOX_DEFAULT_CONTAINER"),
 		"Run command inside a Toolbx container with the given name")
 
 	flags.StringVarP(&runFlags.distro,
