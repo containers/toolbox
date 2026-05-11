@@ -21,6 +21,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"os/exec"
 	"strings"
 	"testing"
 	"time"
@@ -353,6 +354,257 @@ func TestShellRunWithExitCode(t *testing.T) {
 			code, err := shell.RunWithExitCode(tc.input.commandName, tc.input.stdIn, &actualStdOut, &actualStdErr, tc.input.args...)
 
 			assert.Equal(t, tc.expect.err, err)
+			assert.Equal(t, tc.expect.code, code)
+			assert.Equal(t, tc.expect.stdout, actualStdOut.written)
+			if tc.input.useStdErr {
+				assert.Equal(t, tc.expect.stderr, actualStdErr.written)
+			} else {
+				assert.Empty(t, actualStdErr)
+			}
+		})
+	}
+}
+
+func TestRunContextWithExitCode2(t *testing.T) {
+	testCases := []struct {
+		cancel      bool
+		command     []string
+		err         error
+		isExitError bool
+		exitCode    int
+		stdout      []byte
+		stderr      []byte
+		timeout     time.Duration
+	}{
+		{
+			command: []string{"true"},
+		},
+		{
+			command:     []string{"false"},
+			isExitError: true,
+			exitCode:    1,
+		},
+		{
+			command: []string{"echo"},
+			stdout:  []byte("\n"),
+		},
+		{
+			command: []string{"echo", "hello, world"},
+			stdout:  []byte("hello, world\n"),
+		},
+		{
+			command:  []string{"command-does-not-exist"},
+			err:      exec.ErrNotFound,
+			exitCode: 1,
+		},
+		{
+			command:     []string{"cat", "/file/does/not/exist"},
+			isExitError: true,
+			exitCode:    1,
+			stderr:      []byte("cat: /file/does/not/exist: No such file or directory\n"),
+		},
+		{
+			cancel:   true,
+			command:  []string{"sleep", "+Inf"},
+			err:      context.Canceled,
+			exitCode: 1,
+		},
+		{
+			command:  []string{"sleep", "+Inf"},
+			err:      context.DeadlineExceeded,
+			exitCode: 1,
+			timeout:  1 * time.Second,
+		},
+	}
+
+	for _, tc := range testCases {
+		name := strings.Join(tc.command, " ")
+		if tc.cancel {
+			name += " (cancel)"
+		}
+		if tc.timeout != 0 {
+			name += " (timeout)"
+		}
+
+		t.Run(name, func(t *testing.T) {
+			var cancel context.CancelFunc
+			ctx := context.Background()
+			if tc.cancel {
+				ctx, cancel = context.WithCancel(ctx)
+				defer cancel()
+			}
+			if tc.timeout != 0 {
+				ctx, cancel = context.WithTimeout(ctx, tc.timeout)
+				defer cancel()
+			}
+
+			if tc.cancel {
+				cancel()
+			}
+
+			var stdout outputMock
+			var stderr outputMock
+
+			exitCode, err := shell.RunContextWithExitCode2(ctx,
+				tc.command[0],
+				os.Stdin,
+				&stdout,
+				&stderr,
+				tc.command[1:]...)
+
+			if tc.err == nil && !tc.isExitError {
+				assert.NoError(t, err)
+			}
+
+			if tc.err != nil {
+				assert.Error(t, err)
+				assert.ErrorIs(t, err, tc.err)
+			}
+
+			if tc.isExitError {
+				assert.Error(t, err)
+				var exitErr *exec.ExitError
+				assert.ErrorAs(t, err, &exitErr)
+			}
+
+			assert.Equal(t, tc.exitCode, exitCode)
+
+			if tc.stdout == nil {
+				assert.Empty(t, stdout.written)
+			} else {
+				assert.NotEmpty(t, stdout.written)
+				assert.Equal(t, tc.stdout, stdout.written)
+			}
+
+			if tc.stderr == nil {
+				assert.Empty(t, stderr.written)
+			} else {
+				assert.NotEmpty(t, stderr.written)
+				assert.Equal(t, tc.stderr, stderr.written)
+			}
+		})
+	}
+}
+
+func TestRunWithExitCode2(t *testing.T) {
+	type input struct {
+		commandName string
+		stdIn       io.Reader
+		args        []string
+		loglevel    logrus.Level
+		useStdErr   bool
+	}
+
+	type expect struct {
+		isExitError bool
+		err         error
+		code        int
+		stdout      []byte
+		stderr      []byte
+	}
+
+	testCases := []struct {
+		name   string
+		input  input
+		expect expect
+	}{
+		{
+			name: "OK_Without_stderr_and_info_log_level",
+			input: input{
+				commandName: "echo",
+				stdIn:       os.Stdin,
+				args:        []string{"Toolbx test"},
+				loglevel:    logrus.InfoLevel,
+				useStdErr:   false,
+			},
+			expect: expect{
+				code:   0,
+				stdout: []byte("Toolbx test\n"),
+			},
+		},
+		{
+			name: "OK_Without_stderr_and_debug_log_level",
+			input: input{
+				commandName: "echo",
+				stdIn:       os.Stdin,
+				args:        []string{"Toolbx test"},
+				loglevel:    logrus.DebugLevel,
+				useStdErr:   false,
+			},
+			expect: expect{
+				code:   0,
+				stdout: []byte("Toolbx test\n"),
+			},
+		},
+		{
+			name: "OK_With_stderr_and_info_log_level",
+			input: input{
+				commandName: "echo",
+				stdIn:       os.Stdin,
+				args:        nil,
+				loglevel:    logrus.InfoLevel,
+				useStdErr:   true,
+			},
+			expect: expect{
+				code:   0,
+				stdout: []byte("\n"),
+			},
+		},
+		{
+			name: "FAIL_NonExisting_Command_preserves_ErrNotFound",
+			input: input{
+				commandName: "no-exist-executable",
+				stdIn:       os.Stdin,
+				args:        []string{"Toolbx test"},
+				loglevel:    logrus.InfoLevel,
+				useStdErr:   false,
+			},
+			expect: expect{
+				err:  exec.ErrNotFound,
+				code: 1,
+			},
+		},
+		{
+			name: "FAIL_Command_preserves_ExitError",
+			input: input{
+				commandName: "cat",
+				stdIn:       os.Stdin,
+				args:        []string{"/bogus/file.foo"},
+				loglevel:    logrus.InfoLevel,
+				useStdErr:   true,
+			},
+			expect: expect{
+				isExitError: true,
+				code:        1,
+				stderr:      []byte("cat: /bogus/file.foo: No such file or directory\n"),
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var actualStdOut outputMock
+			var actualStdErr outputMock
+
+			logrus.SetLevel(tc.input.loglevel)
+
+			code, err := shell.RunWithExitCode2(tc.input.commandName, tc.input.stdIn, &actualStdOut, &actualStdErr, tc.input.args...)
+
+			if tc.expect.err == nil && !tc.expect.isExitError {
+				assert.NoError(t, err)
+			}
+
+			if tc.expect.err != nil {
+				assert.Error(t, err)
+				assert.ErrorIs(t, err, tc.expect.err)
+			}
+
+			if tc.expect.isExitError {
+				assert.Error(t, err)
+				var exitErr *exec.ExitError
+				assert.ErrorAs(t, err, &exitErr)
+			}
+
 			assert.Equal(t, tc.expect.code, code)
 			assert.Equal(t, tc.expect.stdout, actualStdOut.written)
 			if tc.input.useStdErr {
