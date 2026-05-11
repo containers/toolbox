@@ -758,10 +758,10 @@ func TestImageImages(t *testing.T) {
 				"    \"Containers\": 1," +
 				"    \"History\": [" +
 				"      \"registry.fedoraproject.org/fedora-toolbox:40\"," +
-				"      \"registry.fedoraproject.org/fedora-toolbox:40-test\"" +
+				"      \"registry.fedoraproject.org/fedora-toolbox:40-copy\"" +
 				"    ]," +
 				"    \"Names\": [" +
-				"      \"registry.fedoraproject.org/fedora-toolbox:40-test\"," +
+				"      \"registry.fedoraproject.org/fedora-toolbox:40-copy\"," +
 				"      \"registry.fedoraproject.org/fedora-toolbox:40\"" +
 				"    ]," +
 				"    \"Created\": 1747122540," +
@@ -790,10 +790,10 @@ func TestImageImages(t *testing.T) {
 				"    \"Containers\": 1," +
 				"    \"History\": [" +
 				"      \"registry.fedoraproject.org/fedora-toolbox:40\"," +
-				"      \"registry.fedoraproject.org/fedora-toolbox:40-test\"" +
+				"      \"registry.fedoraproject.org/fedora-toolbox:40-copy\"" +
 				"    ]," +
 				"    \"Names\": [" +
-				"      \"registry.fedoraproject.org/fedora-toolbox:40-test\"," +
+				"      \"registry.fedoraproject.org/fedora-toolbox:40-copy\"," +
 				"      \"registry.fedoraproject.org/fedora-toolbox:40\"" +
 				"    ]," +
 				"    \"Created\": 1747122540," +
@@ -818,7 +818,7 @@ func TestImageImages(t *testing.T) {
 						"version":                          "40",
 					},
 					names: []string{
-						"registry.fedoraproject.org/fedora-toolbox:40-test",
+						"registry.fedoraproject.org/fedora-toolbox:40-copy",
 						"registry.fedoraproject.org/fedora-toolbox:40",
 					},
 					repoTags: nil,
@@ -840,7 +840,7 @@ func TestImageImages(t *testing.T) {
 						"version":                          "40",
 					},
 					names: []string{
-						"registry.fedoraproject.org/fedora-toolbox:40-test",
+						"registry.fedoraproject.org/fedora-toolbox:40-copy",
 						"registry.fedoraproject.org/fedora-toolbox:40",
 					},
 					repoTags: nil,
