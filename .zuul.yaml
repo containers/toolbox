@@ -49,6 +49,17 @@
     run: playbooks/unit-test.yaml
 
 - job:
+    name: system-test-fedora-rawhide-non-native-architecture
+    description: Run Toolbx's non-native architecture system tests in Fedora Rawhide
+    timeout: 7200
+    nodeset:
+      nodes:
+        - name: fedora-rawhide
+          label: cloud-fedora-rawhide
+    pre-run: playbooks/setup-env.yaml
+    run: playbooks/system-test-non-native.yaml
+
+- job:
     name: system-test-fedora-rawhide-commands-options
     description: Run Toolbx's commands-options system tests in Fedora Rawhide
     timeout: 7200
@@ -80,6 +91,17 @@
           label: cloud-fedora-rawhide
     pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test-runtime-environment-ubuntu.yaml
+
+- job:
+    name: system-test-fedora-44-non-native-architecture
+    description: Run Toolbx's non-native architecture system tests in Fedora 44
+    timeout: 6300
+    nodeset:
+      nodes:
+        - name: fedora-44
+          label: cloud-fedora-44
+    pre-run: playbooks/setup-env.yaml
+    run: playbooks/system-test-non-native.yaml
 
 - job:
     name: system-test-fedora-44-commands-options
@@ -115,6 +137,17 @@
     run: playbooks/system-test-runtime-environment-ubuntu.yaml
 
 - job:
+    name: system-test-fedora-43-non-native-architecture
+    description: Run Toolbx's non-native architecture system tests in Fedora 43
+    timeout: 6300
+    nodeset:
+      nodes:
+        - name: fedora-43
+          label: cloud-fedora-43
+    pre-run: playbooks/setup-env.yaml
+    run: playbooks/system-test-non-native.yaml
+
+- job:
     name: system-test-fedora-43-commands-options
     description: Run Toolbx's commands-options system tests in Fedora 43
     timeout: 6300
@@ -146,6 +179,17 @@
           label: cloud-fedora-43
     pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test-runtime-environment-ubuntu.yaml
+
+- job:
+    name: system-test-fedora-42-non-native-architecture
+    description: Run Toolbx's non-native architecture system tests in Fedora 42
+    timeout: 6300
+    nodeset:
+      nodes:
+        - name: fedora-42
+          label: cloud-fedora-42
+    pre-run: playbooks/setup-env.yaml
+    run: playbooks/system-test-non-native.yaml
 
 - job:
     name: system-test-fedora-42-commands-options
@@ -184,15 +228,19 @@
     periodic:
       jobs:
         - system-test-fedora-rawhide-commands-options
+        - system-test-fedora-rawhide-non-native-architecture
         - system-test-fedora-rawhide-runtime-environment-arch-fedora
         - system-test-fedora-rawhide-runtime-environment-ubuntu
         - system-test-fedora-44-commands-options
+        - system-test-fedora-44-non-native-architecture
         - system-test-fedora-44-runtime-environment-arch-fedora
         - system-test-fedora-44-runtime-environment-ubuntu
         - system-test-fedora-43-commands-options
+        - system-test-fedora-43-non-native-architecture
         - system-test-fedora-43-runtime-environment-arch-fedora
         - system-test-fedora-43-runtime-environment-ubuntu
         - system-test-fedora-42-commands-options
+        - system-test-fedora-42-non-native-architecture
         - system-test-fedora-42-runtime-environment-arch-fedora
         - system-test-fedora-42-runtime-environment-ubuntu
     check:
@@ -201,15 +249,19 @@
         - unit-test-migration-path-for-coreos-toolbox
         - unit-test-restricted
         - system-test-fedora-rawhide-commands-options
+        - system-test-fedora-rawhide-non-native-architecture
         - system-test-fedora-rawhide-runtime-environment-arch-fedora
         - system-test-fedora-rawhide-runtime-environment-ubuntu
         - system-test-fedora-44-commands-options
+        - system-test-fedora-44-non-native-architecture
         - system-test-fedora-44-runtime-environment-arch-fedora
         - system-test-fedora-44-runtime-environment-ubuntu
         - system-test-fedora-43-commands-options
+        - system-test-fedora-43-non-native-architecture
         - system-test-fedora-43-runtime-environment-arch-fedora
         - system-test-fedora-43-runtime-environment-ubuntu
         - system-test-fedora-42-commands-options
+        - system-test-fedora-42-non-native-architecture
         - system-test-fedora-42-runtime-environment-arch-fedora
         - system-test-fedora-42-runtime-environment-ubuntu
     gate:
@@ -218,14 +270,18 @@
         - unit-test-migration-path-for-coreos-toolbox
         - unit-test-restricted
         - system-test-fedora-rawhide-commands-options
+        - system-test-fedora-rawhide-non-native-architecture
         - system-test-fedora-rawhide-runtime-environment-arch-fedora
         - system-test-fedora-rawhide-runtime-environment-ubuntu
         - system-test-fedora-44-commands-options
+        - system-test-fedora-44-non-native-architecture
         - system-test-fedora-44-runtime-environment-arch-fedora
         - system-test-fedora-44-runtime-environment-ubuntu
         - system-test-fedora-43-commands-options
+        - system-test-fedora-43-non-native-architecture
         - system-test-fedora-43-runtime-environment-arch-fedora
         - system-test-fedora-43-runtime-environment-ubuntu
         - system-test-fedora-42-commands-options
+        - system-test-fedora-42-non-native-architecture
         - system-test-fedora-42-runtime-environment-arch-fedora
         - system-test-fedora-42-runtime-environment-ubuntu
