@@ -4,7 +4,8 @@
 toolbox\-create - Create a new Toolbx container
 
 ## SYNOPSIS
-**toolbox create** [*--authfile FILE*]
+**toolbox create** [*--arch ARCHITECTURE* | *-a ARCHITECTURE*]
+               [*--authfile FILE*]
                [*--distro DISTRO* | *-d DISTRO*]
                [*--image NAME* | *-i NAME*]
                [*--release RELEASE* | *-r RELEASE*]
@@ -90,6 +91,12 @@ confusion.
 
 ## OPTIONS ##
 
+**--arch** ARCHITECTURE, **-a** ARCHITECTURE
+
+Create a Toolbx container for a different architecture ARCHITECTURE than
+the host (e.g., `arm64` on `amd64`). Can be combined with `--distro` and
+`--release`.
+
 **--authfile** FILE
 
 Path to a FILE with credentials for authenticating to the registry for private
@@ -138,6 +145,12 @@ $ toolbox create --distro fedora --release f36
 
 ```
 $ toolbox create --image bar foo
+```
+
+### Create a Toolbx container for the arm64 architecture
+
+```
+$ toolbox create --arch arm64
 ```
 
 ### Create a custom Toolbx container from a custom image that's private

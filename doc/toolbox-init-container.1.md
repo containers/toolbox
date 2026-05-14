@@ -4,7 +4,9 @@
 toolbox\-init\-container - Initialize a running container
 
 ## SYNOPSIS
-**toolbox init-container** *--gid GID*
+**toolbox init-container** *--arch ID*
+                       *--arch-emulator-path PATH*
+                       *--gid GID*
                        *--home HOME*
                        *--home-link*
                        *--media-link*
@@ -48,9 +50,26 @@ On some host operating systems, important paths like `/home`, `/media` or
 paths inside the container match those on the host, to avoid needless
 confusion.
 
+When the container's architecture differs from the host, the entry point
+configures QEMU user-mode emulation inside the container. It validates that
+QEMU emulation is functional, mounts a sandboxed `binfmt_misc` filesystem, and
+registers the QEMU interpreter with the `C` (credential) flag for transparent
+emulation of non-native architecture binaries.
+
 ## OPTIONS ##
 
 The following options are understood:
+
+**--arch** ID
+
+The container's architecture ID. When it differs from the host, additional
+configuration of cross-architecture QEMU emulation is performed during
+initialization.
+
+**--arch-emulator-path** PATH
+
+Register an emulator using binfmt_misc with PATH as the interpreter for a
+non-native architecture container.
 
 **--gid** GID
 

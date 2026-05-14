@@ -72,6 +72,21 @@ fedora |\<release\> or f\<release\> eg., 36 or f36
 rhel   |\<major\>.\<minor\> eg., 8.5
 ubuntu |\<YY\>.\<MM\> eg., 22.04
 
+## Cross-architecture containers support
+
+Toolbx supports creating and using containers for a different CPU architecture
+than the host through QEMU user-mode emulation. This allows, for example,
+running an `arm64` container on an `amd64` host for cross-compilation or
+testing. Cross-architecture containers are created and used through the
+`--arch` flag accepted by `toolbox create`, `toolbox enter` and `toolbox run`.
+The following architectures are supported:
+
+Architecture |Accepted values
+-------------|---------------------------
+arm64        |arm64, aarch64
+ppc64le      |ppc64le
+amd64        |amd64, x86\_64
+
 ## USAGE
 
 ### Create a Toolbx container:
