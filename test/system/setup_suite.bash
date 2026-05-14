@@ -53,6 +53,17 @@ setup_suite() {
     _pull_and_cache_distro_image rhel 8.10 || false
   fi
 
+  if echo "$TOOLBX_TEST_SYSTEM_TAGS" | grep "non-native" >/dev/null 2>/dev/null; then
+    # Cache the default image (needed for some cross-arch tests that also use native containers)
+    _pull_and_cache_distro_image "$system_id" "$system_version" || false
+    _pull_and_cache_distro_image fedora 44 || false
+    # Cache a non-native architecture image for cross-arch tests
+    local cross_arch
+    cross_arch="$(get_cross_arch)"
+    _pull_and_cache_distro_image_cross_arch fedora 44 "${cross_arch}" || false
+    _pull_and_cache_distro_image_cross_arch "$system_id" "$system_version" "${cross_arch}" || false
+  fi
+
   if echo "$TOOLBX_TEST_SYSTEM_TAGS" | grep "ubuntu" >/dev/null 2>/dev/null; then
     _pull_and_cache_distro_image ubuntu 16.04 || false
     _pull_and_cache_distro_image ubuntu 18.04 || false
