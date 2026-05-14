@@ -33,6 +33,7 @@
       - openssl
       - pkgconfig(bash-completion)
       - podman
+      - qemu-user-static
       - shadow-utils-subid-devel
       - skopeo
       - systemd

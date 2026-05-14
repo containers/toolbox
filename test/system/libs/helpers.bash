@@ -36,7 +36,7 @@ readonly DOCKER_REG_NAME="docker-registry"
 
 # Podman and Toolbx commands to run
 readonly TOOLBX="${TOOLBX:-$(command -v toolbox)}"
-readonly TOOLBX_TEST_SYSTEM_TAGS_ALL="arch-fedora,commands-options,custom-image,runtime-environment,ubuntu"
+readonly TOOLBX_TEST_SYSTEM_TAGS_ALL="arch-fedora,non-native,commands-options,custom-image,runtime-environment,ubuntu"
 readonly TOOLBX_TEST_SYSTEM_TAGS="${TOOLBX_TEST_SYSTEM_TAGS:-$TOOLBX_TEST_SYSTEM_TAGS_ALL}"
 
 # Images
@@ -131,6 +131,83 @@ function _pull_and_cache_distro_image() {
 
   if ! $cached; then
     echo "Failed to cache image ${image} to ${IMAGE_CACHE_DIR}/${image_archive}" >&2
+    [ "$error_message" != "" ] && echo "$error_message" >&2
+    return "$ret_val"
+  fi
+
+  cleanup_all
+  ret_val="$?"
+
+  return "$ret_val"
+}
+
+
+# Pulls a non-native image using Skopeo and saves it to a dir cache
+#
+# The image is fetched from the same registry as the native one, but with
+# --override-arch to select the foreign architecture variant from a multi-arch
+# manifest. The cache directory is suffixed with the arch name to avoid
+# collisions with native images (Toolbx does it same way for non-native images).
+#
+# Parameters
+# ==========
+# - distro - os-release field ID (e.g., fedora, rhel)
+# - version - os-release field VERSION_ID (e.g., 42)
+# - arch - target architecture in OCI format (e.g., arm64, ppc64le)
+#
+# Only use during test suite setup for caching all images to be used throughout
+# tests.
+function _pull_and_cache_distro_image_cross_arch() {
+  local num_of_retries=5
+  local timeout=10
+  local cached=false
+  local distro
+  local version
+  local arch
+  local image
+  local image_archive
+
+  distro="$1"
+  version="$2"
+  arch="$3"
+
+  if [ -z "${IMAGES[$distro]+x}" ]; then
+    fail "Requested distro (${distro}) does not have a matching image"
+    return 1
+  fi
+
+  image="${IMAGES[$distro]}:${version}"
+  image_archive="${distro}-toolbox-${version}-${arch}"
+
+  if [[ -d "${IMAGE_CACHE_DIR}/${image_archive}" ]] ; then
+    return 0
+  fi
+
+  if [ ! -d "${IMAGE_CACHE_DIR}" ]; then
+    run mkdir -p "${IMAGE_CACHE_DIR}"
+    assert_success
+  fi
+
+  local error_message
+  local -i j
+  local -i ret_val
+
+  for ((j = 0; j < num_of_retries; j++)); do
+    error_message="$( (skopeo copy --override-arch "${arch}" --dest-compress \
+                          "docker://${image}" \
+                          "dir:${IMAGE_CACHE_DIR}/${image_archive}" >/dev/null) 2>&1)"
+    ret_val="$?"
+
+    if [ "$ret_val" -eq 0 ]; then
+      cached=true
+      break
+    fi
+
+    sleep "$timeout"
+  done
+
+  if ! $cached; then
+    echo "Failed to cache cross-arch image ${image} (${arch}) to ${IMAGE_CACHE_DIR}/${image_archive}" >&2
     [ "$error_message" != "" ] && echo "$error_message" >&2
     return "$ret_val"
   fi
@@ -255,6 +332,44 @@ function build_image_without_name() {
 }
 
 
+# Creates a directory with symlinks to all executables from /usr/bin and
+# /usr/sbin EXCEPT those matching the given glob patterns.
+#
+# Used for testing error paths where specific tools (skopeo, qemu) are
+# expected to be missing. The resulting directory can be set as PATH to
+# control what exec.LookPath() finds in Toolbx's Go code.
+#
+# Parameters:
+# ===========
+# - dest_dir - directory to populate with symlinks
+# - exclude_patterns... - glob patterns to exclude (e.g., "qemu-*" "skopeo")
+function build_restricted_path() {
+  local dest_dir="$1"
+  shift
+
+  mkdir -p "$dest_dir"
+
+  local f
+  local name
+  local skip
+  local pattern
+
+  for f in /usr/bin/* /usr/sbin/*; do
+    [ -x "$f" ] || continue
+    name="$(basename "$f")"
+    [ -e "$dest_dir/$name" ] && continue
+    skip=false
+    for pattern in "$@"; do
+      # shellcheck disable=SC2254
+      case "$name" in
+        $pattern) skip=true; break ;;
+      esac
+    done
+    $skip || ln -sf "$f" "$dest_dir/$name"
+  done
+}
+
+
 function check_bats_version() {
     local required_version
     required_version="$1"
@@ -268,6 +383,26 @@ function check_bats_version() {
     fi
 
     return 1
+}
+
+
+# Skips the current test if QEMU and binfmt_misc support is not available
+# for the cross-arch architecture. Use in setup() or individual @test functions.
+function skip_if_no_cross_arch_support() {
+  local cross_arch
+  cross_arch="$(get_cross_arch)"
+  local binfmt_arch
+  binfmt_arch="$(oci_arch_to_binfmt "${cross_arch}")"
+
+  if ! command -v "qemu-${binfmt_arch}-static" >/dev/null 2>&1 && \
+     ! command -v "qemu-${binfmt_arch}" >/dev/null 2>&1; then
+    skip "QEMU for ${cross_arch} is not installed"
+  fi
+
+  if [ ! -f "/proc/sys/fs/binfmt_misc/qemu-${binfmt_arch}" ] && \
+     [ ! -f "/proc/sys/fs/binfmt_misc/qemu-${binfmt_arch}-static" ]; then
+    skip "binfmt_misc registration for ${binfmt_arch} is not present"
+  fi
 }
 
 
@@ -343,11 +478,98 @@ function pull_distro_image() {
 }
 
 
+# Copies a non-native image from cache to Podman's image store
+#
+# The image is stored with an arch-suffixed tag (e.g., :42-arm64) so that
+# Toolbx can find it when --arch is used.
+#
+# An image has to be cached first. See _pull_and_cache_distro_image_cross_arch()
+#
+# Parameters:
+# ===========
+# - distro - os-release field ID (e.g., fedora, rhel)
+# - version - os-release field VERSION_ID (e.g., 42)
+# - arch - target architecture in OCI format (e.g., arm64, ppc64le)
+function pull_distro_image_cross_arch() {
+  local distro
+  local version
+  local arch
+  local image
+  local image_archive
+
+  distro="$1"
+  version="$2"
+  arch="$3"
+
+  if [ -z "${IMAGES[$distro]+x}" ]; then
+    fail "Requested distro (${distro}) does not have a matching image"
+    return 1
+  fi
+
+  image="${IMAGES[$distro]}:${version}-${arch}"
+  image_archive="${distro}-toolbox-${version}-${arch}"
+
+  # No need to copy if the image is already available in Podman
+  if podman image exists "${image}"; then
+    return 0
+  fi
+
+  # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
+  run skopeo copy "dir:${IMAGE_CACHE_DIR}/${image_archive}" "containers-storage:[overlay@$TOOLBX_ROOTLESS_STORAGE_PATH+$TOOLBX_ROOTLESS_STORAGE_PATH]${image}"
+
+  # shellcheck disable=SC2154
+  if [ "$status" -ne 0 ]; then
+    echo "Failed to load cross-arch image ${image} from cache ${IMAGE_CACHE_DIR}/${image_archive}"
+    assert_success
+  fi
+
+  return 0
+}
+
+
 # Copies the system's default image to Podman's image store
 #
 # See pull_default_image() for more info.
 function pull_default_image() {
   pull_distro_image "$(get_system_id)" "$(get_system_version)"
+}
+
+
+# Copies the system's default cross-arch image to Podman's image store
+function pull_default_image_cross_arch() {
+  local cross_arch
+  cross_arch="$(get_cross_arch)"
+  pull_distro_image_cross_arch "$(get_system_id)" "$(get_system_version)" "${cross_arch}"
+}
+
+
+# Copies the system's default image to Podman's image store under a custom name
+#
+# Parameters:
+# ===========
+# - dest_image - the destination image name (e.g., "custom-image:v1-arm64")
+function pull_default_image_and_copy_to() {
+  local dest_image="$1"
+
+  pull_default_image
+
+  local distro
+  local version
+  local image
+
+  distro="$(get_system_id)"
+  version="$(get_system_version)"
+  image="${IMAGES[$distro]}:$version"
+
+  # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
+  run skopeo copy \
+      "containers-storage:[overlay@$TOOLBX_ROOTLESS_STORAGE_PATH+$TOOLBX_ROOTLESS_STORAGE_PATH]$image" \
+      "containers-storage:[overlay@$TOOLBX_ROOTLESS_STORAGE_PATH+$TOOLBX_ROOTLESS_STORAGE_PATH]$dest_image"
+
+  if [ "$status" -ne 0 ]; then
+    echo "Failed to copy image $image to $dest_image"
+    assert_success
+  fi
 }
 
 
@@ -399,6 +621,34 @@ function create_distro_container() {
 }
 
 
+# Creates a non-native container
+#
+# Pulling of the cross-arch image is taken care of by the function.
+#
+# Parameters:
+# ===========
+# - distro - os-release field ID (e.g., fedora, rhel)
+# - version - os-release field VERSION_ID (e.g., 42)
+# - container_name - name of the container
+# - arch - target architecture in OCI format (e.g., arm64, ppc64le)
+function create_distro_container_cross_arch() {
+  local distro
+  local version
+  local arch
+  local container_name
+
+  distro="$1"
+  version="$2"
+  arch="$3"
+  container_name="$4"
+
+  pull_distro_image_cross_arch "${distro}" "${version}" "${arch}"
+
+  "$TOOLBX" --assumeyes create --arch "${arch}" --container "${container_name}" --distro "${distro}" --release "${version}" >/dev/null \
+    || fail "Toolbx couldn't create cross-arch container '$container_name' (${arch})"
+}
+
+
 # Creates a container with specific name matching the system
 #
 # Parameters:
@@ -419,6 +669,18 @@ function create_default_container() {
 
   "$TOOLBX" --assumeyes create >/dev/null \
     || fail "Toolbx couldn't create default container"
+}
+
+
+# Creates a default cross-arch container for the system
+function create_default_container_cross_arch() {
+  local cross_arch
+  cross_arch="$(get_cross_arch)"
+
+  pull_default_image_cross_arch
+
+  "$TOOLBX" --assumeyes create --arch "${cross_arch}" >/dev/null \
+    || fail "Toolbx couldn't create default cross-arch container (${cross_arch})"
 }
 
 
@@ -577,6 +839,44 @@ function is_fedora_rawhide() (
 
   return 0
 )
+
+
+# Returns a non-native architecture (OCI format) suitable for cross-arch tests.
+#
+# On x86_64/amd64 hosts, returns "arm64".
+# On aarch64/arm64 hosts, returns "amd64".
+function get_cross_arch() {
+  local host_arch
+  host_arch="$(uname -m)"
+
+  case "$host_arch" in
+    x86_64)  echo "arm64" ;;
+    aarch64) echo "amd64" ;;
+    ppc64le) echo "arm64" ;;
+    *)
+      echo "No cross-arch mapping for host architecture: $host_arch" >&2
+      return 1
+      ;;
+  esac
+}
+
+
+# Converts an OCI architecture name to its binfmt_misc name.
+#
+# Parameters:
+# ===========
+# - oci_arch - architecture in OCI format (e.g., arm64, amd64, ppc64le)
+function oci_arch_to_binfmt() {
+  case "$1" in
+    arm64)   echo "aarch64" ;;
+    amd64)   echo "x86_64" ;;
+    ppc64le) echo "ppc64le" ;;
+    *)
+      echo "Unknown OCI arch: $1" >&2
+      return 1
+      ;;
+  esac
+}
 
 
 # Creates a container with org.freedesktop.Flatpak.SessionHelper D-Bus interface

@@ -4,7 +4,8 @@
 toolbox\-run - Run a command in an existing Toolbx container
 
 ## SYNOPSIS
-**toolbox run** [*--container NAME* | *-c NAME*]
+**toolbox run** [*--arch ARCHITECTURE* | *-a ARCHITECTURE*]
+            [*--container NAME* | *-c NAME*]
             [*--distro DISTRO* | *-d DISTRO*]
             [*--preserve-fds N*]
             [*--release RELEASE* | *-r RELEASE*]
@@ -25,6 +26,12 @@ to a `podman start` followed by a `podman exec`.
 ## OPTIONS ##
 
 The following options are understood:
+
+**--arch** ARCHITECTURE, **-a** ARCHITECTURE
+
+Run command inside a Toolbx container for a different architecture ARCHITECTURE
+than the host (e.g., `arm64` on `amd64`). Can be combined with `--distro` and
+`--release`.
 
 **--container** NAME, **-c** NAME
 
@@ -101,6 +108,12 @@ $ toolbox run --distro fedora --release f36 emacs
 
 ```
 $ toolbox run --container foo uptime
+```
+
+### Run uname inside the default Toolbx container for the arm64 architecture
+
+```
+$ toolbox run --arch arm64 uname -m
 ```
 
 ## SEE ALSO

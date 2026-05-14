@@ -27,6 +27,7 @@ import (
 
 var (
 	enterFlags struct {
+		arch      string
 		container string
 		distro    string
 		release   string
@@ -42,6 +43,12 @@ var enterCmd = &cobra.Command{
 
 func init() {
 	flags := enterCmd.Flags()
+
+	flags.StringVarP(&enterFlags.arch,
+		"arch",
+		"a",
+		"",
+		"Enter a Toolbx container for a different architecture than the host")
 
 	flags.StringVarP(&enterFlags.container,
 		"container",
@@ -104,11 +111,17 @@ func enter(cmd *cobra.Command, args []string) error {
 		defaultContainer = false
 	}
 
+	archID, err := resolveArchitectureID(enterFlags.arch, "")
+	if err != nil {
+		return err
+	}
+
 	container, image, release, err := resolveContainerAndImageNames(container,
 		containerArg,
 		enterFlags.distro,
 		"",
-		enterFlags.release)
+		enterFlags.release,
+		archID)
 
 	if err != nil {
 		return err
