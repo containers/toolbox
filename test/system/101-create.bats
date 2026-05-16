@@ -60,6 +60,26 @@ teardown() {
   assert_output "true"
 }
 
+@test "create: The host /dev is not bind-mounted into the container" {
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
+  pull_default_image
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" create
+
+  assert_success
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run podman inspect \
+        --format '{{range .Mounts}}{{println .Destination}}{{end}}' \
+        --type container \
+        "$default_container"
+
+  assert_success
+  refute_line "/dev"
+}
+
 @test "create: Smoke test with SHELL unset" {
   local default_container
   default_container="$(get_system_id)-toolbox-$(get_system_version)"

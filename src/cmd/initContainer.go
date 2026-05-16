@@ -73,6 +73,26 @@ var (
 		{"/var/log/journal", "/run/host/var/log/journal", ""},
 		{"/var/mnt", "/run/host/var/mnt", "rslave"},
 	}
+
+	initContainerIgnoredHostDevices = map[string]struct{}{
+		"console": {},
+		"core":    {},
+		"fd":      {},
+		"full":    {},
+		"kmsg":    {},
+		"mqueue":  {},
+		"null":    {},
+		"ptmx":    {},
+		"pts":     {},
+		"random":  {},
+		"shm":     {},
+		"stderr":  {},
+		"stdin":   {},
+		"stdout":  {},
+		"tty":     {},
+		"urandom": {},
+		"zero":    {},
+	}
 )
 
 var initContainerCmd = &cobra.Command{
@@ -262,6 +282,8 @@ func initContainer(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	}
+
+	projectHostDevices()
 
 	if utils.PathExists("/sys/fs/selinux") {
 		if err := mountBind("/sys/fs/selinux", "/usr/share/empty", ""); err != nil {
@@ -1018,20 +1040,22 @@ func mountBind(containerPath, source, flags string) error {
 		if err := os.MkdirAll(containerPath, 0755); err != nil {
 			return fmt.Errorf("failed to create directory %s: %w", containerPath, err)
 		}
-	} else if fileMode.IsRegular() || fileMode&os.ModeSocket != 0 {
-		logrus.Debugf("Creating regular file %s", containerPath)
-
+	} else {
 		containerPathDir := filepath.Dir(containerPath)
 		if err := os.MkdirAll(containerPathDir, 0755); err != nil {
 			return fmt.Errorf("failed to create directory %s: %w", containerPathDir, err)
 		}
 
-		containerPathFile, err := os.Create(containerPath)
-		if err != nil && !os.IsExist(err) {
-			return fmt.Errorf("failed to create regular file %s: %w", containerPath, err)
-		}
+		if !utils.PathExists(containerPath) {
+			logrus.Debugf("Creating file mount point %s", containerPath)
 
-		defer containerPathFile.Close()
+			containerPathFile, err := os.Create(containerPath)
+			if err != nil {
+				return fmt.Errorf("failed to create file mount point %s: %w", containerPath, err)
+			}
+
+			defer containerPathFile.Close()
+		}
 	}
 
 	logrus.Debugf("Binding %s to %s", containerPath, source)
@@ -1051,6 +1075,50 @@ func mountBind(containerPath, source, flags string) error {
 	}
 
 	return nil
+}
+
+func projectHostDevices() {
+	const hostDevices = "/run/host/dev"
+	const logPrefix = "Projecting host devices into the container"
+
+	logrus.Debugf("%s", logPrefix)
+
+	entries, err := os.ReadDir(hostDevices)
+	if err != nil {
+		logrus.Debugf("%s: failed to read %s: %s", logPrefix, hostDevices, err)
+		logrus.Debugf("%s: skipping", logPrefix)
+		return
+	}
+
+	for _, entry := range entries {
+		name := entry.Name()
+		if _, ignored := initContainerIgnoredHostDevices[name]; ignored {
+			logrus.Debugf("%s: skipping runtime-managed path /dev/%s", logPrefix, name)
+			continue
+		}
+
+		source := filepath.Join(hostDevices, name)
+		fileInfo, err := os.Lstat(source)
+		if err != nil {
+			logrus.Debugf("%s: failed to lstat %s: %s", logPrefix, source, err)
+			continue
+		}
+
+		if fileInfo.Mode()&os.ModeSymlink != 0 {
+			logrus.Debugf("%s: skipping symbolic link %s", logPrefix, source)
+			continue
+		}
+
+		flags := ""
+		if fileInfo.IsDir() {
+			flags = "rslave"
+		}
+
+		containerPath := filepath.Join("/dev", name)
+		if err := mountBind(containerPath, source, flags); err != nil {
+			logrus.Debugf("%s: failed to bind %s to %s: %s", logPrefix, containerPath, source, err)
+		}
+	}
 }
 
 // redirectPath serves for creating symbolic links for crucial system
