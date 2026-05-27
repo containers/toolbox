@@ -888,3 +888,108 @@ teardown() {
   assert_line --index 1 "Recreate it with Toolbx version 0.0.97 or newer."
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
+
+
+@test "run: With a non-Toolbx container (created via podman) and prompt for confirmation - No" {
+  image="$(build_non_toolbx_image)"
+  local container="non-toolbx-container"
+
+  run podman create --name "$container" "$image" true
+
+  assert_success
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --container "$container" true <<< "n"
+
+  assert_success
+  assert_line --index 0 "${MSG_CONFIRMATION_PROMPT}"
+  assert [ ${#lines[@]} -eq 1 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_image_intro "$image")"
+  assert_line --index 1 --regexp "^[[:blank:]]*$(warning_non_toolbx_image)$"
+  assert_line --index 2 ""
+  assert_line --index 3 "$(warning_image_outro)"
+  assert [ ${#stderr_lines[@]} -eq 4 ]
+}
+
+@test "run: With a non-Toolbx image shows warnings without prompt" {
+  containerName="test-container-non-toolbx"
+  image="$(build_non_toolbx_image)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --container "$containerName" true
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_image_intro "$image")"
+  assert_line --index 1 --regexp "^[[:blank:]]*$(warning_non_toolbx_image)$"
+  assert_line --index 2 ""
+  assert_line --index 3 "$(warning_image_outro)"
+  assert_line --index 4 "$(failed_start_error_message "$containerName")"
+  assert [ ${#stderr_lines[@]} -eq 5 ]
+}
+
+@test "run: With an image with LD_PRELOAD set shows warnings without prompt" {
+  containerName="test-container-ld-preload"
+  image="$(build_image_with_ld_preload)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --container "$containerName" true
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_image_intro "$image")"
+  assert_line --index 1 --regexp "^[[:blank:]]*$(warning_ld_preload_image)$"
+  assert_line --index 2 ""
+  assert_line --index 3 "$(warning_image_outro)"
+  assert_line --index 4 "$(failed_start_error_message "$containerName")"
+  assert [ ${#stderr_lines[@]} -eq 5 ]
+}
+
+@test "run: With an image with an entrypoint set shows warnings without prompt" {
+  containerName="test-container-entrypoint"
+  image="$(build_image_with_entrypoint)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --container "$containerName" true
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_image_intro "$image")"
+  assert_line --index 1 --regexp "^[[:blank:]]*$(warning_entrypoint_image)$"
+  assert_line --index 2 ""
+  assert_line --index 3 "$(warning_image_outro)"
+  assert_line --index 4 "$(failed_start_error_message "$containerName")"
+  assert [ ${#stderr_lines[@]} -eq 5 ]
+}
+
+@test "run: With an image having all warnings shows warnings without prompt" {
+  containerName="test-container-all-warnings"
+  image="$(build_image_with_all_warnings)"
+
+  create_image_container "$image" "$containerName"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --container "$containerName" true
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "$(warning_image_intro "$image")"
+  assert_line --index 1 --regexp "^[[:blank:]]*$(warning_non_toolbx_image)$"
+  assert_line --index 2 --regexp "^[[:blank:]]*$(warning_ld_preload_image)$"
+  assert_line --index 3 --regexp "^[[:blank:]]*$(warning_entrypoint_image)$"
+  assert_line --index 4 ""
+  assert_line --index 5 "$(warning_image_outro)"
+  assert_line --index 6 "$(failed_start_error_message "$containerName")"
+  assert [ ${#stderr_lines[@]} -eq 7 ]
+}
