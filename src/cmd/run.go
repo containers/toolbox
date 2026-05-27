@@ -254,6 +254,24 @@ func runCommand(container string,
 		return fmt.Errorf("failed to inspect container %s", container)
 	}
 
+	if !containerObj.IsToolbx() {
+		logrus.Debugf("Checking image compatibility for non-Toolbx container %s", container)
+		imageName := containerObj.Image()
+		if imageObj, err := podman.InspectImage(imageName); err != nil {
+			logrus.Debugf("Failed to inspect image %s: %s", imageName, err)
+		} else if _, shouldContinue := checkAndWarnImageCompatibility(imageName, imageObj, true); !shouldContinue {
+			return nil
+		}
+	} else if containerObj.IsImageUnknown() {
+		logrus.Debugf("Container %s has image compatibility issues", container)
+		imageName := containerObj.Image()
+		if imageObj, err := podman.InspectImage(imageName); err != nil {
+			logrus.Debugf("Failed to inspect image %s: %s", imageName, err)
+		} else {
+			checkAndWarnImageCompatibility(imageName, imageObj, false)
+		}
+	}
+
 	entryPoint := containerObj.EntryPoint()
 	entryPointPID := containerObj.EntryPointPID()
 	logrus.Debugf("Entry point of container %s is %s (PID=%d)", container, entryPoint, entryPointPID)
