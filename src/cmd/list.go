@@ -155,6 +155,7 @@ func listOutput(images *podman.Images, containers *podman.Containers) {
 
 	if containers.Len() != 0 {
 		const boldGreenColor = "\033[1;32m"
+		const boldYellowColor = "\033[0;33m"
 		const defaultColor = "\033[0;00m" // identical to resetColor, but same length as boldGreenColor
 		const resetColor = "\033[0m"
 
@@ -191,6 +192,8 @@ func listOutput(images *podman.Images, containers *podman.Containers) {
 				var color string
 				if isRunning {
 					color = boldGreenColor
+				} else if container.IsImageUnknown() {
+					color = boldYellowColor
 				} else {
 					color = defaultColor
 				}
