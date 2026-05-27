@@ -47,6 +47,8 @@ type imageImages struct {
 
 type imageInspect struct {
 	created      string
+	entrypoint   []string
+	env          []string
 	id           string
 	labels       map[string]string
 	namesHistory []string
@@ -279,7 +281,9 @@ func (image *imageInspect) UnmarshalJSON(data []byte) error {
 		Created interface{}
 		ID      string
 		Config  struct {
-			Labels map[string]string
+			Entrypoint []string
+			Env        []string
+			Labels     map[string]string
 		}
 		NamesHistory []string
 		RepoTags     []string
@@ -296,6 +300,8 @@ func (image *imageInspect) UnmarshalJSON(data []byte) error {
 		image.created = utils.HumanDuration(int64(value))
 	}
 
+	image.entrypoint = raw.Config.Entrypoint
+	image.env = raw.Config.Env
 	image.id = raw.ID
 	image.labels = raw.Config.Labels
 	image.namesHistory = raw.NamesHistory
