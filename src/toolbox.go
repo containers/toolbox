@@ -16,8 +16,11 @@
 
 package main
 
+import "C"
+
 import "github.com/containers/toolbox/cmd"
 
+//export main
 func main() {
 	cmd.Execute()
 }
