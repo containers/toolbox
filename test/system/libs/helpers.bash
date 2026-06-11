@@ -214,7 +214,7 @@ function _setup_docker_registry() {
   assert_success
 
   # Add fedora-toolbox:34 image to the registry
-  run skopeo --command-timeout 60s copy \
+  run skopeo --command-timeout 60s --debug copy \
         --dest-authfile "${BATS_SUITE_TMPDIR}/authfile.json" \
         dir:"${IMAGE_CACHE_DIR}"/fedora-toolbox-34 \
         docker://"${DOCKER_REG_URI}"/fedora-toolbox:34

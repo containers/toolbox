@@ -20,7 +20,7 @@
     - include_tasks: build.yaml
 
     - name: Run the (runtime-environment,ubuntu) system tests
-      command: bats --filter-tags runtime-environment,ubuntu ./test/system
+      command: bats --show-output-of-passing-tests --timing --trace --filter-tags runtime-environment,ubuntu ./test/system
       environment:
         TMPDIR: '/var/tmp'
         TOOLBX: '/usr/local/bin/toolbox'
