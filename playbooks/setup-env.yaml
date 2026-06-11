@@ -17,7 +17,7 @@
 ---
 - hosts: all
   tasks:
-    - include_tasks: dependencies-fedora.yaml
+    - include_tasks: "{{ dependencies_playbook | default('dependencies-fedora.yaml') }}"
 
     - name: Set up build directory
       command: meson setup builddir
