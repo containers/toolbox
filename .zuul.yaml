@@ -56,138 +56,128 @@
       dependencies_playbook: dependencies-fedora-restricted.yaml
 
 - job:
-    name: system-test-fedora-rawhide-commands-options
-    description: Run Toolbx's commands-options system tests in Fedora Rawhide
+    name: system-test-fedora
+    abstract: true
+    pre-run: playbooks/setup-env.yaml
+    timeout: 6300
+
+- job:
+    name: system-test-fedora-rawhide
+    abstract: true
+    parent: system-test-fedora
     ansible-version: 11
-    timeout: 7200
     nodeset:
       nodes:
         - name: fedora-rawhide
           label: cloud-fedora-rawhide
-    pre-run: playbooks/setup-env.yaml
+    timeout: 7200
+
+- job:
+    name: system-test-fedora-rawhide-commands-options
+    parent: system-test-fedora-rawhide
+    description: Run Toolbx's commands-options system tests in Fedora Rawhide
     run: playbooks/system-test-commands-options.yaml
 
 - job:
     name: system-test-fedora-rawhide-runtime-environment-arch-fedora
+    parent: system-test-fedora-rawhide
     description: Run Toolbx's (arch-fedora,runtime-environment) system tests in Fedora Rawhide
-    ansible-version: 11
-    timeout: 7200
-    nodeset:
-      nodes:
-        - name: fedora-rawhide
-          label: cloud-fedora-rawhide
-    pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test-runtime-environment-arch-fedora.yaml
 
 - job:
     name: system-test-fedora-rawhide-runtime-environment-ubuntu
+    parent: system-test-fedora-rawhide
     description: Run Toolbx's (runtime-environment,ubuntu) system tests in Fedora Rawhide
-    ansible-version: 11
-    timeout: 7200
-    nodeset:
-      nodes:
-        - name: fedora-rawhide
-          label: cloud-fedora-rawhide
-    pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test-runtime-environment-ubuntu.yaml
 
 - job:
     name: system-test-fedora-44-commands-options
+    parent: system-test-fedora
     description: Run Toolbx's commands-options system tests in Fedora 44
-    timeout: 6300
     nodeset:
       nodes:
         - name: fedora-44
           label: cloud-fedora-44
-    pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test-commands-options.yaml
 
 - job:
     name: system-test-fedora-44-runtime-environment-arch-fedora
+    parent: system-test-fedora
     description: Run Toolbx's (arch-fedora,runtime-environment) system tests in Fedora 44
-    timeout: 6300
     nodeset:
       nodes:
         - name: fedora-44
           label: cloud-fedora-44
-    pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test-runtime-environment-arch-fedora.yaml
 
 - job:
     name: system-test-fedora-44-runtime-environment-ubuntu
+    parent: system-test-fedora
     description: Run Toolbx's (runtime-environment,ubuntu) system tests in Fedora 44
-    timeout: 6300
     nodeset:
       nodes:
         - name: fedora-44
           label: cloud-fedora-44
-    pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test-runtime-environment-ubuntu.yaml
 
 - job:
     name: system-test-fedora-43-commands-options
+    parent: system-test-fedora
     description: Run Toolbx's commands-options system tests in Fedora 43
-    timeout: 6300
     nodeset:
       nodes:
         - name: fedora-43
           label: cloud-fedora-43
-    pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test-commands-options.yaml
 
 - job:
     name: system-test-fedora-43-runtime-environment-arch-fedora
+    parent: system-test-fedora
     description: Run Toolbx's (arch-fedora,runtime-environment) system tests in Fedora 43
-    timeout: 6300
     nodeset:
       nodes:
         - name: fedora-43
           label: cloud-fedora-43
-    pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test-runtime-environment-arch-fedora.yaml
 
 - job:
     name: system-test-fedora-43-runtime-environment-ubuntu
+    parent: system-test-fedora
     description: Run Toolbx's (runtime-environment,ubuntu) system tests in Fedora 43
-    timeout: 6300
     nodeset:
       nodes:
         - name: fedora-43
           label: cloud-fedora-43
-    pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test-runtime-environment-ubuntu.yaml
 
 - job:
     name: system-test-fedora-42-commands-options
+    parent: system-test-fedora
     description: Run Toolbx's commands-options system tests in Fedora 42
-    timeout: 6300
     nodeset:
       nodes:
         - name: fedora-42
           label: cloud-fedora-42
-    pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test-commands-options.yaml
 
 - job:
     name: system-test-fedora-42-runtime-environment-arch-fedora
+    parent: system-test-fedora
     description: Run Toolbx's (arch-fedora,runtime-environment) system tests in Fedora 42
-    timeout: 6300
     nodeset:
       nodes:
         - name: fedora-42
           label: cloud-fedora-42
-    pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test-runtime-environment-arch-fedora.yaml
 
 - job:
     name: system-test-fedora-42-runtime-environment-ubuntu
+    parent: system-test-fedora
     description: Run Toolbx's (runtime-environment,ubuntu) system tests in Fedora 42
-    timeout: 6300
     nodeset:
       nodes:
         - name: fedora-42
           label: cloud-fedora-42
-    pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test-runtime-environment-ubuntu.yaml
 
 - job:
