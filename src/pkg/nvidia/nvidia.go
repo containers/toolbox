@@ -89,7 +89,7 @@ func GenerateCDISpec() (*specs.Spec, error) {
 			reason)
 	}
 
-	isTegra, reason := info.IsTegraSystem()
+	isTegra, reason := info.HasTegraFiles()
 	if !isTegra {
 		logrus.Debugf("Generating Container Device Interface for NVIDIA: not a Tegra system: %s", reason)
 	}
@@ -99,7 +99,7 @@ func GenerateCDISpec() (*specs.Spec, error) {
 		return nil, ErrPlatformUnsupported
 	}
 
-	cdi, err := nvcdi.New(nvcdi.WithDisabledHook(nvcdi.HookEnableCudaCompat),
+	cdi, err := nvcdi.New(nvcdi.WithDisabledHooks(nvcdi.HookEnableCudaCompat),
 		nvcdi.WithInfoLib(info),
 		nvcdi.WithLogger(logger),
 		nvcdi.WithNvmlLib(nvmLib))

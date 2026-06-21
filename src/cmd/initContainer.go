@@ -437,9 +437,8 @@ func applyCDISpecForNvidia(spec *specs.Spec) error {
 			continue
 		}
 
-		flags := strings.Join(mount.Options, ",")
 		hostPath := filepath.Join(string(filepath.Separator), "run", "host", mount.HostPath)
-		if err := mountBind(mount.ContainerPath, hostPath, flags); err != nil {
+		if err := mountExt(mount.ContainerPath, hostPath, "", mount.Options...); err != nil {
 			logrus.Debugf("Applying Container Device Interface for NVIDIA: %s", err)
 			return errors.New("failed to apply mount from Container Device Interface for NVIDIA")
 		}
@@ -1001,7 +1000,7 @@ func loadCDISpecFrom(path string) (*specs.Spec, error) {
 	return spec, nil
 }
 
-func mountBind(containerPath, source, flags string) error {
+func mountExt(containerPath, source string, flag string, opts ...string) error {
 	fi, err := os.Stat(source)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -1036,12 +1035,14 @@ func mountBind(containerPath, source, flags string) error {
 
 	logrus.Debugf("Binding %s to %s", containerPath, source)
 
-	args := []string{
-		"--rbind",
+	args := make([]string, 0, 2)
+
+	if flag != "" {
+		args = append(args, flag)
 	}
 
-	if flags != "" {
-		args = append(args, []string{"-o", flags}...)
+	if len(opts) > 0 {
+		args = append(args, []string{"-o", strings.Join(opts, ",")}...)
 	}
 
 	args = append(args, []string{source, containerPath}...)
@@ -1051,6 +1052,10 @@ func mountBind(containerPath, source, flags string) error {
 	}
 
 	return nil
+}
+
+func mountBind(containerPath, source, flags string) error {
+	return mountExt(containerPath, source, "--rbind", strings.Split(flags, ",")...)
 }
 
 // redirectPath serves for creating symbolic links for crucial system
