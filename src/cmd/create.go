@@ -107,7 +107,7 @@ func init() {
 
 	flags.StringArrayVarP(&createFlags.volume,
 		"volume",
-		"",
+		"V",
 		[]string{},
 		"Bind mount a volume into the Toolbx container")
 

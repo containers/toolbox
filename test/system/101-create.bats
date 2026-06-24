@@ -1234,7 +1234,7 @@ teardown() {
   run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create \
         --container "$container" \
         --volume "$source1:/destination1" \
-        --volume "$source2:/destination2:ro,rslave"
+        --volume "$source2:/destination2:rw,rslave"
 
   assert_success
   assert_line --index 0 "Created container: $container"
@@ -1262,6 +1262,6 @@ teardown() {
 
   assert_success
   assert_output --partial "--volume $source1:/destination1"
-  assert_output --partial "--volume $source2:/destination2:ro,rslave"
+  assert_output --partial "--volume $source2:/destination2:rw,rslave"
 }
 
