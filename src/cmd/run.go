@@ -146,7 +146,6 @@ func run(cmd *cobra.Command, args []string) error {
 		runFlags.distro,
 		"",
 		runFlags.release)
-
 	if err != nil {
 		return err
 	}
@@ -171,8 +170,8 @@ func runCommand(container string,
 	image, release string,
 	preserveFDs uint,
 	command []string,
-	emitEscapeSequence, fallbackToBash, pedantic bool) error {
-
+	emitEscapeSequence, fallbackToBash, pedantic bool,
+) error {
 	if !pedantic {
 		if image == "" {
 			panic("image not specified")
@@ -225,7 +224,7 @@ func runCommand(container string,
 				return nil
 			}
 
-			if err := createContainer(container, image, release, "", false); err != nil {
+			if err := createContainer(container, image, release, "", nil, false); err != nil {
 				return err
 			}
 		} else if containersCount == 1 && defaultContainer {
@@ -362,8 +361,8 @@ func runCommand(container string,
 func runCommandWithFallbacks(container string,
 	preserveFDs uint,
 	command, environ []string,
-	emitEscapeSequence, fallbackToBash bool) error {
-
+	emitEscapeSequence, fallbackToBash bool,
+) error {
 	logrus.Debug("Checking if 'podman exec' supports disabling the detach keys")
 
 	var detachKeysSupported bool
@@ -563,8 +562,8 @@ func constructExecArgs(container, preserveFDs string,
 	envOptions []string,
 	fallbackToBash bool,
 	ttyNeeded bool,
-	workDir string) []string {
-
+	workDir string,
+) []string {
 	logLevelString := podman.LogLevel.String()
 
 	execArgs := []string{
@@ -797,7 +796,8 @@ func handleEntryPointLog(ctx context.Context,
 	container string,
 	end bool,
 	line string,
-	collectEntryPointErrorFn collectEntryPointErrorFunc) error {
+	collectEntryPointErrorFn collectEntryPointErrorFunc,
+) error {
 	if end {
 		if cause := context.Cause(ctx); errors.Is(cause, context.Canceled) {
 			return cause
@@ -918,7 +918,7 @@ func saveCDISpecTo(spec *specs.Spec, path string) error {
 		return errors.New("failed to marshal Container Device Interface to JSON")
 	}
 
-	if err := renameio.WriteFile(path, data, 0644); err != nil {
+	if err := renameio.WriteFile(path, data, 0o644); err != nil {
 		logrus.Debugf("Saving Container Device Interface: failed to write file: %s", err)
 		return errors.New("failed to write Container Device Interface to file")
 	}

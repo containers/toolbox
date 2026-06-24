@@ -54,6 +54,7 @@ var (
 		distro    string
 		image     string
 		release   string
+		volume    []string
 	}
 
 	createToolboxShMounts = []struct {
@@ -103,6 +104,12 @@ func init() {
 		"r",
 		"",
 		"Create a Toolbx container for a different operating system release than the host")
+
+	flags.StringArrayVarP(&createFlags.volume,
+		"volume",
+		"",
+		[]string{},
+		"Bind mount a volume into the Toolbx container")
 
 	createCmd.SetHelpFunc(createHelp)
 
@@ -175,19 +182,19 @@ func create(cmd *cobra.Command, args []string) error {
 		createFlags.distro,
 		createFlags.image,
 		createFlags.release)
-
 	if err != nil {
 		return err
 	}
 
-	if err := createContainer(container, image, release, createFlags.authFile, true); err != nil {
+	if err := createContainer(container, image, release,
+		createFlags.authFile, createFlags.volume, true); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createContainer(container, image, release, authFile string, showCommandToEnter bool) error {
+func createContainer(container, image, release, authFile string, volumes []string, showCommandToEnter bool) error {
 	if container == "" {
 		panic("container not specified")
 	}
@@ -473,6 +480,10 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	createArgs = append(createArgs, pcscSocketMount...)
 	createArgs = append(createArgs, runMediaMount...)
 	createArgs = append(createArgs, toolboxShMount...)
+
+	// NOTE: Mandatory volumes must be appended before this line.
+	volumeArgs := createVolumeArgs(volumes)
+	createArgs = append(createArgs, volumeArgs...)
 
 	createArgs = append(createArgs, []string{
 		imageFull,
@@ -989,6 +1000,17 @@ func systemdPathBusEscape(path string) string {
 		}
 	}
 	return string(n)
+}
+
+func createVolumeArgs(volumes []string) []string {
+	if len(volumes) == 0 {
+		return nil
+	}
+	result := make([]string, 0, len(volumes)*2)
+	for _, volume := range volumes {
+		result = append(result, "--volume", volume)
+	}
+	return result
 }
 
 func (err *promptForDownloadError) Error() string {

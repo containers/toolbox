@@ -120,6 +120,16 @@ remote registry.
 Create a Toolbx container for a different operating system RELEASE than the
 host. Cannot be used with `--image`.
 
+**--volume** HOST-DIR:CONTAINER-DIR[:OPTIONS]
+
+Bind mount a host directory into the container. This option can be specified
+multiple times. It is passed directly to `podman create`.
+For more details see `podman-create(1)`.
+
+Note: Toolbx internally manages a part of system directories such as
+/run, /tmp or /etc. Mounting over them may cause the container to fail or
+the mounted contents to be obscured.
+
 ## EXAMPLES
 
 ### Create the default Toolbx container matching the host OS
@@ -144,6 +154,13 @@ $ toolbox create --image bar foo
 
 ```
 $ toolbox create --authfile ~/auth.json --image registry.example.com/bar
+```
+
+### Create a Toolbx container with custom volumes
+
+```
+$ toolbox create --volume /nix:/nix:ro \
+  --volume /etc/profile.d/nix.sh:/etc/profile.d/nix.sh:ro
 ```
 
 ## SEE ALSO

@@ -1221,3 +1221,47 @@ teardown() {
   assert_success
   assert_output "true"
 }
+
+@test "create: With custom volumes (using --volume)" {
+  pull_default_image
+
+  local container="test-volume"
+  local source1="$BATS_TEST_TMPDIR/source1"
+  local source2="$BATS_TEST_TMPDIR/source2"
+  mkdir -p "$source1"
+  mkdir -p "$source2"
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" --assumeyes create \
+        --container "$container" \
+        --volume "$source1:/destination1" \
+        --volume "$source2:/destination2:ro,rslave"
+
+  assert_success
+  assert_line --index 0 "Created container: $container"
+  assert_line --index 1 "Enter with: toolbox enter $container"
+  assert [ ${#lines[@]} -eq 2 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+
+  run podman ps --all
+
+  assert_success
+  assert_output --regexp "Created[[:blank:]]+$container"
+
+  run podman inspect \
+        --format '{{index .Config.Labels "com.github.containers.toolbox"}}' \
+        --type container \
+        "$container"
+
+  assert_success
+  assert_output "true"
+
+  run podman inspect \
+        --format '{{.Config.CreateCommand}}' \
+        --type container \
+        "$container"
+
+  assert_success
+  assert_output --partial "--volume $source1:/destination1"
+  assert_output --partial "--volume $source2:/destination2:ro,rslave"
+}
+
