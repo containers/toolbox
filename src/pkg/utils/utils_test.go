@@ -104,6 +104,21 @@ func TestParseRelease(t *testing.T) {
 			errMsg:       "The release must be 'latest'.",
 		},
 		{
+			inputDistro:  "eln",
+			inputRelease: "",
+			output:       "latest",
+		},
+		{
+			inputDistro:  "eln",
+			inputRelease: "latest",
+			output:       "latest",
+		},
+		{
+			inputDistro:  "eln",
+			inputRelease: "11",
+			errMsg:       "The release must be 'latest'.",
+		},
+		{
 			inputDistro:  "fedora",
 			inputRelease: "f34",
 			output:       "34",

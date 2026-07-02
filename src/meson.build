@@ -35,6 +35,7 @@ sources = files(
   'pkg/term/term_test.go',
   'pkg/utils/libsubid-wrappers.c',
   'pkg/utils/arch.go',
+  'pkg/utils/eln.go',
   'pkg/utils/errors.go',
   'pkg/utils/fedora.go',
   'pkg/utils/rhel.go',
