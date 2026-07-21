@@ -18,6 +18,7 @@
 - job:
     name: unit-test
     description: Run Toolbx's unit tests declared in Meson
+    ansible-version: 11
     timeout: 1800
     nodeset:
       nodes:
@@ -40,6 +41,7 @@
 - job:
     name: unit-test-restricted
     description: Run Toolbx's unit tests declared in Meson in a restricted build environment
+    ansible-version: 11
     timeout: 1800
     nodeset:
       nodes:
@@ -51,6 +53,7 @@
 - job:
     name: system-test-fedora-rawhide-commands-options
     description: Run Toolbx's commands-options system tests in Fedora Rawhide
+    ansible-version: 11
     timeout: 7200
     nodeset:
       nodes:
@@ -62,6 +65,7 @@
 - job:
     name: system-test-fedora-rawhide-runtime-environment-arch-fedora
     description: Run Toolbx's (arch-fedora,runtime-environment) system tests in Fedora Rawhide
+    ansible-version: 11
     timeout: 7200
     nodeset:
       nodes:
@@ -73,6 +77,7 @@
 - job:
     name: system-test-fedora-rawhide-runtime-environment-ubuntu
     description: Run Toolbx's (runtime-environment,ubuntu) system tests in Fedora Rawhide
+    ansible-version: 11
     timeout: 7200
     nodeset:
       nodes:
