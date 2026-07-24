@@ -106,7 +106,7 @@ function _pull_and_cache_distro_image() {
   fi
 
   if [ ! -d "${IMAGE_CACHE_DIR}" ]; then
-    run mkdir -p "${IMAGE_CACHE_DIR}"
+    run mkdir --parents "${IMAGE_CACHE_DIR}"
     assert_success
   fi
 
@@ -153,7 +153,7 @@ function _setup_docker_registry() {
   # Create certificates for HTTPS
   # This is needed so that Podman does not have to be configured to work with
   # HTTP-only registries
-  run mkdir -p "${DOCKER_REG_CERTS_DIR}"
+  run mkdir --parents "${DOCKER_REG_CERTS_DIR}"
   assert_success
   run openssl req \
     -newkey rsa:4096 \
@@ -167,20 +167,20 @@ function _setup_docker_registry() {
   assert_success
 
   # Add certificate to Podman's trusted certificates (rootless)
-  run mkdir -p "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"
+  run mkdir --parents "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"
   assert_success
   run cp "${DOCKER_REG_CERTS_DIR}"/domain.crt "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"/domain.crt
   assert_success
 
   # Create a registry user
   # username: user; password: user
-  run mkdir -p "${DOCKER_REG_AUTH_DIR}"
+  run mkdir --parents "${DOCKER_REG_AUTH_DIR}"
   assert_success
   run htpasswd -Bbc "${DOCKER_REG_AUTH_DIR}"/htpasswd user user
   assert_success
 
   # Create separate Podman root
-  run mkdir -p "${DOCKER_REG_ROOT}"
+  run mkdir --parents "${DOCKER_REG_ROOT}"
   assert_success
 
   # Pull Docker registry image
