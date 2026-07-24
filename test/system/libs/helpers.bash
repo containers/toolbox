@@ -106,8 +106,7 @@ function _pull_and_cache_distro_image() {
   fi
 
   if [ ! -d "${IMAGE_CACHE_DIR}" ]; then
-    run mkdir --parents "${IMAGE_CACHE_DIR}"
-    assert_success
+    mkdir --parents "${IMAGE_CACHE_DIR}"
   fi
 
   local error_message
@@ -153,9 +152,8 @@ function _setup_docker_registry() {
   # Create certificates for HTTPS
   # This is needed so that Podman does not have to be configured to work with
   # HTTP-only registries
-  run mkdir --parents "${DOCKER_REG_CERTS_DIR}"
-  assert_success
-  run openssl req \
+  mkdir --parents "${DOCKER_REG_CERTS_DIR}"
+  openssl req \
     -newkey rsa:4096 \
     -nodes -sha256 \
     -keyout "${DOCKER_REG_CERTS_DIR}"/domain.key \
@@ -164,31 +162,24 @@ function _setup_docker_registry() {
     -days 365 \
     -subj '/' \
     -out "${DOCKER_REG_CERTS_DIR}"/domain.crt
-  assert_success
 
   # Add certificate to Podman's trusted certificates (rootless)
-  run mkdir --parents "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"
-  assert_success
-  run cp "${DOCKER_REG_CERTS_DIR}"/domain.crt "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"/domain.crt
-  assert_success
+  mkdir --parents "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"
+  cp "${DOCKER_REG_CERTS_DIR}"/domain.crt "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"/domain.crt
 
   # Create a registry user
   # username: user; password: user
-  run mkdir --parents "${DOCKER_REG_AUTH_DIR}"
-  assert_success
-  run htpasswd -Bbc "${DOCKER_REG_AUTH_DIR}"/htpasswd user user
-  assert_success
+  mkdir --parents "${DOCKER_REG_AUTH_DIR}"
+  htpasswd -Bbc "${DOCKER_REG_AUTH_DIR}"/htpasswd user user
 
   # Create separate Podman root
-  run mkdir --parents "${DOCKER_REG_ROOT}"
-  assert_success
+  mkdir --parents "${DOCKER_REG_ROOT}"
 
   # Pull Docker registry image
-  run podman --root "${DOCKER_REG_ROOT}" pull "${IMAGES[docker-reg]}"
-  assert_success
+  podman --root "${DOCKER_REG_ROOT}" pull "${IMAGES[docker-reg]}"
 
   # Create a Docker registry
-  run podman --root "${DOCKER_REG_ROOT}" run \
+  podman --root "${DOCKER_REG_ROOT}" run \
     --detach \
     --env REGISTRY_AUTH=htpasswd \
     --env REGISTRY_AUTH_HTPASSWD_PATH="/auth/htpasswd" \
@@ -202,26 +193,18 @@ function _setup_docker_registry() {
     --volume "${DOCKER_REG_AUTH_DIR}":/auth \
     --volume "${DOCKER_REG_CERTS_DIR}":/certs \
     "${IMAGES[docker-reg]}"
-  assert_success
 
   _wait_for_docker_registry
 
-  run podman login \
-    --authfile "${BATS_SUITE_TMPDIR}/authfile.json" \
-    --username user \
-    --password user \
-    "${DOCKER_REG_URI}"
-  assert_success
+  podman login --authfile "${BATS_SUITE_TMPDIR}/authfile.json" --username user --password user "${DOCKER_REG_URI}"
 
   # Add fedora-toolbox:34 image to the registry
-  run skopeo --command-timeout 60s copy \
-        --dest-authfile "${BATS_SUITE_TMPDIR}/authfile.json" \
-        dir:"${IMAGE_CACHE_DIR}"/fedora-toolbox-34 \
-        docker://"${DOCKER_REG_URI}"/fedora-toolbox:34
-  assert_success
+  skopeo --command-timeout 60s copy \
+    --dest-authfile "${BATS_SUITE_TMPDIR}/authfile.json" \
+    dir:"${IMAGE_CACHE_DIR}"/fedora-toolbox-34 \
+    docker://"${DOCKER_REG_URI}"/fedora-toolbox:34
 
-  run rm "${BATS_SUITE_TMPDIR}/authfile.json"
-  assert_success
+  rm "${BATS_SUITE_TMPDIR}/authfile.json"
 }
 
 
