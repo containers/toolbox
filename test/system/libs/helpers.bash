@@ -167,9 +167,9 @@ function _setup_docker_registry() {
   assert_success
 
   # Add certificate to Podman's trusted certificates (rootless)
-  run mkdir -p "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"
+  run mkdir -p "$XDG_CONFIG_HOME"/containers/certs.d/"${DOCKER_REG_URI}"
   assert_success
-  run cp "${DOCKER_REG_CERTS_DIR}"/domain.crt "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"/domain.crt
+  run cp "${DOCKER_REG_CERTS_DIR}"/domain.crt "$XDG_CONFIG_HOME"/containers/certs.d/"${DOCKER_REG_URI}"/domain.crt
   assert_success
 
   # Create a registry user
@@ -291,7 +291,7 @@ function _clean_docker_registry() {
   # Remove Docker registry dir
   rm --force --recursive "${DOCKER_REG_ROOT}"
   # Remove dir with created registry certificates
-  rm --force --recursive "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"
+  rm --force --recursive "$XDG_CONFIG_HOME"/containers/certs.d/"${DOCKER_REG_URI}"
 }
 
 

@@ -238,7 +238,7 @@ func migrate(cmd *cobra.Command, args []string) error {
 		return errors.New("failed to get the user config directory")
 	}
 
-	toolboxConfigDir := configDir + "/toolbox"
+	toolboxConfigDir := configDir + "/toolbx"
 	stampPath := toolboxConfigDir + "/podman-system-migrate"
 	logrus.Debugf("Toolbx config directory is %s", toolboxConfigDir)
 

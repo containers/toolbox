@@ -4,7 +4,14 @@
 [ "${BASH_VERSION:-}" != "" ] || [ "${ZSH_VERSION:-}" != "" ] || return 0
 [ "$PS1" != "" ] || return 0
 
-toolbox_config="${XDG_CONFIG_HOME:-$HOME/.config}/toolbox"
+root_config="${XDG_CONFIG_HOME:-$HOME/.config}"
+toolbox_config="$root_config/toolbx"
+toolbox_config_old="$root_config/toolbox"
+
+if [ -d "$toolbox_config_old" ] && ! [ -e "$toolbox_config" ]; then
+    mv "$toolbox_config_old" "$toolbox_config" 2>/dev/null
+fi
+
 host_welcome_stub="$toolbox_config/host-welcome-shown"
 toolbox_welcome_stub="$toolbox_config/toolbox-welcome-shown"
 
