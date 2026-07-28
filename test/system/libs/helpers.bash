@@ -199,7 +199,7 @@ function _setup_docker_registry() {
   podman login --authfile "${BATS_SUITE_TMPDIR}/authfile.json" --username user --password user "${DOCKER_REG_URI}"
 
   # Add fedora-toolbox:34 image to the registry
-  skopeo --command-timeout 60s copy \
+  skopeo --command-timeout 120s copy \
     --dest-authfile "${BATS_SUITE_TMPDIR}/authfile.json" \
     dir:"${IMAGE_CACHE_DIR}"/fedora-toolbox-34 \
     docker://"${DOCKER_REG_URI}"/fedora-toolbox:34
@@ -371,7 +371,7 @@ function pull_distro_image() {
   fi
 
   # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
-  run skopeo --command-timeout 60s copy \
+  run skopeo --command-timeout 120s copy \
         "dir:${IMAGE_CACHE_DIR}/${image_archive}" \
         "containers-storage:[overlay@$TOOLBX_ROOTLESS_STORAGE_PATH+$TOOLBX_ROOTLESS_STORAGE_PATH]${image}"
 
@@ -405,7 +405,7 @@ function pull_default_image_and_copy() {
   image="${IMAGES[$distro]}:$version"
 
   # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
-  run skopeo --command-timeout 60s copy \
+  run skopeo --command-timeout 120s copy \
         "containers-storage:[overlay@$TOOLBX_ROOTLESS_STORAGE_PATH+$TOOLBX_ROOTLESS_STORAGE_PATH]$image" \
         "containers-storage:[overlay@$TOOLBX_ROOTLESS_STORAGE_PATH+$TOOLBX_ROOTLESS_STORAGE_PATH]$image-copy"
 
