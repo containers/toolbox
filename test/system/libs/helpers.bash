@@ -126,6 +126,7 @@ function _pull_and_cache_distro_image() {
       break
     fi
 
+    rm --force --recursive "${IMAGE_CACHE_DIR:?}/${image_archive}"
     sleep "$timeout"
   done
 
