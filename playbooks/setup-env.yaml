@@ -20,6 +20,6 @@
     - include_tasks: "{{ dependencies_playbook | default('dependencies-fedora.yaml') }}"
 
     - name: Set up build directory
-      command: meson setup builddir
+      command: meson setup {{ meson_setup_args | default('') }} builddir
       args:
         chdir: '{{ zuul.project.src_dir }}'

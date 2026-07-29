@@ -35,8 +35,11 @@
       nodes:
         - name: centos-9-stream
           label: cloud-centos-9-stream
-    pre-run: playbooks/setup-env-migration-path-for-coreos-toolbox.yaml
+    pre-run: playbooks/setup-env.yaml
     run: playbooks/unit-test.yaml
+    vars:
+      dependencies_playbook: dependencies-centos-9-stream.yaml
+      meson_setup_args: -Dmigration_path_for_coreos_toolbox=true
 
 - job:
     name: unit-test-restricted
