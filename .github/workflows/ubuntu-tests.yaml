@@ -41,6 +41,7 @@ jobs:
             apache2-utils \
             bash-completion \
             codespell \
+            dbus \
             fish \
             flatpak \
             gcc \
