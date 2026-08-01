@@ -13,7 +13,7 @@ toolbox_welcome_stub="$toolbox_config/toolbox-welcome-shown"
 eval $(
           if [ -f /etc/os-release ]; then
               . /etc/os-release
-          else
+          elif [ -f /usr/lib/os-release ]; then
               . /usr/lib/os-release
           fi
 
