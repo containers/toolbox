@@ -46,7 +46,7 @@ func init() {
 	flags.StringVarP(&enterFlags.container,
 		"container",
 		"c",
-		"",
+		os.Getenv("TOOLBOX_DEFAULT_CONTAINER"),
 		"Enter a Toolbx container with the given name")
 
 	flags.StringVarP(&enterFlags.distro,

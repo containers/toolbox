@@ -83,7 +83,7 @@ func init() {
 	flags.StringVarP(&createFlags.container,
 		"container",
 		"c",
-		"",
+		os.Getenv("TOOLBOX_DEFAULT_CONTAINER"),
 		"Assign a different name to the Toolbx container")
 
 	flags.StringVarP(&createFlags.distro,
