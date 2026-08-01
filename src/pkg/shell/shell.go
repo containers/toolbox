@@ -81,8 +81,49 @@ func RunContextWithExitCode(ctx context.Context,
 	return 0, nil
 }
 
+func RunContextWithExitCode2(ctx context.Context,
+	name string,
+	stdin io.Reader,
+	stdout, stderr io.Writer,
+	arg ...string) (int, error) {
+
+	logLevel := logrus.GetLevel()
+	if stderr == nil && logLevel >= logrus.DebugLevel {
+		stderr = os.Stderr
+	}
+
+	cmd := exec.CommandContext(ctx, name, arg...)
+	cmd.Stdin = stdin
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	if err := cmd.Run(); err != nil {
+		exitCode := 1
+
+		if ctxErr := ctx.Err(); ctxErr != nil {
+			return 1, ctxErr
+		}
+
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
+			exitCode = exitErr.ExitCode()
+			return exitCode, err
+		}
+
+		return exitCode, err
+	}
+
+	return 0, nil
+}
+
 func RunWithExitCode(name string, stdin io.Reader, stdout, stderr io.Writer, arg ...string) (int, error) {
 	ctx := context.Background()
 	exitCode, err := RunContextWithExitCode(ctx, name, stdin, stdout, stderr, arg...)
+	return exitCode, err
+}
+
+func RunWithExitCode2(name string, stdin io.Reader, stdout, stderr io.Writer, arg ...string) (int, error) {
+	ctx := context.Background()
+	exitCode, err := RunContextWithExitCode2(ctx, name, stdin, stdout, stderr, arg...)
 	return exitCode, err
 }
