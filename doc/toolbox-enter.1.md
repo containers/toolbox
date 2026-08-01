@@ -4,7 +4,8 @@
 toolbox\-enter - Enter a Toolbx container for interactive use
 
 ## SYNOPSIS
-**toolbox enter** [*--distro DISTRO* | *-d DISTRO*]
+**toolbox enter** [*--container NAME* | *-c NAME*]
+              [*--distro DISTRO* | *-d DISTRO*]
               [*--release RELEASE* | *-r RELEASE*]
               [*CONTAINER*]
 
@@ -28,6 +29,12 @@ analogous to a `podman start` followed by a `podman exec`.
 ## OPTIONS ##
 
 The following options are understood:
+
+**--container** NAME, **-c** NAME
+
+Enter a Toolbx container with the given NAME. This option is an alternative
+to the positional *CONTAINER* argument. If both are provided, the positional
+argument takes precedence.
 
 **--distro** DISTRO, **-d** DISTRO
 
