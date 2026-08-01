@@ -4,7 +4,8 @@
 toolbox\-enter - Enter a Toolbx container for interactive use
 
 ## SYNOPSIS
-**toolbox enter** [*--distro DISTRO* | *-d DISTRO*]
+**toolbox enter** [*--arch ARCHITECTURE* | *-a ARCHITECTURE*]
+              [*--distro DISTRO* | *-d DISTRO*]
               [*--release RELEASE* | *-r RELEASE*]
               [*CONTAINER*]
 
@@ -28,6 +29,12 @@ analogous to a `podman start` followed by a `podman exec`.
 ## OPTIONS ##
 
 The following options are understood:
+
+**--arch** ARCHITECTURE, **-a** ARCHITECTURE
+
+Enter a Toolbx container for a different architecture ARCHITECTURE than the
+host (e.g., `arm64` on `amd64`). Can be combined with `--distro` and
+`--release`.
 
 **--distro** DISTRO, **-d** DISTRO
 
@@ -57,6 +64,12 @@ $ toolbox enter --distro fedora --release f36
 
 ```
 $ toolbox enter foo
+```
+
+### Enter the default Toolbx container based on the arm64 architecture
+
+```
+$ toolbox enter --arch arm64
 ```
 
 ## SEE ALSO

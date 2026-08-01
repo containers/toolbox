@@ -50,6 +50,7 @@ jobs:
             ninja-build \
             openssl \
             podman \
+            qemu-user-static \
             shellcheck \
             skopeo \
             systemd \
@@ -166,6 +167,14 @@ jobs:
             test/system/230-cdi.bats \
             test/system/250-kerberos.bats \
             test/system/270-rpm.bats \
+            test/system/301-create.bats \
+            test/system/401-ipc.bats \
+            test/system/403-network.bats \
+            test/system/410-ulimit.bats \
+            test/system/420-environment-variables.bats \
+            test/system/430-cdi.bats \
+            test/system/450-kerberos.bats \
+            test/system/470-rpm.bats \
             test/system/501-create.bats \
             test/system/505-enter.bats
         env:
