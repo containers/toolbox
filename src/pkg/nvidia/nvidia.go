@@ -19,11 +19,16 @@ package nvidia
 import (
 	"errors"
 	"io"
+	"math/bits"
+	"path/filepath"
+	"strings"
 
 	"github.com/NVIDIA/go-nvlib/pkg/nvlib/info"
 	"github.com/NVIDIA/go-nvml/pkg/nvml"
 	"github.com/NVIDIA/nvidia-container-toolkit/pkg/nvcdi"
 	nvspec "github.com/NVIDIA/nvidia-container-toolkit/pkg/nvcdi/spec"
+	"github.com/containers/toolbox/pkg/config"
+	"github.com/containers/toolbox/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"tags.cncf.io/container-device-interface/specs-go"
 )
@@ -124,6 +129,58 @@ func GenerateCDISpec() (*specs.Spec, error) {
 	logrus.Debugf("Generated Container Device Interface for NVIDIA with version %s", specRaw.Version)
 
 	return specRaw, nil
+}
+
+func PatchConfigForMultilib(config config.Container) error {
+	if config == nil {
+		return nil
+	}
+
+	libpath, err := utils.GetMultilibDir()
+	if err != nil {
+		logrus.Debugf("Patching nvidia config multilib: error determining multilib container: %s", err)
+		return err
+	}
+
+	if libpath == "" {
+		logrus.Debug("Patching nvidia config multilib: container is not a multilib env")
+		return nil
+	}
+
+	env := config.Env()
+	// CDI will deposit gbm backends in /usr/lib64/gbm. Multilib builds expect the backends
+	// in /usr/lib/x86_64-linux-gnu/gbm or /usr/lib/aarch64-linux-gnu/gbm.
+	// Patching both locations with the environment variable GBM_BACKENDS_PATH
+	env["GBM_BACKENDS_PATH"] = getGBMBackendPaths(libpath)
+
+	// Commit changes
+	return config.Save()
+}
+
+func getGBMBackendPaths(libpath string) string {
+	var (
+		strVar      strings.Builder
+		hostLibpath string
+	)
+	switch bits.UintSize {
+	case 64:
+		hostLibpath = "/usr/lib64"
+	default:
+		hostLibpath = "/usr/lib"
+	}
+
+	// strVar.WriteString("GBM_BACKENDS_PATH=")
+	strVar.WriteString(
+		strings.Join(
+			[]string{
+				filepath.Join(hostLibpath, "gbm"),
+				filepath.Join(libpath, "gbm"),
+			},
+			string(filepath.ListSeparator),
+		),
+	)
+
+	return strVar.String()
 }
 
 func SetLogLevel(level logrus.Level) {

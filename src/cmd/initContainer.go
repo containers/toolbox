@@ -28,6 +28,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/containers/toolbox/pkg/config"
+	"github.com/containers/toolbox/pkg/nvidia"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/fsnotify/fsnotify"
@@ -283,6 +285,15 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to look up user ID %s: %w", uidString, err)
 	}
 
+	cfg, err := config.GetRunningContainerConfig(
+		filepath.Join(initContainerFlags.home, ".config"),
+		initContainerFlags.uid,
+		initContainerFlags.gid,
+	)
+	if err != nil {
+		logrus.Debugf("Failed to load container configuration: %s", err)
+	}
+
 	cdiFileForNvidia, err := getCDIFileForNvidia(targetUser)
 	if err != nil {
 		return err
@@ -302,6 +313,10 @@ func initContainer(cmd *cobra.Command, args []string) error {
 	}
 
 	if cdiSpecForNvidia != nil {
+		if err := nvidia.PatchConfigForMultilib(cfg); err != nil {
+			return err
+		}
+
 		if err := applyCDISpecForNvidia(cdiSpecForNvidia); err != nil {
 			return err
 		}
