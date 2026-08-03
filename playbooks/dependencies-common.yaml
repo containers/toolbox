@@ -1,0 +1,39 @@
+#
+# Copyright © 2026 Red Hat, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+- name: Download Go modules
+  command: go mod download -x
+  args:
+    chdir: '{{ zuul.project.src_dir }}/src'
+
+- name: Initialize Git submodules
+  command: git submodule init
+  args:
+    chdir: '{{ zuul.project.src_dir }}'
+
+- name: Update Git submodules
+  command: git submodule update
+  args:
+    chdir: '{{ zuul.project.src_dir }}'
+
+- name: Check versions of crucial packages
+  command: rpm -qa ShellCheck bash bash-completion bats codespell *kernel* gcc *glibc* shadow-utils-subid-devel golang golang-github-cpuguy83-md2man podman conmon containernetworking-plugins containers-common container-selinux crun fuse-overlayfs flatpak-session-helper skopeo
+
+- name: Show podman versions
+  command: podman version
+
+- name: Show podman debug information
+  command: podman info --debug

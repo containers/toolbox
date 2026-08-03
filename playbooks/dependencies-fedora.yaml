@@ -48,26 +48,4 @@
     update_cache: "{{ true if zuul.attempts > 1 else false }}"
     use: "{{ 'dnf' if zuul.attempts > 1 else 'auto' }}"
 
-- name: Download Go modules
-  command: go mod download -x
-  args:
-    chdir: '{{ zuul.project.src_dir }}/src'
-
-- name: Initialize Git submodules
-  command: git submodule init
-  args:
-    chdir: '{{ zuul.project.src_dir }}'
-
-- name: Update Git submodules
-  command: git submodule update
-  args:
-    chdir: '{{ zuul.project.src_dir }}'
-
-- name: Check versions of crucial packages
-  command: rpm -qa ShellCheck bash bash-completion bats codespell *kernel* gcc *glibc* shadow-utils-subid-devel golang golang-github-cpuguy83-md2man podman conmon containernetworking-plugins containers-common container-selinux crun fuse-overlayfs flatpak-session-helper skopeo
-
-- name: Show podman versions
-  command: podman version
-
-- name: Show podman debug information
-  command: podman info --debug
+- include_tasks: dependencies-common.yaml
