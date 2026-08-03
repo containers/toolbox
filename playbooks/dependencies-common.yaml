@@ -29,6 +29,9 @@
   args:
     chdir: '{{ zuul.project.src_dir }}'
 
+- name: Show os-release(5)
+  command: cat /etc/os-release
+
 - name: Check versions of crucial packages
   command: rpm -qa ShellCheck bash bash-completion bats codespell *kernel* gcc *glibc* shadow-utils-subid-devel golang golang-github-cpuguy83-md2man podman conmon containernetworking-plugins containers-common container-selinux crun fuse-overlayfs flatpak-session-helper skopeo
 
