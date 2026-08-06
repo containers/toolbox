@@ -715,6 +715,11 @@ func SetUpConfiguration() error {
 	return nil
 }
 
+// GetGIDMappings returns supplementary GID mappings from the merged configuration files.
+func GetGIDMappings() []string {
+	return viper.GetStringSlice("general.gid_maps")
+}
+
 // ShortID shortens provided id to first 12 characters.
 func ShortID(id string) string {
 	if len(id) > idTruncLength {
