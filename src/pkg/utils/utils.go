@@ -139,6 +139,15 @@ var (
 			getP11KitClientPathsArch,
 			parseReleaseArch,
 		},
+		"eln": {
+			"eln-toolbox",
+			"eln-toolbox",
+			false,
+			getDefaultReleaseELN,
+			getFullyQualifiedImageELN,
+			getP11KitClientPathsELN,
+			parseReleaseELN,
+		},
 		"fedora": {
 			"fedora-toolbox",
 			"fedora-toolbox",
