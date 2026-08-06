@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -52,6 +53,7 @@ var (
 		authFile  string
 		container string
 		distro    string
+		gidMaps   []string
 		image     string
 		release   string
 	}
@@ -64,6 +66,11 @@ var (
 		{"/etc/profile.d/toolbox.sh", "/usr/share/profile.d/toolbox.sh"},
 	}
 )
+
+type gidMapping struct {
+	host      uint32
+	container uint32
+}
 
 var createCmd = &cobra.Command{
 	Use:               "create",
@@ -91,6 +98,11 @@ func init() {
 		"d",
 		"",
 		"Create a Toolbx container for a different operating system distribution than the host")
+
+	flags.StringArrayVar(&createFlags.gidMaps,
+		"gid-map",
+		nil,
+		"Map a supplementary host GID to a container GID as HOST_GID:CONTAINER_GID (repeatable)")
 
 	flags.StringVarP(&createFlags.image,
 		"image",
@@ -180,14 +192,28 @@ func create(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := createContainer(container, image, release, createFlags.authFile, true); err != nil {
+	gidMapValues := createFlags.gidMaps
+	if !cmd.Flag("gid-map").Changed {
+		gidMapValues = utils.GetGIDMappings()
+	}
+
+	gidMappings, err := parseGIDMappings(gidMapValues)
+	if err != nil {
+		return err
+	}
+
+	if err := validateGIDMappings(gidMappings); err != nil {
+		return err
+	}
+
+	if err := createContainer(container, image, release, createFlags.authFile, gidMappings, true); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createContainer(container, image, release, authFile string, showCommandToEnter bool) error {
+func createContainer(container, image, release, authFile string, gidMappings []gidMapping, showCommandToEnter bool) error {
 	if container == "" {
 		panic("container not specified")
 	}
@@ -286,11 +312,9 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		devPtsMount = []string{"--mount", "type=devpts,destination=/dev/pts"}
 	}
 
-	var usernsArg string
-	if currentUser.Uid == "0" {
-		usernsArg = "host"
-	} else {
-		usernsArg = "keep-id"
+	userNamespaceArgs, err := getUserNamespaceArgs(currentUser.Uid, currentUser.Gid, gidMappings)
+	if err != nil {
+		return err
 	}
 
 	dbusSystemSocket, err := getDBusSystemSocket()
@@ -454,9 +478,13 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		"--no-hosts",
 		"--pid", "host",
 		"--privileged",
+	}...)
+
+	createArgs = append(createArgs, userNamespaceArgs...)
+
+	createArgs = append(createArgs, []string{
 		"--security-opt", "label=disable",
 		"--ulimit", "host",
-		"--userns", usernsArg,
 		"--user", "root:root",
 		"--volume", "/:/run/host:rslave",
 		"--volume", "/dev:/dev:rslave",
@@ -506,6 +534,119 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 	}
 
 	return nil
+}
+
+func parseGIDMappings(values []string) ([]gidMapping, error) {
+	const invalidGID = uint64(1<<32 - 1)
+
+	mappings := make([]gidMapping, 0, len(values))
+	hostGIDs := make(map[uint32]struct{}, len(values))
+	containerGIDs := make(map[uint32]struct{}, len(values))
+
+	for _, value := range values {
+		parts := strings.Split(value, ":")
+		if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+			return nil, fmt.Errorf("invalid GID mapping %q: expected HOST_GID:CONTAINER_GID", value)
+		}
+
+		hostGID64, err := strconv.ParseUint(parts[0], 10, 32)
+		if err != nil || hostGID64 == invalidGID {
+			return nil, fmt.Errorf("invalid host GID %q in mapping %q", parts[0], value)
+		}
+
+		containerGID64, err := strconv.ParseUint(parts[1], 10, 32)
+		if err != nil || containerGID64 == invalidGID {
+			return nil, fmt.Errorf("invalid container GID %q in mapping %q", parts[1], value)
+		}
+
+		hostGID := uint32(hostGID64)
+		containerGID := uint32(containerGID64)
+
+		if _, found := hostGIDs[hostGID]; found {
+			return nil, fmt.Errorf("host GID %d is mapped more than once", hostGID)
+		}
+		if _, found := containerGIDs[containerGID]; found {
+			return nil, fmt.Errorf("container GID %d is mapped more than once", containerGID)
+		}
+
+		hostGIDs[hostGID] = struct{}{}
+		containerGIDs[containerGID] = struct{}{}
+		mappings = append(mappings, gidMapping{host: hostGID, container: containerGID})
+	}
+
+	return mappings, nil
+}
+
+func validateGIDMappings(mappings []gidMapping) error {
+	if len(mappings) == 0 {
+		return nil
+	}
+
+	if currentUser.Uid == "0" {
+		return errors.New("option --gid-map is not supported when running Toolbx as root")
+	}
+
+	primaryGID64, err := strconv.ParseUint(currentUser.Gid, 10, 32)
+	if err != nil {
+		return fmt.Errorf("failed to parse primary GID %s", currentUser.Gid)
+	}
+	primaryGID := uint32(primaryGID64)
+
+	groupIDs, err := os.Getgroups()
+	if err != nil {
+		return errors.New("failed to get supplementary groups")
+	}
+	supplementaryGIDs := make(map[uint32]struct{}, len(groupIDs))
+	for _, groupID := range groupIDs {
+		if groupID >= 0 {
+			supplementaryGIDs[uint32(groupID)] = struct{}{}
+		}
+	}
+
+	for _, mapping := range mappings {
+		if mapping.host == primaryGID {
+			return fmt.Errorf("host GID %d is the primary GID and cannot be mapped as a supplementary group",
+				mapping.host)
+		}
+		if mapping.container == primaryGID {
+			return fmt.Errorf("container GID %d conflicts with the primary GID", mapping.container)
+		}
+		if _, found := supplementaryGIDs[mapping.host]; !found {
+			return fmt.Errorf("host GID %d is not a supplementary group of user %s",
+				mapping.host,
+				currentUser.Username)
+		}
+	}
+
+	return nil
+}
+
+func getUserNamespaceArgs(uid, gid string, gidMappings []gidMapping) ([]string, error) {
+	if len(gidMappings) == 0 {
+		userns := "keep-id"
+		if uid == "0" {
+			userns = "host"
+		}
+
+		return []string{"--userns", userns}, nil
+	}
+
+	if uid == "0" {
+		return nil, errors.New("GID mappings are not supported when running Toolbx as root")
+	}
+
+	args := []string{
+		"--uidmap", fmt.Sprintf("+u%s:0:1", uid),
+		"--gidmap", fmt.Sprintf("+g%s:0:1", gid),
+	}
+
+	for _, mapping := range gidMappings {
+		args = append(args,
+			"--gidmap", fmt.Sprintf("+g%d:@%d:1", mapping.container, mapping.host),
+			"--group-add", strconv.FormatUint(uint64(mapping.container), 10))
+	}
+
+	return args, nil
 }
 
 func createHelp(cmd *cobra.Command, args []string) {
