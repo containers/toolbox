@@ -52,13 +52,16 @@ type entryPointError struct {
 
 var (
 	runFlags struct {
-		container   string
-		distro      string
-		preserveFDs uint
-		release     string
+		container        string
+		distro           string
+		env              []string
+		preserveFDs      uint
+		release          string
+		useFallbackShell bool
+		workDir          string
 	}
 
-	runFallbackCommands = [][]string{{"/bin/bash", "-l"}}
+	runFallbackCommands = [][]string{{"/bin/bash", "-l"}, {"/bin/sh", "-l"}}
 	runFallbackWorkDirs = []string{"" /* $HOME */}
 )
 
@@ -95,6 +98,21 @@ func init() {
 		"r",
 		"",
 		"Run command inside a Toolbx container for a different operating system release than the host")
+
+	flags.StringArrayVar(&runFlags.env,
+		"env",
+		nil,
+		"Set environment variables in the form of KEY=VALUE for use inside the Toolbx container")
+
+	flags.BoolVar(&runFlags.useFallbackShell,
+		"use-fallback-shell",
+		false,
+		"Fall back to /bin/bash and /bin/sh if the command is not found")
+
+	flags.StringVar(&runFlags.workDir,
+		"workdir",
+		"",
+		"Override the working directory used inside the Toolbx container")
 
 	runCmd.SetHelpFunc(runHelp)
 
@@ -141,6 +159,20 @@ func run(cmd *cobra.Command, args []string) error {
 
 	command := args
 
+	if runFlags.workDir != "" {
+		if !filepath.IsAbs(runFlags.workDir) {
+			var builder strings.Builder
+			fmt.Fprintf(&builder, "invalid argument for '--workdir'\n")
+			fmt.Fprintf(&builder, "The working directory must be an absolute path.\n")
+			fmt.Fprintf(&builder, "Run '%s --help' for usage.", executableBase)
+
+			errMsg := builder.String()
+			return errors.New(errMsg)
+		}
+
+		workingDirectory = runFlags.workDir
+	}
+
 	container, image, release, err := resolveContainerAndImageNames(runFlags.container,
 		"--container",
 		runFlags.distro,
@@ -157,8 +189,9 @@ func run(cmd *cobra.Command, args []string) error {
 		release,
 		runFlags.preserveFDs,
 		command,
+		runFlags.env,
 		false,
-		false,
+		runFlags.useFallbackShell,
 		true); err != nil {
 		return err
 	}
@@ -170,7 +203,7 @@ func runCommand(container string,
 	defaultContainer bool,
 	image, release string,
 	preserveFDs uint,
-	command []string,
+	command, extraEnviron []string,
 	emitEscapeSequence, fallbackToBash, pedantic bool) error {
 
 	if !pedantic {
@@ -347,6 +380,7 @@ func runCommand(container string,
 	logrus.Debugf("Container %s is initialized", container)
 
 	environ := append(cdiEnviron, p11KitServerEnviron...)
+	environ = append(environ, extraEnviron...)
 	if err := runCommandWithFallbacks(container,
 		preserveFDs,
 		command,
