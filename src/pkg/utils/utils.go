@@ -184,6 +184,8 @@ var (
 
 	ErrFlockCreate = errors.New("failed to create lock file")
 
+	ErrFlockRelease = errors.New("failed to release lock")
+
 	ErrImageWithoutBasename = errors.New("image does not have a basename")
 )
 
@@ -496,6 +498,16 @@ func GetP11KitServerSocketLock(targetUser *user.User) (string, error) {
 
 	p11KitServerSocketLock := filepath.Join(toolbxRuntimeDirectory, "pkcs11.lock")
 	return p11KitServerSocketLock, nil
+}
+
+func GetReferenceCountGlobalLock(targetUser *user.User) (string, error) {
+	toolbxRuntimeDirectory, err := GetRuntimeDirectory(targetUser)
+	if err != nil {
+		return "", err
+	}
+
+	referenceCountGlobalLock := filepath.Join(toolbxRuntimeDirectory, "container-reference-count.lock")
+	return referenceCountGlobalLock, nil
 }
 
 func GetRuntimeDirectory(targetUser *user.User) (string, error) {
