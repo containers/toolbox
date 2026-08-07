@@ -29,6 +29,7 @@ type Container interface {
 	EntryPointPID() int
 	ID() string
 	Image() string
+	IsImageUnknown() bool
 	IsToolbx() bool
 	Labels() map[string]string
 	Mounts() []string
@@ -84,6 +85,10 @@ func (container *containerInspect) ID() string {
 
 func (container *containerInspect) Image() string {
 	return container.image
+}
+
+func (container *containerInspect) IsImageUnknown() bool {
+	return container.labels["com.github.containers.toolbx.image-unknown"] == "true"
 }
 
 func (container *containerInspect) IsToolbx() bool {
@@ -179,6 +184,10 @@ func (container *containerPS) ID() string {
 
 func (container *containerPS) Image() string {
 	return container.image
+}
+
+func (container *containerPS) IsImageUnknown() bool {
+	return container.labels["com.github.containers.toolbx.image-unknown"] == "true"
 }
 
 func (container *containerPS) IsToolbx() bool {
