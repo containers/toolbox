@@ -22,6 +22,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/containers/toolbox/pkg/config"
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/sirupsen/logrus"
@@ -83,6 +84,10 @@ func rm(cmd *cobra.Command, args []string) error {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 				continue
 			}
+
+			if cfg, _ := config.GetContainerConfig(container.Name()); cfg != nil {
+				cfg.Delete()
+			}
 		}
 	} else {
 		if len(args) == 0 {
@@ -109,6 +114,10 @@ func rm(cmd *cobra.Command, args []string) error {
 			if err := podman.RemoveContainer(container, rmFlags.forceDelete); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 				continue
+			}
+
+			if cfg, _ := config.GetContainerConfig(containerObj.Name()); cfg != nil {
+				cfg.Delete()
 			}
 		}
 	}

@@ -20,10 +20,12 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"os/user"
 	"path"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"syscall"
@@ -891,4 +893,48 @@ func ResolveContainerAndImageNames(container, distroCLI, imageCLI, releaseCLI st
 	logrus.Debugf("Release: '%s'", release)
 
 	return container, image, release, nil
+}
+
+func GetMultilibDir() (string, error) {
+	var (
+		libPaths []string = []string{"/lib", "/lib64", "/usr/lib", "/usr/lib64"}
+		path     string
+		ld       string
+	)
+	logrus.Debug("Retrieving platform multilib dir")
+
+	cmd := exec.Command("ldd", "/bin/sh")
+	stdout, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("Error determining elf interpreter: %w", err)
+	}
+	for line := range strings.Lines(string(stdout)) {
+		clean := strings.TrimSpace(line)
+		if strings.Contains(clean, "ld-linux") {
+			ld = strings.Split(clean, " ")[0]
+			break
+		}
+	}
+	logrus.Debugf("Determined %s as the elf interpreter", ld)
+
+	cmd = exec.Command(ld, "--help")
+	stdout, _ = cmd.CombinedOutput()
+
+	for line := range strings.Lines(string(stdout)) {
+		clean := strings.TrimSpace(line)
+		if strings.Contains(clean, "(system search path)") {
+			match := strings.Split(clean, " ")[0]
+			if len(match) > len(path) {
+				path = match
+			}
+		}
+	}
+	logrus.Debugf("Found longest system search path: %s", path)
+
+	if slices.Contains(libPaths, path) {
+		logrus.Debugf("System is not a multilib config")
+		return "", nil
+	}
+
+	return path, nil
 }
