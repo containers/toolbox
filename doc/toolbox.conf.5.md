@@ -32,7 +32,7 @@ Map supplementary groups from the host to numerical group IDs in the Toolbx
 container. Each mapping is specified as HOST_GID:CONTAINER_GID. HOST_GID must
 belong to the user and must be delegated to the user through `subgid(5)`.
 Values specified with the `--gid-map` command line option override the entire
-list.
+list instead of being appended to it.
 
 **release** = "RELEASE"
 
@@ -53,7 +53,8 @@ Fields specified here can be overridden by any of the files below.
 **$XDG_CONFIG_HOME/containers/toolbox.conf**
 
 This is meant for user-specific changes. Fields specified here override any of
-the files above.
+the files above. If `XDG_CONFIG_HOME` is not set, the path is usually
+`$HOME/.config/containers/toolbox.conf`.
 
 ## EXAMPLES
 
