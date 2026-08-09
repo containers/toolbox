@@ -26,6 +26,14 @@ If NAME does not contain a registry, the local image storage will be
 consulted, and if it's not present there then it will be pulled from a suitable
 remote registry.
 
+**gid_maps** = ["HOST_GID:CONTAINER_GID", ...]
+
+Map supplementary groups from the host to numerical group IDs in the Toolbx
+container. Each mapping is specified as HOST_GID:CONTAINER_GID. HOST_GID must
+belong to the user and must be delegated to the user through `subgid(5)`.
+Values specified with the `--gid-map` command line option override the entire
+list.
+
 **release** = "RELEASE"
 
 Create a Toolbx container for a different operating system RELEASE than the
@@ -62,6 +70,12 @@ release = "36"
 image = "registry.fedoraproject.org/fedora-toolbox:36"
 ```
 
+### Map supplementary host groups into the container:
+```
+[general]
+gid_maps = ["971:100000", "965:100001"]
+```
+
 ## SEE ALSO
 
-`toolbox(1)`, `toolbox-create(1)`
+`toolbox(1)`, `toolbox-create(1)`, `subgid(5)`

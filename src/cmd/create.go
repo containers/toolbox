@@ -192,7 +192,12 @@ func create(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	gidMappings, err := parseGIDMappings(createFlags.gidMaps)
+	gidMapValues := createFlags.gidMaps
+	if !cmd.Flag("gid-map").Changed {
+		gidMapValues = utils.GetGIDMappings()
+	}
+
+	gidMappings, err := parseGIDMappings(gidMapValues)
 	if err != nil {
 		return err
 	}
