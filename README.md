@@ -63,7 +63,7 @@ Toolbx and [Linux distro support](https://containertoolbx.org/distros/).
 
 ##
 
-[![Star History Chart](https://api.star-history.com/svg?repos=containers/toolbox&type=Date)](https://star-history.com/#containers/toolbox&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=containers/toolbox&type=Date)](https://star-history.dera.page/#containers/toolbox&Date)
 
 
 ##
