@@ -81,13 +81,11 @@ teardown_file() {
                          --object-path /org/freedesktop/DBus \
                          --method org.freedesktop.DBus.Peer.Ping)"
 
-  run --keep-empty-lines --separate-stderr "$TOOLBX" run \
-    --distro arch \
-    gdbus call \
-      --session \
-      --dest org.freedesktop.DBus \
-      --object-path /org/freedesktop/DBus \
-      --method org.freedesktop.DBus.Peer.Ping
+  run --keep-empty-lines --separate-stderr "$TOOLBX" run --distro arch gdbus call \
+                                                                         --session \
+                                                                         --dest org.freedesktop.DBus \
+                                                                         --object-path /org/freedesktop/DBus \
+                                                                         --method org.freedesktop.DBus.Peer.Ping
 
   assert_success
   assert_line --index 0 "$expected_response"
