@@ -289,9 +289,6 @@ teardown() {
   assert_success
   assert_output ""
 
-  local default_container_name
-  default_container_name="$(get_system_id)-toolbox-$(get_system_version)"
-
   create_default_container
   create_container other-container
 
