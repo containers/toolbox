@@ -284,10 +284,7 @@ teardown() {
 }
 
 @test "run: Ensure that a specific container is used" {
-  run echo "$name"
-
-  assert_success
-  assert_output ""
+  test -z "${name+x}"
 
   create_default_container
   create_container other-container
