@@ -459,7 +459,6 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		"--userns", usernsArg,
 		"--user", "root:root",
 		"--volume", "/:/run/host:rslave",
-		"--volume", "/dev:/dev:rslave",
 		"--volume", dbusSystemSocketMountArg,
 		"--volume", homeDirMountArg,
 		"--volume", toolboxPathMountArg,
