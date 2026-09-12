@@ -15,6 +15,8 @@ manuals = {
     'toolbox-rm',
     'toolbox-rmi',
     'toolbox-run',
+    'toolbox-export',
+    'toolbox-unexport',
   ],
   '5': [
     'toolbox.conf',
