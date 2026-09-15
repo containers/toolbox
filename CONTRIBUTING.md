@@ -44,7 +44,7 @@ When writing a bug report:
 
 # Making Suggestions
 
-Toolbx is not feature-complete and some of it's functionality is not-there-yet.
+Toolbx is not feature-complete and some of its functionality is not there yet.
 We are thankful for all suggestions and ideas but be ready that your suggestion
 may be rejected.
 
@@ -73,7 +73,7 @@ When writing a suggestion:
 # First Contribution
 
 Toolbx is written in [Go](https://golang.org) and uses [Meson](https://mesonbuild.com)
-as it's buildsystem.
+as its build system.
 
 Instructions for building Toolbx from source are in our [README](https://github.com/containers/toolbox/blob/main/README.md).
 
@@ -94,7 +94,7 @@ Here are some ideas of what you could contribute with:
   own. **Beware**, maintainers still don't have a clear idea of how the image
   infrastructure should look like.
 - Write documentation - Some functions in Toolbx's code don't have comments and
-  it's not very clear what they do. Toolbx has it's [documentation](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/)
+  it's not very clear what they do. Toolbx has its [documentation](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/)
   hosted by Fedora. It's not very large and could use some attention.
 - Hack on the code and share the result - Seriously! Sometimes random ideas are
   the best.
@@ -122,7 +122,7 @@ documentation, code comments and much more.
 
 ## After Creating a Pull Request
 
-It may take the us some time to review your changes and sometimes even longer to
+It may take us some time to review your changes and sometimes even longer to
 actually merge them. Please, don't interpret this as an act of not appreciating
 your efforts! We really appreciate them! Sometimes we may be stuck in different
 parts of our lives.
@@ -133,7 +133,7 @@ try to @ping us at our communication channels (see section #Communication).
 ## 
 Toolbx has a CI (Continuous Integration) setup for running tests. Their goal is to check if your
 changes don't affect adversely Toolbx's functionality. Sometimes these tests
-mail fail with a false-positive. If you are not sure about the outcome of the
+may fail with a false positive. If you are not sure about the outcome of the
 tests, you can try to trigger a new test run by writing a comment with text `recheck` (really just that). If the issue persists, reach out to the maintainers!
 
 Toolbx's CI system is [Zuul](https://zuul-ci.org/) hosted at [softwarefactory](https://softwarefactory-project.io/). The CI is defined using [Ansible](https://www.ansible.com) playbooks. For more information on writing Zuul jobs see their [documentation](https://zuul-ci.org/docs/zuul/reference/user.html).
