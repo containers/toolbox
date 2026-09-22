@@ -27,6 +27,13 @@ RUN apt-get update && \
     rm -rd /var/lib/apt/lists/*
 RUN rm /extra-packages
 
+# Work around https://github.com/trifectatechfoundation/sudo-rs/issues/1656
+# Fixed in sudo-rs 0.2.15:
+# https://github.com/trifectatechfoundation/sudo-rs/pull/1657
+# https://github.com/trifectatechfoundation/sudo-rs/commit/5debfcf1aa775201
+RUN echo "%sudo ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/90-toolbx-nopasswd && \
+    chmod 0440 /etc/sudoers.d/90-toolbx-nopasswd
+
 # Enable the use of p11-kit-client.so to access CA certificates from the host
 RUN mkdir --parents /etc/pkcs11/modules
 
