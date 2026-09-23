@@ -25,6 +25,7 @@ import (
 	"io"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/HarryMichal/go-version"
@@ -57,6 +58,34 @@ func CheckVersion(requiredVersion string) bool {
 	requiredVersion = version.Normalize(requiredVersion)
 
 	return version.CompareSimple(currentVersion, requiredVersion) >= 0
+}
+
+func CheckImageCompatibility(imageObj Image) []string {
+	logrus.Debugf("Checking image compatibility with Toolbx")
+
+	var warnings []string
+
+	if !imageObj.IsToolbx() {
+		warnings = append(warnings, "image is not a Toolbx image")
+	}
+
+	imageInspectObj, ok := imageObj.(*imageInspect)
+	if !ok {
+		return warnings
+	}
+
+	for _, envVar := range imageInspectObj.env {
+		if strings.HasPrefix(envVar, "LD_PRELOAD=") {
+			warnings = append(warnings, "image has the LD_PRELOAD environment variable set")
+			break
+		}
+	}
+
+	if len(imageInspectObj.entrypoint) > 0 {
+		warnings = append(warnings, "image has a pre-defined entrypoint")
+	}
+
+	return warnings
 }
 
 // ContainerExists checks using Podman if a container with given ID/name exists.
@@ -183,42 +212,29 @@ func GetVersion() (string, error) {
 	return podmanVersion, nil
 }
 
-func GetFullyQualifiedImageFromRepoTags(image string) (string, error) {
-	logrus.Debugf("Resolving fully qualified name for image %s from RepoTags", image)
+func GetFullyQualifiedImageFromRepoTags(image string, imageObj Image) (string, error) {
+	repoTags := imageObj.RepoTags()
+	if repoTags == nil {
+		return "", &ImageError{image, ErrImageRepoTagsMissing}
+	}
+
+	if len(repoTags) == 0 {
+		return "", &ImageError{image, ErrImageRepoTagsEmpty}
+	}
 
 	var imageFull string
 
-	if utils.ImageReferenceHasDomain(image) {
-		imageFull = image
-	} else {
-		imageObj, err := InspectImage(image)
-		if err != nil {
-			return "", fmt.Errorf("failed to inspect image %s", image)
-		}
-
-		repoTags := imageObj.RepoTags()
-		if repoTags == nil {
-			return "", &ImageError{image, ErrImageRepoTagsMissing}
-		}
-
-		if len(repoTags) == 0 {
-			return "", &ImageError{image, ErrImageRepoTagsEmpty}
-		}
-
-		for _, repoTag := range repoTags {
-			tag := utils.ImageReferenceGetTag(repoTag)
-			if tag != "latest" {
-				imageFull = repoTag
-				break
-			}
-		}
-
-		if imageFull == "" {
-			imageFull = repoTags[0]
+	for _, repoTag := range repoTags {
+		tag := utils.ImageReferenceGetTag(repoTag)
+		if tag != "latest" {
+			imageFull = repoTag
+			break
 		}
 	}
 
-	logrus.Debugf("Resolved image %s to %s", image, imageFull)
+	if imageFull == "" {
+		imageFull = repoTags[0]
+	}
 
 	return imageFull, nil
 }
