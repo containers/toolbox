@@ -565,6 +565,16 @@ func configureKerberos() error {
 		return nil
 	}
 
+	kcmSocketEnabled, err := utils.IsKCMSocketEnabled()
+	if err != nil {
+		return fmt.Errorf("failed to check if kcm socket is enabled: %w", err)
+	}
+	if !kcmSocketEnabled {
+		logrus.Debugf("%s: kcm socket not enabled", logPrefix)
+		logrus.Debugf("%s: skipping", logPrefix)
+		return nil
+	}
+
 	var builder strings.Builder
 	builder.WriteString("# Written by Toolbx\n")
 	builder.WriteString("# https://containertoolbx.org/\n")
