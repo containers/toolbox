@@ -197,6 +197,7 @@
     name: system-test-fedora-coreos-next-commands-options
     parent: system-test-fedora-coreos
     description: Run Toolbx's commands-options system tests in Fedora CoreOS next
+    ansible-version: 11
     nodeset:
       nodes:
         - name: fedora-coreos-next
@@ -207,6 +208,7 @@
     name: system-test-fedora-coreos-next-runtime-environment-arch-fedora
     parent: system-test-fedora-coreos
     description: Run Toolbx's (arch-fedora,runtime-environment) system tests in Fedora CoreOS next
+    ansible-version: 11
     nodeset:
       nodes:
         - name: fedora-coreos-next
@@ -217,6 +219,7 @@
     name: system-test-fedora-coreos-next-runtime-environment-ubuntu
     parent: system-test-fedora-coreos
     description: Run Toolbx's (runtime-environment,ubuntu) system tests in Fedora CoreOS next
+    ansible-version: 11
     nodeset:
       nodes:
         - name: fedora-coreos-next
