@@ -14,19 +14,45 @@
 # limitations under the License.
 #
 
-- name: Synchronize glibc to repo version for gcc/glibc-devel compatibility
-  become: yes
-  command: >-
-    rpm-ostree override replace --experimental --from repo=updates
-      glibc
-      glibc-common
-      glibc-minimal-langpack
-      glibc-gconv-extra
-  ignore_errors: yes
+# These package overrides get a little complicated due to the
+# `next` stream pointing at pre-release repos during branching.
+# With the below loop, we try and use the default `updates` repo,
+# and fallback to `updates-testing` and `fedora` in turn so that we
+# can update base packages on the system.
 
-- name: Synchronize shadow-utils to repo version for shadow-utils-subid-devel compatibility
+- name: Synchronize base packages to repo versions
   become: yes
-  command: rpm-ostree override replace --experimental --from repo=updates shadow-utils
+  shell: |
+    for repo in updates updates-testing fedora; do
+      output=$(rpm-ostree override replace --experimental --from repo="$repo" {{ item.packages }} 2>&1)
+      rc=$?
+
+      if [ $rc -eq 0 ]; then
+        echo "$output"
+        exit 0
+      fi
+      echo "$output" >&2
+
+      # Already at the latest version, nothing to do.
+      if echo "$output" | grep -qi 'reinstall exact'; then
+        exit 0
+      fi
+
+      # Package not found in this repo, try the next one.
+      if echo "$output" | grep -qi 'no matches'; then
+        continue
+      fi
+
+      # Other error, bail out.
+      exit $rc
+    done
+    exit $rc
+  loop:
+    - { name: glibc, packages: "glibc glibc-common glibc-minimal-langpack glibc-gconv-extra" }
+    - { name: shadow-utils, packages: "shadow-utils" }
+    - { name: libgcc, packages: "libgcc" }
+  loop_control:
+    label: "{{ item.name }}"
   ignore_errors: yes
 
 - name: Apply base package overrides
