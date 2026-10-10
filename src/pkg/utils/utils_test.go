@@ -417,3 +417,66 @@ func TestPathExistsSymlinkTargetExists(t *testing.T) {
 	exists := PathExists(link)
 	assert.True(t, exists)
 }
+
+func TestMatchHostToSupportedDistro(t *testing.T) {
+	osreleaseReadStash := osreleaseRead
+	t.Cleanup(func() { osreleaseRead = osreleaseReadStash })
+
+	testCases := []struct {
+		inputOsRelease map[string]string
+		output         string
+		errMsg         string
+	}{
+		{
+			// 1) Supported ID
+			inputOsRelease: map[string]string{
+				"ID":      "ubuntu",
+				"ID_LIKE": "debian",
+			},
+			output: "ubuntu",
+		},
+		{
+			// 2) Unsupported ID, first ID_LIKE is supported
+			inputOsRelease: map[string]string{
+				"ID":      "centos",
+				"ID_LIKE": "rhel fedora",
+			},
+			output: "rhel",
+		},
+		{
+			// 3) Unsupported ID and first ID_LIKE, subsequent ID_LIKE is supported
+			inputOsRelease: map[string]string{
+				"ID":      "rocky",
+				"ID_LIKE": "centos rhel fedora",
+			},
+			output: "rhel",
+		},
+		{
+			// 4) Neither ID nor ID_LIKE values are supported
+			inputOsRelease: map[string]string{
+				"ID":      "android",
+				"ID_LIKE": "linux",
+			},
+			errMsg: "android: distribution is unsupported",
+		},
+	}
+
+	for _, tc := range testCases {
+		name := "ID=" + tc.inputOsRelease["ID"] + ", ID_LIKE=" + tc.inputOsRelease["ID_LIKE"]
+		t.Run(name, func(t *testing.T) {
+			osreleaseRead = func() (map[string]string, error) { return tc.inputOsRelease, nil }
+			distro, err := matchHostToSupportedDistro()
+
+			if tc.errMsg == "" {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.output, distro)
+			} else {
+				assert.Error(t, err)
+				assert.EqualError(t, err, tc.errMsg)
+
+				var errDistroUnsupported *DistroError
+				assert.ErrorAs(t, err, &errDistroUnsupported)
+			}
+		})
+	}
+}

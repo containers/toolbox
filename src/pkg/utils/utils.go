@@ -125,6 +125,9 @@ var (
 		"XTERM_VERSION",
 	}
 
+	// func var to allow mocking in testing
+	osreleaseRead = osrelease.Read
+
 	releaseDefault string
 
 	runtimeDirectories map[string]string
@@ -201,7 +204,7 @@ func init() {
 	distroDefault = distroFallback
 	releaseDefault = releaseFallback
 
-	hostID, err := getHostID()
+	hostID, err := matchHostToSupportedDistro()
 	if err == nil {
 		if distroObj, supportedDistro := supportedDistros[hostID]; supportedDistro {
 			release, err := getDefaultReleaseForDistro(hostID)
@@ -455,7 +458,7 @@ func GetGroupForSudo() (string, error) {
 // Examples:
 // - host is Fedora, returned string is 'fedora'
 func getHostID() (string, error) {
-	osRelease, err := osrelease.Read()
+	osRelease, err := osreleaseRead()
 	if err != nil {
 		return "", err
 	}
@@ -463,12 +466,55 @@ func getHostID() (string, error) {
 	return osRelease["ID"], nil
 }
 
+// getHostIDLike returns the ID_LIKE from the os-release files
+//
+// Examples:
+// - host is CentOS, returned []string is ['rhel', 'fedora']
+func getHostIDLike() ([]string, error) {
+	osRelease, err := osreleaseRead()
+	if err != nil {
+		return nil, err
+	}
+
+	return strings.Fields(osRelease["ID_LIKE"]), nil
+}
+
+// matchHostToSupportedDistro returns the first matching distro ID of host that is supported
+// if none are supported, ErrDistroUnsupported
+//
+// Examples:
+// - host is CentOS, returned string is 'rhel'
+// - host is "linux", returned error is ErrDistroUnsupported
+func matchHostToSupportedDistro() (string, error) {
+	distroID, err := getHostID()
+	if err != nil {
+		return "", err
+	}
+
+	if _, ok := supportedDistros[distroID]; ok {
+		return distroID, nil
+	}
+
+	distroIDLikeVals, err := getHostIDLike()
+	if err != nil {
+		return "", err
+	}
+
+	for _, distroIDLike := range distroIDLikeVals {
+		if _, ok := supportedDistros[distroIDLike]; ok {
+			return distroIDLike, nil
+		}
+	}
+
+	return "", &DistroError{distroID, ErrDistroUnsupported}
+}
+
 // getHostVersionID returns the VERSION_ID from the os-release files
 //
 // Examples:
 // - host is Fedora 32, returned string is '32'
 func getHostVersionID() (string, error) {
-	osRelease, err := osrelease.Read()
+	osRelease, err := osreleaseRead()
 	if err != nil {
 		return "", err
 	}
@@ -644,7 +690,7 @@ func IsP11KitClientPresent() (bool, error) {
 	var p11KitClientPaths []string
 	var supportedDistro bool
 
-	hostID, err := getHostID()
+	hostID, err := matchHostToSupportedDistro()
 	if err == nil {
 		distroObj, ok := supportedDistros[hostID]
 		supportedDistro = ok
