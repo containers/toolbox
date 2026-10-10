@@ -23,6 +23,6 @@ destdir = os.environ.get('DESTDIR', '')
 euid = os.geteuid()
 
 if not destdir and not os.path.exists('/run/.containerenv') and euid == 0:
-    subprocess.run(['systemd-tmpfiles', '--create'], check=True)
+    subprocess.run(['systemd-tmpfiles', '--create', '--prefix=/run'], check=True)
 
 sys.exit(0)
