@@ -40,6 +40,14 @@ teardown() {
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
 
+@test "list: Smoke test (using the 'ls' alias)" {
+  run --keep-empty-lines --separate-stderr "$TOOLBX" ls
+
+  assert_success
+  assert [ ${#lines[@]} -eq 0 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
 @test "list: Smoke test (using --containers)" {
   run --keep-empty-lines --separate-stderr "$TOOLBX" list --containers
 

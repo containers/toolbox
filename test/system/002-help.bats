@@ -269,6 +269,28 @@ teardown_file() {
   assert [ ${#stderr_lines[@]} -eq 2 ]
 }
 
+@test "help: Try 'list' with unknown flag (using the 'ls' alias)" {
+  run --keep-empty-lines --separate-stderr "$TOOLBX" ls --foo
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
+@test "help: Try 'list' with unknown flag (using the 'ls' alias, forwarded to host)" {
+  run -1 --keep-empty-lines --separate-stderr "$TOOLBX" run toolbox ls --foo
+
+  assert_failure
+  assert [ ${#lines[@]} -eq 0 ]
+  lines=("${stderr_lines[@]}")
+  assert_line --index 0 "Error: unknown flag: --foo"
+  assert_line --index 1 "Run 'toolbox --help' for usage."
+  assert [ ${#stderr_lines[@]} -eq 2 ]
+}
+
 @test "help: Try 'rm' with unknown flag" {
   run --keep-empty-lines --separate-stderr "$TOOLBX" rm --foo
 
