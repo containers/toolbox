@@ -1,6 +1,8 @@
 FROM docker.io/library/ubuntu:25.04
 
 LABEL com.github.containers.toolbox="true" \
+      com.github.containers.toolbx.package-manager.update="sudo apt-get update && sudo apt-get upgrade" \
+      com.github.containers.toolbx.package-manager.update.assumeyes="sudo sh -c 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get upgrade --assume-yes'" \
       name="ubuntu-toolbox" \
       version="25.04" \
       usage="This image is meant to be used with the toolbox command" \
