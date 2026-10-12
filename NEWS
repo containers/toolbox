@@ -1,3 +1,58 @@
+0.4
+===
+
+### Security fixes
+
+* Changed the security policy to use GitHub's private vulnerability reporting
+
+### Enhancements
+
+* Added built-in support for Fedora ELN
+* Added the /run/.toolbxenv file for identifying Toolbx containers and
+  deprecated /run/.toolboxenv
+* Added ubuntu-toolbox image definitions for Ubuntu 25.10 and 26.04
+
+### Bug fixes
+
+* Added fallback to 'getent passwd' when the SHELL environment variable is
+  unset, which sometimes happens on Fedora CoreOS and on RHEL CoreOS spawned
+  by 'oc debug ...' in Red Hat OpenShift clusters
+* Fixed grammar, mark-up and spelling in the documentation and manuals
+* Included the --help and --version options in the shell completions
+* Mentioned access to the CA certificates from the host, /etc/machine-id,
+  /run/.containerenv and /run/host, and made various updates to the
+  documentation and manuals to keep them consistent and synchronized with the
+  website
+* Overhauled the internal handling and representation of containers and images
+* Reduced the reliance on the external linking mode of the Go cmd/link linker
+  (i.e., 'go tool link')
+* Started using the XDG_CONFIG_HOME environment variable, if not empty, for
+  the welcome stubs
+* Unbroke the build on Gentoo and other operating systems that use a Clang
+  configuration file or GCC specs, not the LDFLAGS environment variable, to
+  default to '-z now' (regression in 0.0.99.6)
+* Updated fallback release to 44 for non-fedora hosts
+* Used new Cobra APIs from 1.5.0 and 1.6.0, and replaced deprecated ones
+
+### Dependencies
+
+* Bumped the minimum github.com/spf13/cobra version to 1.6.1
+
+### Tests
+
+* Added Fedora CoreOS hosts to the CI
+* Changed the port for the local temporary Docker registry to be one that's
+  available at runtime, instead of hard coding it, to avoid intermittent
+  failures when the port is already in use and to enable running multiple
+  instances of the test suite at the same time
+* Ensured that the local temporary Docker registry is ready before proceeding
+  to avoid potential races
+* Improved the error handling when downloading images to the cache fails
+* Parameterised and refactored .zuul.yaml and the associated Ansible playbooks
+  to reduce duplication
+* Unbroke the CI on Fedora Rawhide hosts due to Python 3.15 and OpenSSL 4.0
+
+
 0.3
 ===
 
