@@ -24,6 +24,11 @@
       glibc-gconv-extra
   ignore_errors: yes
 
+- name: Synchronize libgcc to repo version for gcc compatibility
+  become: yes
+  command: rpm-ostree override replace --experimental --from repo=fedora libgcc
+  ignore_errors: yes
+
 - name: Synchronize shadow-utils to repo version for shadow-utils-subid-devel compatibility
   become: yes
   command: rpm-ostree override replace --experimental --from repo=updates shadow-utils
