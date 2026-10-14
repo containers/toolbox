@@ -6,6 +6,8 @@ toolbox\-list - List existing Toolbx containers and images
 ## SYNOPSIS
 **toolbox list** [*--containers* | *-c*] [*--images* | *-i*]
 
+**toolbox ls** [*--containers* | *-c*] [*--images* | *-i*]
+
 ## DESCRIPTION
 
 Lists existing Toolbx containers and images. These are OCI containers and

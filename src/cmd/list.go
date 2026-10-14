@@ -38,6 +38,7 @@ var (
 
 var listCmd = &cobra.Command{
 	Use:               "list",
+	Aliases:           []string{"ls"},
 	Short:             "List existing Toolbx containers and images",
 	RunE:              list,
 	ValidArgsFunction: completionEmpty,

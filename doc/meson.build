@@ -37,3 +37,8 @@ foreach section, pages: manuals
     )
   endforeach
 endforeach
+
+install_data(
+  'toolbox-ls.1',
+  install_dir: get_option('mandir') / 'man1',
+)
