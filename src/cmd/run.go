@@ -30,6 +30,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/containers/toolbox/pkg/config"
 	"github.com/containers/toolbox/pkg/nvidia"
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
@@ -345,8 +346,13 @@ func runCommand(container string,
 	}
 
 	logrus.Debugf("Container %s is initialized", container)
-
 	environ := append(cdiEnviron, p11KitServerEnviron...)
+
+	cfg, err := config.GetContainerConfig(container)
+	if cfg != nil {
+		environ = append(environ, cfg.ListEnv()...)
+	}
+
 	if err := runCommandWithFallbacks(container,
 		preserveFDs,
 		command,

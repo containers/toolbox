@@ -28,6 +28,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/containers/toolbox/pkg/config"
+	"github.com/containers/toolbox/pkg/nvidia"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/fsnotify/fsnotify"
@@ -283,6 +285,15 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to look up user ID %s: %w", uidString, err)
 	}
 
+	cfg, err := config.GetRunningContainerConfig(
+		filepath.Join(initContainerFlags.home, ".config"),
+		initContainerFlags.uid,
+		initContainerFlags.gid,
+	)
+	if err != nil {
+		logrus.Debugf("Failed to load container configuration: %s", err)
+	}
+
 	cdiFileForNvidia, err := getCDIFileForNvidia(targetUser)
 	if err != nil {
 		return err
@@ -302,6 +313,10 @@ func initContainer(cmd *cobra.Command, args []string) error {
 	}
 
 	if cdiSpecForNvidia != nil {
+		if err := nvidia.PatchConfigForMultilib(cfg); err != nil {
+			return err
+		}
+
 		if err := applyCDISpecForNvidia(cdiSpecForNvidia); err != nil {
 			return err
 		}
@@ -437,9 +452,8 @@ func applyCDISpecForNvidia(spec *specs.Spec) error {
 			continue
 		}
 
-		flags := strings.Join(mount.Options, ",")
 		hostPath := filepath.Join(string(filepath.Separator), "run", "host", mount.HostPath)
-		if err := mountBind(mount.ContainerPath, hostPath, flags); err != nil {
+		if err := mountExt(mount.ContainerPath, hostPath, "", mount.Options...); err != nil {
 			logrus.Debugf("Applying Container Device Interface for NVIDIA: %s", err)
 			return errors.New("failed to apply mount from Container Device Interface for NVIDIA")
 		}
@@ -1001,7 +1015,7 @@ func loadCDISpecFrom(path string) (*specs.Spec, error) {
 	return spec, nil
 }
 
-func mountBind(containerPath, source, flags string) error {
+func mountExt(containerPath, source string, flag string, opts ...string) error {
 	fi, err := os.Stat(source)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -1036,12 +1050,14 @@ func mountBind(containerPath, source, flags string) error {
 
 	logrus.Debugf("Binding %s to %s", containerPath, source)
 
-	args := []string{
-		"--rbind",
+	args := make([]string, 0, 2)
+
+	if flag != "" {
+		args = append(args, flag)
 	}
 
-	if flags != "" {
-		args = append(args, []string{"-o", flags}...)
+	if len(opts) > 0 {
+		args = append(args, []string{"-o", strings.Join(opts, ",")}...)
 	}
 
 	args = append(args, []string{source, containerPath}...)
@@ -1051,6 +1067,10 @@ func mountBind(containerPath, source, flags string) error {
 	}
 
 	return nil
+}
+
+func mountBind(containerPath, source, flags string) error {
+	return mountExt(containerPath, source, "--rbind", strings.Split(flags, ",")...)
 }
 
 // redirectPath serves for creating symbolic links for crucial system
