@@ -222,23 +222,50 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		return nil
 	}
 
-	imageFull, err := podman.GetFullyQualifiedImageFromRepoTags(image)
-	if err != nil {
-		var errImage *podman.ImageError
+	imageObj, inspectErr := podman.InspectImage(image)
 
-		if errors.As(err, &errImage) {
-			if errors.Is(err, podman.ErrImageRepoTagsEmpty) {
-				logrus.Debugf("Image %s has empty RepoTags, likely because it is without a name", image)
-				imageFull = image
-			} else if errors.Is(err, podman.ErrImageRepoTagsMissing) {
-				return fmt.Errorf("missing RepoTags for image %s", image)
-			} else {
-				panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
-				panic(panicMsg)
-			}
-		} else {
-			return err
+	logrus.Debugf("Resolving fully qualified name for image %s from RepoTags", image)
+	var imageFull string
+
+	if utils.ImageReferenceHasDomain(image) {
+		imageFull = image
+	} else {
+		if inspectErr != nil {
+			return fmt.Errorf("failed to inspect image %s", image)
 		}
+
+		var err error
+		imageFull, err = podman.GetFullyQualifiedImageFromRepoTags(image, imageObj)
+		if err != nil {
+			var errImage *podman.ImageError
+
+			if errors.As(err, &errImage) {
+				if errors.Is(err, podman.ErrImageRepoTagsEmpty) {
+					logrus.Debugf("Image %s has empty RepoTags, likely because it is without a name", image)
+					imageFull = image
+				} else if errors.Is(err, podman.ErrImageRepoTagsMissing) {
+					return fmt.Errorf("missing RepoTags for image %s", image)
+				} else {
+					panicMsg := fmt.Sprintf("unexpected %T: %s", err, err)
+					panic(panicMsg)
+				}
+			} else {
+				return err
+			}
+		}
+	}
+
+	logrus.Debugf("Resolved image %s to %s", image, imageFull)
+
+	var imageUnknownLabel []string
+
+	hasWarnings, shouldContinue := checkAndWarnImageCompatibility(imageFull, imageObj, true)
+	if !shouldContinue {
+		return nil
+	}
+
+	if hasWarnings {
+		imageUnknownLabel = []string{"--label", "com.github.containers.toolbx.image-unknown=true"}
 	}
 
 	var toolbxDelayEntryPointEnv []string
@@ -445,6 +472,8 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 		"--ipc", "host",
 		"--label", "com.github.containers.toolbox=true",
 	}...)
+
+	createArgs = append(createArgs, imageUnknownLabel...)
 
 	createArgs = append(createArgs, devPtsMount...)
 

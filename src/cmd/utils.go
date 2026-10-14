@@ -31,6 +31,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
 	"github.com/containers/toolbox/pkg/utils"
 	"github.com/sirupsen/logrus"
@@ -47,6 +48,34 @@ var (
 
 	errHUP = errors.New("HUP")
 )
+
+func checkAndWarnImageCompatibility(image string, imageObj podman.Image, promptUser bool) (hasWarnings bool, shouldContinue bool) {
+	if imageObj == nil {
+		logrus.Debugf("Failed to check image %s compatibility", image)
+		return false, true
+	}
+
+	warnings := podman.CheckImageCompatibility(imageObj)
+
+	if len(warnings) == 0 {
+		return false, true
+	}
+
+	fmt.Fprintf(os.Stderr, "Image %s has compatibility issues with Toolbx:\n", image)
+	for _, warning := range warnings {
+		fmt.Fprintf(os.Stderr, "  Warning: %s\n", warning)
+	}
+	fmt.Fprintf(os.Stderr, "\nContainers using incompatible images may not work as expected or may fail to start at all.\n")
+
+	if promptUser && !rootFlags.assumeYes {
+		prompt := "Continue anyway? [y/N]:"
+		if !askForConfirmation(prompt) {
+			return true, false
+		}
+	}
+
+	return true, true
+}
 
 // askForConfirmation prints prompt to stdout and waits for response from the
 // user
