@@ -5,6 +5,7 @@ toolbox\-create - Create a new Toolbx container
 
 ## SYNOPSIS
 **toolbox create** [*--authfile FILE*]
+               [*--container NAME* | *-c NAME*]
                [*--distro DISTRO* | *-d DISTRO*]
                [*--image NAME* | *-i NAME*]
                [*--release RELEASE* | *-r RELEASE*]
@@ -98,6 +99,12 @@ images. The FILE is usually set using `podman login`, and will be used by
 
 The default location for FILE is `$XDG_RUNTIME_DIR/containers/auth.json` and
 its format is specified in `containers-auth.json(5)`.
+
+**--container** NAME, **-c** NAME
+
+Assign the given NAME to the Toolbx container. This option is an alternative
+to the positional *CONTAINER* argument. If both are provided, the positional
+argument takes precedence.
 
 **--distro** DISTRO, **-d** DISTRO
 
