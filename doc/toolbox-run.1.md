@@ -6,8 +6,11 @@ toolbox\-run - Run a command in an existing Toolbx container
 ## SYNOPSIS
 **toolbox run** [*--container NAME* | *-c NAME*]
             [*--distro DISTRO* | *-d DISTRO*]
+            [*--env KEY=VALUE*]
             [*--preserve-fds N*]
             [*--release RELEASE* | *-r RELEASE*]
+            [*--use-fallback-shell*]
+            [*--workdir DIR*]
             [*COMMAND*]
 
 ## DESCRIPTION
@@ -38,6 +41,12 @@ Run command inside a Toolbx container for a different operating system DISTRO
 than the host. Has to be coupled with `--release` unless the selected DISTRO
 matches the host system.
 
+**--env** KEY=VALUE
+
+Set an environment variable in the form of KEY=VALUE for use inside the Toolbx
+container. This option can be specified multiple times to set multiple
+environment variables.
+
 **--preserve-fds** N
 
 Pass down to command N additional file descriptors (in addition to 0, 1, 2).
@@ -47,6 +56,16 @@ The total number of file descriptors will be 3+N.
 
 Run command inside a Toolbx container for a different operating system RELEASE
 than the host.
+
+**--use-fallback-shell**
+
+Fall back to /bin/bash and /bin/sh if the specified command is not found inside
+the Toolbx container.
+
+**--workdir** DIR
+
+Override the working directory used inside the Toolbx container. The value must
+be an absolute path.
 
 ## EXIT STATUS
 
