@@ -30,6 +30,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/containers/toolbox/pkg/architecture"
 	"github.com/containers/toolbox/pkg/nvidia"
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
@@ -145,7 +146,8 @@ func run(cmd *cobra.Command, args []string) error {
 		"--container",
 		runFlags.distro,
 		"",
-		runFlags.release)
+		runFlags.release,
+		architecture.HostArchID)
 
 	if err != nil {
 		return err
@@ -225,7 +227,7 @@ func runCommand(container string,
 				return nil
 			}
 
-			if err := createContainer(container, image, release, "", false); err != nil {
+			if err := createContainer(container, image, release, "", architecture.GetArchConfigDefault(), false); err != nil {
 				return err
 			}
 		} else if containersCount == 1 && defaultContainer {
