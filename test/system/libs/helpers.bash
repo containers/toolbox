@@ -697,3 +697,75 @@ function create_container_flatpak_session_helper() (
 
   return 0
 )
+
+# Creates a desktop entry with an icon inside a Toolbx container
+#
+# The application is deliberately not tied to any real package, so that the
+# tests don't depend on what a distribution ships, or on how it names its
+# desktop entries.
+#
+# Parameters:
+# ===========
+# - container - name of the container
+function create_test_app() {
+  local container
+  container="$1"
+
+  local script
+  script='mkdir --parents /usr/share/applications /usr/share/icons/hicolor/48x48/apps
+printf "%s\n" \
+  "[Desktop Entry]" \
+  "Type=Application" \
+  "Name=Toolbx Test" \
+  "Exec=toolbx-test %U" \
+  "TryExec=/usr/local/bin/toolbx-test" \
+  "Icon=toolbx-test" \
+  "DBusActivatable=true" \
+  "Path=/usr/share" >/usr/share/applications/org.example.ToolbxTest.desktop
+printf "%s\n" "toolbx-test-icon" >/usr/share/icons/hicolor/48x48/apps/toolbx-test.png'
+
+  "$TOOLBX" run --container "$container" sudo sh -c "$script" >/dev/null \
+    || fail "Toolbx couldn't create the test application in container '$container'"
+}
+
+
+# Creates a binary inside a Toolbx container
+#
+# Parameters:
+# ===========
+# - container - name of the container
+function create_test_bin() {
+  local container
+  container="$1"
+
+  local script
+  script='printf "%s\n" "#!/bin/sh" "echo toolbx-test" >/usr/local/bin/toolbx-test
+chmod 755 /usr/local/bin/toolbx-test'
+
+  "$TOOLBX" run --container "$container" sudo sh -c "$script" >/dev/null \
+    || fail "Toolbx couldn't create the test binary in container '$container'"
+}
+
+
+# Removes the files that the tests exported to the host
+#
+# Exported files live in the home directory, not inside the container, so they
+# aren't affected by cleanup_all and would otherwise leak from one test into
+# the next. Note that a test that fails midway never reaches its teardown,
+# which is why this is called from setup as well.
+function cleanup_exports() {
+  local data_home
+  data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
+
+  local bin_home
+  bin_home="${XDG_BIN_HOME:-$HOME/.local/bin}"
+
+  # Only the entries that the tests are known to create are removed, so that a
+  # stray application on the host isn't taken down along with them.
+  rm --force "$data_home/applications/org.example.ToolbxTest.desktop"
+  rm --force "$bin_home/toolbx-test"
+
+  rm --force --recursive "$data_home/toolbx"
+
+  return 0
+}

@@ -137,6 +137,10 @@ Create a new Toolbx container.
 
 Enter a Toolbx container for interactive use.
 
+**toolbox-export(1)**
+
+Export an application or a binary from a Toolbx container.
+
 **toolbox-help(1)**
 
 Display help information about Toolbx.
@@ -160,6 +164,10 @@ Remove one or more Toolbx images.
 **toolbox-run(1)**
 
 Run a command in an existing Toolbx container.
+
+**toolbox-unexport(1)**
+
+Remove an application or a binary exported from a Toolbx container.
 
 ## FILES ##
 
