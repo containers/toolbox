@@ -19,6 +19,7 @@ sources = files(
   'cmd/rootMigrationPath.go',
   'cmd/root_test.go',
   'cmd/run.go',
+  'cmd/upgrade.go',
   'cmd/utils.go',
   'pkg/nvidia/nvidia.go',
   'pkg/podman/container.go',

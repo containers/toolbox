@@ -15,6 +15,7 @@ manuals = {
     'toolbox-rm',
     'toolbox-rmi',
     'toolbox-run',
+    'toolbox-upgrade',
   ],
   '5': [
     'toolbox.conf',
