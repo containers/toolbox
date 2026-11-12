@@ -100,7 +100,7 @@ func rm(cmd *cobra.Command, args []string) error {
 			containerObj, err := podman.InspectContainer(container)
 			if err != nil {
 				attemptFailed = true
-				fmt.Fprintf(os.Stderr, "Error: failed to inspect container %s\n", container)
+				fmt.Fprintf(os.Stderr, "Error: failed to inspect container %s: %v\n", container, err)
 				continue
 			}
 

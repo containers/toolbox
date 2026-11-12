@@ -97,9 +97,16 @@ func rmi(cmd *cobra.Command, args []string) error {
 		var attemptFailed bool
 
 		for _, image := range args {
-			if _, err := podman.IsToolboxImage(image); err != nil {
+			imageObj, err := podman.InspectImage(image)
+			if err != nil {
 				attemptFailed = true
-				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+				fmt.Fprintf(os.Stderr, "Error: failed to inspect image %s\n", image)
+				continue
+			}
+
+			if !imageObj.IsToolbx() {
+				attemptFailed = true
+				fmt.Fprintf(os.Stderr, "Error: %s is not a Toolbx image\n", image)
 				continue
 			}
 
