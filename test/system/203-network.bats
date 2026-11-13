@@ -28,10 +28,6 @@ family = {"A": socket.AddressFamily.AF_INET, "AAAA": socket.AddressFamily.AF_INE
 addr = socket.getaddrinfo(sys.argv[2], None, family[sys.argv[1]], socket.SocketKind.SOCK_RAW)[0][4][0]; \
 print(addr)'
 
-# shellcheck disable=SC2016
-readonly RESOLVER_SH='resolvectl --legend false --no-pager --type "$0" query "$1" \
-                      | cut --delimiter " " --fields 4'
-
 setup_file() {
   bats_require_minimum_version 1.10.0
   cleanup_all
@@ -277,7 +273,7 @@ teardown_file() {
   if ! $ipv4_skip; then
     run --keep-empty-lines --separate-stderr "$TOOLBX" run \
       --distro arch \
-      sh -c "$RESOLVER_SH" A k.root-servers.net
+      python3 -c "$RESOLVER_PYTHON3" A k.root-servers.net
 
     assert_success
     assert_line --index 0 "$ipv4_addr"
@@ -288,7 +284,7 @@ teardown_file() {
   if ! $ipv6_skip; then
     run --keep-empty-lines --separate-stderr "$TOOLBX" run \
       --distro arch \
-      sh -c "$RESOLVER_SH" AAAA k.root-servers.net
+      python3 -c "$RESOLVER_PYTHON3" AAAA k.root-servers.net
 
     assert_success
     assert_line --index 0 "$ipv6_addr"
