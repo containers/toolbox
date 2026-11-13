@@ -4,7 +4,7 @@
 toolbox\-list - List existing Toolbx containers and images
 
 ## SYNOPSIS
-**toolbox list** [*--containers* | *-c*] [*--images* | *-i*]
+**toolbox list** [*--containers* | *-c*] [*--images* | *-i*] [*--json*]
 
 ## DESCRIPTION
 
@@ -22,6 +22,12 @@ List only Toolbx containers, not images.
 **--images, -i**
 
 List only Toolbx images, not containers.
+
+**--json**
+
+Print the list in JSON format. It can be combined with `--containers`
+or `--images`. Unlike the table, the full IDs of the containers and images
+are shown.
 
 ## EXAMPLES
 
@@ -41,6 +47,12 @@ $ toolbox list --containers
 
 ```
 $ toolbox list --images
+```
+
+### List existing Toolbx containers only, in JSON format
+
+```
+$ toolbox list --containers --json
 ```
 
 ## SEE ALSO

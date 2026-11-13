@@ -17,6 +17,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -33,6 +34,7 @@ var (
 	listFlags struct {
 		onlyContainers bool
 		onlyImages     bool
+		outputJSON     bool
 	}
 )
 
@@ -57,6 +59,11 @@ func init() {
 		"i",
 		false,
 		"List only Toolbx images, not containers")
+
+	flags.BoolVar(&listFlags.outputJSON,
+		"json",
+		false,
+		"Print the output in JSON format")
 
 	listCmd.SetHelpFunc(listHelp)
 	rootCmd.AddCommand(listCmd)
@@ -103,6 +110,15 @@ func list(cmd *cobra.Command, args []string) error {
 			logrus.Debugf("Getting all containers failed: %s", err)
 			return errors.New("failed to get containers")
 		}
+	}
+
+	if listFlags.outputJSON {
+		if err := listOutputJSON(images, containers); err != nil {
+			logrus.Debugf("Printing the list as JSON failed: %s", err)
+			return errors.New("failed to print the list as JSON")
+		}
+
+		return nil
 	}
 
 	listOutput(images, containers)
@@ -218,4 +234,65 @@ func listOutput(images *podman.Images, containers *podman.Containers) {
 
 		writer.Flush()
 	}
+}
+
+type listImageJSON struct {
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Created string `json:"created"`
+}
+
+type listContainerJSON struct {
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Created string `json:"created"`
+	Status  string `json:"status"`
+	Image   string `json:"image"`
+}
+
+type listJSON struct {
+	Images     *[]listImageJSON     `json:"images,omitempty"`
+	Containers *[]listContainerJSON `json:"containers,omitempty"`
+}
+
+func listOutputJSON(images *podman.Images, containers *podman.Containers) error {
+	var output listJSON
+
+	if images != nil {
+		imagesJSON := make([]listImageJSON, 0, images.Len())
+
+		for images.Next() {
+			image := images.Get()
+			imagesJSON = append(imagesJSON, listImageJSON{
+				ID:      image.ID(),
+				Name:    image.Name(),
+				Created: image.Created(),
+			})
+		}
+
+		output.Images = &imagesJSON
+	}
+
+	if containers != nil {
+		containersJSON := make([]listContainerJSON, 0, containers.Len())
+
+		for containers.Next() {
+			container := containers.Get()
+			containersJSON = append(containersJSON, listContainerJSON{
+				ID:      container.ID(),
+				Name:    container.Name(),
+				Created: container.Created(),
+				Status:  container.Status(),
+				Image:   container.Image(),
+			})
+		}
+
+		output.Containers = &containersJSON
+	}
+
+	encoder := json.NewEncoder(os.Stdout)
+	encoder.SetEscapeHTML(false)
+	encoder.SetIndent("", "  ")
+
+	return encoder.Encode(output)
 }
