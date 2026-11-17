@@ -6,6 +6,7 @@ toolbox\-create - Create a new Toolbx container
 ## SYNOPSIS
 **toolbox create** [*--authfile FILE*]
                [*--distro DISTRO* | *-d DISTRO*]
+               [*--gid-map HOST_GID:CONTAINER_GID*]...
                [*--image NAME* | *-i NAME*]
                [*--release RELEASE* | *-r RELEASE*]
                [*CONTAINER*]
@@ -115,6 +116,20 @@ If NAME does not contain a registry, the local image storage will be
 consulted, and if it's not present there then it will be pulled from a suitable
 remote registry.
 
+**--gid-map** HOST_GID:CONTAINER_GID
+
+Map the supplementary group HOST_GID from the host to CONTAINER_GID in the
+Toolbx container. This option can be specified multiple times to map more than
+one supplementary group. HOST_GID must belong to the user and must be delegated
+to the user through `subgid(5)`. The mapping is set when the container is
+created and cannot be changed afterwards.
+
+Mappings can be persisted with the `gid_maps` option in
+`$XDG_CONFIG_HOME/containers/toolbox.conf`, which is usually
+`$HOME/.config/containers/toolbox.conf`. If at least one `--gid-map` option is
+specified on the command line, those mappings replace the entire list from the
+configuration file instead of being appended to it. See `toolbox.conf(5)`.
+
 **--release** RELEASE, **-r** RELEASE
 
 Create a Toolbx container for a different operating system RELEASE than the
@@ -150,4 +165,4 @@ $ toolbox create --authfile ~/auth.json --image registry.example.com/bar
 
 `toolbox(1)`, `toolbox-init-container(1)`, `podman(1)`, `podman-create(1)`,
 `podman-inspect(1)`, `podman-login(1)`, `podman-pull(1)`,
-`containers-auth.json(5)`
+`containers-auth.json(5)`, `subgid(5)`, `toolbox.conf(5)`
