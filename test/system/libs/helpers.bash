@@ -46,7 +46,7 @@ declare -Ag IMAGES=([arch]="quay.io/toolbx/arch-toolbox" \
                    [busybox]="quay.io/toolbox_tests/busybox" \
                    [docker-reg]="quay.io/toolbox_tests/registry" \
                    [eln]="quay.io/fedora/eln-toolbox" \
-                   [fedora]="registry.fedoraproject.org/fedora-toolbox" \
+                   [fedora]="quay.io/fedora/fedora-toolbox" \
                    [rhel]="registry.access.redhat.com/ubi8/toolbox" \
                    [ubuntu]="quay.io/toolbx/ubuntu-toolbox")
 
