@@ -29,10 +29,10 @@ dependent containers will be removed as well.
 
 ## EXAMPLES
 
-### Remove a Toolbx image named `localhost/fedora-toolbox-gegl:36`
+### Remove a Toolbx image named `localhost/fedora-toolbox-gegl:45`
 
 ```
-$ toolbox rmi localhost/fedora-toolbox-gegl:36
+$ toolbox rmi localhost/fedora-toolbox-gegl:45
 ```
 
 ### Remove all Toolbx images, but not those that are used by containers

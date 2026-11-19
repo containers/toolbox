@@ -29,10 +29,10 @@ Force the removal of running and paused Toolbx containers.
 
 ## EXAMPLES
 
-### Remove a Toolbx container named `fedora-toolbox-gegl:36`
+### Remove a Toolbx container named `fedora-toolbox-gegl:45`
 
 ```
-$ toolbox rm fedora-toolbox-gegl:36
+$ toolbox rm fedora-toolbox-gegl:45
 ```
 
 ### Remove all Toolbx containers, but not those that are running or paused

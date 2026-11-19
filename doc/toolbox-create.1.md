@@ -128,10 +128,10 @@ host. Cannot be used with `--image`.
 $ toolbox create
 ```
 
-### Create the default Toolbx container for Fedora 36
+### Create the default Toolbx container for Fedora 45
 
 ```
-$ toolbox create --distro fedora --release f36
+$ toolbox create --distro fedora --release f45
 ```
 
 ### Create a custom Toolbx container from a custom image

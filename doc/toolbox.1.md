@@ -70,7 +70,7 @@ Distro |Release
 -------|----------
 arch   |latest or rolling
 eln    |latest
-fedora |\<release\> or f\<release\> eg., 36 or f36
+fedora |\<release\> or f\<release\> eg., 45 or f45
 rhel   |\<major\>.\<minor\> eg., 8.5
 ubuntu |\<YY\>.\<MM\> eg., 22.04
 
@@ -81,8 +81,8 @@ ubuntu |\<YY\>.\<MM\> eg., 22.04
 ```
 [user@hostname ~]$ toolbox create
 Image required to create toolbox container.
-Download registry.fedoraproject.org/fedora-toolbox:36 (294.1MB)? [y/N]: y
-Created container: fedora-toolbox-36
+Download registry.fedoraproject.org/fedora-toolbox:45 (390.2MB)? [y/N]: y
+Created container: fedora-toolbox-45
 Enter with: toolbox enter
 [user@hostname ~]$
 ```
@@ -97,7 +97,7 @@ Enter with: toolbox enter
 ### Remove the Toolbx container:
 
 ```
-[user@hostname ~]$ toolbox rm fedora-toolbox-36
+[user@hostname ~]$ toolbox rm fedora-toolbox-45
 [user@hostname ~]$
 ```
 

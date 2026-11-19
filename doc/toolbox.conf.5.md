@@ -53,13 +53,13 @@ the files above.
 ```
 [general]
 distro = "fedora"
-release = "36"
+release = "45"
 ```
 
 ### Override the default image:
 ```
 [general]
-image = "registry.fedoraproject.org/fedora-toolbox:36"
+image = "registry.fedoraproject.org/fedora-toolbox:45"
 ```
 
 ## SEE ALSO

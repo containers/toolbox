@@ -63,7 +63,7 @@ failed to run or why it exited.
 $ toolbox run /etc; echo $?
 /bin/sh: line 1: /etc: Is a directory
 /bin/sh: line 1: exec: /etc: cannot execute: Is a directory
-Error: failed to invoke command /etc in container fedora-toolbox-36
+Error: failed to invoke command /etc in container fedora-toolbox-45
 126
 ```
 
@@ -72,7 +72,7 @@ Error: failed to invoke command /etc in container fedora-toolbox-36
 ```
 $ toolbox run foo; echo $?
 /bin/sh: line 1: exec: foo: not found
-Error: command foo not found in container fedora-toolbox-36
+Error: command foo not found in container fedora-toolbox-45
 127
 ```
 
@@ -91,10 +91,10 @@ $ toolbox run false; echo $?
 $ toolbox run ls -la
 ```
 
-### Run emacs inside the default Toolbx container for Fedora 36
+### Run emacs inside the default Toolbx container for Fedora 45
 
 ```
-$ toolbox run --distro fedora --release f36 emacs
+$ toolbox run --distro fedora --release f45 emacs
 ```
 
 ### Run uptime inside a Toolbx container with a custom name

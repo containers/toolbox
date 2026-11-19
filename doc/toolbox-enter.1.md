@@ -47,10 +47,10 @@ host.
 $ toolbox enter
 ```
 
-### Enter the default Toolbx container for Fedora 36
+### Enter the default Toolbx container for Fedora 45
 
 ```
-$ toolbox enter --distro fedora --release f36
+$ toolbox enter --distro fedora --release f45
 ```
 
 ### Enter a Toolbx container with a custom name
