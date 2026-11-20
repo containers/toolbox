@@ -91,6 +91,36 @@
     run: playbooks/system-test-runtime-environment-ubuntu.yaml
 
 - job:
+    name: system-test-fedora-45-commands-options
+    parent: system-test-fedora
+    description: Run Toolbx's commands-options system tests in Fedora 45
+    nodeset:
+      nodes:
+        - name: fedora-45
+          label: cloud-fedora-45
+    run: playbooks/system-test-commands-options.yaml
+
+- job:
+    name: system-test-fedora-45-runtime-environment-arch-fedora
+    parent: system-test-fedora
+    description: Run Toolbx's (arch-fedora,runtime-environment) system tests in Fedora 45
+    nodeset:
+      nodes:
+        - name: fedora-45
+          label: cloud-fedora-45
+    run: playbooks/system-test-runtime-environment-arch-fedora.yaml
+
+- job:
+    name: system-test-fedora-45-runtime-environment-ubuntu
+    parent: system-test-fedora
+    description: Run Toolbx's (runtime-environment,ubuntu) system tests in Fedora 45
+    nodeset:
+      nodes:
+        - name: fedora-45
+          label: cloud-fedora-45
+    run: playbooks/system-test-runtime-environment-ubuntu.yaml
+
+- job:
     name: system-test-fedora-44-commands-options
     parent: system-test-fedora
     description: Run Toolbx's commands-options system tests in Fedora 44
@@ -262,6 +292,9 @@
         - system-test-fedora-rawhide-commands-options
         - system-test-fedora-rawhide-runtime-environment-arch-fedora
         - system-test-fedora-rawhide-runtime-environment-ubuntu
+        - system-test-fedora-45-commands-options
+        - system-test-fedora-45-runtime-environment-arch-fedora
+        - system-test-fedora-45-runtime-environment-ubuntu
         - system-test-fedora-44-commands-options
         - system-test-fedora-44-runtime-environment-arch-fedora
         - system-test-fedora-44-runtime-environment-ubuntu
@@ -285,6 +318,9 @@
         - system-test-fedora-rawhide-commands-options
         - system-test-fedora-rawhide-runtime-environment-arch-fedora
         - system-test-fedora-rawhide-runtime-environment-ubuntu
+        - system-test-fedora-45-commands-options
+        - system-test-fedora-45-runtime-environment-arch-fedora
+        - system-test-fedora-45-runtime-environment-ubuntu
         - system-test-fedora-44-commands-options
         - system-test-fedora-44-runtime-environment-arch-fedora
         - system-test-fedora-44-runtime-environment-ubuntu
@@ -308,6 +344,9 @@
         - system-test-fedora-rawhide-commands-options
         - system-test-fedora-rawhide-runtime-environment-arch-fedora
         - system-test-fedora-rawhide-runtime-environment-ubuntu
+        - system-test-fedora-45-commands-options
+        - system-test-fedora-45-runtime-environment-arch-fedora
+        - system-test-fedora-45-runtime-environment-ubuntu
         - system-test-fedora-44-commands-options
         - system-test-fedora-44-runtime-environment-arch-fedora
         - system-test-fedora-44-runtime-environment-ubuntu
