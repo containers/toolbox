@@ -33,7 +33,7 @@ func getDefaultReleaseFedora() (string, error) {
 }
 
 func getFullyQualifiedImageFedora(image, release string) string {
-	imageFull := "registry.fedoraproject.org/" + image
+	imageFull := "quay.io/fedora/" + image
 	return imageFull
 }
 
