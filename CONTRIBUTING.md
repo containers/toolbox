@@ -72,15 +72,6 @@ When writing a suggestion:
 
 # First Contribution
 
-Toolbx is written in [Go](https://golang.org) and uses [Meson](https://mesonbuild.com)
-as it's buildsystem.
-
-Instructions for building Toolbx from source are in our [README](https://github.com/containers/toolbox/blob/main/README.md).
-
-> You may not need to build the project from source if your contribution is not
-> related to the code of Toolbx itself (e.g., documentation, updating CI
-> config, playing with image definitions,...).
-
 Here are some ideas of what you could contribute with:
 
 - Check our [bug tracker](https://github.com/containers/toolbox/issues)
@@ -101,6 +92,38 @@ Here are some ideas of what you could contribute with:
 
 Toolbx currently does not have an infrastructure for translations. You can help
 us to set it up!
+
+# Building
+
+Toolbx is written in [Go](https://golang.org) and uses [Meson](https://mesonbuild.com)
+as it's buildsystem.
+
+> Note: You may not need to build the project from source if your contribution is not
+> related to the code of Toolbx itself (e.g., documentation, updating CI
+> config, playing with image definitions,...).
+
+## Install Prerequisites
+- Fedora:
+  ```bash
+  sudo dnf install gcc meson patchelf shadow-utils-subid-devel golang golang-github-cpuguy83-md2man bats podman skopeo
+  ```
+- Arch:
+  ```bash
+  sudo pacman -S base-devel meson shadow go go-md2man bats podman skopeo
+  ```
+- Ubuntu:
+  ```bash
+  sudo apt install build-essential meson patchelf libsubid-dev golang go-md2man bats podman skopeo
+  ```
+  
+## Run Meson
+Clone the repository and `cd` into it. Then:
+```bash
+meson setup builddir
+cd builddir
+meson test     # run golang tests
+meson compile  # compiled artifacts will be in builddir/src
+```
 
 # Pull Requests
 
