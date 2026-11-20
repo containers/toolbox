@@ -149,7 +149,8 @@ Initialize a running container.
 
 **toolbox-list(1)**
 
-List existing Toolbx containers and images.
+List existing Toolbx containers and images. Can also be invoked as
+`toolbox ls`.
 
 **toolbox-rm(1)**
 
