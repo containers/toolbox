@@ -622,3 +622,85 @@ teardown() {
   assert [ ${#lines[@]} -eq 0 ]
   assert [ ${#stderr_lines[@]} -eq 0 ]
 }
+
+@test "list: Smoke test (using --json)" {
+  run --keep-empty-lines --separate-stderr "$TOOLBX" list --json
+
+  assert_success
+  assert_line --index 0 '{'
+  assert_line --index 1 '  "images": [],'
+  assert_line --index 2 '  "containers": []'
+  assert_line --index 3 '}'
+  assert [ ${#lines[@]} -eq 4 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Smoke test (using --containers and --json)" {
+  run --keep-empty-lines --separate-stderr "$TOOLBX" list --containers --json
+
+  assert_success
+  assert_line --index 0 '{'
+  assert_line --index 1 '  "containers": []'
+  assert_line --index 2 '}'
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Smoke test (using --images and --json)" {
+  run --keep-empty-lines --separate-stderr "$TOOLBX" list --images --json
+
+  assert_success
+  assert_line --index 0 '{'
+  assert_line --index 1 '  "images": []'
+  assert_line --index 2 '}'
+  assert [ ${#lines[@]} -eq 3 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Default image (using --json)" {
+  local default_image
+  default_image="$(get_default_image)"
+
+  pull_default_image
+
+  local num_of_images
+  num_of_images="$(list_images)"
+  assert_equal "$num_of_images" 1
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" list --json
+
+  assert_success
+  assert_line --index 0 '{'
+  assert_line --index 1 '  "images": ['
+  assert_line --index 3 --regexp '^      "id": "[0-9a-f]{64}",$'
+  assert_line --index 4 "      \"name\": \"$default_image\","
+  assert_line --index 7 '  ],'
+  assert_line --index 8 '  "containers": []'
+  assert_line --index 9 '}'
+  assert [ ${#lines[@]} -eq 10 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
+
+@test "list: Default container (using --containers and --json)" {
+  local default_image
+  default_image="$(get_default_image)"
+
+  local default_container
+  default_container="$(get_system_id)-toolbox-$(get_system_version)"
+
+  create_default_container
+
+  run --keep-empty-lines --separate-stderr "$TOOLBX" list --containers --json
+
+  assert_success
+  assert_line --index 0 '{'
+  assert_line --index 1 '  "containers": ['
+  assert_line --index 3 --regexp '^      "id": "[0-9a-f]{64}",$'
+  assert_line --index 4 "      \"name\": \"$default_container\","
+  assert_line --index 6 '      "status": "created",'
+  assert_line --index 7 "      \"image\": \"$default_image\""
+  assert_line --index 9 '  ]'
+  assert_line --index 10 '}'
+  assert [ ${#lines[@]} -eq 11 ]
+  assert [ ${#stderr_lines[@]} -eq 0 ]
+}
