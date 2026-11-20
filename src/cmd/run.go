@@ -30,6 +30,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/containers/toolbox/pkg/architecture"
 	"github.com/containers/toolbox/pkg/nvidia"
 	"github.com/containers/toolbox/pkg/podman"
 	"github.com/containers/toolbox/pkg/shell"
@@ -52,6 +53,7 @@ type entryPointError struct {
 
 var (
 	runFlags struct {
+		arch        string
 		container   string
 		distro      string
 		preserveFDs uint
@@ -72,6 +74,12 @@ var runCmd = &cobra.Command{
 func init() {
 	flags := runCmd.Flags()
 	flags.SetInterspersed(false)
+
+	flags.StringVarP(&runFlags.arch,
+		"arch",
+		"a",
+		"",
+		"Run command inside a Toolbx container for a different architecture than the host")
 
 	flags.StringVarP(&runFlags.container,
 		"container",
@@ -141,11 +149,17 @@ func run(cmd *cobra.Command, args []string) error {
 
 	command := args
 
+	archID, err := resolveArchitectureID(runFlags.arch, "")
+	if err != nil {
+		return err
+	}
+
 	container, image, release, err := resolveContainerAndImageNames(runFlags.container,
 		"--container",
 		runFlags.distro,
 		"",
-		runFlags.release)
+		runFlags.release,
+		archID)
 
 	if err != nil {
 		return err
@@ -225,7 +239,7 @@ func runCommand(container string,
 				return nil
 			}
 
-			if err := createContainer(container, image, release, "", false); err != nil {
+			if err := createContainer(container, image, release, "", architecture.GetArchConfigDefault(), false); err != nil {
 				return err
 			}
 		} else if containersCount == 1 && defaultContainer {
@@ -962,8 +976,15 @@ func showEntryPointLog(line string) error {
 	}
 
 	if !logLevelFound {
-		errMsg, _ := strings.CutPrefix(line, "Error: ")
-		return &entryPointError{errMsg}
+		// Messages sent to stderr with a 'Warning:' prefix in the entry point
+		// are propagated to stderr on the host
+		if strings.HasPrefix(line, "Warning:") {
+			fmt.Fprintf(os.Stderr, "%s\n", line)
+			return nil
+		} else {
+			errMsg, _ := strings.CutPrefix(line, "Error: ")
+			return &entryPointError{errMsg}
+		}
 	}
 
 	logger := logrus.StandardLogger()
