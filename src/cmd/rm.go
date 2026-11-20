@@ -79,6 +79,12 @@ func rm(cmd *cobra.Command, args []string) error {
 		for toolboxContainers.Next() {
 			container := toolboxContainers.Get()
 			containerID := container.ID()
+			containerName := container.Name()
+
+			if _, err := unexportAll(containerName); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+			}
+
 			if err := podman.RemoveContainer(containerID, rmFlags.forceDelete); err != nil {
 				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 				continue
@@ -104,6 +110,10 @@ func rm(cmd *cobra.Command, args []string) error {
 			if !containerObj.IsToolbx() {
 				fmt.Fprintf(os.Stderr, "Error: %s is not a Toolbx container\n", container)
 				continue
+			}
+
+			if _, err := unexportAll(containerObj.Name()); err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %s\n", err)
 			}
 
 			if err := podman.RemoveContainer(container, rmFlags.forceDelete); err != nil {
